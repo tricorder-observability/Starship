@@ -22,6 +22,7 @@ const (
 	procInfoTableName = "process_info"
 )
 
+// What's the use of this?
 var idPath = []string{"container", "id"}
 
 // PIDCollector implements the ProcessCollector gRPC service.
