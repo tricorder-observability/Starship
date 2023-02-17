@@ -1,0 +1,129 @@
+// Protobuf definition for ModuleDeployer gRPC service (part of API server).
+syntax = "proto3";
+
+package tricorder.deployer.servicepb;
+
+option go_package = "servicepb";
+
+import "src/pb/module/module.proto";
+
+// This is awkward, because agent initiates the gRPC connection, that means
+// this service has to be implemented on the API server.
+// Then API server can only receive DeployModuleReq, but in reality,
+// it should be the agent that receive DeployModuleReq.
+
+// TODO: merge ProcessCollector service into ModuleDeployer, add new gRPC(id,nodeName) register
+service ModuleDeployer {
+  // A gRPC bi-directional streaming RPC that connects between Agents and API Server.
+  // Agents would initiate the connect, once connected, agent reports its ID, and API Server maintains per-agent
+  // state, and requests eBPF+WASM data collection modules to be deployed.
+  rpc DeployModule(stream DeployModuleResp) returns (stream DeployModuleReq) {}
+}
+
+// Describe a modules's deployment status
+enum DeploymentStatus {
+    // Module is created. Has not been instructed to be deployed.
+    // This is the initial state after creating the module.
+    CREATED      = 0;
+
+    // Module is selected by users from the management web UI to be deployed.
+    // There is no action performed about the module yet.
+    TO_BE_DEPLOYED   = 1;
+
+    // After module enters the TO_BE_DEPLOYED state, API Server picks up this
+    // module and instructs agents to deploy the module, now the module's
+    // state enters DEPLOYMENT_IN_PROGRESS.
+    DEPLOYMENT_IN_PROGRESS = 2;
+
+    // Deployment has failed on agents.
+    // TODO(zhihui): The IDs of the agents that have failed to deploy this
+    // module should be recorded. It's not useful to just record a state.
+    DEPLOYMENT_FAILED  = 3;
+
+    // Deployment has succeeded.
+    // TODO(zhihui): The IDs of the agents that have failed to deploy this
+    // module should be recorded. It's not useful to just record a state.
+    DEPLOYMENT_SUCCEEDED = 4;
+
+    // Module is selected by **users** to be undeployed.
+    TO_BE_UNDEPLOYED = 5;
+
+    // Similar to DEPLOYMENT_IN_PROGRESS, after module enters TO_BE_UNDEPLOYED
+    // state, API Server picks up this module, and instructs agents to undeploy
+    // this module.
+    UNDEPLOYMENT_IN_PROGRESS = 6;
+
+    UNDEPLOYMENT_FAILED = 7;
+    UNDEPLOYMENT_SUCCEEDED = 8;
+}
+
+message DeployModuleReq {
+  // A unique ID assigned to the module
+  string ID = 1;
+
+  // A descriptive name
+  string name = 2;
+
+  // A time period for this module to be alive on
+  // the agent,
+  // so that one can deploy and forget if setting
+  // this to a finite number
+  // 0 means inifite lifetime
+  int32 life_time_second = 3;
+
+  // Describe a complete eBPF+WASM module.
+  tricorder.pb.module.Module module =7;
+
+  // The desired state for this module.
+  // UNDEPLOY means this module should be undeployed, if it's already deployed, or no-op if it's not deployed.
+  // DEPLOY means this module should be deployed, if it's not deployed yet, or no-op if it's already deployed.
+  DEPLOY_STATUS deploy = 6;
+  enum DEPLOY_STATUS {
+    UNDEPLOY = 0;
+    DEPLOY = 1;
+  }
+}
+
+message DeployModuleResp {
+  // The same ID as in DeployModuleReq.
+  string ID = 1;
+
+  // The actual status of the deployment.
+  // NOTE: Not all of the status enum makes sense for this context.
+  DeploymentStatus status = 2;
+
+  // A description that is useful for the receiver to figure out what's going on.
+  // It could be an explanation of the status, or other error situations.
+  string desc = 3;
+}
+
+service ProcessCollector {
+  rpc ReportProcess(stream ProcessWrapper) returns (stream ContainerInfo) {}
+}
+
+message ProcessWrapper {
+  oneof msg {
+    string node_name = 1;
+    ProcessInfo process = 2;
+  }
+}
+
+// Describe ProcessID(s) and container/pod relation
+message ProcessInfo {
+  repeated Process proc_list = 1;
+  ContainerInfo container = 2;
+}
+
+message Process {
+  int32 id = 1;
+  // PID create time
+  int64 create_time = 2;
+}
+
+message ContainerInfo {
+  string id = 1;
+  string name = 2;
+  string pod_uid = 3;
+  string pod_name = 4;
+  string qos_class = 5;
+}

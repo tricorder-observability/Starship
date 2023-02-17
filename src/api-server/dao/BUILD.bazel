@@ -1,0 +1,32 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+
+go_library(
+    name = "dao",
+    srcs = [
+        "grafana_api_key.go",
+        "module.go",
+        "sqlite.go",
+    ],
+    importpath = "github.com/tricorder/src/api-server/dao",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//src/utils/sqlite",
+        "@com_github_sirupsen_logrus//:logrus",
+    ],
+)
+
+go_test(
+    name = "dao_test",
+    srcs = [
+        "grafana_api_key_test.go",
+        "module_test.go",
+        "sqlite_test.go",
+    ],
+    embed = [":dao"],
+    deps = [
+        "//src/api-server/pb",
+        "//src/testing/bazel",
+        "//src/utils/uuid",
+        "@com_github_stretchr_testify//assert",
+    ],
+)

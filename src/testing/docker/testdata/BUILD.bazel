@@ -1,0 +1,21 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
+load("//:bazel/container_image.bzl", "native_go_image")
+
+package(default_visibility = ["//src:__subpackages__"])
+
+go_library(
+    name = "testdata_lib",
+    srcs = ["main.go"],
+    importpath = "github.com/tricorder/src/testing/docker/testdata",
+)
+
+go_binary(
+    name = "testdata",
+    embed = [":testdata_lib"],
+)
+
+# Use native rule to reduce image size.
+native_go_image(
+    name = "test_image",
+    binary = ":testdata",
+)

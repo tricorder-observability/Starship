@@ -1,0 +1,11 @@
+---
+- name: Install APT packages
+  import_playbook: apt.yaml
+- name: Install extra APT packages
+  import_playbook: apt_extra.yaml
+- name: Download and install packages
+  import_playbook: install.yaml
+- name: Download and install extra packages
+  import_playbook: install_extra.yaml
+- name: Remove temp dir
+  import_playbook: rm_tmp.yaml

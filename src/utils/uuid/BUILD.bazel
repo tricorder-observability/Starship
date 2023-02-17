@@ -1,0 +1,31 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+
+go_library(
+    name = "utils",
+    srcs = ["uuid.go"],
+    importpath = "github.com/tricorder/src/agent/utils",
+    visibility = ["//visibility:public"],
+    deps = ["@com_github_google_uuid//:uuid"],
+)
+
+go_test(
+    name = "utils_test",
+    srcs = ["uuid_test.go"],
+    embed = [":utils"],
+    deps = ["@com_github_stretchr_testify//assert"],
+)
+
+go_library(
+    name = "uuid",
+    srcs = ["uuid.go"],
+    importpath = "github.com/tricorder/src/utils/uuid",
+    visibility = ["//visibility:public"],
+    deps = ["@com_github_google_uuid//:uuid"],
+)
+
+go_test(
+    name = "uuid_test",
+    srcs = ["uuid_test.go"],
+    embed = [":uuid"],
+    deps = ["@com_github_stretchr_testify//assert"],
+)

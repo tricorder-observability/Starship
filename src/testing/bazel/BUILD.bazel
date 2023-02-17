@@ -1,0 +1,32 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+
+go_library(
+    name = "bazel",
+    testonly = 1,
+    srcs = ["bazel.go"],
+    importpath = "github.com/tricorder/src/testing/bazel",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//src/utils/common",
+        "//src/utils/file",
+        "@com_github_sirupsen_logrus//:logrus",
+        "@io_bazel_rules_go//go/runfiles:go_default_library",
+        "@io_bazel_rules_go//go/tools/bazel:go_default_library",
+    ],
+)
+
+filegroup(
+    name = "test_file",
+    srcs = ["test"],
+)
+
+go_test(
+    name = "bazel_test",
+    srcs = ["bazel_test.go"],
+    data = [":test_file"],
+    embed = [":bazel"],
+    deps = [
+        "//src/utils/file",
+        "@com_github_stretchr_testify//assert",
+    ],
+)

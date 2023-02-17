@@ -1,0 +1,22 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
+
+go_library(
+    name = "picohttpparser_lib",
+    srcs = [
+        "main-wasmedge.go",
+        "main-wasmtime.go",
+        "picohttpparser.h",
+    ],
+    importpath = "github.com/tricorder/experimental/wasi-sdk-cpp/picohttpparser",
+    visibility = ["//visibility:private"],
+    deps = [
+        "@com_github_bytecodealliance_wasmtime_go_v3//:wasmtime-go",
+        "@com_github_second_state_wasmedge_go//wasmedge",
+    ],
+)
+
+go_binary(
+    name = "picohttpparser",
+    embed = [":picohttpparser_lib"],
+    visibility = ["//visibility:public"],
+)

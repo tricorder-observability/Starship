@@ -1,0 +1,27 @@
+// WASM related proto messages used by API server and agent
+syntax = "proto3";
+
+package tricorder.pb.module.wasm;
+
+option go_package = "wasm";
+
+import "src/pb/module/common/common.proto";
+
+// Program describes a WASM program (in high-level languages, WAT/Wasm text
+// format, or WASM binary format).
+message Program {
+  // What format is this program.
+  tricorder.pb.module.common.Format fmt = 1;
+
+  // What language is this program.
+  // Only meaningful when fmt == TEXT
+  tricorder.pb.module.common.Lang lang = 2;
+
+  // The content of the program.
+  bytes code = 3;
+
+  // The name of the function to be invoked.
+  string fn_name = 4;
+
+  tricorder.pb.module.common.Schema output_schema = 5;
+}

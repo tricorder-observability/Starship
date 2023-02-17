@@ -1,0 +1,35 @@
+#include <linux/ptrace.h>
+
+// linux/sched.h already defines this
+#ifdef TASK_COMM_LEN
+#undef TASK_COMM_LEN
+#endif
+#define TASK_COMM_LEN 13
+
+// Copied from event.h
+// No mechanism to include header for BCC, so this has to be inlined.
+// We need to figure out a way to produce pre-processed C file.
+struct event_t {
+  float F;
+  char C;
+  double D;
+  int I;
+  long long int L;
+  short Comm[TASK_COMM_LEN];
+};
+
+BPF_PERF_OUTPUT(events);
+
+// Just writes fixed events to perf buffer.
+int sample_event(struct bpf_perf_event_data *ctx) {
+  struct event_t event = {};
+
+  event.F = 1.0;
+  event.C = 'a';
+  event.D = 3.0;
+  event.I = 10;
+  event.L = 123;
+
+  events.perf_submit(ctx, &event, sizeof(event));
+  return 0;
+}

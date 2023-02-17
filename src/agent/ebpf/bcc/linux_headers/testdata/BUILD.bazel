@@ -1,0 +1,9 @@
+package(default_visibility = ["//src:__subpackages__"])
+
+filegroup(
+    name = "kernel_configs",
+    srcs = glob([
+        "config",
+        "config.gz",
+    ]),
+)

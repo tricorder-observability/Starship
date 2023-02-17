@@ -1,0 +1,14 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
+
+go_library(
+    name = "yzhao_lib",
+    srcs = ["hello_world.go"],
+    importpath = "github.com/tricorder/experimental/yzhao",
+    visibility = ["//visibility:private"],
+)
+
+go_binary(
+    name = "yzhao",
+    embed = [":yzhao_lib"],
+    visibility = ["//visibility:public"],
+)

@@ -1,0 +1,31 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+
+go_library(
+    name = "sqlite",
+    srcs = [
+        "gorm.go",
+        "sqlite.go",
+    ],
+    importpath = "github.com/tricorder/src/utils/sqlite",
+    visibility = ["//visibility:public"],
+    deps = [
+        "@com_github_mattn_go_sqlite3//:go-sqlite3",
+        "@com_github_pkg_errors//:errors",
+        "@io_gorm_driver_sqlite//:sqlite",
+        "@io_gorm_gorm//:gorm",
+        "@org_uber_go_zap//:zap",
+    ],
+)
+
+go_test(
+    name = "sqlite_test",
+    srcs = [
+        "gorm_test.go",
+        "sqlite_test.go",
+    ],
+    embed = [":sqlite"],
+    deps = [
+        "//src/testing/bazel",
+        "@com_github_stretchr_testify//assert",
+    ],
+)

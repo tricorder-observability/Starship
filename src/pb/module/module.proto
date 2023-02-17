@@ -1,0 +1,48 @@
+// Messages for working with eBPF+WASM module.
+syntax = "proto3";
+
+package tricorder.pb.module;
+
+option go_package = "module";
+
+import "src/pb/module/ebpf/ebpf.proto";
+import "src/pb/module/wasm/wasm.proto";
+
+// Module describes a combo of eBPF+WASM:
+// 1. eBPF traces data from inside Kernel, with kprobes, uprobes, tracepoints,
+//    usdt, etc.
+// 2. WASM processes eBPF-traced data into structured data.
+message Module {
+  // A descriptive name
+  string name = 1;
+
+  // A eBPF program, which includes the actual code, and metadata describing how to deploy and access the data.
+  // For example, perf buffers, kprobe names.
+  tricorder.pb.module.ebpf.Program ebpf = 2;
+
+  // TransmissionParadigm describes how events are passed from eBPF to WASM.
+  enum TransmissionParadigm {
+    // Every event is passed from eBPF to WASM directly.
+    // WASM function expects individual events for processing.
+    PER_EVENT = 0;
+  }
+
+  // A WASM byte code program in binary format, which includes the actual binary
+  // byte code, and metadata describe how to invoke the APIs.
+  // For example, the APIs to invoke.
+  tricorder.pb.module.wasm.Program wasm = 3;
+
+  enum EncodingParadigm {
+    // Do not perform any serialization or deserialization.
+    NONE = 0;
+
+    // Use TLV encoding/decoding:
+    // https://en.wikipedia.org/wiki/Type-length-value
+    TLV = 1;
+
+    // JSON text format, which means the data can be directly wrote to the ouptut data table.
+    JSON = 2;
+  }
+  // Describes how the output of WASM is encoded.
+  EncodingParadigm wasm_output_encoding = 4;
+}

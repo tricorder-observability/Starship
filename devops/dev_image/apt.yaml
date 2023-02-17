@@ -1,0 +1,45 @@
+---
+# Install apt packages, these packages are used on github actions and local
+# workstation.
+- name: Dev machine playbook
+  hosts: localhost
+  connection: local
+  tasks:
+    - name: Install apt packages
+      apt:
+        state: latest
+        # If true, cleans the local repository of retrieved package files that
+        # can no longer be downloaded.
+        autoclean: true
+        # If true, remove unused dependency packages for all module states
+        # except build-dep. It can also be used as the only option.
+        autoremove: true
+        # Run the equivalent of apt-get clean to clear out the local repository
+        # of retrieved package files. It removes everything but the lock file
+        # from /var/cache/apt/archives/ and /var/cache/apt/archives/partial/.
+        # Only available in ansible 2.13, ubuntu provides 2.12.
+        # TODO(yzhao): Enable this once we can install newer version
+        # clean: true
+
+        # Reduce size by avoiding installing packages that aren’t technically
+        # dependencies but are recommended to be installed alongside packages.
+        install_recommends: false
+        pkg:
+          - docker.io
+          - make
+          # Needed by bazel to initialize git repository
+          - git
+          - build-essential
+          - unzip
+          - bison
+          - cmake
+          - flex
+          - libedit-dev
+          - libelf-dev
+          # Needed by Clang-10.
+          - libz3-4
+          - libz3-dev
+
+          - sudo
+          # Needed by libbcc when using BCC not in bazel
+          - libncurses5

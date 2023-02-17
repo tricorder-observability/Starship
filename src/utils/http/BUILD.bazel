@@ -1,0 +1,22 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+
+go_library(
+    name = "http",
+    srcs = [
+        "api.go",
+        "gen.go",
+    ],
+    importpath = "github.com/tricorder/src/utils/http",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//src/utils/common",
+        "@com_github_google_uuid//:uuid",
+    ],
+)
+
+go_test(
+    name = "http_test",
+    srcs = ["gen_test.go"],
+    embed = [":http"],
+    deps = ["@com_github_stretchr_testify//assert"],
+)

@@ -1,0 +1,156 @@
+// Package deployer implements the agent's logic for connecting to the API Server's ModuleDeployer service.
+package deployer
+
+import (
+	"context"
+	"fmt"
+	"io"
+
+	"golang.org/x/sync/errgroup"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
+
+	log "github.com/sirupsen/logrus"
+
+	"github.com/tricorder/src/agent/driver"
+	"github.com/tricorder/src/utils/pg"
+	"github.com/tricorder/src/utils/uuid"
+
+	pb "github.com/tricorder/src/api-server/pb"
+)
+
+type Deployer struct {
+	uuid string
+
+	// The remote API server's address. This deployer receives deployment request from the API server.
+	apiServerAddr string
+
+	// Key is the eBPF+WASM module's ID, value is the Module object.
+	// The Module object keeps track of the module's deployment state.
+	idDeployMap map[string]*driver.Module
+
+	grpcConn *grpc.ClientConn
+	client   pb.ModuleDeployerClient
+	stream   pb.ModuleDeployer_DeployModuleClient
+
+	// The client to the database instance, which is for the eBPF+WASM module to write data.
+	PGClient *pg.Client
+}
+
+func (s *Deployer) ConnectToAPIServer(apiServerAddr string) error {
+	log.Infof("connecting to API server at %s", apiServerAddr)
+
+	s.uuid = uuid.New()
+	s.apiServerAddr = apiServerAddr
+	s.idDeployMap = make(map[string]*driver.Module)
+	grpcConn, err := grpc.Dial(apiServerAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		return fmt.Errorf("failed to connect to API server at '%s', error: %v", apiServerAddr, err)
+	}
+	s.grpcConn = grpcConn
+	client := pb.NewModuleDeployerClient(grpcConn)
+	s.client = client
+	return nil
+}
+
+// InitModuleDeployLink connects with the module module deployer's stream gRPC service.
+// And sends the first message to the server to inform the server about its own identity.
+func (s *Deployer) InitModuleDeployLink() error {
+	log.Infof("initializing stream connection with ModuleDeployer at %s", s.apiServerAddr)
+
+	deployModuleStream, err := s.client.DeployModule(context.Background())
+	if err != nil {
+		return fmt.Errorf("could not open stream to DeplyModule RPC at %s, %v", s.apiServerAddr, err)
+	}
+	s.stream = deployModuleStream
+
+	resp := pb.DeployModuleResp{
+		ID: s.uuid,
+	}
+
+	err = s.stream.Send(&resp)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// StartModuleDeployLoop continuously polling server
+func (s *Deployer) StartModuleDeployLoop() error {
+	var eg errgroup.Group
+	eg.Go(func() error {
+		for {
+			in, err := s.stream.Recv()
+			if err == io.EOF {
+				return nil
+			}
+			if err != nil {
+				log.Fatalf("failed to read stream from DeplyModule(), error: %v", err)
+				return err
+			}
+
+			log.Infof("received request to deploy module. ID: [%s], Name: [%s]", in.ID, in.Name)
+			log.Debugf("received request to deploy module: %v", in)
+
+			if in.Deploy == pb.DeployModuleReq_DEPLOY {
+				err := s.deployModule(in)
+				s.replyDeployResult(in.ID, err)
+			} else if in.Deploy == pb.DeployModuleReq_UNDEPLOY {
+				err := s.undeployModlue(in)
+				s.replyDeployResult(in.ID, err)
+			}
+		}
+	})
+	return eg.Wait()
+}
+
+func (s *Deployer) Stop() {
+	err := s.stream.CloseSend()
+	if err != nil {
+		log.Errorf("failed to Close stream, error: %v", err)
+	}
+	s.grpcConn.Close()
+}
+
+func (s *Deployer) deployModule(in *pb.DeployModuleReq) error {
+	// deployer create a deployment and driver will start this deploys logical
+	deployment, err := driver.Deploy(in.Module, s.PGClient)
+	if err != nil {
+		return fmt.Errorf("while deploying module '%s', failed to deploy, error: %v", in.ID, err)
+	}
+	s.idDeployMap[in.ID] = deployment
+
+	go deployment.StartPoll()
+	return nil
+}
+
+// undeploy
+func (s *Deployer) undeployModlue(in *pb.DeployModuleReq) error {
+	d, ok := s.idDeployMap[in.ID]
+	if !ok {
+		return fmt.Errorf("while undeploying module ID '%s', could not find deployment record", in.ID)
+	}
+
+	log.Infof("Prepare undeploy module [ID: %s], [Name: %s]", in.ID, d.Name())
+
+	d.Undeploy()
+	delete(s.idDeployMap, in.ID)
+	return nil
+}
+
+func (s *Deployer) replyDeployResult(id string, deploymentErr error) {
+	resp := pb.DeployModuleResp{
+		ID:     id,
+		Status: pb.DeploymentStatus_DEPLOYMENT_SUCCEEDED,
+	}
+
+	if deploymentErr != nil {
+		resp.Status = pb.DeploymentStatus_DEPLOYMENT_FAILED
+		resp.Desc = deploymentErr.Error()
+	}
+
+	sendErr := s.stream.Send(&resp)
+	if sendErr != nil {
+		log.Errorf("reply deploy result error: %v", sendErr)
+	}
+}

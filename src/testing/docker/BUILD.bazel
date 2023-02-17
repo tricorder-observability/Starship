@@ -1,0 +1,32 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+
+go_library(
+    name = "docker",
+    testonly = 1,
+    srcs = [
+        "cli.go",
+        "runner.go",
+    ],
+    importpath = "github.com/tricorder/src/testing/docker",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//src/utils/common",
+        "//src/utils/exec",
+        "//src/utils/timer",
+        "@com_github_sirupsen_logrus//:logrus",
+    ],
+)
+
+go_test(
+    name = "docker_test",
+    srcs = [
+        "cli_test.go",
+        "runner_test.go",
+    ],
+    data = ["//src/testing/docker/testdata:test_image.tar"],
+    embed = [":docker"],
+    deps = [
+        "//src/testing/bazel",
+        "@com_github_stretchr_testify//assert",
+    ],
+)

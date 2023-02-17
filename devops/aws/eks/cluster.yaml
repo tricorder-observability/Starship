@@ -1,0 +1,15 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: dev-cluster-{{USER}}
+  region: ap-southeast-1
+
+nodeGroups:
+  - name: ng-1
+    instanceType: m5a.large
+    desiredCapacity: 3
+    volumeSize: 128
+    ssh:
+      allow: true
+      publicKeyPath: ~/.ssh/id_ed25519.pub

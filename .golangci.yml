@@ -1,0 +1,66 @@
+---
+# Config file for golangci-lint, placed here so local run of golangci-lint
+# can find this config file.
+#
+# Super-linter uses a symbol-linked file under .github/linter/.golangci.yml
+run:
+  allow-parallel-runners: true
+  timeout: 6m
+  skip-dirs:
+  - bazel
+  - devops
+  - docs
+  - experimental
+  - home
+  - tools
+  - ui
+  - src/agent/wasm/programs
+
+output:
+  sort-results: true
+
+issues:
+  max-issues-per-linter: 0
+  max-same-issues: 0
+
+linters:
+  disable-all: true
+  enable:
+  - asciicheck
+  - errcheck
+  - gofumpt
+  - gofmt
+  - gosimple
+  - govet
+  - ineffassign
+  - makezero
+  - misspell
+  - nakedret
+  - nolintlint
+  - nonamedreturns
+  - predeclared
+  - staticcheck
+  - unused
+  - lll
+  - whitespace
+  - goimports
+  - revive
+
+linters-settings:
+  errcheck:
+    check-type-assertions: true
+  goimports:
+    local-prefixes: github.com/tricorder
+  nakedret:
+    max-func-lines: 0
+  revive:
+    rules:
+      # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#package-comments
+      - name: package-comments
+        severity: error
+  lll:
+    # max line length, lines longer will be reported. Default is 120.
+    # '\t' is counted as 1 character by default, and can be changed with the tab-width option
+    line-length: 120
+    # Tab width in spaces.
+    tab-width: 2

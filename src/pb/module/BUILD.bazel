@@ -1,0 +1,31 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+load("@io_bazel_rules_go//proto:def.bzl", "go_proto_library")
+load("@rules_proto//proto:defs.bzl", "proto_library")
+
+proto_library(
+    name = "module_proto",
+    srcs = ["module.proto"],
+    visibility = ["//visibility:public"],
+    deps = [
+        "//src/pb/module/ebpf:ebpf_proto",
+        "//src/pb/module/wasm:wasm_proto",
+    ],
+)
+
+go_proto_library(
+    name = "module_go_proto",
+    importpath = "github.com/tricorder/src/pb/module",
+    proto = ":module_proto",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//src/pb/module/ebpf",
+        "//src/pb/module/wasm",
+    ],
+)
+
+go_library(
+    name = "module",
+    embed = [":module_go_proto"],
+    importpath = "github.com/tricorder/src/pb/module",
+    visibility = ["//visibility:public"],
+)

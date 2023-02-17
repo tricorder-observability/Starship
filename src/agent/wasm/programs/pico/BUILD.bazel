@@ -1,0 +1,6 @@
+package(default_visibility = ["//src/agent/wasm:__subpackages__"])
+
+filegroup(
+    name = "pico_wasm",
+    srcs = ["pico.wasm"],
+)

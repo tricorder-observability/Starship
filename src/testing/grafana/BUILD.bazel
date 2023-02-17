@@ -1,0 +1,12 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "grafana",
+    testonly = 1,
+    srcs = ["fixture.go"],
+    importpath = "github.com/tricorder/src/testing/grafana",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//src/testing/docker",
+    ],
+)

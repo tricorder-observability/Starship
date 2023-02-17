@@ -1,0 +1,6 @@
+package(default_visibility = ["//src/agent:__subpackages__"])
+
+filegroup(
+    name = "all_bpf_c",
+    srcs = glob(["*.bpf.c"]),
+)

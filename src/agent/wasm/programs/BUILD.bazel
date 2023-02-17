@@ -1,0 +1,11 @@
+package(default_visibility = ["//src/agent/wasm:__subpackages__"])
+
+filegroup(
+    name = "wasm",
+    srcs = glob(["*.wasm"]),
+)
+
+filegroup(
+    name = "wat",
+    srcs = glob(["*.wat"]),
+)

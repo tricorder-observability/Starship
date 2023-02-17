@@ -1,0 +1,4 @@
+# Bazel doesn't try to identify any packages under the directories, but the
+# files can still be referenced in other BUILD files.
+
+experimental/

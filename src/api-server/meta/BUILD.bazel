@@ -1,0 +1,46 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+
+go_library(
+    name = "meta",
+    srcs = [
+        "meta.go",
+        "resource_watcher.go",
+        "utils.go",
+    ],
+    importpath = "github.com/tricorder/src/api-server/meta",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//src/utils/pg",
+        "//src/utils/retry",
+        "@com_github_sirupsen_logrus//:logrus",
+        "@io_k8s_api//apps/v1:apps",
+        "@io_k8s_api//core/v1:core",
+        "@io_k8s_apimachinery//pkg/apis/meta/v1:meta",
+        "@io_k8s_apimachinery//pkg/runtime",
+        "@io_k8s_apimachinery//pkg/types",
+        "@io_k8s_client_go//informers",
+        "@io_k8s_client_go//kubernetes",
+        "@io_k8s_client_go//tools/cache",
+        "@org_golang_x_sync//errgroup",
+    ],
+)
+
+go_test(
+    name = "meta_test",
+    srcs = ["meta_test.go"],
+    embed = [":meta"],
+    deps = [
+        "//src/testing/pg",
+        "@com_github_stretchr_testify//assert",
+        "@com_github_stretchr_testify//require",
+        "@io_k8s_api//apps/v1:apps",
+        "@io_k8s_api//core/v1:core",
+        "@io_k8s_apimachinery//pkg/apis/meta/v1:meta",
+        "@io_k8s_apimachinery//pkg/runtime",
+        "@io_k8s_apimachinery//pkg/runtime/serializer/json",
+        "@io_k8s_apimachinery//pkg/types",
+        "@io_k8s_client_go//kubernetes",
+        "@io_k8s_client_go//kubernetes/fake",
+        "@io_k8s_sigs_controller_runtime//:controller-runtime",
+    ],
+)

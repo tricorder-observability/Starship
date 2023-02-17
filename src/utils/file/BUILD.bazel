@@ -1,0 +1,18 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+
+go_library(
+    name = "file",
+    srcs = ["file.go"],
+    importpath = "github.com/tricorder/src/utils/file",
+    visibility = ["//visibility:public"],
+)
+
+go_test(
+    name = "file_test",
+    srcs = ["file_test.go"],
+    embed = [":file"],
+    deps = [
+        "@com_github_stretchr_testify//assert",
+        "@io_bazel_rules_go//go/tools/bazel:go_default_library",
+    ],
+)

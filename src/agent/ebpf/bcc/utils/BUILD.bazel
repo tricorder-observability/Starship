@@ -1,0 +1,20 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+
+go_library(
+    name = "utils",
+    srcs = ["probe_cleaner.go"],
+    importpath = "github.com/tricorder/src/agent/ebpf/bcc/utils",
+    visibility = ["//visibility:public"],
+    deps = ["//src/utils/file"],
+)
+
+go_test(
+    name = "utils_test",
+    srcs = ["probe_cleaner_test.go"],
+    embed = [":utils"],
+    deps = [
+        "//src/testing/bazel",
+        "//src/utils/file",
+        "@com_github_stretchr_testify//assert",
+    ],
+)

@@ -1,0 +1,57 @@
+// WASM related proto messages used by API server and agent
+syntax = "proto3";
+
+package tricorder.pb.module.common;
+
+option go_package = "common";
+
+// Describes format of a piece of content.
+enum Format {
+  // Text format, for example high-level languages like C/C++, Go, etc.; or
+  // other forms of text format like JSON.
+  TEXT = 0;
+
+  // Binary format, usually compiled binary format, like WASM or eBPF object
+  // file format.
+  BINARY = 1;
+}
+
+// Describes different kinds of high-level languages
+enum Lang {
+  // C language
+  C = 0;
+
+  // WASM text format
+  WAT = 1;
+}
+
+// Describes a single output field
+// This types directly corresponds to Postgres data types
+message DataField {
+  // The name of this field
+  string name = 1;
+
+  // Describes type of scalar values, directly corresponds to postgres data types
+  // https://www.postgresql.org/docs/current/datatype.html
+  // Only support a subset.
+  enum Type {
+    BOOL    = 0;
+    DATE    = 1;
+    INT     = 2;
+    INTEGER = 3;
+    JSON    = 4;
+    JSONB   = 5;
+    TEXT    = 6;
+  }
+  // The type of this field
+  Type type = 2;
+}
+
+// Describes the output table for writing the data.
+message Schema {
+  // The name of the table.
+  string name = 1;
+
+  // Describes the name and type of all fields.
+  repeated DataField fields = 2;
+}

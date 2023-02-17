@@ -1,0 +1,57 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+
+go_library(
+    name = "grpc",
+    srcs = [
+        "deployer.go",
+        "pid_collector.go",
+    ],
+    importpath = "github.com/tricorder/src/api-server/grpc",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//src/api-server/dao",
+        "//src/api-server/pb",
+        "//src/pb/module",
+        "//src/pb/module/common",
+        "//src/pb/module/ebpf",
+        "//src/pb/module/wasm",
+        "//src/utils/channel",
+        "//src/utils/pg",
+        "//src/utils/retry",
+        "@com_github_sirupsen_logrus//:logrus",
+        "@io_k8s_api//core/v1:core",
+        "@io_k8s_apimachinery//pkg/apis/meta/v1:meta",
+        "@io_k8s_client_go//informers",
+        "@io_k8s_client_go//kubernetes",
+        "@io_k8s_client_go//tools/cache",
+        "@org_golang_google_protobuf//encoding/protojson",
+        "@org_golang_x_sync//errgroup",
+    ],
+)
+
+go_test(
+    name = "grpc_test",
+    srcs = [
+        "deployer_test.go",
+        "pid_collector_test.go",
+    ],
+    embed = [":grpc"],
+    deps = [
+        "//src/api-server/dao",
+        "//src/api-server/pb",
+        "//src/api-server/testing",
+        "//src/testing/pg",
+        "//src/utils/channel",
+        "//src/utils/sqlite",
+        "@com_github_mattn_go_sqlite3//:go-sqlite3",
+        "@com_github_sirupsen_logrus//:logrus",
+        "@com_github_stretchr_testify//assert",
+        "@com_github_stretchr_testify//require",
+        "@io_k8s_api//core/v1:core",
+        "@io_k8s_apimachinery//pkg/apis/meta/v1:meta",
+        "@io_k8s_apimachinery//pkg/types",
+        "@io_k8s_client_go//kubernetes/fake",
+        "@org_golang_google_grpc//:go_default_library",
+        "@org_golang_google_grpc//credentials/insecure",
+    ],
+)

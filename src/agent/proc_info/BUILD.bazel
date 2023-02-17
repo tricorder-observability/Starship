@@ -1,0 +1,31 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+
+package(default_visibility = ["//src/agent:__subpackages__"])
+
+go_library(
+    name = "proc_info",
+    srcs = ["pid_collector.go"],
+    importpath = "github.com/tricorder/src/agent/proc_info",
+    deps = [
+        "//src/api-server/pb",
+        "//src/utils/file",
+        "//src/utils/retry",
+        "@com_github_shirou_gopsutil//process",
+        "@com_github_sirupsen_logrus//:logrus",
+        "@org_golang_google_grpc//:go_default_library",
+        "@org_golang_google_grpc//credentials/insecure",
+    ],
+)
+
+go_test(
+    name = "proc_info_test",
+    srcs = ["pid_collector_test.go"],
+    embed = [":proc_info"],
+    deps = [
+        "//src/api-server/pb",
+        "//src/testing/bazel",
+        "//src/utils/file",
+        "@com_github_stretchr_testify//assert",
+        "@com_github_stretchr_testify//require",
+    ],
+)

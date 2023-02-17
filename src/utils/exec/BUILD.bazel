@@ -1,0 +1,18 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+
+go_library(
+    name = "exec",
+    srcs = [
+        "command.go",
+        "run.go",
+    ],
+    importpath = "github.com/tricorder/src/utils/exec",
+    visibility = ["//visibility:public"],
+    deps = ["@com_github_sirupsen_logrus//:logrus"],
+)
+
+go_test(
+    name = "exec_test",
+    srcs = ["command_test.go"],
+    embed = [":exec"],
+)

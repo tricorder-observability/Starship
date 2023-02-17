@@ -1,0 +1,19 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+
+go_library(
+    name = "sys",
+    testonly = 1,
+    srcs = [
+        "env_var.go",
+        "stdout.go",
+    ],
+    importpath = "github.com/tricorder/src/testing/sys",
+    visibility = ["//visibility:public"],
+    deps = ["@com_github_sirupsen_logrus//:logrus"],
+)
+
+go_test(
+    name = "sys_test",
+    srcs = ["env_var_test.go"],
+    embed = [":sys"],
+)

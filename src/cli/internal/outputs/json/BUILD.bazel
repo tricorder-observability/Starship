@@ -1,0 +1,20 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+
+go_library(
+    name = "json",
+    srcs = ["json.go"],
+    importpath = "github.com/tricorder/src/cli/internal/outputs/json",
+    visibility = ["//src/cli:__subpackages__"],
+    deps = ["//src/cli/internal/model"],
+)
+
+go_test(
+    name = "json_test",
+    srcs = ["json_test.go"],
+    embed = [":json"],
+    deps = [
+        "//src/cli/internal/model",
+        "//src/testing/sys",
+        "@com_github_stretchr_testify//assert",
+    ],
+)

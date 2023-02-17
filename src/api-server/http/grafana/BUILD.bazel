@@ -1,0 +1,25 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+
+go_library(
+    name = "grafana",
+    srcs = [
+        "auth_token.go",
+        "dashboard.go",
+        "datasource.go",
+        "global.go",
+    ],
+    importpath = "github.com/tricorder/src/api-server/http/grafana",
+    visibility = ["//visibility:public"],
+)
+
+go_test(
+    name = "grafana_test",
+    srcs = ["grafana_test.go"],
+    embed = [":grafana"],
+    tags = ["manual"],
+    deps = [
+        "//src/testing/grafana",
+        "@com_github_stretchr_testify//assert",
+        "@com_github_stretchr_testify//require",
+    ],
+)

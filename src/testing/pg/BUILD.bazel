@@ -1,0 +1,21 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+load("//:bazel/container_image.bzl", "container_image")
+
+container_image(
+    name = "postgres",
+    base = "@postgres//image",
+)
+
+go_library(
+    name = "pg",
+    testonly = 1,
+    srcs = ["fixture.go"],
+    data = [":postgres.tar"],
+    importpath = "github.com/tricorder/src/testing/pg",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//src/testing/bazel",
+        "//src/testing/docker",
+        "//src/utils/pg",
+    ],
+)

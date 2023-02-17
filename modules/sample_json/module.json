@@ -1,0 +1,29 @@
+{
+    "name":"sample_json_module",
+    "wasm":{
+        "code":"",
+        "fn_name":"copy_input_to_output",
+        "output_schema":{
+            "name":"",
+            "fields":[
+                {
+                    "name":"data",
+                    "type": 5
+                }
+            ]
+        }
+    },
+    "ebpf":{
+        "code":"",
+        "perf_buffer_name":"events",
+        "probes":[
+            {
+                "sample_period_nanos": 100000000,
+                "target":"",
+                "entry":"sample_json",
+                "return":"",
+                "type": 1
+            }
+        ]
+    }
+}

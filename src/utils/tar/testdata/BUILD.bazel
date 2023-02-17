@@ -1,0 +1,11 @@
+package(default_visibility = ["//src:__subpackages__"])
+
+filegroup(
+    name = "test_tar_gz",
+    srcs = ["test.tar.gz"],
+)
+
+filegroup(
+    name = "wrong_file_format_tar_gz",
+    srcs = ["wrong_file_format.tar.gz"],
+)

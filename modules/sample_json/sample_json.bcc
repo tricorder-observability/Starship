@@ -1,0 +1,10 @@
+#include <linux/ptrace.h>
+
+BPF_PERF_OUTPUT(events);
+
+// Writes a fixed JSON string to perf buffer.
+int sample_json(struct bpf_perf_event_data *ctx) {
+  const char word[] = "{\"name\":\"John\", \"age\":30}";
+  events.perf_submit(ctx, (void *)word, sizeof(word));
+  return 0;
+}

@@ -1,0 +1,76 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library", "go_test")
+load("//:bazel/container_image.bzl", "container_image", "container_push", "go_image", "pkg_tar")
+
+go_library(
+    name = "cmd_lib",
+    srcs = ["main.go"],
+    importpath = "github.com/tricorder/src/api-server/cmd",
+    visibility = ["//visibility:private"],
+    deps = [
+        "//src/api-server/dao",
+        "//src/api-server/grpc",
+        "//src/api-server/http",
+        "//src/api-server/meta",
+        "//src/api-server/pb",
+        "//src/utils/pg",
+        "//src/utils/retry",
+        "@com_github_pkg_errors//:errors",
+        "@com_github_sirupsen_logrus//:logrus",
+        "@io_k8s_client_go//kubernetes",
+        "@io_k8s_sigs_controller_runtime//:controller-runtime",
+        "@org_golang_google_grpc//:go_default_library",
+        "@org_golang_x_sync//errgroup",
+    ],
+)
+
+go_binary(
+    name = "api-server",
+    embed = [":cmd_lib"],
+    static = "on",
+    visibility = ["//visibility:public"],
+)
+
+go_image(
+    name = "api-server_base_image",
+    binary = ":api-server",
+)
+
+pkg_tar(
+    name = "tricorder_db_tar",
+    srcs = ["//src/api-server/http:tricorder_db"],
+    mode = "0644",
+    package_dir = "/tricorder/http",
+)
+
+container_image(
+    name = "api-server_image",
+    base = ":api-server_base_image",
+    tars = [":tricorder_db_tar"],
+)
+
+go_test(
+    name = "cmd_test",
+    srcs = ["api_server_image_test.go"],
+    data = [":api-server_image.tar"],
+    embed = [":cmd_lib"],
+    tags = ["manual"],
+    deps = [
+        "//src/testing/bazel",
+        "//src/testing/docker",
+        "@com_github_stretchr_testify//assert",
+    ],
+)
+
+container_push(
+    name = "push_api-server_image",
+    format = "Docker",
+    image = ":api-server_image",
+    # Need to login with docker first
+    # aws ecr-public get-login-password --region us-east-1 |\
+    #     docker login --username AWS --password-stdin public.ecr.aws/tricorder
+    # aws ecr-public create-repository --repository-name api-server
+    registry = "public.ecr.aws/tricorder",
+    repository = "api-server",
+    # Use bazel run --define=TAG=v0.0.x to set this value.
+    tag = "$(TAG)",
+)

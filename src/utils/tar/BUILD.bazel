@@ -1,0 +1,24 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+
+go_library(
+    name = "tar",
+    srcs = ["tar.go"],
+    importpath = "github.com/tricorder/src/utils/tar",
+    visibility = ["//visibility:public"],
+    deps = ["//src/utils/file"],
+)
+
+go_test(
+    name = "tar_test",
+    srcs = ["tar_test.go"],
+    data = [
+        "//src/utils/tar/testdata:test_tar_gz",
+        "//src/utils/tar/testdata:wrong_file_format_tar_gz",
+    ],
+    embed = [":tar"],
+    deps = [
+        "//src/testing/bazel",
+        "//src/utils/file",
+        "@com_github_stretchr_testify//assert",
+    ],
+)

@@ -1,0 +1,47 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+
+package(default_visibility = ["//src/agent:__subpackages__"])
+
+go_library(
+    name = "driver",
+    srcs = [
+        "data_buffer.go",
+        "module.go",
+        "queue.go",
+    ],
+    importpath = "github.com/tricorder/src/agent/driver",
+    deps = [
+        "//src/agent/ebpf/bcc",
+        "//src/agent/wasm",
+        "//src/pb/module",
+        "//src/utils/pg",
+        "@com_github_enriquebris_goconcurrentqueue//:goconcurrentqueue",
+        "@com_github_pkg_errors//:errors",
+        "@com_github_sirupsen_logrus//:logrus",
+    ],
+)
+
+go_test(
+    name = "driver_test",
+    srcs = [
+        "module_test.go",
+        "queue_test.go",
+    ],
+    data = [
+        "//modules/sample_event:module",
+        "//modules/sample_json:module",
+    ],
+    embed = [":driver"],
+    tags = ["bpf"],
+    deps = [
+        "//src/agent/ebpf/bcc/linux_headers",
+        "//src/pb/module",
+        "//src/pb/module/common",
+        "//src/pb/module/ebpf",
+        "//src/pb/module/wasm",
+        "//src/testing/bazel",
+        "//src/testing/timescaledb",
+        "@com_github_stretchr_testify//assert",
+        "@com_github_stretchr_testify//require",
+    ],
+)

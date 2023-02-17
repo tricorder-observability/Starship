@@ -1,0 +1,35 @@
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
+
+# Bazel
+bazel-*
+.ijwb
+
+# clang compile output
+*.d
+
+# Package files
+*.deb
+
+# Helm
+k8s/collector/charts
+
+# goland
+.idea/
+
+# UI build output directory
+/ui/dist
+
+# chef
+chef_guid
+local-mode-cache
+
+# vim
+.swp

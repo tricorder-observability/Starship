@@ -1,0 +1,28 @@
+load("@bazel_gazelle//:def.bzl", "gazelle")
+load("@com_github_bazelbuild_buildtools//buildifier:def.bzl", "buildifier")
+
+# See https://github.com/bazelbuild/bazel-gazelle#running-gazelle-with-bazel for
+# setup instructions. To update deps, run `scripts/gazelle.sh`
+
+# Instructs gazelle to ignore the following paths
+# Keep this consistent with .bazelignore
+#
+# gazelle:exclude experimental/**/*
+
+# Most of Gazelle's command-line arguments can be expressed as special comments
+# in build files. Copy this line into your root build files to avoid having to
+# type -go_prefix every time.
+# gazelle:prefix github.com/tricorder
+# gazelle:build_file_name BUILD.bazel
+
+gazelle(name = "gazelle")
+
+# Buildifier rule, run with tools/scripts/buildifier.sh
+buildifier(
+    name = "buildifier",
+    exclude_patterns = [
+        "./experimental/**/*",
+    ],
+    lint_mode = "fix",
+    lint_warnings = ["all"],
+)

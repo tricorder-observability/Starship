@@ -1,0 +1,69 @@
+# See doc at: https://bazel.build/run/bazelrc
+
+# https://github.com/tensorflow/models/issues/195#issuecomment-620936740
+startup --host_jvm_args=-Xmx8192m
+startup --batch_cpu_scheduling
+startup --io_nice_level 7
+build --jobs 32
+build --local_ram_resources=HOST_RAM*0.5
+test --jobs 32
+
+build --config=clang
+
+# https://app.buildbuddy.io/docs/setup
+# Enable cache and full cache option
+build:github-actions --config=clang
+build:github-actions --bes_results_url=https://app.buildbuddy.io/invocation/
+build:github-actions --bes_backend=grpcs://remote.buildbuddy.io
+build:github-actions --remote_cache=grpcs://remote.buildbuddy.io
+build:github-actions --remote_timeout=3600
+
+# This is to flush bazel cache for new version of clang/gcc.
+build --action_env=CLANG_COMPILER_VERSION=14.0_0
+build --host_action_env=CLANG_COMPILER_VERSION=14.0_0
+
+# This causes binaries not available locally since it's cached remotely.
+# https://github.com/tricorder-observability/dev-env/issues/1
+# See this for a potential fix
+# build --remote_download_minimal
+
+build:clang --action_env=CC
+build:clang --host_action_env=CC
+build:clang --action_env=CXX
+build:clang --host_action_env=CXX
+
+# Build for Clang
+build:clang --linkopt -fuse-ld=lld
+build:clang --host_linkopt -fuse-ld=lld
+build:clang --action_env=BAZEL_LINKLIBS=-l%:libstdc++.a
+build:clang --host_action_env=BAZEL_LINKLIBS=-l%:libstdc++.a
+build:clang --action_env=BAZEL_LINKOPTS=-lm:-static-libgcc
+build:clang --host_action_env=BAZEL_LINKOPTS=-lm:-static-libgcc
+
+# We need this to ensure that external projects are built with
+# C++17 support. This is needed in some libraries like absl which
+# have different behavior with C++17.
+build:clang --action_env=BAZEL_CXXOPTS=-std=c++17:-fPIC
+build:clang --host_action_env=BAZEL_CXXOPTS=-std=c++17:-fPIC
+build:clang --action_env=BAZEL_COMPILER=clang
+build:clang --host_action_env=BAZEL_COMPILER=clang
+build:clang --action_env=CC=clang
+build:clang --host_action_env=CC=clang
+build:clang --action_env=CXX=clang++
+build:clang --host_action_env=CXX=clang++
+
+test --test_tag_filters=-bpf,-disabled
+
+# https://bazel.build/reference/command-line-reference#flag--remote_download_minimal
+test --remote_download_minimal
+
+# Force all test to print detailed output.
+test --test_arg=-test.v
+test --test_output=all
+
+test:bpf --test_tag_filters=bpf,-disabled --strategy=TestRunner=standalone
+
+# https://bazel.build/reference/command-line-reference#flag--remote_download_outputs
+# TODO(yzhao): Default is all, but removing this causes some push_image rule
+# fails to run.
+run --remote_download_outputs=all

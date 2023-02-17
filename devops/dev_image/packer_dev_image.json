@@ -1,0 +1,56 @@
+{
+  "builders": [
+    {
+      "changes": [
+        "ENV PATH /opt/tricorder/lib/clang-14.0/bin:/opt/tricorder/golang/bin:/opt/tricorder/go/bin:/opt/tricorder/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+        "ENV LD_LIBRARY_PATH /opt/tricorder/lib/clang-14.0/lib",
+        "ENV GOPATH /opt/tricorder/go",
+        "ENV CC clang",
+        "ENV CXX clang++",
+        "WORKDIR /starship",
+        "ENTRYPOINT [\"zsh\"]"
+      ],
+      "commit": true,
+      "image": "{{ user `base_image_and_tag` }}",
+      "type": "docker"
+    }
+  ],
+  "post-processors": [
+    [
+      {
+        "repository": "{{ user `generated_image_repository` }}",
+        "tags": [
+          "{{ user `generated_image_tag` }}"
+        ],
+        "type": "docker-tag"
+      },
+      "docker-push"
+    ]
+  ],
+  "provisioners": [
+    {
+      "inline": [
+        "apt-get -y update; DEBIAN_FRONTEND=noninteractive apt-get install -y ansible-core"
+      ],
+      "type": "shell"
+    },
+    {
+      "type": "ansible-local",
+      "playbook_file": "./dev.yaml",
+      "playbook_dir": "."
+    },
+    {
+      "inline": [
+        "rm -rf /tmp/*",
+        "rm -rf /root/.npm",
+        "rm -rf /var/lib/apt/lists/*"
+      ],
+      "type": "shell"
+    }
+  ],
+  "variables": {
+    "base_image_and_tag": "",
+    "generated_image_repository": "",
+    "generated_image_tag": ""
+  }
+}

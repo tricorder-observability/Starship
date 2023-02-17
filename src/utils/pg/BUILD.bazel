@@ -1,0 +1,39 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+
+go_library(
+    name = "pg",
+    srcs = [
+        "client.go",
+        "column.go",
+        "schemas.go",
+        "utils.go",
+    ],
+    importpath = "github.com/tricorder/src/utils/pg",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//src/pb/module/common",
+        "@com_github_jackc_pgx_v5//:pgx",
+        "@com_github_jackc_pgx_v5//pgxpool",
+        "@com_github_sirupsen_logrus//:logrus",
+    ],
+)
+
+go_test(
+    name = "pg_test",
+    srcs = [
+        "client_test.go",
+        "column_test.go",
+        "schemas_test.go",
+        "utils_test.go",
+    ],
+    embed = [":pg"],
+    flaky = True,
+    deps = [
+        "//src/testing/docker",
+        "@com_github_sirupsen_logrus//:logrus",
+        "@com_github_stretchr_testify//assert",
+        "@com_github_stretchr_testify//require",
+        "@io_k8s_apimachinery//pkg/apis/meta/v1:meta",
+        "@io_k8s_apimachinery//pkg/types",
+    ],
+)

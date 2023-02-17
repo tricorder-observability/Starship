@@ -1,0 +1,92 @@
+---
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: http-echo
+  labels:
+    name: http-echo
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: http-echo
+  name: http-echo-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.tricorder.dev: http-echo-server
+  template:
+    metadata:
+      labels:
+        app.tricorder.dev: http-echo-server
+    spec:
+      containers:
+      - name: http-echo-server
+        image: hashicorp/http-echo
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 5678
+        args: ["--text=\"Hello world!\""]
+        resources:
+          limits:
+            memory: 512Mi
+          requests:
+            cpu: 10m
+            memory: 100Mi
+      - name: adapter
+        args: ['-pg_url=postgres://postgres:tricorder@timescaledb.tricorder.svc.cluster.local:5432/tricorder', '-gen_frequency=1']
+        image: public.ecr.aws/tricorder/http-gen:0.0.2
+        imagePullPolicy: Always
+        resources:
+          limits:
+            cpu: "1"
+            memory: "100Mi"
+          requests:
+            cpu: "100m"
+            memory: "16Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: http-echo
+  name: http-echo-server
+  labels:
+    app.tricorder.dev: http-echo-server
+spec:
+  selector:
+    app.tricorder.dev: http-echo-server
+  ports:
+  - protocol: "TCP"
+    port: 5678
+    targetPort: 5678
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: client
+  labels:
+    name: client
+  namespace: http-echo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: client
+  template:
+    metadata:
+      labels:
+        name: client
+    spec:
+      containers:
+      - name: client
+        image: curlimages/curl:latest
+        command: ["sh"]
+        args: ["-c", "while true; do curl -s http-echo-server:5678; sleep 1; done"]
+        imagePullPolicy: Always
+        resources:
+          limits:
+            memory: 512Mi
+          requests:
+            cpu: 10m
+            memory: 100Mi

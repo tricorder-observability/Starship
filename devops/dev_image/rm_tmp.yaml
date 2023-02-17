@@ -1,0 +1,11 @@
+---
+- name: Dev machine playbook
+  hosts: localhost
+  connection: local
+  vars:
+    tmp_dir: /tmp/tricorder
+  tasks:
+    - name: Remove temporary files
+      file:
+        state: absent
+        path: "{{ tmp_dir }}"

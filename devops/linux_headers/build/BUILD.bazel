@@ -1,0 +1,14 @@
+package(default_visibility = ["//src:__subpackages__"])
+
+genrule(
+    name = "download_linux_headers_from_s3",
+    # Because genrule caches the downloaded file, even if the remote file on s3
+    # has been updated, this genrule wont rebuild if the file is present in the
+    # local cache.
+    #
+    # To force rebuild, just make a meaningless change to KERNEL_VERSIONS.
+    # This allows we force rebuild kernel versions after updating
+    srcs = ["KERNEL_VERSIONS"],
+    outs = ["linux-headers.tar.gz"],
+    cmd = "aws s3 cp s3://tricorder-dev/linux-headers.tar.gz $(OUTS)",
+)

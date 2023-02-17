@@ -1,0 +1,22 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
+
+go_library(
+    name = "socket-tracer_lib",
+    srcs = [
+        "main.go",
+        # Need to embed this into Golang binary
+        "socket_trace.c",
+    ],
+    cgo = True,
+    importpath = "github.com/tricorder/experimental/socket-tracer",
+    visibility = ["//visibility:private"],
+    deps = [
+        "@com_github_iovisor_gobpf//bcc",
+    ],
+)
+
+go_binary(
+    name = "socket-tracer",
+    embed = [":socket-tracer_lib"],
+    visibility = ["//visibility:public"],
+)

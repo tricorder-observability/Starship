@@ -1,0 +1,19 @@
+---
+# https://stackoverflow.com/a/60107468
+# TODO(yaxiong): Add profiles for skaffold.
+apiVersion: skaffold/v2beta28
+kind: Config
+metadata:
+  name: starship
+build:
+  artifacts:
+  - image: public.ecr.aws/tricorder/agent
+    bazel:
+      target: //src/agent/cmd:agent_image.tar
+  - image: public.ecr.aws/tricorder/api-server
+    bazel:
+      target: //src/api-server/cmd:api-server_image.tar
+deploy:
+  kubectl:
+    manifests:
+    - tools/skaffold/deployment.yaml

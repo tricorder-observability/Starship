@@ -1,0 +1,21 @@
+--- bcc/BUILD.bazel	2022-12-08 15:05:16.932948155 -0800
++++ bcc/BUILD.bazel	2022-12-08 15:02:22.106957894 -0800
+@@ -9,7 +9,6 @@
+         "table.go",
+     ],
+     cgo = True,
+-    clinkopts = ["-lbcc"],
+     copts = ["-I/usr/include/bcc/compat"],
+     importpath = "github.com/iovisor/gobpf/bcc",
+     visibility = ["//visibility:public"],
+@@ -17,6 +16,10 @@
+         "//pkg/cpuonline",
+         "//pkg/cpupossible",
+     ],
++    cdeps = [
++        "@com_github_iovisor_bcc//:bcc",
++        "@llvm//:llvm",
++    ],
+ )
+ 
+ alias(

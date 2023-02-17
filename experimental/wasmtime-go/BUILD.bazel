@@ -1,0 +1,23 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
+
+go_library(
+    name = "wasmtime-go_lib",
+    srcs = [
+        "hello-multi-args.go",
+        "hello-world.go",
+    ],
+    importpath = "github.com/tricorder/experimental/wasmtime-go",
+    visibility = ["//visibility:private"],
+    # gazelle keeps adding :wasmtime-go which does not exist, use keep to
+    # suppress gazelle from updating this section.
+    # keep
+    deps = [
+        "@com_github_bytecodealliance_wasmtime_go_v3//:go_default_library",
+    ],
+)
+
+go_binary(
+    name = "wasmtime-go",
+    embed = [":wasmtime-go_lib"],
+    visibility = ["//visibility:public"],
+)

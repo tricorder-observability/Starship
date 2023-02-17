@@ -1,0 +1,131 @@
+---
+# Various packages need to be downloaded and installed
+# TODO(yaxiong): Add kubectl installation
+# https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/#install-kubectl-binary-with-curl-on-linux
+- name: Dev machine playbook
+  hosts: localhost
+  connection: local
+  vars:
+    tmp_dir: /tmp/tricorder
+    base_dir: /opt/tricorder
+    bin_dir: '{{ base_dir }}/bin'
+    golang_dir: '{{ base_dir }}/golang'
+    gopath_dir: '{{ base_dir }}/go'
+    bazel_path: '{{ bin_dir }}/bazel'
+  tasks:
+    - name: Create bin dir
+      file:
+        path: "{{ bin_dir }}"
+        state: directory
+        mode: 'a+x'
+    - name: Create golang dir
+      file:
+        path: "{{ golang_dir }}"
+        state: directory
+        mode: 'a+x'
+    - name: Create gopath dir
+      file:
+        path: "{{ gopath_dir }}"
+        state: directory
+        mode: 'a+x'
+    - name: Creates tmp dir
+      file:
+        path: "{{ tmp_dir }}"
+        state: directory
+    - name: Download golang package
+      ansible.builtin.get_url:
+        force: true
+        url: https://go.dev/dl/go1.18.10.linux-amd64.tar.gz
+        dest: '{{ tmp_dir }}/golang.tar.gz'
+    - name: Extract golang
+      ansible.builtin.unarchive:
+        src: '{{ tmp_dir }}/golang.tar.gz'
+        dest: "{{ golang_dir }}"
+        extra_opts: ['--strip-components', '1']
+        mode: 'a+x'
+    - name: Install golangci-lint
+      command: go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.50.1
+      environment:
+        PATH: "{{ base_dir }}/lib/clang-14.0/bin:{{ golang_dir }}/bin:{{ ansible_env.PATH }}"
+        GOPATH: "{{ gopath_dir }}"
+    - name: Install goliens
+      command: go install github.com/segmentio/golines@v0.11.0
+      environment:
+        PATH: "{{ base_dir }}/lib/clang-14.0/bin:{{ golang_dir }}/bin:{{ ansible_env.PATH }}"
+        GOPATH: "{{ gopath_dir }}"
+    - name: Download eksctl tar.gz
+      ansible.builtin.get_url:
+        force: true
+        url: https://github.com/weaveworks/eksctl/releases/download/v0.124.0/eksctl_Linux_amd64.tar.gz
+        dest: "{{ tmp_dir }}/eksctl.tar.gz"
+    - name: Extract eksctl.tar.gz
+      ansible.builtin.unarchive:
+        src: "{{ tmp_dir }}/eksctl.tar.gz"
+        dest: "{{ bin_dir }}"
+    - name: Downlaod WASI SDK tar.gz
+      ansible.builtin.get_url:
+        force: true
+        url: https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-17/wasi-sdk-17.0-linux.tar.gz
+        dest: "{{ tmp_dir }}/wasi-sdk.tar.gz"
+    - name: Extract wasi-sdk.tar.gz
+      ansible.builtin.unarchive:
+        src: "{{ tmp_dir }}/wasi-sdk.tar.gz"
+        dest: /opt/tricorder
+    - name: Install bazelisk
+      ansible.builtin.get_url:
+        force: true
+        url: https://github.com/bazelbuild/bazelisk/releases/download/v1.15.0/bazelisk-linux-amd64
+        mode: 'a+x'
+        dest: '{{ bazel_path }}'
+    - name: Downlaod helm tar.gz
+      tags: helm
+      ansible.builtin.get_url:
+        force: true
+        url: https://get.helm.sh/helm-v3.11.0-linux-amd64.tar.gz
+        checksum: sha256:6c3440d829a56071a4386dd3ce6254eab113bc9b1fe924a6ee99f7ff869b9e0b
+        dest: "{{ tmp_dir }}/helm.tar.gz"
+    - name: Extract helm.tar.gz
+      tags: helm
+      ansible.builtin.unarchive:
+        src: "{{ tmp_dir }}/helm.tar.gz"
+        dest: "{{ bin_dir }}"
+        extra_opts: ['--strip-components', '1']
+    - name: Install skaffold
+      tags: skaffold
+      ansible.builtin.get_url:
+        force: true
+        url: https://storage.googleapis.com/skaffold/releases/latest/skaffold-linux-amd64
+        dest: "{{ bin_dir }}/skaffold"
+        mode: 'a+x'
+    - name: Download minikube .deb
+      ansible.builtin.get_url:
+        force: true
+        url: https://github.com/kubernetes/minikube/releases/download/v1.28.0/minikube_1.28.0-0_amd64.deb
+        dest: "{{ tmp_dir }}/minikube.deb"
+    - name: Install minikube
+      ansible.builtin.apt:
+        deb: "{{ tmp_dir }}/minikube.deb"
+    - name: Download and install kubectl
+      ansible.builtin.get_url:
+        force: true
+        url: https://dl.k8s.io/release/v1.23.0/bin/linux/amd64/kubectl
+        dest: "{{ bin_dir }}/kubectl"
+        mode: 'a+x'
+    - name: Download and install ecc (eunomia-bpf)
+      get_url:
+        force: true
+        url: https://github.com/eunomia-bpf/eunomia-bpf/releases/latest/download/ecc
+        dest: "{{ bin_dir }}/ecc"
+        mode: 'a+x'
+    - name: Clone eunomia-bpf c-struct-bindgen repo
+      git:
+        repo: https://github.com/eunomia-bpf/c-struct-bindgen
+        dest: "{{ tmp_dir }}/c-struct-bindgen"
+        recursive: true
+    - name: Build c-struct-bindgen
+      command: make -C "{{ tmp_dir }}/c-struct-bindgen"
+    - name: Install c-struct-bindgen
+      ansible.builtin.copy:
+        src: "{{ tmp_dir }}/c-struct-bindgen/build/bin/Release/struct-bindgen"
+        dest: "{{ bin_dir }}/struct-bindgen"
+        mode: 'a+x'

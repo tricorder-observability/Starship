@@ -1,0 +1,17 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+package(default_visibility = ["//src/agent/wasm:__subpackages__"])
+
+go_library(
+    name = "cgo",
+    srcs = [
+        "event.go",
+        "event.h",
+        "ints.go",
+        "ints.h",
+        "struct-bindgen.h",
+    ],
+    cgo = True,
+    importpath = "github.com/tricorder/src/agent/wasm/programs/cgo",
+    visibility = ["//visibility:public"],
+)

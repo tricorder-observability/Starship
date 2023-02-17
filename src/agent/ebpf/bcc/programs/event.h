@@ -1,0 +1,1 @@
+struct event_t {};

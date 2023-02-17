@@ -1,0 +1,57 @@
+---
+# Various packages need to be downloaded and installed
+- name: Dev machine playbook
+  hosts: localhost
+  connection: local
+  vars:
+    tmp_dir: /tmp/tricorder
+    base_dir: /opt/tricorder
+    bin_dir: '{{ base_dir }}/bin'
+    golang_dir: '{{ base_dir }}/golang'
+    gopath_dir: '{{ base_dir }}/go'
+    bazel_path: '{{ bin_dir }}/bazel'
+  tasks:
+    - name: Create bin dir
+      file:
+        path: "{{ bin_dir }}"
+        state: directory
+        mode: 'a+x'
+    - name: Create golang dir
+      file:
+        path: "{{ golang_dir }}"
+        state: directory
+        mode: 'a+x'
+    - name: Create gopath dir
+      file:
+        path: "{{ gopath_dir }}"
+        state: directory
+        mode: 'a+x'
+    - name: Creates tmp dir
+      file:
+        path: "{{ tmp_dir }}"
+        state: directory
+    - name: Download aws cli
+      ansible.builtin.get_url:
+        force: true
+        url: https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip
+        dest: '{{ tmp_dir }}/awscli.zip'
+      tags: awscli
+    - name: Extract aws cli
+      ansible.builtin.unarchive:
+        src: '{{ tmp_dir }}/awscli.zip'
+        dest: '{{ tmp_dir }}'
+      tags: awscli
+    - name: Install aws cli
+      command: '{{ tmp_dir }}/aws/install --bin-dir {{ bin_dir }}
+                --install-dir {{ bin_dir }}/aws-cli --update'
+      tags: awscli
+    - name: Download clang-14 from S3
+      # s3//tricorder-dev is a public bucket.
+      shell: "{{ bin_dir }}/aws s3 cp --profile=yaxiong
+              s3://tricorder-dev/clang-14_0-tricorder-0.deb
+              {{ tmp_dir }}/clang.deb"
+      tags: clang
+    - name: Install clang-14
+      ansible.builtin.apt:
+        deb: "{{ tmp_dir }}/clang.deb"
+      tags: clang

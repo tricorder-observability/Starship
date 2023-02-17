@@ -1,0 +1,29 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+load("//:bazel/container_image.bzl", "container_image")
+
+container_image(
+    name = "promscale-image",
+    base = "@promscale//image",
+)
+
+container_image(
+    name = "timescaledb-image",
+    base = "@timescaledb//image",
+)
+
+go_library(
+    name = "promscale",
+    testonly = 1,
+    srcs = ["fixture.go"],
+    data = [
+        ":promscale-image.tar",
+        ":timescaledb-image.tar",
+    ],
+    importpath = "github.com/tricorder/src/testing/promscale",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//src/testing/bazel",
+        "//src/testing/docker",
+        "//src/utils/pg",
+    ],
+)

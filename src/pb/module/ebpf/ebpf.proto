@@ -1,0 +1,55 @@
+// Messages for working with eBPF programs.
+syntax = "proto3";
+
+package tricorder.pb.module.ebpf;
+
+option go_package = "ebpf";
+
+import "src/pb/module/common/common.proto";
+
+// Stores a pair of entry and return probes.
+message ProbeSpec {
+  enum Type {
+    KPROBE = 0;
+    // TODO: Add Uprobe, usdt, tracepoint, xdp and others.
+
+    // A custom perf event, where the probe was triggered periodically with a sample period.
+    SAMPLE_PROBE = 1;
+  }
+  Type type = 1;
+
+  // The target to attach this probe.
+  string target = 2;
+
+  // The name of the entry probe.
+  // Set to empty if want to skip attaching.
+  //
+  // type==SAMPLE_EVENT, this is set to the probe name, return is ignored.
+  string entry = 3;
+
+  // The name of the entry probe.
+  // Set to empty if want to skip attaching.
+  string return = 4;
+
+  // Only meaningful for SAMPLE_EVENT.
+  // The period for each sampling event to happen.
+  int32 sample_period_nanos = 5;
+}
+
+message Program {
+  // What format is this program.
+  tricorder.pb.module.common.Format fmt = 1;
+
+  // What language is this program.
+  // Only meaningful when fmt == TEXT
+  tricorder.pb.module.common.Lang lang = 2;
+
+  // The content of the program.
+  string code = 3;
+
+  // TODO(yzhao): Support ring buffer.
+  // TODO(yaxiong): Support multiple perf buffers.
+  string perf_buffer_name = 4;
+
+  repeated ProbeSpec probes = 5;
+}

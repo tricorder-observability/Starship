@@ -1,0 +1,42 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
+
+go_library(
+    name = "bcc_go_lib",
+    srcs = [
+        "bcc.go",
+        "client.go",
+        "server.go",
+    ],
+    importpath = "github.com/tricorder/src/bcc",
+    visibility = ["//visibility:private"],
+    deps = [
+        "@com_github_iovisor_gobpf//bcc",
+    ],
+)
+
+go_binary(
+    name = "bcc_go",
+    embed = [":bcc_lib"],
+    visibility = ["//visibility:public"],
+)
+
+cc_binary(
+    name = "bcc_cc",
+    srcs = ["bcc.cc"],
+    deps = [
+        "@com_github_iovisor_bcc//:bcc",
+        "@llvm",
+    ],
+)
+
+go_library(
+    name = "bcc_lib",
+    srcs = [
+        "bcc.go",
+        "client.go",
+        "server.go",
+    ],
+    importpath = "github.com/tricorder/experimental/bcc",
+    visibility = ["//visibility:private"],
+    deps = ["@com_github_iovisor_gobpf//bcc"],
+)

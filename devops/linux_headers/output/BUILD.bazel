@@ -1,0 +1,11 @@
+package(default_visibility = ["//src:__subpackages__"])
+
+filegroup(
+    name = "linux_headers_tar_gzs",
+    srcs = glob(["*.tar.gz"]),
+)
+
+filegroup(
+    name = "timeconst_headers",
+    srcs = glob(["*.h"]),
+)

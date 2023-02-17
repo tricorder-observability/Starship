@@ -1,0 +1,5 @@
+filegroup(
+    name = "tricorder_test_db",
+    srcs = ["tricorder_test.db"],
+    visibility = ["//src/api-server:__subpackages__"],
+)
