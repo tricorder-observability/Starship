@@ -3,11 +3,11 @@
 ![image](https://user-images.githubusercontent.com/112656580/219543149-2e2bbebc-1891-4dcb-ba66-0f8b7f1bcd68.png)
 ![image](https://user-images.githubusercontent.com/112656580/219542981-5a4e5fb1-0603-4c0b-91e2-c94c36a92c0b.png)
 
-Starship is a next-generation Observability platform built on eBPF+WASM.
-Starship is to modern Observability on Kubernetes platform, as ChatGPT is
-to consumer knownledge discovery.
+🖖 Starship 🪐 is a next-generation Observability platform built on 🐝 eBPF➕WASM ![image](https://user-images.githubusercontent.com/112656580/219543881-046af389-ca10-4dda-b79a-a60088a1220a.png)
 
-eBPF enables instrumentation-free data collection, and WASM complements eBPF's
+🚀 Starship is to modern Observability on Kubernetes platform, as ChatGPT is
+to consumer knownledge discovery.
+🐝 eBPF enables instrumentation-free data collection, and ![image](https://user-images.githubusercontent.com/112656580/219543881-046af389-ca10-4dda-b79a-a60088a1220a.png) WASM complements eBPF's
 inability to perform complex data processing.
 
 Starship is developed by [Tricorder Observability](https://tricorder.dev/),
@@ -21,10 +21,9 @@ community.
 [![Twitter URL](https://img.shields.io/twitter/url/https/twitter.com/bukotsunikki.svg?style=plastic&label=Follow%20%40tricorder_o11y)](https://twitter.com/tricorder_o11y)
 [![Slack Badge](https://img.shields.io/badge/Slack-4A154B?logo=slack&logoColor=fff&style=plastic&label=Join%20Tricorder)](https://join.slack.com/t/tricorderobse-mfl6648/shared_invite/zt-1oxqtq793-rRA03FN1YuyCiQrN_TrZoQ)
 
-Starship is an eBPF-based observability platform
-for Kubernetes.
+## Get Started
 
-Starship provides all things you'll need to
+Starship is built for Kubernetes platform. Starship provides all things you'll need to
 get started with Zero-Cost (or Zero-Friction) Observability,
 where no effort other than [installation](https://tricorder-observability.github.io/helm-charts/)
 is required to get the value of Observability.
