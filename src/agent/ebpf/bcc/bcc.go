@@ -13,6 +13,7 @@ import (
 	"github.com/tricorder/src/agent/ebpf/common"
 
 	ebpfpb "github.com/tricorder/src/pb/module/ebpf"
+	"github.com/tricorder/src/utils/errors"
 )
 
 // Wraps BCC Module object
@@ -50,12 +51,12 @@ const maxActiveRetProbes = 512
 
 func (m *module) attachKEntryProbe(syscallName, probeName string) error {
 	probe, err := m.m.LoadKprobe(probeName)
+	context := fmt.Sprintf("attaching kentryprobe '%s' to syscall '%s'", probeName, syscallName)
 	if err != nil {
-		return fmt.Errorf("while attaching kentryprobe '%s' to syscall '%s', failed to load, error: %v",
-			probeName, syscallName, err)
+		return errors.Wrap(context, "load", err)
 	}
 	if err := m.m.AttachKprobe(syscallName, probe, maxActiveRetProbes); err != nil {
-		return fmt.Errorf("failed to attach kprobe %s, error: %v", probeName, err)
+		return errors.Wrap(context, "attach", err)
 	}
 	return nil
 }
