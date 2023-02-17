@@ -17,6 +17,7 @@ type GrafanaAPIKeyGORM struct {
 }
 
 func (GrafanaAPIKeyGORM) TableName() string {
+	// TODO: could be renamed to grafana_api_key
 	return "grafana_api"
 }
 
