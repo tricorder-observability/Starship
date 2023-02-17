@@ -48,6 +48,7 @@ func StartHTTPService(cfg Config, pgClient *pg.Client) {
 
 	router.Use(Cors()).Use(GlobalExceptionWare)
 
+	// TODO: Use swagger to define these APIs.
 	api := router.Group(fmt.Sprintf("/%s", http_utils.API_ROOT))
 	{
 		api.POST(fmt.Sprintf("/%s", http_utils.ADD_CODE), cm.createModule)
