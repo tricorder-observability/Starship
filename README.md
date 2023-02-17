@@ -70,7 +70,14 @@ together to build a complete data collection module.
 
 ## Components
 
-TODO: Add components descriptions
+1. TimescaleDB: `TimescaleDB` is an open-source relational database for time-series data. Starship use `timescaleDB` to store observability data.
+2. Kube-state-metrics: kube-state-metrics (KSM) is a simple service that listens to the Kubernetes API server and generates metrics about the state of the objects. Starship use `KSM` to expose cluster-level metrics.
+3. Promscale: Promscale is a unified metric and trace observability backend for Prometheus, Jaeger, and OpenTelemetry. It is built on PostgreSQL and `TimescaleDB`. Starship use `Promscale` to receive metric and trace observability data.
+3. Prometheus: It collects metrics from `KSM` and then remote write to `Promscale`.
+4. Grafana: Starship use `Grafana` to query, visualize, alert on and understand your metrics collectd by starship. 
+5. Starship Agent: A data collection agent running as daemonset. Agents accept eBPF and WASM modules and deploy them onto the BCC and WASM runtime.
+6. Starship API Server: Starship backend service for managing eBPF and WASM modules.
+7. Starship CLI: The Command Line Interface to interact with Starship API Server.
 
 ## Building Starship
 
