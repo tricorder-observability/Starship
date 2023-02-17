@@ -34,6 +34,11 @@ var deployCmd = &cobra.Command{
 	},
 }
 
+func init() {
+	deployCmd.Flags().StringVarP(&moduleId, "id", "i", moduleId, "the id of module.")
+	_ = deployCmd.MarkFlagRequired("id")
+}
+
 func deployModule(url string, moduleId string) ([]byte, error) {
 	resp, err := http.Post(fmt.Sprintf("%s?id=%s", url, moduleId), "application/json", nil)
 	if err != nil {
