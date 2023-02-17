@@ -14,6 +14,7 @@ var (
 )
 
 func InitGrafanaConfig(baseURL, userName, password string) {
+	// userName password come from command line flags
 	BasicAuth = userName + ":" + password
 	BaseURL = baseURL
 	CreateAuthKeysURI = BaseURL + "/api/auth/keys"
