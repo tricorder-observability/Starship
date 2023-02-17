@@ -75,9 +75,9 @@ together to build a complete data collection module.
 3. Promscale: Promscale is a unified metric and trace observability backend for Prometheus, Jaeger, and OpenTelemetry. It is built on PostgreSQL and `TimescaleDB`. Starship use `Promscale` to receive metric and trace observability data.
 3. Prometheus: It collects metrics from `KSM` and then remote write to `Promscale`.
 4. Grafana: Starship use `Grafana` to query, visualize, alert on and understand your metrics collectd by starship. 
-5. Starship Agent: A data collection agent running as daemonset. Agents accept eBPF and WASM modules and deploy them onto the BCC and WASM runtime.
+5. Starship Agent: A data collection agent running as daemonset. Agent accept eBPF and WASM modules and deploy them onto the BCC and WASM runtime.
 6. Starship API Server: Starship backend service for managing eBPF and WASM modules.
-7. Starship CLI: The Command Line Interface to interact with Starship API Server.
+7. Starship CLI: The Command Line Interface to interact with `Starship API Server`.
 
 ## Building Starship
 
