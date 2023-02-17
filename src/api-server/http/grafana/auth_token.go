@@ -18,6 +18,14 @@ func NewAuthToken() *AuthToken {
 	}
 }
 
+// AuthKeyResult corresponds to the returned auth key after authenticating with Grafana.
+// This is used for invoking Grafana APIs at corresponding API path.
+type AuthKeyResult struct {
+	// API name, essentially a URL path.
+	Name string `json:"name"`
+	Key  string `json:"key"`
+}
+
 // GetToken returns a auth token for a particular API path on Grafana (specified in apiPath argument).
 func (g *AuthToken) GetToken(apiPath string) (*AuthKeyResult, error) {
 	data := make(map[string]interface{})
@@ -49,9 +57,4 @@ func (g *AuthToken) GetToken(apiPath string) (*AuthKeyResult, error) {
 		return &out, nil
 	}
 	return nil, err
-}
-
-type AuthKeyResult struct {
-	Name string `json:"name"`
-	Key  string `json:"key"`
 }
