@@ -9,6 +9,8 @@ type DeployChannelModule struct {
 	Status int
 }
 
+// TODO: Channels used for signalling that users have instructed API server to deploy modules.
+// This should be put inside src/api-server/grpc/deployer.go
 var (
 	chanInstance    chan DeployChannelModule
 	chanOnceManager sync.Once
