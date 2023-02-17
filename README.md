@@ -23,6 +23,10 @@ community.
 
 ## Get Started
 
+☸️ [Helm-charts](https://github.com/tricorder-observability/helm-charts), install Starship
+on your Kubernetes cluster with helm.
+
+🤿 Before diving into the code base:
 Starship is built for Kubernetes platform. Starship provides all things you'll need to
 get started with Zero-Cost (or Zero-Friction) Observability,
 where no effort other than [installation](https://tricorder-observability.github.io/helm-charts/)
