@@ -28,14 +28,15 @@ func newModule(code string) (*module, error) {
 	return &module{m: bccModule}, nil
 }
 
+// NewPerfBuffer returns a PerfBuffer object with the input name.
 func (m *module) NewPerfBuffer(name string) (*PerfBuffer, error) {
 	return NewPerfBuffer(m.m, name)
 }
 
 // LoadKprobe load the kprobe specified by the input name, and returns the file descriptor pointed to
 // the loaded kprobe; returns error if failed.
-func (m *module) LoadKprobe(n string) (int, error) {
-	return m.m.LoadKprobe(n)
+func (m *module) LoadKprobe(name string) (int, error) {
+	return m.m.LoadKprobe(name)
 }
 
 // TODO(yzhao): Detect system's CPU count, and set this value as 4 * CPU-count.
@@ -50,7 +51,7 @@ const maxActiveRetProbes = 512
 func (m *module) attachKEntryProbe(syscallName, probeName string) error {
 	probe, err := m.m.LoadKprobe(probeName)
 	if err != nil {
-		return fmt.Errorf("failed to load %s, error: %v", probeName, err)
+		return fmt.Errorf("while attaching kentryprobe '%s' to syscall '%s', failed to load, error: %v", probeName, syscallName, err)
 	}
 	if err := m.m.AttachKprobe(syscallName, probe, maxActiveRetProbes); err != nil {
 		return fmt.Errorf("failed to attach kprobe %s, error: %v", probeName, err)
