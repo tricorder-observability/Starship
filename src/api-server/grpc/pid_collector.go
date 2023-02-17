@@ -22,7 +22,7 @@ const (
 	procInfoTableName = "process_info"
 )
 
-var idPath = []string{"container", "ID"}
+var idPath = []string{"container", "id"}
 
 // PIDCollector implements the ProcessCollector gRPC service.
 type PIDCollector struct {
