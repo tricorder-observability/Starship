@@ -70,14 +70,29 @@ together to build a complete data collection module.
 
 ## Components
 
-1. TimescaleDB: `TimescaleDB` is an open-source relational database for time-series data. Starship use `timescaleDB` to store observability data.
-2. Kube-state-metrics: kube-state-metrics (KSM) is a simple service that listens to the Kubernetes API server and generates metrics about the state of the objects. Starship use `KSM` to expose cluster-level metrics.
-3. Promscale: Promscale is a unified metric and trace observability backend for Prometheus, Jaeger, and OpenTelemetry. It is built on PostgreSQL and `TimescaleDB`. Starship use `Promscale` to receive metric and trace observability data.
-3. Prometheus: It collects metrics from `KSM` and then remote write to `Promscale`.
-4. Grafana: Starship use `Grafana` to query, visualize, alert on and understand your metrics collectd by starship. 
-5. Starship Agent: A data collection agent running as daemonset. Agent accept eBPF and WASM modules and deploy them onto the BCC and WASM runtime.
-6. Starship API Server: Starship backend service for managing eBPF and WASM modules.
-7. Starship CLI: The Command Line Interface to interact with `Starship API Server`.
+* Starship [Tricorder](https://github.com/tricorder-observability/starship/tree/main/src/agent) (aka. Starship Agent):
+  a data collection agent running as daemonset. Agent executes eBPF+WASM modules and export structured data to storage engine.
+  The code lives in [src/agent](https://github.com/tricorder-observability/starship/tree/main/src/agent).
+* Starship [API Server](https://github.com/tricorder-observability/starship/tree/main/src/api-server):
+  manages Tricorder agents, and Promscale & Grafana backend server; also supports management Web UI and CLI.
+  The code lives in [src/api-server](https://github.com/tricorder-observability/starship/tree/main/src/api-server).
+* Starship [CLI](https://github.com/tricorder-observability/starship/tree/main/src/cli): the command line tool to use
+  Starship on your Kubernetes cluster.
+* Starship [Web UI](https://github.com/tricorder-observability/starship/tree/main/ui): a Web UI for using Starship.
+  The code lives in [ui](https://github.com/tricorder-observability/starship/tree/main/ui).
+
+### 3rd party dependencies
+
+* [Promscale](https://github.com/timescale/promscale): A unified metric and trace observability backend for Prometheus & OpenTelemetry.
+  Starship use `Promscale` to support Prom and OTel.
+* [Grafana](https://github.com/grafana/grafana): Starship use `Grafana` to visualize Observability data.
+
+### Prepherials
+
+* [Kube-state-metrics](https://github.com/kubernetes/kube-state-metrics) (KSM): listens to the Kubernetes API server
+  and generates metrics about the state of the objects. Starship use `KSM` to expose cluster-level metrics.
+* [Prometheus](https://github.com/prometheus/prometheus): collects metrics from `KSM` and then remote write to `Promscale`.
+* [OpenTelemetry](https://github.com/open-telemetry): for distributed tracing and other awesome Observability features.
 
 ## Building Starship
 
