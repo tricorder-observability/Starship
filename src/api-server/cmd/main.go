@@ -44,8 +44,10 @@ var (
 	)
 	moduleGrafanaURL = flag.String("grafana_url", "http://localhost:3000", "The URL to PostgreSQL instance")
 
-	moduleGrafanaUserName     = flag.String("grafana_user_name", "admin", "Grafana username")
-	moduleGrafanaUserPassword = flag.String("grafana_user_pass", "tricorder", "Grafana password")
+	// These 2 flags must be the same as Grafana configuration in helm-charts:
+	// https://github.com/tricorder-observability/helm-charts/blob/00e5620a1a257857fd92b544c6e331146805d426/charts/starship/values.yaml#L470
+	moduleGrafanaUserName     = flag.String("grafana_user_name", "admin", "Grafana username, must be consistent with Grafana installation config")
+	moduleGrafanaUserPassword = flag.String("grafana_user_pass", "tricorder", "Grafana password, must be consistent with Grafana installation config")
 
 	moduleDatasourceName = flag.String(
 		"grafana_ds_name",
