@@ -11,6 +11,7 @@ type GrafanaAPIKeyGORM struct {
 	ID         int    `gorm:"'id' primarykey"`
 	Name       string `gorm:"name"`
 	CreateTime string `gorm:"create_time"`
+	// APIKEY is the api path, used for querying with the sqlite db.
 	APIKEY     string `gorm:"column:api_key"`
 	AuthValue  string `gorm:"auth_value"`
 }
