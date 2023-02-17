@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/iovisor/gobpf/bcc"
+	log "github.com/sirupsen/logrus"
 )
 
 // Sleep 1 second waiting for data.
@@ -47,6 +48,7 @@ func (perfBuf *PerfBuffer) Poll() [][]byte {
 	length := len(perfBuf.channel)
 	for i := 0; i < length; i = i + 1 {
 		item := <-perfBuf.channel
+		log.Printf("item: %v item length: %d", item, len(item))
 		res = append(res, item)
 	}
 	return res

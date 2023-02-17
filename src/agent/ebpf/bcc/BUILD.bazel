@@ -32,6 +32,7 @@ go_test(
         "//src/agent/ebpf/bcc/linux_headers",
         "//src/pb/module/common",
         "//src/pb/module/ebpf",
+        "@com_github_iovisor_gobpf//bcc",
         "@com_github_stretchr_testify//assert",
         "@com_github_stretchr_testify//require",
     ],

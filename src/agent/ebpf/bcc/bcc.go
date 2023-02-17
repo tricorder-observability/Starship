@@ -106,12 +106,10 @@ func (m *module) attachProbe(probe *ebpfpb.ProbeSpec) error {
 // The following values indicate the corresponding argument is ignored by the underlying system
 // attachment routines.
 const (
-	ignorePID int = -1
-	ignoreCPU int = -1
-
-	ignoreGroupFD int = -1
-
 	ignoreSampleFreq int = 0
+	ignorePID        int = -1
+	ignoreCPU        int = -1
+	ignoreGroupFD    int = -1
 )
 
 // attachSampleProbe attaches a perf event which periodicially got triggered.
@@ -123,7 +121,7 @@ func (m *module) attachSampleProbe(probe *ebpfpb.ProbeSpec) error {
 		return fmt.Errorf("while attaching sampling perf event, failed to load perf event probe '%s', error: %v",
 			prototext.Format(probe), err)
 	}
-	log.Printf("SamplePeriodNanos: %d ", int(probe.SamplePeriodNanos))
+	log.Printf("SamplePeriodNanos: %d", probe.SamplePeriodNanos)
 	// Parameter names:
 	// (evType, evConfig int, samplePeriod int, sampleFreq int, pid, cpu, groupFd, fd int)
 	err = m.m.AttachPerfEvent(common.PerfTypeSoftware, common.PerfCountSWCPUClock, int(probe.SamplePeriodNanos),
