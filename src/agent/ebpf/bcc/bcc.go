@@ -10,6 +10,8 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
+	"github.com/tricorder/src/agent/ebpf/common"
+
 	ebpfpb "github.com/tricorder/src/pb/module/ebpf"
 )
 
@@ -124,7 +126,7 @@ func (m *module) attachSampleProbe(probe *ebpfpb.ProbeSpec) error {
 	log.Printf("SamplePeriodNanos: %d ", int(probe.SamplePeriodNanos))
 	// Parameter names:
 	// (evType, evConfig int, samplePeriod int, sampleFreq int, pid, cpu, groupFd, fd int)
-	err = m.m.AttachPerfEvent(PerfTypeSoftware, PerfCountSWCPUClock, int(probe.SamplePeriodNanos),
+	err = m.m.AttachPerfEvent(common.PerfTypeSoftware, common.PerfCountSWCPUClock, int(probe.SamplePeriodNanos),
 		ignoreSampleFreq, ignorePID, ignoreCPU, ignoreGroupFD, probeFD)
 	if err != nil {
 		return fmt.Errorf("while attaching sampling perf event, failed to attach perf event, error: %v", err)

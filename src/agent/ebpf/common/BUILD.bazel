@@ -1,0 +1,9 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+package(default_visibility = ["//src/agent/ebpf:__subpackages__"])
+
+go_library(
+    name = "common",
+    srcs = ["perf_event.go"],
+    importpath = "github.com/tricorder/src/agent/ebpf/common",
+)

@@ -5,12 +5,12 @@ go_library(
     srcs = [
         "bcc.go",
         "perf_buffer.go",
-        "perf_event.go",
         "program.go",
     ],
     importpath = "github.com/tricorder/src/agent/ebpf/bcc",
     visibility = ["//visibility:public"],
     deps = [
+        "//src/agent/ebpf/common",
         "//src/pb/module/ebpf",
         "@com_github_iovisor_gobpf//bcc",
         "@com_github_sirupsen_logrus//:logrus",

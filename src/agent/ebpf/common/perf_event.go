@@ -1,4 +1,4 @@
-package bcc
+package common
 
 // perf_event.go defines enums for attaching perf events.
 
