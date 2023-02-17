@@ -13,6 +13,7 @@ var (
 	BasicAuth          string
 )
 
+// InitGrafanaConfig initializes global configurations for how to connect with Grafana.
 func InitGrafanaConfig(baseURL, userName, password string) {
 	// userName password come from command line flags
 	BasicAuth = userName + ":" + password
