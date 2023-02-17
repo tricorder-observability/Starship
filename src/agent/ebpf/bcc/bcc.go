@@ -51,7 +51,8 @@ const maxActiveRetProbes = 512
 func (m *module) attachKEntryProbe(syscallName, probeName string) error {
 	probe, err := m.m.LoadKprobe(probeName)
 	if err != nil {
-		return fmt.Errorf("while attaching kentryprobe '%s' to syscall '%s', failed to load, error: %v", probeName, syscallName, err)
+		return fmt.Errorf("while attaching kentryprobe '%s' to syscall '%s', failed to load, error: %v",
+			probeName, syscallName, err)
 	}
 	if err := m.m.AttachKprobe(syscallName, probe, maxActiveRetProbes); err != nil {
 		return fmt.Errorf("failed to attach kprobe %s, error: %v", probeName, err)
