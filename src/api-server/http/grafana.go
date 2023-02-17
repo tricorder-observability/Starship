@@ -22,6 +22,7 @@ var (
 	datasourceAPIURLName = "datasourceAPIURL"
 )
 
+// TODO(yzhao): Rename apiKey to apiPath
 func (g *GrafanaManagement) getGrafanaKey(apiKey, apiName string) (*dao.GrafanaAPIKeyGORM, error) {
 	grafanaAPIKey, _ := g.GrafanaAPIKey.QueryByAPIKey(apiKey)
 	if grafanaAPIKey == nil {
