@@ -97,6 +97,8 @@ message DeployModuleResp {
   string desc = 3;
 }
 
+// TODO(yzhao): Also need undeploy req.
+
 service ProcessCollector {
   rpc ReportProcess(stream ProcessWrapper) returns (stream ContainerInfo) {}
 }
