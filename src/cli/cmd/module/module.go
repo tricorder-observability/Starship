@@ -30,6 +30,8 @@ func init() {
 	_ = ModuleCmd.MarkPersistentFlagRequired("api-address")
 
 	ModuleCmd.PersistentFlags().StringVarP(&moduleId, "id", "i", moduleId, "the id of module.")
+	_ = ModuleCmd.MarkPersistentFlagRequired("id")
+
 	ModuleCmd.PersistentFlags().StringVarP(&output, "output", "o", "yaml",
 		"the style(json,yaml,table) of output, yaml is default.")
 	ModuleCmd.AddCommand(listCmd)
