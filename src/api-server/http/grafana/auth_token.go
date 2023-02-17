@@ -18,10 +18,12 @@ func NewAuthToken() *AuthToken {
 	}
 }
 
-func (g *AuthToken) GetToken(apiKey string) (*AuthKeyResult, error) {
+// GetToken returns a auth token for a particular API path on Grafana (specified in apiPath argument).
+func (g *AuthToken) GetToken(apiPath string) (*AuthKeyResult, error) {
 	data := make(map[string]interface{})
-	data["name"] = apiKey
-	data["role"] = "Admin"
+	data["name"] = apiPath
+	const adminRole = "Admin"
+	data["role"] = adminRole
 
 	bytesData, _ := json.Marshal(data)
 
