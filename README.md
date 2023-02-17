@@ -1,7 +1,15 @@
 # Starship
 
-TODO: One-liner, quickly give an one-sentence summary of the product, and let reader to see what is the product
-Detailed objectives, members in community, 
+Starship is a next-generation Observability platform built on eBPF+WASM.
+Starship is to modern Observability on Kubernetes platform, as ChatGPT is
+to consumer knownledge discovery.
+
+eBPF enables instrumentation-free data collection, and WASM complements eBPF's
+inability to perform complex data processing.
+
+Starship is developed by [Tricorder Observability](https://tricorder.dev/),
+proudly supported by [MiraclePlus](https://www.miracleplus.com/) and the Open Source
+community.
 
 [![Bazel build and test](https://github.com/tricorder-observability/starship/actions/workflows/build-and-test.yml/badge.svg?event=pull_request)](https://github.com/tricorder-observability/starship/actions/workflows/build-and-test.yml)
 [![Lint Code Base](https://github.com/tricorder-observability/starship/actions/workflows/super-linter.yaml/badge.svg?event=pull_request)](https://github.com/tricorder-observability/starship/actions/workflows/super-linter.yaml)
