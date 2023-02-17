@@ -43,6 +43,8 @@ func (s *Deployer) DeployModule(stream pb.ModuleDeployer_DeployModuleServer) err
 				log.Errorf("receive agent result error:%s", err.Error())
 				return err
 			}
+			// Need to be able to correctly account which nodes are deployed, and which are
+			// not deployed. TODO(yzhao & zhihui): Chat about the design.
 			err = s.Module.UpdateStatusByID(result.ID, int(result.Status))
 			if err != nil {
 				log.Errorf("update code status error:%s", err.Error())
