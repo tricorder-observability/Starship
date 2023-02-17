@@ -32,8 +32,7 @@ message ProbeSpec {
   string return = 4;
 
   // Only meaningful for SAMPLE_EVENT.
-  // The period for each sampling event to happen.
-  int32 sample_period_nanos = 5;
+  int64 sample_period_nanos = 5;
 }
 
 message Program {
