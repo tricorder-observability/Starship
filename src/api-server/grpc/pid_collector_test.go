@@ -2,6 +2,8 @@ package grpc
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 	"net"
 	"testing"
 	"time"
@@ -17,6 +19,7 @@ import (
 
 	pb "github.com/tricorder/src/api-server/pb"
 	"github.com/tricorder/src/testing/pg"
+	upg "github.com/tricorder/src/utils/pg"
 )
 
 // TestProcessCollectorIntegration scenario
@@ -101,4 +104,32 @@ func TestProcessCollectorIntegration(t *testing.T) {
 
 	// ContainerID in DB should be pod1's containerID
 	assert.Equal(pod1.Status.ContainerStatuses[0].ContainerID, resultInDB[0].Container.Id)
+}
+
+// Test processInfo table's UUID works based on idPath of Postgres json
+func TestIdPath(t *testing.T) {
+	assert := assert.New(t)
+	require := require.New(t)
+
+	cleaner, pgClient, err := pg.LaunchContainer()
+	require.Nil(err)
+	defer func() {
+		assert.Nil(cleaner())
+	}()
+
+	err = pgClient.CreateTable(upg.GetJSONBTableSchema(procInfoTableName))
+	assert.Nil(err)
+
+	id := "abcdefg"
+	pi := &pb.ProcessInfo{Container: &pb.ContainerInfo{Id: id}}
+	pi.Container.Name = "@#$%^&*()_+|"
+	value, _ := json.Marshal(pi)
+	err = pgClient.JSON().Upsert(procInfoTableName, id, value, idPath...)
+	assert.Nil(err)
+
+	result1 := pb.ProcessInfo{}
+	err = pgClient.JSON().Get(procInfoTableName, &result1, fmt.Sprintf("WHERE data->'container'->>'id'='%s'", id))
+	assert.Nil(err)
+	// Check result upserted
+	assert.Equal(pi.Container.Name, result1.Container.Name)
 }
