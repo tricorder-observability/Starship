@@ -22,7 +22,8 @@ const (
 	procInfoTableName = "process_info"
 )
 
-var idPath = []string{"container", "ID"}
+// idPath is UUID location in processInfo table based on Postgres json path expression
+var idPath = []string{"container", "id"}
 
 // PIDCollector implements the ProcessCollector gRPC service.
 type PIDCollector struct {
