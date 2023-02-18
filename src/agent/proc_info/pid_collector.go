@@ -130,7 +130,7 @@ func grabProcessInfo(basePath string, ci *pb.ContainerInfo) (*pb.ProcessInfo, er
 		})
 
 	if !found {
-		return nil, fmt.Errorf("not find container %s[%s] of pod %s[%s] pid file", ci.Name, ci.Id, ci.PodName, ci.PodUid)
+		return nil, fmt.Errorf("not find cgroup.procs file for container %s[%s] of pod %s[%s] in basePath[%s]", ci.Name, ci.Id, ci.PodName, ci.PodUid, basePath)
 	}
 
 	return &pb.ProcessInfo{ProcList: procList, Container: ci}, err
