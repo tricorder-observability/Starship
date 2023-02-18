@@ -2,10 +2,35 @@
 
 BPF_PERF_OUTPUT(events);
 
+typedef struct {
+int i1;
+int i2;
+int i3;
+int i4;
+int i5;
+int i6;
+} foo_t;
+
 // Writes a fixed JSON string to perf buffer.
 int sample_json(struct bpf_perf_event_data *ctx) {
-  const char word[] = "{\"name\":\"John\", \"age\":30}";
+  // const char word[] = "{\"name\":\"John\",  adkfadjkfasdf   \"age\":30}";
+  // const char word[] = "hello world";
+  // const char word[] = "hello world akdjflakjdf;jasldjfkals;jdf;asdjf";
+  
+  /*
+  foo_t foo;
+  foo.i1 = 16;
+  foo.i2 = 16;
+  foo.i3 = 16;
+  foo.i4 = 16;
+  foo.i5 = 16;
+  foo.i6 = 16;
+  bpf_trace_printk("length=%d\n", sizeof(foo));
+  events.perf_submit(ctx, (void *)&foo, sizeof(foo));
+  */
+
+  const char word[] = "hhhh";
   bpf_trace_printk("length=%d\n", sizeof(word));
-  events.perf_submit(ctx, (void *)word, sizeof(word));
+  events.perf_submit(ctx, (void *)&word, sizeof(word));
   return 0;
 }
