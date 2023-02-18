@@ -1,0 +1,11 @@
+// Protobuf definition for ModuleDeployer gRPC service (part of API server).
+syntax = "proto3";
+
+package tricorder.src.utils.pb.testdata;
+
+option go_package = "testdata";
+
+// A test message to showcase the effect of json_name annotation.
+message TestMessage {
+  string name = 1 [json_name = "test_json_name"];
+}

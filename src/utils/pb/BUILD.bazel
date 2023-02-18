@@ -1,0 +1,11 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_test")
+
+go_test(
+    name = "pb_test",
+    srcs = ["pb_test.go"],
+    deps = [
+        "//src/utils/pb/testdata:pb",
+        "@com_github_stretchr_testify//assert",
+        "@org_golang_google_protobuf//encoding/protojson",
+    ],
+)
