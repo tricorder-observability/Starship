@@ -10,17 +10,15 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var (
-	// std is the name of the standard logger in stdlib `log`
-	std = &logrus.Logger{
-		Out:          os.Stderr,
-		Formatter:    new(logrus.TextFormatter),
-		Hooks:        make(logrus.LevelHooks),
-		Level:        logrus.InfoLevel,
-		ExitFunc:     os.Exit,
-		ReportCaller: true,
-	}
-)
+// std is the name of the standard logger in stdlib `log`
+var std = &logrus.Logger{
+	Out:          os.Stderr,
+	Formatter:    new(logrus.TextFormatter),
+	Hooks:        make(logrus.LevelHooks),
+	Level:        logrus.InfoLevel,
+	ExitFunc:     os.Exit,
+	ReportCaller: true,
+}
 
 func StandardLogger() *logrus.Logger {
 	return std
@@ -62,7 +60,8 @@ func AddHook(hook logrus.Hook) {
 	std.AddHook(hook)
 }
 
-// WithError creates an entry from the standard logger and adds an error to it, using the value defined in ErrorKey as key.
+// WithError creates an entry from the standard logger and adds an error to it,
+// using the value defined in ErrorKey as key.
 func WithError(err error) *logrus.Entry {
 	return std.WithField(logrus.ErrorKey, err)
 }
@@ -185,7 +184,8 @@ func PanicFn(fn logrus.LogFunction) {
 	std.PanicFn(fn)
 }
 
-// FatalFn logs a message from a func at logrus. Level Fatal on the standard logger then the process will exit with status set to 1.
+// FatalFn logs a message from a func at logrus.
+// Level Fatal on the standard logger then the process will exit with status set to 1.
 func FatalFn(fn logrus.LogFunction) {
 	std.FatalFn(fn)
 }
