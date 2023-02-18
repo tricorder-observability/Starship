@@ -70,16 +70,16 @@ together to build a complete data collection module.
 
 ## Components
 
-* Starship [Tricorder](https://github.com/tricorder-observability/starship/tree/main/src/agent) (aka. Starship Agent):
+* Starship [Tricorder](src/agent) (aka. Starship Agent):
   a data collection agent running as daemonset. Agent executes eBPF+WASM modules and export structured data to storage engine.
-  The code lives in [src/agent](https://github.com/tricorder-observability/starship/tree/main/src/agent).
-* Starship [API Server](https://github.com/tricorder-observability/starship/tree/main/src/api-server):
+  The code lives in [src/agent](src/agent).
+* Starship [API Server](src/api-server):
   manages Tricorder agents, and Promscale & Grafana backend server; also supports management Web UI and CLI.
-  The code lives in [src/api-server](https://github.com/tricorder-observability/starship/tree/main/src/api-server).
-* Starship [CLI](https://github.com/tricorder-observability/starship/tree/main/src/cli): the command line tool to use
-  Starship on your Kubernetes cluster.
-* Starship [Web UI](https://github.com/tricorder-observability/starship/tree/main/ui): a Web UI for using Starship.
-  The code lives in [ui](https://github.com/tricorder-observability/starship/tree/main/ui).
+  The code lives in [src/api-server](src/api-server).
+* Starship [CLI](src/cli): the command line tool to use
+  Starship on your Kubernetes cluster. The code lives in [src/cli](src/cli).
+* Starship [Web UI](ui): a Web UI for using Starship.
+  The code lives in [ui](ui).
 
 ### 3rd party dependencies
 
