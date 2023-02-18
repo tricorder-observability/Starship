@@ -34,6 +34,11 @@ $ starship-cli module delete --id 2a339411_7dd8_46ba_9581_e9d41286b564
 	},
 }
 
+func init() {
+	deleteCmd.Flags().StringVarP(&moduleId, "id", "i", moduleId, "the id of module.")
+	_ = deleteCmd.MarkFlagRequired("id")
+}
+
 func deleteModule(url string, moduleId string) ([]byte, error) {
 	resp, err := http.Get(fmt.Sprintf("%s?id=%s", url, moduleId))
 	if err != nil {

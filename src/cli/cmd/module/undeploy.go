@@ -33,6 +33,11 @@ $ starship-cli module undeploy --id ce8a4fbe_45db_49bb_9568_6688dd84480b
 	},
 }
 
+func init() {
+	undeployCmd.Flags().StringVarP(&moduleId, "id", "i", moduleId, "the id of module.")
+	_ = undeployCmd.MarkFlagRequired("id")
+}
+
 func undeployModule(url string, moduleId string) ([]byte, error) {
 	resp, err := http.Post(fmt.Sprintf("%s?id=%s", url, moduleId), "application/json", nil)
 	if err != nil {

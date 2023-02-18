@@ -29,9 +29,9 @@ func init() {
 	ModuleCmd.PersistentFlags().StringVar(&apiAddress, "api-address", "", "address of starship api server.")
 	_ = ModuleCmd.MarkPersistentFlagRequired("api-address")
 
-	ModuleCmd.PersistentFlags().StringVarP(&moduleId, "id", "i", moduleId, "the id of module.")
 	ModuleCmd.PersistentFlags().StringVarP(&output, "output", "o", "yaml",
 		"the style(json,yaml,table) of output, yaml is default.")
+
 	ModuleCmd.AddCommand(listCmd)
 	ModuleCmd.AddCommand(uploadCmd)
 	ModuleCmd.AddCommand(createCmd)
