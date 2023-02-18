@@ -12,8 +12,8 @@ type GrafanaAPIKeyGORM struct {
 	Name       string `gorm:"name"`
 	CreateTime string `gorm:"create_time"`
 	// APIKEY is the api path, used for querying with the sqlite db.
-	APIKEY    string `gorm:"column:api_key"`
-	AuthValue string `gorm:"auth_value"`
+	APIKEY     string `gorm:"column:api_key"`
+	AuthValue  string `gorm:"auth_value"`
 }
 
 func (GrafanaAPIKeyGORM) TableName() string {

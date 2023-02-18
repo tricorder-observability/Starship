@@ -16,6 +16,7 @@ go_library(
         "//src/pb/module/ebpf",
         "//src/pb/module/wasm",
         "//src/utils/channel",
+        "//src/utils/pg",
         "//src/utils/retry",
         "@com_github_sirupsen_logrus//:logrus",
         "@io_k8s_api//core/v1:core",
