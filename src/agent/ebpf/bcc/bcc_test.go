@@ -11,6 +11,7 @@ import (
 	ebpfpb "github.com/tricorder/src/pb/module/ebpf"
 
 	"github.com/iovisor/gobpf/bcc"
+	testutils "github.com/tricorder/src/testing/bazel"
 )
 
 const code string = `
@@ -18,7 +19,7 @@ const code string = `
 BPF_PERF_OUTPUT(events);
 int sample_probe(struct bpf_perf_event_data* ctx) {
 	const char word[] = "hello world";
-	bpf_trace_printk("submitting data ... \n");
+	bpf_trace_printk("length=%d\n", sizeof(word));
 	events.perf_submit(ctx, (void*)word, sizeof(word));
   return 0;
 }
@@ -61,7 +62,11 @@ func TestDemoVanillaGoBPFAPI(t *testing.T) {
 	assert := assert.New(t)
 	require := require.New(t)
 
-	m := bcc.NewModule(code, []string{})
+	const sampleJSONBPFCPath = "modules/sample_json/sample_json.bcc"
+	bccCode, err := testutils.ReadTestFile(sampleJSONBPFCPath)
+	require.Nil(err)
+
+	m := bcc.NewModule(bccCode, []string{})
 	defer m.Close()
 
 	probeFD, err := m.LoadPerfEvent("sample_probe")

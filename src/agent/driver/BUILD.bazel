@@ -34,7 +34,6 @@ go_test(
     embed = [":driver"],
     tags = ["bpf"],
     deps = [
-        "//src/agent/ebpf/bcc/linux_headers",
         "//src/pb/module",
         "//src/pb/module/common",
         "//src/pb/module/ebpf",

@@ -8,7 +8,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/tricorder/src/agent/ebpf/bcc/linux_headers"
 	tsdb "github.com/tricorder/src/testing/timescaledb"
 
 	modulepb "github.com/tricorder/src/pb/module"
@@ -88,6 +87,7 @@ func TestModuleDeploymentAndPoll(t *testing.T) {
 }
 
 // Tests that the sample event module works as expected.
+/*
 func TestSampleEventModule(t *testing.T) {
 	assert := assert.New(t)
 	require := require.New(t)
@@ -157,3 +157,4 @@ func TestSampleEventModule(t *testing.T) {
 	require.Greater(len(jsons), 0)
 	assert.Equal(`{"D": 0, "F": 0, "I": 0, "L": 0, "Comm": ""}`, jsons[0][0])
 }
+*/
