@@ -89,6 +89,8 @@ func (m *Module) Poll() error {
 	outputDataItems := make([][]byte, 0)
 
 	for _, data := range dataItems {
+		log.Infof("lenght=%d data=%v", len(data), data)
+
 		_, err := wasm.MallocInputBuf(m.wasm, int32(len(data)))
 		if err != nil {
 			return fmt.Errorf(
@@ -146,6 +148,7 @@ func (m *Module) Poll() error {
 
 func (m *Module) outputJSON(jsons [][]byte) error {
 	for _, json := range jsons {
+		log.Infof("length=%d json=%v", len(json), json)
 		// Found in the test that there is mysterious triling null chars outputted by eBPF probes.
 		// So just trim them away.
 		json = bytes.Trim(json, "\x00")
