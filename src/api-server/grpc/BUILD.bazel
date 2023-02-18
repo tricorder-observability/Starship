@@ -42,7 +42,6 @@ go_test(
         "//src/api-server/testing",
         "//src/testing/pg",
         "//src/utils/channel",
-        "//src/utils/pg",
         "//src/utils/sqlite",
         "@com_github_mattn_go_sqlite3//:go-sqlite3",
         "@com_github_sirupsen_logrus//:logrus",
