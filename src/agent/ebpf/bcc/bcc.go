@@ -13,6 +13,7 @@ import (
 	"github.com/tricorder/src/agent/ebpf/common"
 
 	ebpfpb "github.com/tricorder/src/pb/module/ebpf"
+	"github.com/tricorder/src/utils/errors"
 )
 
 // Wraps BCC Module object
@@ -28,14 +29,15 @@ func newModule(code string) (*module, error) {
 	return &module{m: bccModule}, nil
 }
 
+// NewPerfBuffer returns a PerfBuffer object with the input name.
 func (m *module) NewPerfBuffer(name string) (*PerfBuffer, error) {
 	return NewPerfBuffer(m.m, name)
 }
 
 // LoadKprobe load the kprobe specified by the input name, and returns the file descriptor pointed to
 // the loaded kprobe; returns error if failed.
-func (m *module) LoadKprobe(n string) (int, error) {
-	return m.m.LoadKprobe(n)
+func (m *module) LoadKprobe(name string) (int, error) {
+	return m.m.LoadKprobe(name)
 }
 
 // TODO(yzhao): Detect system's CPU count, and set this value as 4 * CPU-count.
@@ -49,11 +51,12 @@ const maxActiveRetProbes = 512
 
 func (m *module) attachKEntryProbe(syscallName, probeName string) error {
 	probe, err := m.m.LoadKprobe(probeName)
+	context := fmt.Sprintf("attaching kentryprobe '%s' to syscall '%s'", probeName, syscallName)
 	if err != nil {
-		return fmt.Errorf("failed to load %s, error: %v", probeName, err)
+		return errors.Wrap(context, "load", err)
 	}
 	if err := m.m.AttachKprobe(syscallName, probe, maxActiveRetProbes); err != nil {
-		return fmt.Errorf("failed to attach kprobe %s, error: %v", probeName, err)
+		return errors.Wrap(context, "attach", err)
 	}
 	return nil
 }
@@ -106,12 +109,10 @@ func (m *module) attachProbe(probe *ebpfpb.ProbeSpec) error {
 // The following values indicate the corresponding argument is ignored by the underlying system
 // attachment routines.
 const (
-	ignorePID int = -1
-	ignoreCPU int = -1
-
-	ignoreGroupFD int = -1
-
 	ignoreSampleFreq int = 0
+	ignorePID        int = -1
+	ignoreCPU        int = -1
+	ignoreGroupFD    int = -1
 )
 
 // attachSampleProbe attaches a perf event which periodicially got triggered.
@@ -123,7 +124,7 @@ func (m *module) attachSampleProbe(probe *ebpfpb.ProbeSpec) error {
 		return fmt.Errorf("while attaching sampling perf event, failed to load perf event probe '%s', error: %v",
 			prototext.Format(probe), err)
 	}
-	log.Printf("SamplePeriodNanos: %d ", int(probe.SamplePeriodNanos))
+	log.Printf("SamplePeriodNanos: %d", probe.SamplePeriodNanos)
 	// Parameter names:
 	// (evType, evConfig int, samplePeriod int, sampleFreq int, pid, cpu, groupFd, fd int)
 	err = m.m.AttachPerfEvent(common.PerfTypeSoftware, common.PerfCountSWCPUClock, int(probe.SamplePeriodNanos),
