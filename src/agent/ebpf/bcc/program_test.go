@@ -48,7 +48,7 @@ func TestLoadAndPollData(t *testing.T) {
 		Probes: []*ebpfpb.ProbeSpec{
 			{
 				Type:   ebpfpb.ProbeSpec_KPROBE,
-				Target: "read",
+				Target: "sys_read",
 				Entry:  "syscall__probe_entry_read",
 			},
 		},
