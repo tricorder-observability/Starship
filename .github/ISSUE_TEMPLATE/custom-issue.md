@@ -1,18 +1,18 @@
 ---
-name: Random issues
-about: Describe this issue template's purpose here.
+name: Custom issue
+about: Issues do not fall into the previous categories
 title: ''
-labels: ''
-assignees: ''
+labels: help wanted
+assignees: yaxiong-zhao
 
 ---
 
-** Context **
+**Context**
 What's the context of this issue?
 For example, what's the current status, and why they should be changed.
 
-** Objective **
+**Objective**
 Once this issue is done, what's the end result?
 
-** Proposed solution **
+**Proposed solution**
 How to achieve the objective?
