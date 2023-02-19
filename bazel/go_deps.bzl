@@ -673,6 +673,7 @@ def go_deps():
         # to the deps of the build rule, in order to build gobpf against bazel
         # built BCC & LLVM.
         patches = ["//:bazel/external/go_bcc_BUILD.patch"],  # keep
+        # NOTE: `commit` cannot be specified if replace is present.
         replace = "github.com/tricorder-observability/gobpf",
         sum = "h1:gCycGqAORrkUI09hhlT6KGF8v9ngd5frL5bzteg9sXQ=",
         version = "v0.2.3",
