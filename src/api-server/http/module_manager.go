@@ -28,6 +28,15 @@ type ModuleManager struct {
 	PGClient      *pg.Client
 }
 
+// ShowAccount godoc
+// @Summary      Add module
+// @Description  Create Module
+// @Tags         module
+// @Accept       json
+// @Produce      json
+// @Param			   account	body		module.Module	true	"Add module"
+// @Success      200  {object}  module.Module
+// @Router       /api/addCode [post]
 func (mgr *ModuleManager) createModule(c *gin.Context) {
 	var body modulepb.Module
 
@@ -87,6 +96,15 @@ func (mgr *ModuleManager) createModule(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": "200", "message": "create success, module id: " + mod.ID})
 }
 
+// ShowAccount godoc
+// @Summary      List all module
+// @Description  Create Module
+// @Tags         module
+// @Accept       json
+// @Produce      json
+// @Param			fields	query		string	false	"query field search like 'id,name,createTime'"
+// @Success      200  {array}  module.Module
+// @Router       /api/listCode [get]
 func (mgr *ModuleManager) listCode(c *gin.Context) {
 	var resultList []dao.ModuleGORM
 	var err error
@@ -106,6 +124,15 @@ func (mgr *ModuleManager) listCode(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": "200", "message": "Success", "data": resultList})
 }
 
+// ShowAccount godoc
+// @Summary      Delete module by id
+// @Description  Create Module
+// @Tags         module
+// @Accept       json
+// @Produce      json
+// @Param			id	query		string	true	"delete module id"
+// @Success      200  {object}  module.Module
+// @Router       /api/deleteCode [get]
 func (mgr *ModuleManager) deleteCode(c *gin.Context) {
 	id, exist := c.GetQuery("id")
 	if !exist {
@@ -121,6 +148,15 @@ func (mgr *ModuleManager) deleteCode(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": "200", "message": "Success"})
 }
 
+// ShowAccount godoc
+// @Summary      Deploy module
+// @Description  Create Module
+// @Tags         module
+// @Accept       json
+// @Produce      json
+// @Param			id	query		string	true	"deploy module id"
+// @Success      200  {object}  module.Module
+// @Router       /api/deployCode [post]
 func (mgr *ModuleManager) deployCode(c *gin.Context) {
 	id, exist := c.GetQuery("id")
 	if !exist {
@@ -152,6 +188,15 @@ func (mgr *ModuleManager) deployCode(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": "200", "message": "prepare to deploy module, id: " + uid})
 }
 
+// ShowAccount godoc
+// @Summary      Undeploy module by id
+// @Description  Create Module
+// @Tags         module
+// @Accept       json
+// @Produce      json
+// @Param			id	query		string	true	"undeploy module id"
+// @Success      200  {object}  module.Module
+// @Router       /api/undeployCode [post]
 func (mgr *ModuleManager) undeployCode(c *gin.Context) {
 	id, exist := c.GetQuery("id")
 	if !exist {

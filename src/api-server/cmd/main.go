@@ -12,6 +12,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 	ctrl "sigs.k8s.io/controller-runtime"
 
+	"github.com/tricorder/src/api-server/cmd/docs"
 	"github.com/tricorder/src/api-server/dao"
 	sg "github.com/tricorder/src/api-server/grpc"
 	"github.com/tricorder/src/api-server/http"
@@ -62,8 +63,18 @@ var (
 	)
 )
 
+// @contact.name   API Support
+// @license.name  Apache 2.0
+// @license.url   http://www.apache.org/licenses/LICENSE-2.0.html
 func main() {
 	flag.Parse()
+
+	docs.SwaggerInfo.Title = "Swagger Example API"
+	docs.SwaggerInfo.Description = "This is a sample server Petstore server."
+	docs.SwaggerInfo.Version = "1.0"
+	docs.SwaggerInfo.Host = "petstore.swagger.io"
+	docs.SwaggerInfo.BasePath = "/v2"
+	docs.SwaggerInfo.Schemes = []string{"http", "https"}
 
 	// Log the line number.
 	log.SetReportCaller(true)

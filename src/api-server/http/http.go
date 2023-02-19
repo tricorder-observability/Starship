@@ -12,6 +12,9 @@ import (
 	"github.com/tricorder/src/utils/pg"
 
 	_ "github.com/tricorder/src/utils/log"
+
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 type Config struct {
@@ -60,6 +63,7 @@ func StartHTTPService(cfg Config, pgClient *pg.Client) {
 
 	addr := fmt.Sprintf(":%d", cfg.Port)
 	log.Infof("Listening on %s ...", addr)
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	_ = router.Run(addr)
 }

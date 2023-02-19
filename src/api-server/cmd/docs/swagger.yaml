@@ -1,0 +1,234 @@
+definitions:
+  common.DataField:
+    properties:
+      name:
+        type: string
+      type:
+        $ref: '#/definitions/common.DataField_Type'
+    type: object
+  common.DataField_Type:
+    enum:
+    - 0
+    - 1
+    - 2
+    - 3
+    - 4
+    - 5
+    - 6
+    type: integer
+    x-enum-varnames:
+    - DataField_BOOL
+    - DataField_DATE
+    - DataField_INT
+    - DataField_INTEGER
+    - DataField_JSON
+    - DataField_JSONB
+    - DataField_TEXT
+  common.Format:
+    enum:
+    - 0
+    - 1
+    type: integer
+    x-enum-varnames:
+    - Format_TEXT
+    - Format_BINARY
+  common.Lang:
+    enum:
+    - 0
+    - 1
+    type: integer
+    x-enum-varnames:
+    - Lang_C
+    - Lang_WAT
+  common.Schema:
+    properties:
+      fields:
+        items:
+          $ref: '#/definitions/common.DataField'
+        type: array
+      name:
+        type: string
+    type: object
+  ebpf.ProbeSpec:
+    properties:
+      entry:
+        type: string
+      return:
+        type: string
+      sample_period_nanos:
+        type: integer
+      target:
+        type: string
+      type:
+        $ref: '#/definitions/ebpf.ProbeSpec_Type'
+    type: object
+  ebpf.ProbeSpec_Type:
+    enum:
+    - 0
+    - 1
+    type: integer
+    x-enum-varnames:
+    - ProbeSpec_KPROBE
+    - ProbeSpec_SAMPLE_PROBE
+  ebpf.Program:
+    properties:
+      code:
+        type: string
+      fmt:
+        $ref: '#/definitions/common.Format'
+      lang:
+        $ref: '#/definitions/common.Lang'
+      perf_buffer_name:
+        type: string
+      probes:
+        items:
+          $ref: '#/definitions/ebpf.ProbeSpec'
+        type: array
+    type: object
+  module.Module:
+    properties:
+      ebpf:
+        $ref: '#/definitions/ebpf.Program'
+      name:
+        type: string
+      wasm:
+        $ref: '#/definitions/wasm.Program'
+      wasm_output_encoding:
+        $ref: '#/definitions/module.Module_EncodingParadigm'
+    type: object
+  module.Module_EncodingParadigm:
+    enum:
+    - 0
+    - 1
+    - 2
+    type: integer
+    x-enum-varnames:
+    - Module_NONE
+    - Module_TLV
+    - Module_JSON
+  wasm.Program:
+    properties:
+      code:
+        items:
+          type: integer
+        type: array
+      fmt:
+        $ref: '#/definitions/common.Format'
+      fn_name:
+        type: string
+      lang:
+        $ref: '#/definitions/common.Lang'
+      output_schema:
+        $ref: '#/definitions/common.Schema'
+    type: object
+info:
+  contact: {}
+paths:
+  /api/addCode:
+    post:
+      consumes:
+      - application/json
+      description: Create Module
+      parameters:
+      - description: Add module
+        in: body
+        name: account
+        required: true
+        schema:
+          $ref: '#/definitions/module.Module'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/module.Module'
+      summary: Add module
+      tags:
+      - accounts
+  /api/deleteCode:
+    get:
+      consumes:
+      - application/json
+      description: Create Module
+      parameters:
+      - description: delete module id
+        in: query
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/module.Module'
+      summary: Delete module by id
+      tags:
+      - accounts
+  /api/deployCode:
+    post:
+      consumes:
+      - application/json
+      description: Create Module
+      parameters:
+      - description: deploy module id
+        in: query
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/module.Module'
+      summary: Deploy module
+      tags:
+      - accounts
+  /api/listCode:
+    get:
+      consumes:
+      - application/json
+      description: Create Module
+      parameters:
+      - description: query field search like 'id,name,createTime'
+        in: query
+        name: fields
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/module.Module'
+            type: array
+      summary: List all module
+      tags:
+      - accounts
+  /api/undeployCode:
+    post:
+      consumes:
+      - application/json
+      description: Create Module
+      parameters:
+      - description: undeploy module id
+        in: query
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/module.Module'
+      summary: Undeploy module by id
+      tags:
+      - accounts
+swagger: "2.0"

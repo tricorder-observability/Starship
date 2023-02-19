@@ -26,6 +26,8 @@ go_library(
         "@com_github_gin_gonic_gin//:gin",
         "@com_github_mattn_go_sqlite3//:go-sqlite3",
         "@com_github_sirupsen_logrus//:logrus",
+        "@com_github_swaggo_files//:files",
+        "@com_github_swaggo_gin_swagger//:gin-swagger",
     ],
 )
 
