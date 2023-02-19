@@ -149,7 +149,7 @@ func (mgr *ModuleManager) deployCode(c *gin.Context) {
 
 	log.Info("create PG table and Grafana dashboard success.")
 
-	c.JSON(http.StatusOK, gin.H{"code": "200", "message": "prepare to deploy ...", "id": uid})
+	c.JSON(http.StatusOK, gin.H{"code": "200", "message": "prepare to deploy module, id: " + uid})
 }
 
 func (mgr *ModuleManager) undeployCode(c *gin.Context) {
