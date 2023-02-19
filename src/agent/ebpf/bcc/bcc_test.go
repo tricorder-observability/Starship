@@ -86,7 +86,7 @@ func TestDemoVanillaGoBPFAPI(t *testing.T) {
 	perfMap.Start()
 	for i := 0; i < 10; i++ {
 		data := <-channel
-		log.Print("len(data)", len(data))
+		log.Print("golang len(data)", len(data))
 		// assert.Equal("hello world\x00", string(data))
 		assert.True(true)
 	}
