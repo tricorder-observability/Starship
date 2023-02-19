@@ -674,8 +674,8 @@ def go_deps():
         # built BCC & LLVM.
         patches = ["//:bazel/external/go_bcc_BUILD.patch"],  # keep
         replace = "github.com/tricorder-observability/gobpf",
-        sum = "h1:gCycGqAORrkUI09hhlT6KGF8v9ngd5frL5bzteg9sXQ=",
-        version = "v0.2.3",
+        sum = "h1:gSuqEj1rZukZXuIDUExLvgjz6rbM7uFaoQT8xhwantQ=",
+        version = "v0.2.3-yzhao-test",
     )
 
     go_repository(
