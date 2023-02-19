@@ -83,12 +83,16 @@ func (m *module) attachKProbe(probe *ebpfpb.ProbeSpec) error {
 	syscallName := bcc.GetSyscallFnName(probe.Target)
 	if probe.Entry != "" {
 		if err := m.attachKEntryProbe(syscallName, probe.Entry); err != nil {
-			return err
+			if err := m.attachKEntryProbe(probe.Target, probe.Entry); err != nil {
+				return err
+			}
 		}
 	}
 	if probe.Return != "" {
 		if err := m.attachKReturnProbe(syscallName, probe.Return); err != nil {
-			return err
+			if err := m.attachKReturnProbe(probe.Target, probe.Return); err != nil {
+				return err
+			}
 		}
 	}
 	return nil
