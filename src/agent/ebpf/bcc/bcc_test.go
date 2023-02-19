@@ -48,7 +48,7 @@ func TestAttachPerfEvent(t *testing.T) {
 	require.Nil(err)
 	perfBuf.Start()
 
-	time.Sleep(10 * time.Second)
+	time.Sleep(1 * time.Second)
 	bytesSlice := perfBuf.Poll()
 	for _, bytes := range bytesSlice {
 		assert.Equal("hello world\x00", string(bytes))
