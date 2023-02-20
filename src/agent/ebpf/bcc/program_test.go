@@ -47,8 +47,8 @@ func TestLoadAndPollData(t *testing.T) {
 		PerfBufferName: "events",
 		Probes: []*ebpfpb.ProbeSpec{
 			{
-				Type:   ebpfpb.ProbeSpec_KPROBE,
-				Target: "syscall_read",
+				Type:   ebpfpb.ProbeSpec_SYSCALL_PROBE,
+				Target: "read",
 				Entry:  "syscall__probe_entry_read",
 			},
 		},
