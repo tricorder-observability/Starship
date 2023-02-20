@@ -11,7 +11,10 @@ test --jobs 32
 build --config=clang
 
 # https://app.buildbuddy.io/docs/setup
-# Enable cache and full cache option
+# Enable remote cache when building on GitHub actions.
+# Remote cache is disabled for local build, because it's actually slower to
+# upload local build results to and fetch remotely-cached results from
+# remote cache server.
 build:github-actions --config=clang
 build:github-actions --bes_results_url=https://app.buildbuddy.io/invocation/
 build:github-actions --bes_backend=grpcs://remote.buildbuddy.io
@@ -19,12 +22,19 @@ build:github-actions --remote_cache=grpcs://remote.buildbuddy.io
 build:github-actions --remote_timeout=3600
 
 # This is to flush bazel cache for new version of clang/gcc.
+# Because changing env variable in the sandbox forces bazel to rebuild
+# everything; thus when we increment Clang version, we wont run into situation
+# where artifacts built by different compiler version causes hidden issues.
+#
+# This does not apply to Go, as Bazel's Golang tool chain version is read from
+# go.mod file.
+#
+# https://bazel.build/reference/command-line-reference#flag--action_env
 build --action_env=CLANG_COMPILER_VERSION=14.0_0
+# https://bazel.build/reference/command-line-reference#flag--host_action_env
 build --host_action_env=CLANG_COMPILER_VERSION=14.0_0
 
 # This causes binaries not available locally since it's cached remotely.
-# https://github.com/tricorder-observability/dev-env/issues/1
-# See this for a potential fix
 # build --remote_download_minimal
 
 build:clang --action_env=CC
