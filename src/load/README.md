@@ -34,6 +34,11 @@ Flags:
 ```
 
 ## Demo
+
 ```shell
-./bazel-bin/src/load/load_/load load -b ~/src/starship/modules/ddos_event/ddos_event.bcc -w ~/src/starship/modules/ddos_event/cjson.wasm -m ~/src/starship/modules/ddos_event/ddos_json.json -o ~/src/starship/src/api-server/cmd/src/api-server/http/
+starship-load load \
+    -b modules/ddos_event/ddos_event.bcc \
+    -w modules/ddos_event/cjson.wasm \
+    -m modules/ddos_event/ddos_json.json \
+    -o src/api-server/cmd/src/api-server/http/
 ```
