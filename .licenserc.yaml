@@ -37,4 +37,5 @@ header:
     - '**/*.yml'
     - '**/*.tar.gz'
     - 'src/testing/bazel/test'
+    - 'src/utils/tar/testdata/hello.txt'
     - 'src/agent/ebpf/bcc/linux_headers/testdata/config'
