@@ -204,12 +204,13 @@ func (m *module) attachUProbe(probe *ebpfpb.ProbeSpec) error {
 	if probe.Type != ebpfpb.ProbeSpec_UPROBE {
 		return fmt.Errorf("must be uprobe, got %v", probe)
 	}
+	context := fmt.Sprintf("while attaching uprobe '%v', target cannot be empty", probe)
 	if len(probe.Target) == 0 {
-		return fmt.Errorf("while attaching uprobe '%v', target cannot be empty", probe)
+		return errors.Wrap(context, "target", fmt.Errorf("cannot be empty"))
 	}
 
 	if len(probe.BinaryPath) == 0 {
-		return fmt.Errorf("while attaching uprobe '%v', binary path cannot be empty", probe)
+		return errors.Wrap(context, "binary path", fmt.Errorf("cannot be empty"))
 	}
 
 	if probe.Entry != "" {
