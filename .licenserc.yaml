@@ -2,17 +2,39 @@ header:
   license:
     # refs: https://spdx.org/licenses/
     spdx-id: AGPL-3.0-or-later
-    copyright-owner: tricorder
     content: |
-      license content here,test
+      Copyright (C) 2023  tricorder-observability
+
+      This program is free software: you can redistribute it and/or modify
+      it under the terms of the GNU Affero General Public License as published by
+      the Free Software Foundation, either version 3 of the License, or
+      (at your option) any later version.
+
+      This program is distributed in the hope that it will be useful,
+      but WITHOUT ANY WARRANTY; without even the implied warranty of
+      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+      GNU Affero General Public License for more details.
+
+      You should have received a copy of the GNU Affero General Public License
+      along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   # The paths are the path list that will be checked (and fixed)
   paths:
     - 'src/**'
 
-  paths-ignore: # <8>
-    - 'src/**/.h'
-    - 'src/**/.c'
-    - 'src/**/.wasm'
-    - 'src/**/.pb.go'
-    - 'src/**/.bazel'
+  paths-ignore:
+    - '**/*.md'
+    - '**/*.h'
+    - '**/*.wat'
+    - '**/*.c'
+    - '**/LICENSE'
+    - '**/*.conf'
+    - '**/*.wasm'
+    - '**/*.proto'
+    - '**/*.pb.go'
+    - '**/BUILD.bazel'
+    - '**/*.yaml'
+    - '**/*.yml'
+    - '**/*.tar.gz'
+    - 'src/testing/bazel/test'
+    - 'src/agent/ebpf/bcc/linux_headers/testdata/config'
