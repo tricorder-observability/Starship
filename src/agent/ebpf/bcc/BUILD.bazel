@@ -12,7 +12,6 @@ go_library(
     deps = [
         "//src/agent/ebpf/common",
         "//src/pb/module/ebpf",
-        "//src/utils/common",
         "//src/utils/errors",
         "//src/utils/log",
         "//src/utils/pb",

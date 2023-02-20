@@ -96,7 +96,7 @@ func TestSampleEventModule(t *testing.T) {
 	assert.Nil(linux_headers.Init())
 
 	const bccPath = "modules/sample_event/sample_event.bcc"
-	const wasmRelPath = "modules/sample_event/cjson.wasm"
+	const wasmRelPath = "modules/sample_event/write_events_to_output.wasm"
 
 	bccCode, err := testutils.ReadTestFile(bccPath)
 	require.Nil(err)
