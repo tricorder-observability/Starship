@@ -1,11 +1,13 @@
-# API Server http document
+# Docs
 
-## create swagger
-- use swag cli create docs[swag](https://pkg.go.dev/github.com/go-openapi/swag)
+## Swagger API spec
+
+Use [swag](https://pkg.go.dev/github.com/go-openapi/swag) CLI to create API spec
+
 ```shell
 cd starship/src/api-server/cmd
 swag init -g ./api-server/http/http.go -d ../../
 ```
 
-## Visit document
-http://host:port/swagger/index.html
+Start API Server, and visite the URL:
+`http://<API-Server-address>/swagger/index.html`
