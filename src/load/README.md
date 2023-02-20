@@ -1,7 +1,7 @@
 
 # starship load
 
-load local module to sqlit db file
+load local module to SQLite db file
 
 ## Build binary from source
 
@@ -27,7 +27,7 @@ starship-load load -h
 
 Flags:
   -b, --bcc-file-path string      The file path of bcc code.
-  -d, --db-file-path string       The file path of sqlit db.
+  -o, --output string       The file path of SQLite db.
   -h, --help                      help for load
   -m, --module-file-path string   The file path of module in json format.
   -w, --wasm-file-path string     The file path of wasm code.
@@ -35,5 +35,5 @@ Flags:
 
 ## Demo
 ```shell
-./bazel-bin/src/load/load_/load load -b ~/src/starship/modules/ddos_event/ddos_event.bcc -w ~/src/starship/modules/ddos_event/cjson.wasm -m ~/src/starship/modules/ddos_event/ddos_json.json -d ~/src/starship/src/api-server/cmd/src/api-server/http/
+./bazel-bin/src/load/load_/load load -b ~/src/starship/modules/ddos_event/ddos_event.bcc -w ~/src/starship/modules/ddos_event/cjson.wasm -m ~/src/starship/modules/ddos_event/ddos_json.json -o ~/src/starship/src/api-server/cmd/src/api-server/http/
 ```
