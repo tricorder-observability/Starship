@@ -120,7 +120,7 @@ func (s *Deployer) DeployModule(stream pb.ModuleDeployer_DeployModuleServer) err
 				Deploy: pb.DeployModuleReq_DEPLOY,
 			}
 
-			log.Infof("Sending module deployment request to API Server: %s", &codeReq.Name)
+			log.Infof("Sending module deployment request to API Server: %s", codeReq.Name)
 			err = stream.Send(&codeReq)
 			if err != nil {
 				// TODO(jian): The failure reason recorded in the err,
