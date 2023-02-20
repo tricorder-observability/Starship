@@ -1,0 +1,28 @@
+{
+    "name":"ddos_event_module",
+    "wasm":{
+        "code":"",
+        "fn_name":"write_events_to_output",
+        "output_schema":{
+            "name":"",
+            "fields":[
+                {
+                    "name":"data",
+                    "type": 5
+                }
+            ]
+        }
+    },
+    "ebpf":{
+        "code":"",
+        "perf_buffer_name":"events",
+        "probes":[
+            {
+                "target":"ip_rcv",
+                "entry":"detect_ddos",
+                "return":"",
+                "type": 0
+            }
+        ]
+    }
+}
