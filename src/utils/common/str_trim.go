@@ -17,3 +17,8 @@ func StrTrimAfter(s, sep string) string {
 	pos := strings.Index(s, sep)
 	return s[:pos]
 }
+
+// StrTrimC returns a string with the first appearance of `\x00` (null character) and all its trailing bytes removed.
+func StrTrimC(s string) string {
+	return StrTrimAfter(s, "\x00")
+}
