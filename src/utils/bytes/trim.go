@@ -10,5 +10,5 @@ func TrimAfter(s, sep []byte) []byte {
 
 // TrimC returns a byte slice with the first appearance of `\x00` (null character) and all its trailing bytes removed.
 func TrimC(s []byte) []byte {
-	return TrimAfter(s, "\x00")
+	return TrimAfter(s, []byte("\x00"))
 }
