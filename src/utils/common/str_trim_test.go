@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestStrTrim(t *testing.T) {
+func TestStrTrimPrefix(t *testing.T) {
 	assert := assert.New(t)
 	assert.Equal("12345", StrTrimPrefix("012345", 1))
 	assert.Equal("01234", StrTrimSuffix("012345", 1))
