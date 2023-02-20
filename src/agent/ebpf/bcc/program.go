@@ -3,9 +3,8 @@ package bcc
 import (
 	"fmt"
 
-	log "github.com/sirupsen/logrus"
-
 	ebpfpb "github.com/tricorder/src/pb/module/ebpf"
+	"github.com/tricorder/src/utils/log"
 
 	"github.com/tricorder/src/utils/pb"
 )

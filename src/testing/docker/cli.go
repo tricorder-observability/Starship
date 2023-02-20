@@ -3,7 +3,7 @@ package testing
 import (
 	"strings"
 
-	log "github.com/sirupsen/logrus"
+	"github.com/tricorder/src/utils/log"
 
 	"github.com/tricorder/src/utils/exec"
 )

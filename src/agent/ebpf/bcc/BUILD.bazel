@@ -13,9 +13,9 @@ go_library(
         "//src/agent/ebpf/common",
         "//src/pb/module/ebpf",
         "//src/utils/errors",
+        "//src/utils/log",
         "//src/utils/pb",
         "@com_github_iovisor_gobpf//bcc",
-        "@com_github_sirupsen_logrus//:logrus",
     ],
 )
 

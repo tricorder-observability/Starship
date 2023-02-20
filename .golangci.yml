@@ -45,6 +45,7 @@ linters:
   - whitespace
   - goimports
   - revive
+  - depguard
 
 linters-settings:
   errcheck:
@@ -64,3 +65,11 @@ linters-settings:
     line-length: 120
     # Tab width in spaces.
     tab-width: 2
+  depguard:
+    list-type: blacklist
+    packages:
+      # logging is allowed only by github.com/tricorder/src/utils/log, 
+      # logrus is allowed to use only in log package
+      - github.com/sirupsen/logrus
+    ignore-file-rules:
+      - "**/utils/log/*.go"
