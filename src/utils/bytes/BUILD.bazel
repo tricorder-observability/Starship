@@ -1,0 +1,15 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+
+go_library(
+    name = "bytes",
+    srcs = ["trim.go"],
+    importpath = "github.com/tricorder/src/utils/bytes",
+    visibility = ["//visibility:public"],
+)
+
+go_test(
+    name = "bytes_test",
+    srcs = ["trim_test.go"],
+    embed = [":bytes"],
+    deps = ["@com_github_stretchr_testify//assert"],
+)

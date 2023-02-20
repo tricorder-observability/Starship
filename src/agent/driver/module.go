@@ -1,7 +1,6 @@
 package driver
 
 import (
-	"bytes"
 	"fmt"
 
 	log "github.com/sirupsen/logrus"
@@ -11,6 +10,7 @@ import (
 	"github.com/tricorder/src/utils/pg"
 
 	modulepb "github.com/tricorder/src/pb/module"
+	"github.com/tricorder/src/utils/bytes"
 )
 
 // Module holds data about an eBPF+WASM module waiting for being deployed.
@@ -146,9 +146,10 @@ func (m *Module) Poll() error {
 
 func (m *Module) outputJSON(jsons [][]byte) error {
 	for _, json := range jsons {
-		// Found in the test that there is mysterious triling null chars outputted by eBPF probes.
-		// So just trim them away.
-		json = bytes.Trim(json, "\x00")
+		// eBPF perf buffer might output data with trailing null characters.
+		// If the perf buffer output is treated as JSON directly, then the output with trailing null characters would
+		// fail to be inserted into the database.
+		json = bytes.TrimC(json)
 		err := m.pgClient.WriteRecord([]interface{}{json}, m.outputSchema)
 		if err != nil {
 			return fmt.Errorf("while outputing JSON data, failed to write record to database, error: %v", err)
