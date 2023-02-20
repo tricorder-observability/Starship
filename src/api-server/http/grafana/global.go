@@ -1,4 +1,4 @@
-// Copyright (C) 2023  tricorder-observability
+// Copyright (C) 2023  Tricorder Observability
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -16,9 +16,10 @@
 package grafana
 
 // TODO(zhihui): Consider put these into a new type
-// type Client struct {
-//     ... base url, createAuthKey URI etc.
-// }
+//
+//	type Client struct {
+//	    ... base url, createAuthKey URI etc.
+//	}
 var (
 	BaseURL            string
 	CreateAuthKeysURI  string

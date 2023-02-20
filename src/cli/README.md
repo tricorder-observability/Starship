@@ -8,10 +8,10 @@ TODO(jian): we need to create a CD pipeline to release this CLI binary, so that 
 
 ```shell
 #Check the release page:
-#https://github.com/tricorder-observability/starship/releases
+#https://github.com/Tricorder Observability/starship/releases
 
-export STARSHIP_VERSION=`curl https://github.com/tricorder-observability/starship-cli/releases/latest  -Ls -o /dev/null -w %{url_effective} | grep -oE "[^/]+$"`
-curl -LO https://github.com/tricorder-observability/starship-cli/releases/download/$STARSHIP_VERSION/starship-cli_${STARSHIP_VERSION}_linux_amd64.tar.gz
+export STARSHIP_VERSION=`curl https://github.com/Tricorder Observability/starship-cli/releases/latest  -Ls -o /dev/null -w %{url_effective} | grep -oE "[^/]+$"`
+curl -LO https://github.com/Tricorder Observability/starship-cli/releases/download/$STARSHIP_VERSION/starship-cli_${STARSHIP_VERSION}_linux_amd64.tar.gz
 tar -xvf starship-cli_${STARSHIP_VERSION}_linux_amd64.tar.gz  -C /usr/local/bin/
 
 starship-cli -h
@@ -20,7 +20,7 @@ starship-cli -h
 - Build binary from source
 
 ```shell
-git clone https://github.com/tricorder-observability/starship.git
+git clone https://github.com/Tricorder Observability/starship.git
 
 cd starship
 

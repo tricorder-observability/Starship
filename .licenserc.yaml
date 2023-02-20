@@ -3,7 +3,7 @@ header:
     # refs: https://spdx.org/licenses/
     spdx-id: AGPL-3.0-or-later
     content: |
-      Copyright (C) 2023  tricorder-observability
+      Copyright (C) 2023 Tricorder Observability
 
       This program is free software: you can redistribute it and/or modify
       it under the terms of the GNU Affero General Public License as published by

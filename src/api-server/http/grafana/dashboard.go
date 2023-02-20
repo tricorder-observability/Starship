@@ -1,4 +1,4 @@
-// Copyright (C) 2023  tricorder-observability
+// Copyright (C) 2023  Tricorder Observability
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -25,7 +25,7 @@ import (
 )
 
 // TODO(zhihui): Add tests with a running Grafana instance in docker container
-// https://github.com/tricorder-observability/starship/issues/534
+// https://github.com/Tricorder Observability/starship/issues/534
 // See this issue for some ideas
 
 type Dashboard struct {

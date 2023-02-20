@@ -1,4 +1,4 @@
-// Copyright (C) 2023  tricorder-observability
+// Copyright (C) 2023  Tricorder Observability
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -158,13 +158,16 @@ func findKernelConfig(hostRootDir string, version Version, unameStr string) (str
 
 // genAutoConf generate auto conf base on kernel config
 // kernel config:
-//  CONFIG_CC_VERSION_TEXT="gcc (GCC) 12.2.0"
-//  CONFIG_CC_IS_GCC=y
-//  CONFIG_GCC_VERSION=120200
+//
+//	CONFIG_CC_VERSION_TEXT="gcc (GCC) 12.2.0"
+//	CONFIG_CC_IS_GCC=y
+//	CONFIG_GCC_VERSION=120200
+//
 // autoconf.h
-//  #define CONFIG_CC_VERSION_TEXT "gcc (GCC) 12.2.0"
-//  #define CONFIG_CC_IS_GCC 1
-//  #define CONFIG_GCC_VERSION 120200
+//
+//	#define CONFIG_CC_VERSION_TEXT "gcc (GCC) 12.2.0"
+//	#define CONFIG_CC_IS_GCC 1
+//	#define CONFIG_GCC_VERSION 120200
 func genAutoConf(packageHeaderDir, configFilePath string) (int, error) {
 	if !file.Exists(packageHeaderDir) {
 		return 0, fmt.Errorf("empty package header dir %s", packageHeaderDir)
@@ -247,12 +250,12 @@ func applyConfigPatches(hostRootDir, packageHeaderDir, starShipDir, unameStr str
 }
 
 // locateAndInstallPackagedHeaders that will find the Linux Kernel headers in the following order:
-// 1. search closest version from packaged header directory
-// 2. extract it to "/usr/src/linux-headers-<version>-starship" directory
-// 3. modify kernel version in "/usr/src/linux-headers-<version>-starship/include/generated/uapi/linux/version.h"
-// 4. apply config patches in "/usr/src/linux-headers-<version>-starship/include/generated/autoconf.h"
-//    and "/usr/src/linux-headers-<version>-starship/include/generated/timeconst.h"
-// 5. create a symlink from "/usr/src/linux-headers-<version>-starship" to "/usr/src/linux-headers-<version>/build"
+//  1. search closest version from packaged header directory
+//  2. extract it to "/usr/src/linux-headers-<version>-starship" directory
+//  3. modify kernel version in "/usr/src/linux-headers-<version>-starship/include/generated/uapi/linux/version.h"
+//  4. apply config patches in "/usr/src/linux-headers-<version>-starship/include/generated/autoconf.h"
+//     and "/usr/src/linux-headers-<version>-starship/include/generated/timeconst.h"
+//  5. create a symlink from "/usr/src/linux-headers-<version>-starship" to "/usr/src/linux-headers-<version>/build"
 func locateAndInstallPackageHeaders(hostRootDir, libModuleDir, starShipDir,
 	installHeadersDir, unameStr string, version Version,
 ) error {

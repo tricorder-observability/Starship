@@ -1,4 +1,4 @@
-// Copyright (C) 2023  tricorder-observability
+// Copyright (C) 2023  Tricorder Observability
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -42,9 +42,10 @@ func init() {
 // You can then destroy the fixtures by deferring statement:
 // cleaner, pgClient, err := createPGTestFixutre()
 // require.Nil(err)
-// defer func() {
-//   assert.Nil(cleaner())
-// }()
+//
+//	defer func() {
+//	  assert.Nil(cleaner())
+//	}()
 func LaunchContainer() (func() error, *pgutils.Client, error) {
 	pgRunner := &docker.Runner{
 		ImageName: postgresImageName,

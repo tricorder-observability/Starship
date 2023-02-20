@@ -1,4 +1,4 @@
-// Copyright (C) 2023  tricorder-observability
+// Copyright (C) 2023  Tricorder Observability
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -27,7 +27,7 @@ const (
 	// The path of kprobe files under /sys, join with the host sys root path to form the correct path inside container.
 	kprobeEventsSysRelPath = "kernel/debug/tracing/kprobe_events"
 	uprobeEventsSysRelPath = "kernel/debug/tracing/uprobe_events"
-	// https://github.com/tricorder-observability/bcc/commit/50de7107d6a48fcfe4f82d33433960f965d1a16a
+	// https://github.com/Tricorder Observability/bcc/commit/50de7107d6a48fcfe4f82d33433960f965d1a16a
 	// Marker is set here.
 	tricorderMarker = "__tricorder__"
 )
