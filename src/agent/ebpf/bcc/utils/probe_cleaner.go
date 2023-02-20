@@ -1,3 +1,18 @@
+// Copyright (C) 2023  Tricorder Observability
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 package utils
 
 import (
@@ -12,7 +27,7 @@ const (
 	// The path of kprobe files under /sys, join with the host sys root path to form the correct path inside container.
 	kprobeEventsSysRelPath = "kernel/debug/tracing/kprobe_events"
 	uprobeEventsSysRelPath = "kernel/debug/tracing/uprobe_events"
-	// https://github.com/tricorder-observability/bcc/commit/50de7107d6a48fcfe4f82d33433960f965d1a16a
+	// https://github.com/Tricorder Observability/bcc/commit/50de7107d6a48fcfe4f82d33433960f965d1a16a
 	// Marker is set here.
 	tricorderMarker = "__tricorder__"
 )

@@ -43,3 +43,8 @@ print_divider
 echo "Running check_readme ..."
 print_divider
 .github/scripts/check_readme.sh
+
+echo
+print_divider
+echo "Running check_license ..."
+make -C devops/license/ addlicense
