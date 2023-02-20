@@ -228,7 +228,7 @@ func (m *module) attachUProbe(probe *ebpfpb.ProbeSpec) error {
 
 func (m *module) attachTracepoint(probe *ebpfpb.ProbeSpec) error {
 	log.Infof("Attaching kprobe %v", probe)
-	if probe.Type != ebpfpb.ProbeSpec_UPROBE {
+	if probe.Type != ebpfpb.ProbeSpec_TRACEPOINT {
 		return fmt.Errorf("must be tracepoint, got %v", probe)
 	}
 	if len(probe.Target) == 0 {

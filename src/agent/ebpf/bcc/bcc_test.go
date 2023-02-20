@@ -56,19 +56,19 @@ func TestAttachPerfEvent(t *testing.T) {
 	perfBuf.Stop()
 }
 
-const ddos_code string = `
+const probe_code string = `
 #include <linux/skbuff.h>
 #include <uapi/linux/ip.h>
 
-BPF_PERF_OUTPUT(events_ip_rcv);
+BPF_PERF_OUTPUT(events);
 
-int sample_ip_rcv(struct pt_regs *ctx, void *skb){
+int sample_probe(struct pt_regs *ctx, void *skb){
 	const char word[] = "hello world";
-	bpf_trace_printk("submitting data sample_ip_rcv... \n");
-	events_ip_rcv.perf_submit(ctx, (void*)word, sizeof(word));
+	bpf_trace_printk("submitting data sample_probe... \n");
+	events.perf_submit(ctx, (void*)word, sizeof(word));
 }`
 
-// Tests that AttachKProbe non syscall works as expected.
+// Tests that attachKProbe and non syscall works as expected.
 func TestAttachKprobe(t *testing.T) {
 	assert := assert.New(t)
 	require := require.New(t)
@@ -76,23 +76,175 @@ func TestAttachKprobe(t *testing.T) {
 	// init kernel headers
 	assert.Nil(linux_headers.Init())
 
-	m, err := newModule(ddos_code)
+	m, err := newModule(probe_code)
 	require.Nil(err)
 	defer m.Close()
 
 	err = m.attachKProbe(&ebpfpb.ProbeSpec{
 		Type:   ebpfpb.ProbeSpec_KPROBE,
 		Target: "ip_rcv",
-		Entry:  "sample_ip_rcv",
+		Entry:  "sample_probe",
 	})
 	assert.Nil(err)
 
-	perfBuf, err := m.NewPerfBuffer("events_ip_rcv")
+	perfBuf, err := m.NewPerfBuffer("events")
 	require.Nil(err)
 	perfBuf.Start()
 
 	time.Sleep(1 * time.Second)
 	bytesSlice := perfBuf.Poll()
+	for _, bytes := range bytesSlice {
+		assert.Equal("hello world\x00", string(bytes))
+	}
+	perfBuf.Stop()
+
+	// return probe
+	err = m.attachKProbe(&ebpfpb.ProbeSpec{
+		Type:   ebpfpb.ProbeSpec_KPROBE,
+		Target: "ip_rcv",
+		Return: "sample_probe",
+	})
+	assert.Nil(err)
+
+	perfBuf, err = m.NewPerfBuffer("events")
+	require.Nil(err)
+	perfBuf.Start()
+
+	time.Sleep(1 * time.Second)
+	bytesSlice = perfBuf.Poll()
+	for _, bytes := range bytesSlice {
+		assert.Equal("hello world\x00", string(bytes))
+	}
+	perfBuf.Stop()
+}
+
+// Tests that attachSyscallProbe works as expected.
+func TestAttachSyscallProbe(t *testing.T) {
+	assert := assert.New(t)
+	require := require.New(t)
+
+	// init kernel headers
+	assert.Nil(linux_headers.Init())
+
+	m, err := newModule(probe_code)
+	require.Nil(err)
+	defer m.Close()
+
+	err = m.attachSyscallProbe(&ebpfpb.ProbeSpec{
+		Type:   ebpfpb.ProbeSpec_SYSCALL_PROBE,
+		Target: "read",
+		Entry:  "sample_probe",
+	})
+	assert.Nil(err)
+
+	perfBuf, err := m.NewPerfBuffer("events")
+	require.Nil(err)
+	perfBuf.Start()
+
+	time.Sleep(1 * time.Second)
+	bytesSlice := perfBuf.Poll()
+	for _, bytes := range bytesSlice {
+		assert.Equal("hello world\x00", string(bytes))
+	}
+	perfBuf.Stop()
+
+	// return probe
+	err = m.attachSyscallProbe(&ebpfpb.ProbeSpec{
+		Type:   ebpfpb.ProbeSpec_SYSCALL_PROBE,
+		Target: "read",
+		Return: "sample_probe",
+	})
+	assert.Nil(err)
+
+	perfBuf, err = m.NewPerfBuffer("events")
+	require.Nil(err)
+	perfBuf.Start()
+
+	time.Sleep(1 * time.Second)
+	bytesSlice = perfBuf.Poll()
+	for _, bytes := range bytesSlice {
+		assert.Equal("hello world\x00", string(bytes))
+	}
+	perfBuf.Stop()
+}
+
+// Tests that attachTracepoint works as expected.
+func TestAttachTPProbe(t *testing.T) {
+	assert := assert.New(t)
+	require := require.New(t)
+
+	// init kernel headers
+	assert.Nil(linux_headers.Init())
+
+	m, err := newModule(probe_code)
+	require.Nil(err)
+	defer m.Close()
+
+	err = m.attachTracepoint(&ebpfpb.ProbeSpec{
+		Type:   ebpfpb.ProbeSpec_TRACEPOINT,
+		Target: "syscalls:sys_exit_read",
+		Entry:  "sample_probe",
+	})
+	assert.Nil(err)
+
+	perfBuf, err := m.NewPerfBuffer("events")
+	require.Nil(err)
+	perfBuf.Start()
+
+	time.Sleep(1 * time.Second)
+	bytesSlice := perfBuf.Poll()
+	for _, bytes := range bytesSlice {
+		assert.Equal("hello world\x00", string(bytes))
+	}
+	perfBuf.Stop()
+}
+
+// Tests that attachUprobe works as expected.
+func TestAttachUProbe(t *testing.T) {
+	assert := assert.New(t)
+	require := require.New(t)
+
+	// init kernel headers
+	assert.Nil(linux_headers.Init())
+
+	m, err := newModule(probe_code)
+	require.Nil(err)
+	defer m.Close()
+
+	err = m.attachUProbe(&ebpfpb.ProbeSpec{
+		Type:       ebpfpb.ProbeSpec_UPROBE,
+		Target:     "readline",
+		Entry:      "sample_probe",
+		BinaryPath: "/bin/bash",
+	})
+	assert.Nil(err)
+
+	perfBuf, err := m.NewPerfBuffer("events")
+	require.Nil(err)
+	perfBuf.Start()
+
+	time.Sleep(1 * time.Second)
+	bytesSlice := perfBuf.Poll()
+	for _, bytes := range bytesSlice {
+		assert.Equal("hello world\x00", string(bytes))
+	}
+	perfBuf.Stop()
+
+	// return probe
+	err = m.attachUProbe(&ebpfpb.ProbeSpec{
+		Type:       ebpfpb.ProbeSpec_UPROBE,
+		Target:     "readline",
+		Return:     "sample_probe",
+		BinaryPath: "/bin/bash",
+	})
+	assert.Nil(err)
+
+	perfBuf, err = m.NewPerfBuffer("events")
+	require.Nil(err)
+	perfBuf.Start()
+
+	time.Sleep(1 * time.Second)
+	bytesSlice = perfBuf.Poll()
 	for _, bytes := range bytesSlice {
 		assert.Equal("hello world\x00", string(bytes))
 	}

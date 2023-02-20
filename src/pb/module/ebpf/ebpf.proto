@@ -18,6 +18,7 @@ message ProbeSpec {
 
     // A custom perf event, where the probe was triggered periodically with a sample period.
     SAMPLE_PROBE = 5;
+    USDT = 6;
   }
   Type type = 1;
 
