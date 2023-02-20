@@ -11,7 +11,6 @@ And licnese content follows [AGPL3 license header](https://github.com/licenses/l
 When you create new file in `src/` directory, we need to add and check License header before your push.
 
 ```shell
-cd starship
 make addlicense
 ```
 
@@ -20,7 +19,6 @@ make addlicense
 # How to check license
 
 ```shell
-cd starship
 make checklicense
 ```
 

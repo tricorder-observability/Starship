@@ -1,3 +1,4 @@
+ToT:=$(shell git rev-parse --show-toplevel)
 
 .PHONY: install-tools
 install-tools:
@@ -5,8 +6,8 @@ install-tools:
 
 .PHONY: addlicense
 addlicense: install-tools
-	license-eye -c .licenserc.yaml header fix
+	cd ${ToT} && license-eye -c .licenserc.yaml header fix
 
 .PHONY: checklicense
 checklicense: install-tools
-	license-eye -c .licenserc.yaml header check
+	cd ${ToT} && license-eye -c .licenserc.yaml header check

@@ -1,4 +1,4 @@
-// Copyright (C) 2023  Tricorder Observability
+// Copyright (C) 2023 Tricorder Observability
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
