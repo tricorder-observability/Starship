@@ -57,6 +57,8 @@ func (s *PIDCollector) ReportProcess(stream pb.ProcessCollector_ReportProcessSer
 		pw, err := stream.Recv()
 		if err != nil {
 			log.Warnf("Agent disconnected, error: %v", err)
+			// The informer will be stopped when stopCh is closed.
+			close(s.podInformerQuitChan)
 			return fmt.Errorf("streaming connection with agent is broken (agent died?), error: %v", err)
 		}
 
