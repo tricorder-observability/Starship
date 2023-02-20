@@ -108,8 +108,12 @@ var loadCmd = &cobra.Command{
 
 func init() {
 	loadCmd.Flags().StringVarP(&moduleFilePath, "module-file-path", "m",
-		moduleFilePath, "The file path of module in json format. If missing a flag would cause command to fail, mark this flag as required")
-	loadCmd.Flags().StringVarP(&bccFilePath, "bcc-file-path", "b", bccFilePath, "The file path of bcc code. If missing a flag would cause command to fail, mark this flag as required")
-	loadCmd.Flags().StringVarP(&wasmFilePath, "wasm-file-path", "w", wasmFilePath, "The file path of wasm code. If missing a flag would cause command to fail, mark this flag as required")
-	loadCmd.Flags().StringVarP(&dbFilePath, "output", "o", dbFilePath, "The file path of SQLite db. If missing a flag would cause command to fail, mark this flag as required")
+		moduleFilePath, `The file path of module in json format. 
+		If missing a flag would cause command to fail, mark this flag as required`)
+	loadCmd.Flags().StringVarP(&bccFilePath, "bcc-file-path", "b", bccFilePath, `The file path of bcc code. 
+		If missing a flag would cause command to fail, mark this flag as required`)
+	loadCmd.Flags().StringVarP(&wasmFilePath, "wasm-file-path", "w", wasmFilePath, `The file path of wasm code. 
+	If missing a flag would cause command to fail, mark this flag as required`)
+	loadCmd.Flags().StringVarP(&dbFilePath, "output", "o", dbFilePath, `The file path of SQLite db. 
+	If missing a flag would cause command to fail, mark this flag as required`)
 }
