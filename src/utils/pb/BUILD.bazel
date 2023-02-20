@@ -1,11 +1,26 @@
-load("@io_bazel_rules_go//go:def.bzl", "go_test")
+load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
 
 go_test(
     name = "pb_test",
-    srcs = ["pb_test.go"],
+    srcs = [
+        "pb_test.go",
+        "text_format_test.go",
+    ],
+    embed = [":pb"],
     deps = [
         "//src/utils/pb/testdata:pb",
         "@com_github_stretchr_testify//assert",
         "@org_golang_google_protobuf//encoding/protojson",
+    ],
+)
+
+go_library(
+    name = "pb",
+    srcs = ["text_format.go"],
+    importpath = "github.com/tricorder/src/utils/pb",
+    visibility = ["//visibility:public"],
+    deps = [
+        "@org_golang_google_protobuf//encoding/prototext",
+        "@org_golang_google_protobuf//proto",
     ],
 )

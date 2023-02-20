@@ -8,4 +8,6 @@ option go_package = "testdata";
 // A test message to showcase the effect of json_name annotation.
 message TestMessage {
   string name = 1 [json_name = "test_json_name"];
+  string address = 2;
+  string title = 3;
 }
