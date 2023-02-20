@@ -149,7 +149,7 @@ func (m *Module) outputJSON(jsons [][]byte) error {
 		// eBPF perf buffer might output data with trailing null characters.
 		// If the perf buffer output is treated as JSON directly, then the output with trailing null characters would
 		// fail to be inserted into the database.
-		json = commonutils.StrTrimAfter(json, "\x00")
+		json = []byte(commonutils.StrTrimAfter(json, "\x00"))
 		err := m.pgClient.WriteRecord([]interface{}{json}, m.outputSchema)
 		if err != nil {
 			return fmt.Errorf("while outputing JSON data, failed to write record to database, error: %v", err)
