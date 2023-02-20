@@ -1,0 +1,13 @@
+on:
+  pull_request:
+    branches:
+      - main
+jobs:
+  license-header:
+    name: License header
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v3
+      - name: Check license header
+        uses: apache/skywalking-eyes@bd8d2db65f2fea938b74401ae72b0365733bdfdc

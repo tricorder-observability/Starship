@@ -1,0 +1,18 @@
+header:
+  license:
+    # refs: https://spdx.org/licenses/
+    spdx-id: AGPL-3.0-or-later
+    copyright-owner: tricorder
+    content: |
+      license content here,test
+
+  # The paths are the path list that will be checked (and fixed)
+  paths:
+    - 'src/**'
+
+  paths-ignore: # <8>
+    - 'src/**/.h'
+    - 'src/**/.c'
+    - 'src/**/.wasm'
+    - 'src/**/.pb.go'
+    - 'src/**/.bazel'
