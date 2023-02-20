@@ -37,7 +37,7 @@ message ProbeSpec {
   // Only meaningful for SAMPLE_EVENT.
   int64 sample_period_nanos = 5;
 
-  // The name of the binary path.
+  // The path of the binary of the running process, which is required for attaching uprobes.
   // Only meaningful for UPROBE.
   string binary_path = 6;
 }
