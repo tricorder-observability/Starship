@@ -4,7 +4,7 @@ import (
 	"os"
 	"strings"
 
-	log "github.com/sirupsen/logrus"
+	"github.com/tricorder/src/utils/log"
 )
 
 func GetEnvVars() map[string]string {

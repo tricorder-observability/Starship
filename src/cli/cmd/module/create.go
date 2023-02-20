@@ -6,8 +6,9 @@ import (
 	"io"
 	"net/http"
 
-	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+
+	"github.com/tricorder/src/utils/log"
 
 	"github.com/tricorder/src/cli/internal/outputs"
 	modulepb "github.com/tricorder/src/pb/module"

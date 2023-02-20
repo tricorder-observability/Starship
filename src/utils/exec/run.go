@@ -3,7 +3,7 @@ package exec
 import (
 	"fmt"
 
-	log "github.com/sirupsen/logrus"
+	"github.com/tricorder/src/utils/log"
 )
 
 func Run(argv []string) (string, string, error) {

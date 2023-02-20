@@ -9,8 +9,9 @@ import (
 	"os"
 	"path/filepath"
 
-	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+
+	"github.com/tricorder/src/utils/log"
 
 	"github.com/tricorder/src/cli/internal/outputs"
 	http_utils "github.com/tricorder/src/utils/http"

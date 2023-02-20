@@ -9,9 +9,9 @@ go_library(
     deps = [
         "//src/api-server/pb",
         "//src/utils/file",
+        "//src/utils/log",
         "//src/utils/retry",
         "@com_github_shirou_gopsutil//process",
-        "@com_github_sirupsen_logrus//:logrus",
         "@org_golang_google_grpc//:go_default_library",
         "@org_golang_google_grpc//credentials/insecure",
     ],

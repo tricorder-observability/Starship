@@ -3,7 +3,7 @@ package testing
 import (
 	"time"
 
-	log "github.com/sirupsen/logrus"
+	"github.com/tricorder/src/utils/log"
 
 	pb "github.com/tricorder/src/api-server/pb"
 

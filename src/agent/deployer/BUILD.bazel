@@ -8,9 +8,9 @@ go_library(
     deps = [
         "//src/agent/driver",
         "//src/api-server/pb",
+        "//src/utils/log",
         "//src/utils/pg",
         "//src/utils/uuid",
-        "@com_github_sirupsen_logrus//:logrus",
         "@org_golang_google_grpc//:go_default_library",
         "@org_golang_google_grpc//credentials/insecure",
         "@org_golang_x_sync//errgroup",
