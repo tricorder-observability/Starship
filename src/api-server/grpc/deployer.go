@@ -49,7 +49,8 @@ func (s *Deployer) DeployModule(stream pb.ModuleDeployer_DeployModuleServer) err
 	if err != nil {
 		return err
 	}
-	log.Infof("Got input from client: %v", in)
+
+	log.Infof("Agent '%s' connected, starting module management loop ...", in.ID)
 
 	var eg errgroup.Group
 	eg.Go(func() error {
@@ -120,7 +121,7 @@ func (s *Deployer) DeployModule(stream pb.ModuleDeployer_DeployModuleServer) err
 				Deploy: pb.DeployModuleReq_DEPLOY,
 			}
 
-			log.Infof("prepare to dispatch module: %v", &codeReq)
+			log.Infof("Sending module deployment request to API Server: %s", &codeReq.Name)
 			err = stream.Send(&codeReq)
 			if err != nil {
 				// TODO(jian): The failure reason recorded in the err,

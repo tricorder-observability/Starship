@@ -79,7 +79,7 @@ func (m *Module) StartPoll() {
 	for {
 		err := m.Poll()
 		if err != nil {
-			log.Error(err.Error())
+			log.Error(err)
 		}
 	}
 }
