@@ -3,11 +3,11 @@ package bcc
 import (
 	"fmt"
 
-	"google.golang.org/protobuf/encoding/prototext"
-
 	log "github.com/sirupsen/logrus"
 
 	ebpfpb "github.com/tricorder/src/pb/module/ebpf"
+
+	"github.com/tricorder/src/utils/pb"
 )
 
 // perfBufChanCap gives the capacity of the perf buffer channel
@@ -39,7 +39,7 @@ func NewProgram(p *ebpfpb.Program) (*Program, error) {
 
 func (p *Program) Init() error {
 	for _, probe := range p.spec.Probes {
-		log.Infof("Attaching probe: %s", prototext.Format(probe))
+		log.Infof("Attaching probe: %s", pb.FormatOneLine(probe))
 		if err := p.mod.attachProbe(probe); err != nil {
 			return fmt.Errorf("failed to attach probe '%s', error: %v", probe, err)
 		}

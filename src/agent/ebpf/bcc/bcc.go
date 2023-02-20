@@ -6,7 +6,6 @@ import (
 	"fmt"
 
 	"github.com/iovisor/gobpf/bcc"
-	"google.golang.org/protobuf/encoding/prototext"
 
 	log "github.com/sirupsen/logrus"
 
@@ -14,6 +13,7 @@ import (
 
 	ebpfpb "github.com/tricorder/src/pb/module/ebpf"
 	"github.com/tricorder/src/utils/errors"
+	"github.com/tricorder/src/utils/pb"
 )
 
 // Wraps BCC Module object
@@ -122,7 +122,7 @@ func (m *module) attachSampleProbe(probe *ebpfpb.ProbeSpec) error {
 	probeFD, err := m.m.LoadPerfEvent(probe.Entry)
 	if err != nil {
 		return fmt.Errorf("while attaching sampling perf event, failed to load perf event probe '%s', error: %v",
-			prototext.Format(probe), err)
+			pb.FormatOneLine(probe), err)
 	}
 	log.Printf("SamplePeriodNanos: %d", probe.SamplePeriodNanos)
 	// Parameter names:
