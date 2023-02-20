@@ -10,7 +10,7 @@ import (
 	"github.com/tricorder/src/utils/pg"
 
 	modulepb "github.com/tricorder/src/pb/module"
-	commonutils "github.com/tricorder/src/utils/common"
+	"github.com/tricorder/src/utils/bytes"
 )
 
 // Module holds data about an eBPF+WASM module waiting for being deployed.
@@ -149,7 +149,7 @@ func (m *Module) outputJSON(jsons [][]byte) error {
 		// eBPF perf buffer might output data with trailing null characters.
 		// If the perf buffer output is treated as JSON directly, then the output with trailing null characters would
 		// fail to be inserted into the database.
-		json = []byte(commonutils.StrTrimAfter(json, "\x00"))
+		json = bytes.TrimC(json)
 		err := m.pgClient.WriteRecord([]interface{}{json}, m.outputSchema)
 		if err != nil {
 			return fmt.Errorf("while outputing JSON data, failed to write record to database, error: %v", err)

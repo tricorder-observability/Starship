@@ -14,7 +14,7 @@ go_library(
         "//src/agent/ebpf/bcc",
         "//src/agent/wasm",
         "//src/pb/module",
-        "//src/utils/common",
+        "//src/utils/bytes",
         "//src/utils/pg",
         "@com_github_enriquebris_goconcurrentqueue//:goconcurrentqueue",
         "@com_github_pkg_errors//:errors",
