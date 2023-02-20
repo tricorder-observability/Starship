@@ -9,6 +9,8 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
+	_ "github.com/tricorder/src/utils/log"
+
 	"github.com/tricorder/src/api-server/dao"
 	modulepb "github.com/tricorder/src/pb/module"
 	"github.com/tricorder/src/utils/file"
@@ -83,17 +85,17 @@ var loadCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		bccStr, err := file.Read(bccFilePath)
 		if err != nil {
-			log.Error(err)
+			log.Errorf("read bcc file error: %v", err)
 		}
 
 		wasmBytes, err := file.ReadBin(wasmFilePath)
 		if err != nil {
-			log.Error(err)
+			log.Errorf("read wasm file error: %v", err)
 		}
 
 		moduleReq, err := parseModuleJsonFile(moduleFilePath)
 		if err != nil {
-			log.Error(err)
+			log.Errorf("read module json file error: %v", err)
 		}
 		// override bcc code contet by bcc file
 		moduleReq.Ebpf.Code = bccStr
@@ -101,7 +103,7 @@ var loadCmd = &cobra.Command{
 		moduleReq.Wasm.Code = wasmBytes
 		err = loadModule(moduleReq)
 		if err != nil {
-			log.Error(err)
+			log.Errorf("load module request error: %v", err)
 		}
 	},
 }
