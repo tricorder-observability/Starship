@@ -2,7 +2,7 @@
     "name":"sample_json_module",
     "wasm":{
         "code":"",
-        "fn_name":"copy_input_to_output",
+        "fn_name":"write_events_to_output",
         "output_schema":{
             "name":"",
             "fields":[
@@ -20,7 +20,7 @@
             {
                 "sample_period_nanos": 100000000,
                 "target":"",
-                "entry":"sample_json",
+                "entry":"sample_event",
                 "return":"",
                 "type": 5
             }

@@ -14,10 +14,10 @@ message ProbeSpec {
     SYSCALL_PROBE = 1;
     UPROBE = 2;
     TRACEPOINT = 3;
-    // TODO: Add xdp and others.
+    XDP = 4;
 
     // A custom perf event, where the probe was triggered periodically with a sample period.
-    SAMPLE_PROBE = 4;
+    SAMPLE_PROBE = 5;
   }
   Type type = 1;
 
