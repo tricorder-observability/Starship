@@ -4,12 +4,15 @@ package bcc
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/iovisor/gobpf/bcc"
 
 	"github.com/tricorder/src/utils/log"
 
 	"github.com/tricorder/src/agent/ebpf/common"
+
+	commonutils "github.com/tricorder/src/utils/common"
 
 	ebpfpb "github.com/tricorder/src/pb/module/ebpf"
 	"github.com/tricorder/src/utils/errors"
@@ -49,24 +52,24 @@ func (m *module) LoadKprobe(name string) (int, error) {
 // https://www.kernel.org/doc/Documentation/kprobes.txt
 const maxActiveRetProbes = 512
 
-func (m *module) attachKEntryProbe(syscallName, probeName string) error {
+func (m *module) attachKEntryProbe(probeFunc, probeName string) error {
 	probe, err := m.m.LoadKprobe(probeName)
-	context := fmt.Sprintf("attaching kentryprobe '%s' to syscall '%s'", probeName, syscallName)
+	context := fmt.Sprintf("attaching kentryprobe '%s' to syscall '%s'", probeName, probeFunc)
 	if err != nil {
 		return errors.Wrap(context, "load", err)
 	}
-	if err := m.m.AttachKprobe(syscallName, probe, maxActiveRetProbes); err != nil {
+	if err := m.m.AttachKprobe(probeFunc, probe, maxActiveRetProbes); err != nil {
 		return errors.Wrap(context, "attach", err)
 	}
 	return nil
 }
 
-func (m *module) attachKReturnProbe(syscallName, probeName string) error {
+func (m *module) attachKReturnProbe(probeFunc, probeName string) error {
 	probe, err := m.m.LoadKprobe(probeName)
 	if err != nil {
 		return fmt.Errorf("failed to load %s, error: %v", probeName, err)
 	}
-	if err := m.m.AttachKretprobe(syscallName, probe, maxActiveRetProbes); err != nil {
+	if err := m.m.AttachKretprobe(probeFunc, probe, maxActiveRetProbes); err != nil {
 		return fmt.Errorf("failed to attach kretprobe %s, error: %v", probeName, err)
 	}
 	return nil
@@ -80,14 +83,19 @@ func (m *module) attachKProbe(probe *ebpfpb.ProbeSpec) error {
 	if len(probe.Target) == 0 {
 		return fmt.Errorf("while attaching kprobe '%v', target cannot be empty", probe)
 	}
-	syscallName := bcc.GetSyscallFnName(probe.Target)
+
+	target := probe.Target
+	if strings.HasPrefix(target, "syscall_") {
+		target = bcc.GetSyscallFnName(commonutils.StrTrimPrefix(target, len("syscall_")))
+	}
+
 	if probe.Entry != "" {
-		if err := m.attachKEntryProbe(syscallName, probe.Entry); err != nil {
+		if err := m.attachKEntryProbe(target, probe.Entry); err != nil {
 			return err
 		}
 	}
 	if probe.Return != "" {
-		if err := m.attachKReturnProbe(syscallName, probe.Return); err != nil {
+		if err := m.attachKReturnProbe(target, probe.Return); err != nil {
 			return err
 		}
 	}

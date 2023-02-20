@@ -56,6 +56,49 @@ func TestAttachPerfEvent(t *testing.T) {
 	perfBuf.Stop()
 }
 
+const ddos_code string = `
+#include <linux/skbuff.h>
+#include <uapi/linux/ip.h>
+
+BPF_PERF_OUTPUT(events_ip_rcv);
+
+int sample_ip_rcv(struct pt_regs *ctx, void *skb){
+	const char word[] = "hello world";
+	bpf_trace_printk("submitting data sample_ip_rcv... \n");
+	events_ip_rcv.perf_submit(ctx, (void*)word, sizeof(word));
+}`
+
+// Tests that AttachKProbe non syscall works as expected.
+func TestAttachKprobe(t *testing.T) {
+	assert := assert.New(t)
+	require := require.New(t)
+
+	// init kernel headers
+	assert.Nil(linux_headers.Init())
+
+	m, err := newModule(ddos_code)
+	require.Nil(err)
+	defer m.Close()
+
+	err = m.attachKProbe(&ebpfpb.ProbeSpec{
+		Type:   ebpfpb.ProbeSpec_KPROBE,
+		Target: "ip_rcv",
+		Entry:  "sample_ip_rcv",
+	})
+	assert.Nil(err)
+
+	perfBuf, err := m.NewPerfBuffer("events_ip_rcv")
+	require.Nil(err)
+	perfBuf.Start()
+
+	time.Sleep(1 * time.Second)
+	bytesSlice := perfBuf.Poll()
+	for _, bytes := range bytesSlice {
+		assert.Equal("hello world\x00", string(bytes))
+	}
+	perfBuf.Stop()
+}
+
 // Tests that the vanilla gobpf's BCC Golang binding APIs produce no extra null chars
 func TestDemoVanillaGoBPFAPI(t *testing.T) {
 	assert := assert.New(t)
