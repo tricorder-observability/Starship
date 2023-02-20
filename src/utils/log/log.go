@@ -11,10 +11,12 @@ import (
 )
 
 // std is the name of the standard logger in stdlib `log`
+// TODO(daniel): Add link to the original logrus file.
 var std = &logrus.Logger{
 	Out:          os.Stderr,
 	Formatter:    new(logrus.TextFormatter),
 	Hooks:        make(logrus.LevelHooks),
+	// TODO(daniel): Add a log --loglevel=[DEBUG|INFO|...] to control this logging level
 	Level:        logrus.InfoLevel,
 	ExitFunc:     os.Exit,
 	ReportCaller: true,
