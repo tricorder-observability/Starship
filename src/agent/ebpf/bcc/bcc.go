@@ -13,7 +13,7 @@ import (
 
 	"github.com/tricorder/src/agent/ebpf/common"
 
-	utils "github.com/tricorder/src/utils/common"
+	commonutils "github.com/tricorder/src/utils/common"
 
 	ebpfpb "github.com/tricorder/src/pb/module/ebpf"
 	"github.com/tricorder/src/utils/errors"
@@ -85,8 +85,8 @@ func (m *module) attachKProbe(probe *ebpfpb.ProbeSpec) error {
 	}
 
 	target := probe.Target
-	if strings.HasPrefix(target, "sys_") {
-		target = bcc.GetSyscallFnName(utils.StrTrimPrefix(target, len("sys_")))
+	if strings.HasPrefix(target, "syscall_") {
+		target = bcc.GetSyscallFnName(commonutils.StrTrimPrefix(target, len("syscall_")))
 	}
 
 	if probe.Entry != "" {
