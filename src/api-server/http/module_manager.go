@@ -163,7 +163,7 @@ func (mgr *ModuleManager) deployCode(c *gin.Context) {
 	}
 
 	log.Info("create PG table and Grafana dashboard success.")
-
+	// TODO(zhiahui): here it should not use uid, but id. Therefore we need to add test.
 	c.JSON(http.StatusOK, gin.H{"code": "200", "message": "prepare to deploy module, id: " + uid})
 }
 
