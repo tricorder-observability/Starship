@@ -18,7 +18,7 @@ package driver
 import (
 	"fmt"
 
-	"github.com/tricorder/src/utils/log"
+	log "github.com/sirupsen/logrus"
 
 	"github.com/tricorder/src/agent/ebpf/bcc"
 	"github.com/tricorder/src/agent/wasm"

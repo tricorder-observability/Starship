@@ -10,8 +10,8 @@ go_library(
     importpath = "github.com/tricorder/src/api-server/dao",
     visibility = ["//visibility:public"],
     deps = [
-        "//src/utils/log",
         "//src/utils/sqlite",
+        "@com_github_sirupsen_logrus//:logrus",
     ],
 )
 

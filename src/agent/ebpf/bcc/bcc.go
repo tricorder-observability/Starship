@@ -22,7 +22,7 @@ import (
 
 	"github.com/iovisor/gobpf/bcc"
 
-	"github.com/tricorder/src/utils/log"
+	log "github.com/sirupsen/logrus"
 
 	"github.com/tricorder/src/agent/ebpf/common"
 

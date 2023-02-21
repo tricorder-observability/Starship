@@ -25,10 +25,9 @@ import (
 	"strings"
 
 	p "github.com/shirou/gopsutil/process"
+	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
-
-	"github.com/tricorder/src/utils/log"
 
 	pb "github.com/tricorder/src/api-server/pb"
 	"github.com/tricorder/src/utils/file"

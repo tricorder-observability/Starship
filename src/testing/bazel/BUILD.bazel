@@ -9,7 +9,7 @@ go_library(
     deps = [
         "//src/utils/common",
         "//src/utils/file",
-        "//src/utils/log",
+        "@com_github_sirupsen_logrus//:logrus",
         "@io_bazel_rules_go//go/runfiles:go_default_library",
         "@io_bazel_rules_go//go/tools/bazel:go_default_library",
     ],

@@ -18,9 +18,8 @@ package cmd
 import (
 	"os"
 
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
-
-	"github.com/tricorder/src/utils/log"
 
 	"github.com/tricorder/src/cli/cmd/module"
 
