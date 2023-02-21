@@ -94,6 +94,13 @@ together to build a complete data collection module.
 * [Prometheus](https://github.com/prometheus/prometheus): collects metrics from `KSM` and then remote write to `Promscale`.
 * [OpenTelemetry](https://github.com/open-telemetry): for distributed tracing and other awesome Observability features.
 
+## Contributing
+
+- Fork the repo
+- `tools/cleanup.sh`: Run this script before creating Pull Request
+- Createing Pull Request
+- Wait for review
+
 ## Building Starship
 
 The development environment is based on Ubuntu.
