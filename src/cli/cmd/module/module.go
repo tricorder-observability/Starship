@@ -26,7 +26,7 @@ var ModuleCmd = &cobra.Command{
 	Short: "manage module",
 	Long: `manage module. For example:
 	1. create module:
-	$ starship-cli module create --bcc-file-path path/to/bcc_file --module-file-path path/to/module_request_json_file
+	$ starship-cli module create --bcc-file-path path/to/bcc_file --module-json-path path/to/module_request_json_file
 	`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("module called")

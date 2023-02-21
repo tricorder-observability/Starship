@@ -48,7 +48,7 @@ $ starship-cli module create -b path/to/bcc_file -m path/to/module_json_file -w 
 
 		moduleReq, err := parseModuleJsonFile(moduleFilePath)
 		if err != nil {
-			log.Fatalf("Failed to read --module-file-path='%s', error: %v", moduleFilePath, err)
+			log.Fatalf("Failed to read --module-json-path='%s', error: %v", moduleFilePath, err)
 		}
 		// override bcc code contet by bcc file
 		moduleReq.Ebpf.Code = bccStr
@@ -75,7 +75,7 @@ var (
 )
 
 func init() {
-	createCmd.Flags().StringVarP(&moduleFilePath, "module-file-path", "m",
+	createCmd.Flags().StringVarP(&moduleFilePath, "module-json-path", "m",
 		moduleFilePath, "The file path of module in json format.")
 	createCmd.Flags().StringVarP(&bccFilePath, "bcc-file-path", "b", bccFilePath, "The file path of bcc code.")
 	createCmd.Flags().StringVarP(&wasmFilePath, "wasm-file-path", "w", wasmFilePath, "The file path of wasm code.")

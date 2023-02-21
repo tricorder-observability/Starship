@@ -64,7 +64,7 @@ $ starship-cli module init -b path/to/bcc_file -m path/to/module_json_file -w pa
 var dbFilePath string
 
 func init() {
-	initCmd.Flags().StringVarP(&moduleFilePath, "module-file-path", "m",
+	initCmd.Flags().StringVarP(&moduleFilePath, "module-json-path", "m",
 		moduleFilePath, "The file path of module in json format.")
 	initCmd.Flags().StringVarP(&bccFilePath, "bcc-file-path", "b", bccFilePath, "The file path of bcc code.")
 	initCmd.Flags().StringVarP(&wasmFilePath, "wasm-file-path", "w", wasmFilePath, "The file path of wasm code.")
