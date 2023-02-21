@@ -23,9 +23,9 @@ import (
 
 	"github.com/bazelbuild/rules_go/go/runfiles"
 	"github.com/bazelbuild/rules_go/go/tools/bazel"
-	log "github.com/sirupsen/logrus"
 	"github.com/tricorder/src/utils/common"
 	"github.com/tricorder/src/utils/file"
+	"github.com/tricorder/src/utils/log"
 )
 
 // Bazel-specific testing APIs.

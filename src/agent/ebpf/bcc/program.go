@@ -18,7 +18,7 @@ package bcc
 import (
 	"fmt"
 
-	log "github.com/sirupsen/logrus"
+	"github.com/tricorder/src/utils/log"
 
 	ebpfpb "github.com/tricorder/src/pb/module/ebpf"
 

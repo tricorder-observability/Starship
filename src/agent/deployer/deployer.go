@@ -25,7 +25,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
-	log "github.com/sirupsen/logrus"
+	"github.com/tricorder/src/utils/log"
 
 	"github.com/tricorder/src/agent/driver"
 	"github.com/tricorder/src/utils/pg"

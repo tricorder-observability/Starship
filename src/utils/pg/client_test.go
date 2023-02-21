@@ -24,11 +24,12 @@ import (
 	"testing"
 	"time"
 
-	log "github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
+
+	"github.com/tricorder/src/utils/log"
 
 	docker "github.com/tricorder/src/testing/docker"
 )
@@ -306,7 +307,6 @@ func TestPGListObjects(t *testing.T) {
 
 // Tests that WriteRecord can write a text record into the data base.
 func TestWriteRecord(t *testing.T) {
-	log.SetReportCaller(true)
 	assert := assert.New(t)
 
 	pgRunner, pgClient, err := createPGTestFixutre()

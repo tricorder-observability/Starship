@@ -19,14 +19,13 @@ import (
 	"fmt"
 
 	"github.com/gin-gonic/gin"
-	log "github.com/sirupsen/logrus"
+
+	"github.com/tricorder/src/utils/log"
 
 	"github.com/tricorder/src/api-server/dao"
 	"github.com/tricorder/src/api-server/http/grafana"
 	http_utils "github.com/tricorder/src/utils/http"
 	"github.com/tricorder/src/utils/pg"
-
-	_ "github.com/tricorder/src/utils/log"
 )
 
 type Config struct {

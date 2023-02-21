@@ -19,7 +19,6 @@ import (
 	"context"
 	"time"
 
-	log "github.com/sirupsen/logrus"
 	"golang.org/x/sync/errgroup"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -27,6 +26,8 @@ import (
 	"k8s.io/client-go/informers"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/cache"
+
+	"github.com/tricorder/src/utils/log"
 
 	"github.com/tricorder/src/utils/pg"
 	"github.com/tricorder/src/utils/retry"
