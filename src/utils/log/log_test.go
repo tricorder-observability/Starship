@@ -38,5 +38,6 @@ func TestLogFileAndLineAndFunction(t *testing.T) {
 	Println("abc")
 	assert.Contains(stderr.String(), "abc")
 	assert.Contains(stderr.String(), "log_test.go")
+	assert.Contains(stderr.String(), "38")
 	assert.Contains(stderr.String(), "TestLogFileAndLineAndFunction")
 }
