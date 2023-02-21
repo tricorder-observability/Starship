@@ -39,8 +39,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Extract tag
-        id: extract_tag
-        if: ${GITHUB_REF_TYPE} == "tag"
+        if: startsWith(${GITHUB_REF}, 'refs/tags/v')
         # override TAG with git tag
         run: echo "{TAG}=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
       - uses: bazelbuild/setup-bazelisk@v2
