@@ -8,6 +8,9 @@ proto_library(
     visibility = ["//visibility:public"],
     deps = [
         "//src/pb/module:module_proto",
+        "@com_google_protobuf//:struct_proto",
+        "@com_google_protobuf//:wrappers_proto",
+        "@go_googleapis//google/api:annotations_proto",
     ],
 )
 
@@ -19,6 +22,7 @@ go_proto_library(
     visibility = ["//visibility:public"],
     deps = [
         "//src/pb/module",
+        "@go_googleapis//google/api:annotations_go_proto",
     ],
 )
 

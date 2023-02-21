@@ -6,6 +6,9 @@ package tricorder.deployer.servicepb;
 option go_package = "servicepb";
 
 import "src/pb/module/module.proto";
+import "google/protobuf/struct.proto";
+import "google/protobuf/wrappers.proto";
+import "google/api/annotations.proto";
 
 // This is awkward, because agent initiates the gRPC connection, that means
 // this service has to be implemented on the API server.
@@ -18,6 +21,69 @@ service ModuleDeployer {
   // Agents would initiate the connect, once connected, agent reports its ID, and API Server maintains per-agent
   // state, and requests eBPF+WASM data collection modules to be deployed.
   rpc DeployModule(stream DeployModuleResp) returns (stream DeployModuleReq) {}
+  
+  // Add module into tricorder DB, support both gRPC and http(gRPC-web/restful) invoke
+  rpc Add(tricorder.pb.module.Module) returns (ModuleResponse) {
+    option (google.api.http) = {
+      post: "/api/addCode"
+      body: "*"
+    };
+  }
+
+  // Delete module from tricorder DB, support both gRPC and http(gRPC-web/restful) invoke
+  rpc Delete(ModuleRequest) returns (ModuleResponse) {
+    option (google.api.http) = {
+      // URL query parameters
+      get: "/api/deleteCode"
+    };
+  }
+
+  // List module from tricorder DB, support both gRPC and http(gRPC-web/restful) invoke
+  rpc List(ListQuery) returns (ModuleListResponse) {
+    option (google.api.http) = {
+      // URL query parameters
+      get: "/api/listCode"
+    };
+  }
+
+  // Deploy module to tricorder agent, support both gRPC and http(gRPC-web/restful) invoke
+  rpc Deploy(ModuleRequest) returns (ModuleResponse) {
+    option (google.api.http) = {
+      post: "/api/deployCode"
+      body: "*"
+    };
+  }
+
+  // Undeploy module from tricorder DB, support both gRPC and http(gRPC-web/restful) invoke
+  rpc Undeploy(ModuleRequest) returns (ModuleResponse) {
+    option (google.api.http) = {
+      post: "/api/undeployCode"
+      body: "*"
+    };
+  }
+}
+
+// Describe a module's request, contains id for now
+message ModuleRequest {
+  string id = 1;
+}
+
+// Describe a module's response, contains code and message
+message ModuleResponse {
+  string code = 1;
+  string message = 2;
+}
+
+// Describe a module's ListQuery, e.g. fields=id,name,* for restful
+message ListQuery {
+  string fields = 1;
+}
+
+// Describe a module's list response, return value contains code, message and data
+message ModuleListResponse {
+  string code = 1;
+  string message = 2;
+  google.protobuf.ListValue data = 3;
 }
 
 // Describe a modules's deployment status
