@@ -28,18 +28,18 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// source: https://github.com/sirupsen/logrus/blob/master/exported.go
+// Source: https://github.com/sirupsen/logrus/blob/master/exported.go
 func init() {
 	logrus.SetFormatter(&logrus.JSONFormatter{})
 	logrus.SetOutput(os.Stdout)
 	// TODO(daniel): Add a log --loglevel=[DEBUG|INFO|...] to control this logging level
 }
 
-// link: https://go.dev/play/p/q0kyZvvbT0C
+// Refer: https://go.dev/play/p/q0kyZvvbT0C
 func logger() *logrus.Entry {
 	pc, file, line, ok := runtime.Caller(2)
 	if !ok {
-		panic("Could not get context info for logger!")
+		panic("while logger invoke, failed to get context info")
 	}
 
 	filename := file + ":" + strconv.Itoa(line)
