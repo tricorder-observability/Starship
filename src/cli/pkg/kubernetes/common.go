@@ -20,10 +20,34 @@ func GetStarshipService(client *k8s.Clientset) (*v1.Service, error) {
 	return GetService(client, DefaultNamespace, DefaultServiceName)
 }
 
-func GetStarshipServiceURL(client *k8s.Clientset) (string, error) {
+func getStarshipServiceURL(client *k8s.Clientset) (string, error) {
 	service, err := GetStarshipService(client)
 	if err != nil {
 		return "", err
 	}
 	return service.Spec.ClusterIP, nil
+}
+
+func getStarshipServicePort(client *k8s.Clientset) (int32, error) {
+	service, err := GetStarshipService(client)
+	if err != nil {
+		return 0, err
+	}
+	return service.Spec.Ports[0].Port, nil
+}
+
+func GetAPIAddress() (string, error) {
+	client, err := NewClient()
+	if err != nil {
+		return "", err
+	}
+	ip, err := getStarshipServiceURL(client)
+	if err != nil {
+		return "", err
+	}
+	port, err := getStarshipServicePort(client)
+	if err != nil {
+		return "", err
+	}
+	return ip + ":" + string(port), nil
 }
