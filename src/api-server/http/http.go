@@ -76,9 +76,9 @@ func StartHTTPService(cfg Config, pgClient *pg.Client) {
 		api.POST(fmt.Sprintf("/%s", http_utils.UN_DEPLOY), cm.undeployCode)
 	}
 
-	addr := fmt.Sprintf(":%d", cfg.Port)
-	log.Infof("Listening on %s ...", addr)
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
+	addr := fmt.Sprintf(":%d", cfg.Port)
+	log.Infof("Listening on %s ...", addr)
 	_ = router.Run(addr)
 }
