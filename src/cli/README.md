@@ -2,6 +2,8 @@
 
 The CLI tool to work with Starship Observability platform.
 
+## Build and install
+
 ```shell
 bazel build -c opt //src/cli
 mkdir -p ~/bin
@@ -10,7 +12,7 @@ ln -s $(pwd)/bazel-bin/src/cli/cli_/cli ~/bin/starship-cli
 starship-cli -h
 ```
 
-# Usage
+## Usage
 
 ```shell
 starship-cli -h
