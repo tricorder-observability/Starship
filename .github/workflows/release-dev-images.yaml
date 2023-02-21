@@ -10,7 +10,7 @@ on:
 
 env:
   # Use docker.io for Docker Hub if empty
-  REGISTRY_SERVER_ADDRESS: ghcr.io/tricorder-observability
+  REGISTRY_SERVER_ADDRESS: ghcr.io/jaredtan95
   REGISTRY_USER_NAME: ${{ github.repository_owner }}
   REGISTRY_PASSWORD: ${{ secrets.REGISTRY_TOKEN }}
 
@@ -49,7 +49,10 @@ jobs:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.ACTIONS_TOKEN }}
-      - name: Build and push tailing sidecar multiplatform image
-        run: bazel run -c opt --define=TAG=${TAG} //src/api-server/cmd:push_api-server_image
+      - name: Build and push starship api-server image
+        run: bazel run -c opt --define=TAG=${TAG} --define=REGISTRY=${REGISTRY_SERVER_ADDRESS} //src/api-server/cmd:push_api-server_image
+        working-directory: .
+      - name: Build and push starship agent image
+        run: bazel run -c opt --define=TAG=${TAG} --define=REGISTRY=${REGISTRY_SERVER_ADDRESS} //src/agent/cmd:push_agent_image
         working-directory: .
 
