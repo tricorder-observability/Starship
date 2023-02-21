@@ -15,10 +15,6 @@ jobs:
   release-images:
     # This matches the dev_image and base image used in the code base.
     runs-on: ubuntu-22.04
-    # require the first job to have ran
-    needs: query-changed-src-files
-    # only run there are changed files
-    if: needs.query-changed-src-files.outputs.any_changed == 'true'
     container:
       image: public.ecr.aws/tricorder/ci_image:202302140538
       options: --privileged
