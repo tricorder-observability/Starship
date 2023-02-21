@@ -79,7 +79,7 @@ func mockDeployReqs() ([]*pb.DeployModuleReq, error) {
 					PerfBufferName: "events",
 					Probes: []*ebpf.ProbeSpec{
 						{
-							Type:   ebpf.ProbeSpec_KPROBE,
+							Type:   ebpf.ProbeSpec_SYSCALL_PROBE,
 							Target: "read",
 							Entry:  "syscall__probe_entry_read",
 							Return: "syscall__probe_return_read",

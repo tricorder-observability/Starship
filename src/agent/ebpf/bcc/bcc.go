@@ -19,15 +19,12 @@ package bcc
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/iovisor/gobpf/bcc"
 
 	"github.com/tricorder/src/utils/log"
 
 	"github.com/tricorder/src/agent/ebpf/common"
-
-	commonutils "github.com/tricorder/src/utils/common"
 
 	ebpfpb "github.com/tricorder/src/pb/module/ebpf"
 	"github.com/tricorder/src/utils/errors"
@@ -69,7 +66,7 @@ const maxActiveRetProbes = 512
 
 func (m *module) attachKEntryProbe(probeFunc, probeName string) error {
 	probe, err := m.m.LoadKprobe(probeName)
-	context := fmt.Sprintf("attaching kentryprobe '%s' to syscall '%s'", probeName, probeFunc)
+	context := fmt.Sprintf("attaching kentryprobe '%s' to '%s'", probeName, probeFunc)
 	if err != nil {
 		return errors.Wrap(context, "load", err)
 	}
@@ -90,6 +87,41 @@ func (m *module) attachKReturnProbe(probeFunc, probeName string) error {
 	return nil
 }
 
+func (m *module) attachUEntryProbe(binaryPath, probeFunc, probeName string) error {
+	probe, err := m.m.LoadUprobe(probeName)
+	context := fmt.Sprintf("attaching uentryprobe '%s' to '%s' for '%s'", probeName, probeFunc, binaryPath)
+	if err != nil {
+		return errors.Wrap(context, "load", err)
+	}
+	if err := m.m.AttachUprobe(binaryPath, probeFunc, probe, 0); err != nil {
+		return errors.Wrap(context, "attach", err)
+	}
+	return nil
+}
+
+func (m *module) attachUReturnProbe(binaryPath, probeFunc, probeName string) error {
+	probe, err := m.m.LoadUprobe(probeName)
+	if err != nil {
+		return fmt.Errorf("failed to load %s for %s, error: %v", probeName, binaryPath, err)
+	}
+	if err := m.m.AttachUretprobe(binaryPath, probeFunc, probe, 0); err != nil {
+		return fmt.Errorf("failed to attach uretprobe %s, error: %v", probeName, err)
+	}
+	return nil
+}
+
+func (m *module) attachTPProbe(probeFunc, probeName string) error {
+	probe, err := m.m.LoadTracepoint(probeName)
+	context := fmt.Sprintf("attaching tracepoint '%s' to '%s'", probeName, probeFunc)
+	if err != nil {
+		return errors.Wrap(context, "load", err)
+	}
+	if err := m.m.AttachTracepoint(probeFunc, probe); err != nil {
+		return errors.Wrap(context, "attach", err)
+	}
+	return nil
+}
+
 func (m *module) attachKProbe(probe *ebpfpb.ProbeSpec) error {
 	log.Infof("Attaching kprobe %v", probe)
 	if probe.Type != ebpfpb.ProbeSpec_KPROBE {
@@ -99,18 +131,36 @@ func (m *module) attachKProbe(probe *ebpfpb.ProbeSpec) error {
 		return fmt.Errorf("while attaching kprobe '%v', target cannot be empty", probe)
 	}
 
-	target := probe.Target
-	if strings.HasPrefix(target, "syscall_") {
-		target = bcc.GetSyscallFnName(commonutils.StrTrimPrefix(target, len("syscall_")))
-	}
-
 	if probe.Entry != "" {
-		if err := m.attachKEntryProbe(target, probe.Entry); err != nil {
+		if err := m.attachKEntryProbe(probe.Target, probe.Entry); err != nil {
 			return err
 		}
 	}
 	if probe.Return != "" {
-		if err := m.attachKReturnProbe(target, probe.Return); err != nil {
+		if err := m.attachKReturnProbe(probe.Target, probe.Return); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (m *module) attachSyscallProbe(probe *ebpfpb.ProbeSpec) error {
+	log.Infof("Attaching syscall probe %v", probe)
+	if probe.Type != ebpfpb.ProbeSpec_SYSCALL_PROBE {
+		return fmt.Errorf("must be syscall probe, got %v", probe)
+	}
+	if len(probe.Target) == 0 {
+		return fmt.Errorf("while attaching  syscall probe '%v', target cannot be empty", probe)
+	}
+
+	syscallName := bcc.GetSyscallFnName(probe.Target)
+	if probe.Entry != "" {
+		if err := m.attachKEntryProbe(syscallName, probe.Entry); err != nil {
+			return err
+		}
+	}
+	if probe.Return != "" {
+		if err := m.attachKReturnProbe(syscallName, probe.Return); err != nil {
 			return err
 		}
 	}
@@ -122,6 +172,12 @@ func (m *module) attachProbe(probe *ebpfpb.ProbeSpec) error {
 	switch probe.Type {
 	case ebpfpb.ProbeSpec_KPROBE:
 		return m.attachKProbe(probe)
+	case ebpfpb.ProbeSpec_SYSCALL_PROBE:
+		return m.attachSyscallProbe(probe)
+	case ebpfpb.ProbeSpec_UPROBE:
+		return m.attachUProbe(probe)
+	case ebpfpb.ProbeSpec_TRACEPOINT:
+		return m.attachTracepoint(probe)
 	case ebpfpb.ProbeSpec_SAMPLE_PROBE:
 		return m.attachSampleProbe(probe)
 	default:
@@ -155,6 +211,51 @@ func (m *module) attachSampleProbe(probe *ebpfpb.ProbeSpec) error {
 	if err != nil {
 		return fmt.Errorf("while attaching sampling perf event, failed to attach perf event, error: %v", err)
 	}
+	return nil
+}
+
+func (m *module) attachUProbe(probe *ebpfpb.ProbeSpec) error {
+	log.Infof("Attaching kprobe %v", probe)
+	if probe.Type != ebpfpb.ProbeSpec_UPROBE {
+		return fmt.Errorf("must be uprobe, got %v", probe)
+	}
+	context := fmt.Sprintf("while attaching uprobe '%v', target cannot be empty", probe)
+	if len(probe.Target) == 0 {
+		return errors.Wrap(context, "target", fmt.Errorf("cannot be empty"))
+	}
+
+	if len(probe.BinaryPath) == 0 {
+		return errors.Wrap(context, "binary path", fmt.Errorf("cannot be empty"))
+	}
+
+	if probe.Entry != "" {
+		if err := m.attachUEntryProbe(probe.BinaryPath, probe.Target, probe.Entry); err != nil {
+			return err
+		}
+	}
+	if probe.Return != "" {
+		if err := m.attachUReturnProbe(probe.BinaryPath, probe.Target, probe.Return); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (m *module) attachTracepoint(probe *ebpfpb.ProbeSpec) error {
+	log.Infof("Attaching kprobe %v", probe)
+	if probe.Type != ebpfpb.ProbeSpec_TRACEPOINT {
+		return fmt.Errorf("must be tracepoint, got %v", probe)
+	}
+	if len(probe.Target) == 0 {
+		return fmt.Errorf("while attaching tracepoint '%v', target cannot be empty", probe)
+	}
+
+	if probe.Entry != "" {
+		if err := m.attachTPProbe(probe.Target, probe.Entry); err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 
