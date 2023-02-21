@@ -13,14 +13,17 @@ var (
 	DefaultServiceName = "api-server"
 )
 
+// GetService returns a Service by name and namespace
 func GetService(client *k8s.Clientset, namespace, serviceName string) (*v1.Service, error) {
 	return client.CoreV1().Services(namespace).Get(context.TODO(), serviceName, matav1.GetOptions{})
 }
 
+// GetStarshipService returns the starship Service by name and namespace
 func GetStarshipService(client *k8s.Clientset) (*v1.Service, error) {
 	return GetService(client, DefaultNamespace, DefaultServiceName)
 }
 
+// getStarshipServiceURL returns the starship Service ClusterIP
 func getStarshipServiceURL(client *k8s.Clientset) (string, error) {
 	service, err := GetStarshipService(client)
 	if err != nil {
@@ -29,6 +32,7 @@ func getStarshipServiceURL(client *k8s.Clientset) (string, error) {
 	return service.Spec.ClusterIP, nil
 }
 
+// getStarshipServicePort returns the starship Service serverhttp port
 func getStarshipServicePort(client *k8s.Clientset) (int32, error) {
 	service, err := GetStarshipService(client)
 	if err != nil {
@@ -42,6 +46,7 @@ func getStarshipServicePort(client *k8s.Clientset) (int32, error) {
 	return service.Spec.Ports[0].Port, nil
 }
 
+// GetAPIAddress returns the starship Service ClusterIP and serverhttp port
 func GetAPIAddress() (string, error) {
 	client, err := NewClient()
 	if err != nil {
