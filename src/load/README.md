@@ -8,34 +8,18 @@ load local module to SQLite db file
 
 ```shell
 git clone https://github.com/tricorder-observability/starship.git
-
 cd starship
-
 bazel build -c opt //src/load
-
-cp ./bazel-bin/src/load/load_/load /usr/local/bin/starship-load
-chmod +x /usr/local/bin/starship-load
+mkdir -p ~/bin
+export PATH="~/bin:$PATH"
+ln -s $(pwd)/bazel-bin/src/load/load_/load ~/bin/starship-load
 starship-load -h
 ```
 
 ## Usage
 
 ```shell
-starship-load -h
-
-starship-load load -h
-
-Flags:
-  -b, --bcc-file-path string      The file path of bcc code.
-  -o, --output string       The file path of SQLite db.
-  -h, --help                      help for load
-  -m, --module-file-path string   The file path of module in json format.
-  -w, --wasm-file-path string     The file path of wasm code.
-```
-
-## Demo
-
-```shell
+# Write ddos_event module to the tricorder.db in this repo
 starship-load load \
     -b modules/ddos_event/ddos_event.bcc \
     -w modules/ddos_event/cjson.wasm \
