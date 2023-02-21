@@ -13,33 +13,31 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-package testing
+// Package log initialize logurs
+package log
 
 import (
-	"strings"
+	"bytes"
+	"os"
+	"testing"
 
-	"github.com/tricorder/src/utils/log"
-
-	"github.com/tricorder/src/utils/exec"
+	"github.com/sirupsen/logrus"
+	"github.com/stretchr/testify/assert"
 )
 
-// CLI wraps the `docker` command
-type CLI struct{}
-
-// Load imports a local .tar file by calling `docker load -i`.
-// Returns the URL of the imported image.
-func (d *CLI) Load(tarFile string) string {
-	cmdSlice := []string{"docker", "load", "-i", tarFile}
-	outStr, outErr, err := exec.Run(cmdSlice)
-	if err != nil {
-		log.Fatalf(
-			"Failed to run docker command to load tar file '%s', stdout: %s, stderr: %s, error: %v",
-			tarFile,
-			outStr,
-			outErr,
-			err,
-		)
+func TestLogFileAndLineAndFunction(t *testing.T) {
+	assert := assert.New(t)
+	stderr := new(bytes.Buffer)
+	std = &logrus.Logger{
+		Out:       stderr,
+		Formatter: new(logrus.JSONFormatter),
+		Hooks:     make(logrus.LevelHooks),
+		Level:     logrus.InfoLevel,
+		ExitFunc:  os.Exit,
 	}
-	words := strings.Fields(outStr)
-	return words[2]
+	Println("abc")
+	assert.Contains(stderr.String(), "abc")
+	assert.Contains(stderr.String(), "log_test.go")
+	assert.Contains(stderr.String(), "38")
+	assert.Contains(stderr.String(), "TestLogFileAndLineAndFunction")
 }

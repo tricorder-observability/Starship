@@ -29,7 +29,8 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
-	log "github.com/sirupsen/logrus"
+
+	"github.com/tricorder/src/utils/log"
 )
 
 // Client wraps a connection to a Postgres database.

@@ -15,10 +15,10 @@ go_library(
         "//src/agent/wasm",
         "//src/pb/module",
         "//src/utils/bytes",
+        "//src/utils/log",
         "//src/utils/pg",
         "@com_github_enriquebris_goconcurrentqueue//:goconcurrentqueue",
         "@com_github_pkg_errors//:errors",
-        "@com_github_sirupsen_logrus//:logrus",
     ],
 )
 
