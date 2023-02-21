@@ -22,10 +22,11 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/iovisor/gobpf/bcc"
+
 	"github.com/tricorder/src/agent/ebpf/bcc/linux_headers"
 	ebpfpb "github.com/tricorder/src/pb/module/ebpf"
-
-	"github.com/iovisor/gobpf/bcc"
+	testutils "github.com/tricorder/src/testing/bazel"
 )
 
 const code string = `
@@ -33,7 +34,7 @@ const code string = `
 BPF_PERF_OUTPUT(events);
 int sample_probe(struct bpf_perf_event_data* ctx) {
 	const char word[] = "hello world";
-	bpf_trace_printk("submitting data ... \n");
+	bpf_trace_printk("length=%d\n", sizeof(word));
 	events.perf_submit(ctx, (void*)word, sizeof(word));
   return 0;
 }
@@ -71,19 +72,7 @@ func TestAttachPerfEvent(t *testing.T) {
 	perfBuf.Stop()
 }
 
-const ddos_code string = `
-#include <linux/skbuff.h>
-#include <uapi/linux/ip.h>
-
-BPF_PERF_OUTPUT(events_ip_rcv);
-
-int sample_ip_rcv(struct pt_regs *ctx, void *skb){
-	const char word[] = "hello world";
-	bpf_trace_printk("submitting data sample_ip_rcv... \n");
-	events_ip_rcv.perf_submit(ctx, (void*)word, sizeof(word));
-}`
-
-// Tests that AttachKProbe non syscall works as expected.
+// Tests that attachKProbe and non syscall works as expected.
 func TestAttachKprobe(t *testing.T) {
 	assert := assert.New(t)
 	require := require.New(t)
@@ -91,18 +80,118 @@ func TestAttachKprobe(t *testing.T) {
 	// init kernel headers
 	assert.Nil(linux_headers.Init())
 
-	m, err := newModule(ddos_code)
+	m, err := newModule(code)
 	require.Nil(err)
 	defer m.Close()
 
 	err = m.attachKProbe(&ebpfpb.ProbeSpec{
 		Type:   ebpfpb.ProbeSpec_KPROBE,
 		Target: "ip_rcv",
-		Entry:  "sample_ip_rcv",
+		Entry:  "sample_probe",
 	})
 	assert.Nil(err)
 
-	perfBuf, err := m.NewPerfBuffer("events_ip_rcv")
+	perfBuf, err := m.NewPerfBuffer("events")
+	require.Nil(err)
+	perfBuf.Start()
+
+	time.Sleep(1 * time.Second)
+	bytesSlice := perfBuf.Poll()
+	for _, bytes := range bytesSlice {
+		assert.Equal("hello world\x00", string(bytes))
+	}
+	perfBuf.Stop()
+
+	// return probe
+	err = m.attachKProbe(&ebpfpb.ProbeSpec{
+		Type:   ebpfpb.ProbeSpec_KPROBE,
+		Target: "ip_rcv",
+		Return: "sample_probe",
+	})
+	assert.Nil(err)
+
+	perfBuf, err = m.NewPerfBuffer("events")
+	require.Nil(err)
+	perfBuf.Start()
+
+	time.Sleep(1 * time.Second)
+	bytesSlice = perfBuf.Poll()
+	for _, bytes := range bytesSlice {
+		assert.Equal("hello world\x00", string(bytes))
+	}
+	perfBuf.Stop()
+}
+
+// Tests that attachSyscallProbe works as expected.
+func TestAttachSyscallProbe(t *testing.T) {
+	assert := assert.New(t)
+	require := require.New(t)
+
+	// init kernel headers
+	assert.Nil(linux_headers.Init())
+
+	m, err := newModule(code)
+	require.Nil(err)
+	defer m.Close()
+
+	err = m.attachSyscallProbe(&ebpfpb.ProbeSpec{
+		Type:   ebpfpb.ProbeSpec_SYSCALL_PROBE,
+		Target: "read",
+		Entry:  "sample_probe",
+	})
+	assert.Nil(err)
+
+	perfBuf, err := m.NewPerfBuffer("events")
+	require.Nil(err)
+	perfBuf.Start()
+
+	time.Sleep(1 * time.Second)
+	bytesSlice := perfBuf.Poll()
+	for _, bytes := range bytesSlice {
+		assert.Equal("hello world\x00", string(bytes))
+	}
+	perfBuf.Stop()
+
+	// return probe
+	err = m.attachSyscallProbe(&ebpfpb.ProbeSpec{
+		Type:   ebpfpb.ProbeSpec_SYSCALL_PROBE,
+		Target: "read",
+		Return: "sample_probe",
+	})
+	assert.Nil(err)
+
+	perfBuf, err = m.NewPerfBuffer("events")
+	require.Nil(err)
+	perfBuf.Start()
+
+	time.Sleep(1 * time.Second)
+	bytesSlice = perfBuf.Poll()
+	for _, bytes := range bytesSlice {
+		assert.Equal("hello world\x00", string(bytes))
+	}
+	perfBuf.Stop()
+}
+
+// Tests that attachTracepoint works as expected.
+func TestAttachTPProbe(t *testing.T) {
+	assert := assert.New(t)
+	require := require.New(t)
+
+	// init kernel headers
+	assert.Nil(linux_headers.Init())
+
+	m, err := newModule(code)
+	require.Nil(err)
+	defer m.Close()
+
+	err = m.attachTracepoint(&ebpfpb.ProbeSpec{
+		Type:   ebpfpb.ProbeSpec_TRACEPOINT,
+		Target: "syscalls:sys_exit_read",
+		Entry:  "sample_probe",
+	})
+	assert.Nil(err)
+
+	perfBuf, err := m.NewPerfBuffer("events")
 	require.Nil(err)
 	perfBuf.Start()
 
@@ -114,15 +203,71 @@ func TestAttachKprobe(t *testing.T) {
 	perfBuf.Stop()
 }
 
+// Tests that attachUprobe works as expected.
+func TestAttachUProbe(t *testing.T) {
+	assert := assert.New(t)
+	require := require.New(t)
+
+	// init kernel headers
+	assert.Nil(linux_headers.Init())
+
+	m, err := newModule(code)
+	require.Nil(err)
+	defer m.Close()
+
+	err = m.attachUProbe(&ebpfpb.ProbeSpec{
+		Type:       ebpfpb.ProbeSpec_UPROBE,
+		Target:     "readline",
+		Entry:      "sample_probe",
+		BinaryPath: "/bin/bash",
+	})
+	assert.Nil(err)
+
+	perfBuf, err := m.NewPerfBuffer("events")
+	require.Nil(err)
+	perfBuf.Start()
+
+	time.Sleep(1 * time.Second)
+	bytesSlice := perfBuf.Poll()
+	for _, bytes := range bytesSlice {
+		assert.Equal("hello world\x00", string(bytes))
+	}
+	perfBuf.Stop()
+
+	// return probe
+	err = m.attachUProbe(&ebpfpb.ProbeSpec{
+		Type:       ebpfpb.ProbeSpec_UPROBE,
+		Target:     "readline",
+		Return:     "sample_probe",
+		BinaryPath: "/bin/bash",
+	})
+	assert.Nil(err)
+
+	perfBuf, err = m.NewPerfBuffer("events")
+	require.Nil(err)
+	perfBuf.Start()
+
+	time.Sleep(1 * time.Second)
+	bytesSlice = perfBuf.Poll()
+	for _, bytes := range bytesSlice {
+		assert.Equal("hello world\x00", string(bytes))
+	}
+	perfBuf.Stop()
+}
+
 // Tests that the vanilla gobpf's BCC Golang binding APIs produce no extra null chars
 func TestDemoVanillaGoBPFAPI(t *testing.T) {
 	assert := assert.New(t)
 	require := require.New(t)
 
-	m := bcc.NewModule(code, []string{})
+	const sampleJSONBPFCPath = "modules/sample_json/sample_json.bcc"
+	bccCode, err := testutils.ReadTestFile(sampleJSONBPFCPath)
+	require.Nil(err)
+
+	m := bcc.NewModule(bccCode, []string{})
 	defer m.Close()
 
-	probeFD, err := m.LoadPerfEvent("sample_probe")
+	probeFD, err := m.LoadPerfEvent("sample_json")
 	require.Nil(err)
 
 	err = m.AttachPerfEvent(1 /*evType*/, 0 /*evConfig*/, int(100000000), /*samplePeriod nanos*/
@@ -139,7 +284,7 @@ func TestDemoVanillaGoBPFAPI(t *testing.T) {
 	perfMap.Start()
 	for i := 0; i < 10; i++ {
 		data := <-channel
-		assert.Equal("hello world\x00", string(data))
+		assert.Equal(`{"name":"John", "age":30}`+"\x00\x00\x00", string(data))
 	}
 	perfMap.Stop()
 }

@@ -18,7 +18,7 @@ package testing
 import (
 	"strings"
 
-	"github.com/tricorder/src/utils/log"
+	log "github.com/sirupsen/logrus"
 
 	"github.com/tricorder/src/utils/exec"
 )

@@ -12,9 +12,9 @@ go_library(
     visibility = ["//visibility:public"],
     deps = [
         "//src/pb/module/common",
-        "//src/utils/log",
         "@com_github_jackc_pgx_v5//:pgx",
         "@com_github_jackc_pgx_v5//pgxpool",
+        "@com_github_sirupsen_logrus//:logrus",
     ],
 )
 
@@ -30,7 +30,7 @@ go_test(
     flaky = True,
     deps = [
         "//src/testing/docker",
-        "//src/utils/log",
+        "@com_github_sirupsen_logrus//:logrus",
         "@com_github_stretchr_testify//assert",
         "@com_github_stretchr_testify//require",
         "@io_k8s_apimachinery//pkg/apis/meta/v1:meta",

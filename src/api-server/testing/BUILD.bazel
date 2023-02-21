@@ -9,6 +9,6 @@ go_library(
     deps = [
         "//src/api-server/dao",
         "//src/api-server/pb",
-        "//src/utils/log",
+        "@com_github_sirupsen_logrus//:logrus",
     ],
 )

@@ -14,6 +14,7 @@ go_library(
         "//src/utils/log",
         "//src/utils/pg",
         "//src/utils/retry",
+        "@com_github_sirupsen_logrus//:logrus",
     ],
 )
 

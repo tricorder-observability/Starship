@@ -3,17 +3,20 @@
 eBPF module: detects the DDOS event, and then submits the event to perf buffer
 WASM module: transforms DDOS event output to JSON
 
-# Usage
-```
-# create module
-starship-cli  --api-address a6797719780714b1db070610c294b49c-821915578.ap-southeast-1.elb.amazonaws.com:8080 \
-    module create \
-    -m modules/ddos_event/module.json \
-    -b modules/ddos_event/ddos_event.bcc \
-    -w modules/ddos_event/cjson.wasm
+# Deploy module with starship-cli
 
-# deploy module
-starship-cli  --api-address a6797719780714b1db070610c294b49c-821915578.ap-southeast-1.elb.amazonaws.com:8080 \
-    module deploy \
-    -i 53b540e1_d661_4e5f_92aa_42f8a7b28da5
+- create module
+
+```shell
+$ starship-cli module create -b ./ddos_event.bcc -w ./write_events_to_output.wasm -m ./module.json --api-address your-api-server-address:8080
+
+{"data":null,"code":"200","message":"create success, module id:c7bd055a_f34a_428c_bb22_e20e7df7edd6"}
+```
+
+- deploy module
+
+```shell
+$ starship-cli module deploy --api-address your-api-server-address:8080 -i c7bd055a_f34a_428c_bb22_e20e7df7edd6
+
+{"data":null,"code":"200","message":"prepare deploy, please wait a moment."}
 ```

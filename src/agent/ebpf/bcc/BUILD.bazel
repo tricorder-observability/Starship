@@ -12,11 +12,10 @@ go_library(
     deps = [
         "//src/agent/ebpf/common",
         "//src/pb/module/ebpf",
-        "//src/utils/common",
         "//src/utils/errors",
-        "//src/utils/log",
         "//src/utils/pb",
         "@com_github_iovisor_gobpf//bcc",
+        "@com_github_sirupsen_logrus//:logrus",
     ],
 )
 
@@ -26,6 +25,9 @@ go_test(
         "bcc_test.go",
         "program_test.go",
     ],
+    data = [
+        "//modules/sample_json:module",
+    ],
     embed = [":bcc"],
     # This instructs bazel to ignore such tests by default, as this test requires root permission.
     # To run this test, you'll need `bazel test --config=bpf`.
@@ -34,6 +36,7 @@ go_test(
         "//src/agent/ebpf/bcc/linux_headers",
         "//src/pb/module/common",
         "//src/pb/module/ebpf",
+        "//src/testing/bazel",
         "@com_github_iovisor_gobpf//bcc",
         "@com_github_stretchr_testify//assert",
         "@com_github_stretchr_testify//require",

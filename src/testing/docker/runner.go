@@ -21,7 +21,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/tricorder/src/utils/log"
+	log "github.com/sirupsen/logrus"
 
 	"github.com/tricorder/src/utils/common"
 	"github.com/tricorder/src/utils/exec"

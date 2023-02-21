@@ -20,7 +20,7 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/tricorder/src/utils/log"
+	log "github.com/sirupsen/logrus"
 
 	"github.com/spf13/cobra"
 

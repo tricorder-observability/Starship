@@ -19,8 +19,7 @@ import (
 	"fmt"
 
 	"github.com/gin-gonic/gin"
-
-	"github.com/tricorder/src/utils/log"
+	log "github.com/sirupsen/logrus"
 
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -29,6 +28,8 @@ import (
 	"github.com/tricorder/src/api-server/http/grafana"
 	http_utils "github.com/tricorder/src/utils/http"
 	"github.com/tricorder/src/utils/pg"
+
+	_ "github.com/tricorder/src/utils/log"
 )
 
 type Config struct {

@@ -11,10 +11,14 @@ import "src/pb/module/common/common.proto";
 message ProbeSpec {
   enum Type {
     KPROBE = 0;
-    // TODO: Add Uprobe, usdt, tracepoint, xdp and others.
+    SYSCALL_PROBE = 1;
+    UPROBE = 2;
+    TRACEPOINT = 3;
+    XDP = 4;
 
     // A custom perf event, where the probe was triggered periodically with a sample period.
-    SAMPLE_PROBE = 1;
+    SAMPLE_PROBE = 5;
+    USDT = 6;
   }
   Type type = 1;
 
@@ -33,6 +37,10 @@ message ProbeSpec {
 
   // Only meaningful for SAMPLE_EVENT.
   int64 sample_period_nanos = 5;
+
+  // The path of the binary of the running process, which is required for attaching uprobes.
+  // Only meaningful for UPROBE.
+  string binary_path = 6;
 }
 
 message Program {

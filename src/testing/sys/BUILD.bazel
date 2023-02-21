@@ -9,7 +9,7 @@ go_library(
     ],
     importpath = "github.com/tricorder/src/testing/sys",
     visibility = ["//visibility:public"],
-    deps = ["//src/utils/log"],
+    deps = ["@com_github_sirupsen_logrus//:logrus"],
 )
 
 go_test(
