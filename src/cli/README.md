@@ -3,11 +3,10 @@
 The CLI tool to work with Starship Observability platform.
 
 ```shell
-git clone https://github.com/Tricorder Observability/starship.git
-cd starship
 bazel build -c opt //src/cli
-cp ./bazel-bin/src/cli/cli_/cli ~/bin/starship-cli
+mkdir -p ~/bin
 export PATH=~/bin:$PATH
+ln -s $(pwd)/bazel-bin/src/cli/cli_/cli ~/bin/starship-cli
 starship-cli -h
 ```
 
