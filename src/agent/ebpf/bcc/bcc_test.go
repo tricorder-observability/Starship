@@ -45,7 +45,6 @@ func TestAttachPerfEvent(t *testing.T) {
 	assert := assert.New(t)
 	require := require.New(t)
 
-	// init kernel headers
 	assert.Nil(linux_headers.Init())
 
 	m, err := newModule(code)
@@ -77,7 +76,6 @@ func TestAttachKprobe(t *testing.T) {
 	assert := assert.New(t)
 	require := require.New(t)
 
-	// init kernel headers
 	assert.Nil(linux_headers.Init())
 
 	m, err := newModule(code)
@@ -127,7 +125,6 @@ func TestAttachSyscallProbe(t *testing.T) {
 	assert := assert.New(t)
 	require := require.New(t)
 
-	// init kernel headers
 	assert.Nil(linux_headers.Init())
 
 	m, err := newModule(code)
@@ -177,7 +174,6 @@ func TestAttachTPProbe(t *testing.T) {
 	assert := assert.New(t)
 	require := require.New(t)
 
-	// init kernel headers
 	assert.Nil(linux_headers.Init())
 
 	m, err := newModule(code)
@@ -208,7 +204,6 @@ func TestAttachUProbe(t *testing.T) {
 	assert := assert.New(t)
 	require := require.New(t)
 
-	// init kernel headers
 	assert.Nil(linux_headers.Init())
 
 	m, err := newModule(code)
