@@ -27,6 +27,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 	ctrl "sigs.k8s.io/controller-runtime"
 
+	"github.com/tricorder/src/api-server/cmd/docs"
 	"github.com/tricorder/src/api-server/dao"
 	sg "github.com/tricorder/src/api-server/grpc"
 	"github.com/tricorder/src/api-server/http"
@@ -79,6 +80,13 @@ var (
 
 func main() {
 	flag.Parse()
+
+	docs.SwaggerInfo.Title = "API Server"
+	docs.SwaggerInfo.Description = "API Server http api document."
+	docs.SwaggerInfo.Version = "1.0"
+	docs.SwaggerInfo.Host = "api-server"
+	docs.SwaggerInfo.BasePath = "/api"
+	docs.SwaggerInfo.Schemes = []string{"http"}
 
 	// Log the line number.
 	log.SetReportCaller(true)
