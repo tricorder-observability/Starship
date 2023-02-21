@@ -30,6 +30,10 @@ We recommend start with [Minikube](https://minikube.sigs.k8s.io/docs/start/)
 **v1.29.0** or newer.
 
 ```
+minikube version
+$ minikube version: v1.29.0
+$ commit: ddac20b4b34a9c8c857fc602203b6ba2679794d3
+
 # First start the minikube cluster, and make sure have at least 8 cpus and
 # 8196MB memory.
 minikube start --cpus=8 --memory=8192
