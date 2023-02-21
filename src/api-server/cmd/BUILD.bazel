@@ -70,7 +70,7 @@ container_push(
     # aws ecr-public get-login-password --region us-east-1 |\
     #     docker login --username AWS --password-stdin public.ecr.aws/tricorder
     # aws ecr-public create-repository --repository-name api-server
-    registry = "public.ecr.aws/tricorder",
+    registry = "ghcr.io/tricorder-observability",
     repository = "api-server",
     # Use bazel run --define=TAG=v0.0.x to set this value.
     tag = "$(TAG)",
