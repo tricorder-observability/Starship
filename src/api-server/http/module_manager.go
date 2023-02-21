@@ -156,16 +156,17 @@ func (mgr *ModuleManager) deployCode(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"code": "500", "message": "create schema error: " + err.Error()})
 		return
 	}
+	log.Info("Created postgres table")
+
 	uid, err := mgr.createGrafanaDashboard(code.ID)
 	if err != nil {
 		log.Error("Failed to create Grafana dashboard")
 		c.JSON(http.StatusOK, gin.H{"code": "500", "message": "create dashboard error"})
 		return
 	}
+	log.Infof("Created Grafana dashboard with UID: %s", uid)
 
-	log.Info("create PG table and Grafana dashboard success.")
-	// TODO(zhiahui): here it should not use uid, but id. Therefore we need to add test.
-	c.JSON(http.StatusOK, gin.H{"code": "200", "message": "prepare to deploy module, id: " + uid})
+	c.JSON(http.StatusOK, gin.H{"code": "200", "message": "prepare to deploy module, id: " + id})
 }
 
 func (mgr *ModuleManager) undeployCode(c *gin.Context) {
