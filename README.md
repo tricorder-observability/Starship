@@ -43,6 +43,42 @@ kubectl create namespace tricorder
 
 Then follow the [helm-charts installation](
 https://github.com/tricorder-observability/helm-charts#install).
+You should see the following pods running on your cluster.
+![image](https://user-images.githubusercontent.com/112656580/220372168-252ba002-9d31-433d-990d-201cbb50cf1e.png)
+
+Then follow the [CLI build and install](
+https://github.com/tricorder-observability/starship/blob/main/src/cli/README.md#build-and-install)
+to install `starship-cli`.
+
+Then expose the API Server http endpoint with `kubectl port-forward`:
+```
+# This allows starship-cli accessing API Server with
+# --api-address=localhost:8081
+kubectl port-forward service/api-server 8081:80 -n tricorder
+```
+
+> DO NOT use the Web UI, as it's not working right now [issue/#80](https://github.com/tricorder-observability/starship/issues/80).
+
+Then make sure you are the root of the Starship repo, and create a pre-built module:
+```
+starship-cli --api-address localhost:8081 module create \
+    --bcc-file-path=modules/ddos_event/ddos_event.bcc \
+    --wasm-file-path=modules/ddos_event/write_events_to_output.wasm \
+    --module-json-path=modules/ddos_event/module.json
+```
+![image](https://user-images.githubusercontent.com/112656580/220375093-687b65b4-08fb-4be7-952a-89134306bb9c.png)
+
+Then deploy this module:
+```
+starship-cli --api-address=localhost:8081 module deploy -i 0aa9e5db_ffce_4276_b37e_0b2dd82814a1
+```
+![image](https://user-images.githubusercontent.com/112656580/220375739-82f7b971-f0af-45e1-815e-e3c65c48be57.png)
+
+```
+starship-cli --api-address=localhost:8081 module deploy -i 0aa9e5db_ffce_4276_b37e_0b2dd82814a1
+kubectl port-forward service/my-starship-grafana 8082:80 -n tricorder
+```
+Then open `http://localhost:8082`, login Grafana with username `admin` and password `tricorder`.
 
 ## Architecture
 
@@ -58,7 +94,7 @@ https://github.com/tricorder-observability/helm-charts#install).
   modules written in your favorite language, and are executed in eBPF+WASM.  You
   can write your own modules in C/C++ (Go, Rust, and more languages are coming).
 
-Tricorder is working on supporting all major frontend languages of writing eBPF
+We are working on supporting all major frontend languages of writing eBPF
 programs, including:
 * [BCC](https://github.com/iovisor/bcc)
 * [BPFtrace](https://github.com/iovisor/bpftrace)
