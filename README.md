@@ -100,7 +100,7 @@ The development environment is based on Ubuntu.
 The easiest way to get started with building Starship is to use the dev image:
 
 ```
-git clone git@github.com/tricorder-observability/startship
+git clone git@github.com:tricorder-observability/starship.git
 cd starship
 devops/dev_image/run.sh
 # Inside the container
@@ -116,7 +116,7 @@ First install `ansible`:
 
 ```
 sudo apt-get install ansible-core -y
-git clone git@github.com/tricorder-observability/startship
+git clone git@github.com:tricorder-observability/starship.git
 cd starship
 sudo devops/dev_image/ansible-playbook.sh devops/dev_image/dev.yaml
 ```
