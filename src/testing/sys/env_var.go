@@ -19,7 +19,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/tricorder/src/utils/log"
+	log "github.com/sirupsen/logrus"
 )
 
 func GetEnvVars() map[string]string {

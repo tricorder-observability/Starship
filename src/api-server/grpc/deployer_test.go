@@ -27,11 +27,10 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	_ "github.com/mattn/go-sqlite3"
+	log "github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
-
-	"github.com/tricorder/src/utils/log"
 
 	"github.com/tricorder/src/api-server/dao"
 	pb "github.com/tricorder/src/api-server/pb"

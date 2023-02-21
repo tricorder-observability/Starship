@@ -20,7 +20,7 @@ import (
 
 	"github.com/tricorder/src/utils/sqlite"
 
-	"github.com/tricorder/src/utils/log"
+	log "github.com/sirupsen/logrus"
 )
 
 // InitSqlite prepares sqlite db file and setup the initial condition.

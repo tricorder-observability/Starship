@@ -18,7 +18,7 @@ package exec
 import (
 	"fmt"
 
-	"github.com/tricorder/src/utils/log"
+	log "github.com/sirupsen/logrus"
 )
 
 func Run(argv []string) (string, string, error) {

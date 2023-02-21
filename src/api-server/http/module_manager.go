@@ -23,8 +23,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-
-	"github.com/tricorder/src/utils/log"
+	log "github.com/sirupsen/logrus"
 
 	"github.com/tricorder/src/api-server/dao"
 	"github.com/tricorder/src/api-server/http/grafana"

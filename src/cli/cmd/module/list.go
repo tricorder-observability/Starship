@@ -21,7 +21,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/tricorder/src/utils/log"
+	log "github.com/sirupsen/logrus"
 
 	"github.com/tricorder/src/cli/internal/outputs"
 	http_utils "github.com/tricorder/src/utils/http"
