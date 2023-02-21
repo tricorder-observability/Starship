@@ -4,3 +4,8 @@ filegroup(
     name = "all_bpf_c",
     srcs = glob(["*.bpf.c"]),
 )
+
+filegroup(
+    name = "uprobe_test",
+    srcs = glob(["test_uprobe"]),
+)
