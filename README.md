@@ -29,6 +29,12 @@ install Starship on your Kubernetes cluster with helm.
 We recommend start with [Minikube](https://minikube.sigs.k8s.io/docs/start/)
 **v1.29.0** or newer.
 
+```
+# First start the minikube cluster, and make sure have at least 8 cpus and
+# 8196MB memory.
+minikube start --cpus=8 --memory=8192
+```
+
 ## Architecture
 
 🤿 Before diving into the code base:
