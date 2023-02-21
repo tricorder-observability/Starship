@@ -44,7 +44,8 @@ kubectl create namespace tricorder
 Then follow the [helm-charts installation](
 https://github.com/tricorder-observability/helm-charts#install).
 You should see the following pods running on your cluster.
-![image](https://user-images.githubusercontent.com/112656580/220372168-252ba002-9d31-433d-990d-201cbb50cf1e.png)
+
+![image](https://user-images.githubusercontent.com/112656580/220381364-65bebd35-bf6d-4780-981b-be94c5464607.png)
 
 Then follow the [CLI build and install](
 https://github.com/tricorder-observability/starship/blob/main/src/cli/README.md#build-and-install)
@@ -79,6 +80,13 @@ starship-cli --api-address=localhost:8081 module deploy -i 0aa9e5db_ffce_4276_b3
 kubectl port-forward service/my-starship-grafana 8082:80 -n tricorder
 ```
 Then open `http://localhost:8082`, login Grafana with username `admin` and password `tricorder`.
+Then click the `Dashboards`->`Browse`, and then select the dashboard named `tricorder_<module_id>`.
+You should see data reporting packets arriving with timestamp, as shown in the screenshot below.
+
+![image](https://user-images.githubusercontent.com/112656580/220397224-5238110f-a1a0-4e0a-91de-4b9f9611caf9.png)
+
+> Not yet very useful. We are working tirelessly 👩‍👨‍💻💻 on micro-service tracing!
+> Stay tuned! 🫶
 
 ## Architecture
 
