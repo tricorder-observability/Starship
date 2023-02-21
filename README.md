@@ -26,6 +26,11 @@ community.
 ☸️  [Helm-charts](https://github.com/tricorder-observability/helm-charts),
 install Starship on your Kubernetes cluster with helm.
 
+We recommend start with [Minikube](https://minikube.sigs.k8s.io/docs/start/)
+**v1.29.0** or newer.
+
+## Architecture
+
 🤿 Before diving into the code base:
 
 - Starship is built for Kubernetes platform. Starship provides all things you'll
