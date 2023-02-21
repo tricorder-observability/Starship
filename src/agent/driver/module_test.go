@@ -107,7 +107,6 @@ func TestSampleEventModule(t *testing.T) {
 	assert := assert.New(t)
 	require := require.New(t)
 
-	// init kernel headers
 	assert.Nil(linux_headers.Init())
 
 	const bccPath = "modules/sample_event/sample_event.bcc"
