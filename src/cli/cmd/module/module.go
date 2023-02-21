@@ -35,7 +35,7 @@ var ModuleCmd = &cobra.Command{
 		if apiAddress == "" {
 			newApiAddress, err := kubernetes.GetAPIAddress()
 			if err != nil {
-				fmt.Println("kubernetes client error: ", err)
+				fmt.Println("connect to kubernetes failed, please use --api-address to set api address manually.")
 				return
 			}
 			apiAddress = newApiAddress
