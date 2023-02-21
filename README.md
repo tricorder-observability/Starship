@@ -33,7 +33,16 @@ We recommend start with [Minikube](https://minikube.sigs.k8s.io/docs/start/)
 # First start the minikube cluster, and make sure have at least 8 cpus and
 # 8196MB memory.
 minikube start --cpus=8 --memory=8192
+
+# Create a namespace for installing Starship.
+# Do not use a different namespace, as our documentation uses this namespace
+# consistently, and you might run into unexpected issues with a different
+# namespace.
+kubectl create namespace tricorder
 ```
+
+Then follow the [helm-charts installation](
+https://github.com/tricorder-observability/helm-charts#install).
 
 ## Architecture
 
