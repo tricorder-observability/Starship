@@ -32,3 +32,9 @@ Various config files for git, and other tools are here (Top of Tree or ToT).
 * `.commitlintrc.yml` commitlint config file, see [commitlint](https://github.com/conventional-changelog/commitlint)
 * `.bazel_fix_commands.json` ibazel auto fix config, see [bazel-watcher output-runner](https://github.com/bazelbuild/bazel-watcher#output-runner)
 * `.golangci.yml` golangci-lint config, see [golangci-lint](https://github.com/golangci/golangci-lint)
+
+## Reverting breaking commit first then fix
+
+Do not try to fix non-trivial bug introduced by a previous commit.
+Revert it, and then fix in a measured pace with sufficient guardrail of normal development process.
+Otherwise, you might be too stressful and make a lot of mistakes.
