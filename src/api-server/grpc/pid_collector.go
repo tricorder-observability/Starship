@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"time"
 
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/encoding/protojson"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -55,7 +57,7 @@ func NewPIDCollector(clientset kubernetes.Interface, pgClient *pg.Client) *PIDCo
 func (s *PIDCollector) ReportProcess(stream pb.ProcessCollector_ReportProcessServer) error {
 	for {
 		pw, err := stream.Recv()
-		if err != nil {
+		if status.Code(err) == codes.Unavailable {
 			log.Warnf("Agent disconnected, error: %v", err)
 			// The informer will be stopped when stopCh is closed.
 			close(s.podInformerQuitChan)
