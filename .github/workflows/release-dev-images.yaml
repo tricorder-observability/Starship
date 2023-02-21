@@ -1,4 +1,4 @@
-name: release-images
+name: release-dev-images
 
 on:
   pull_request:
@@ -23,12 +23,11 @@ jobs:
       options: --privileged
       volumes:
         # Needed for accessing kernel headers
-        # TODO(yzhao): Need to add the ability to install kernel headers.
-        - /lib/modules:/lib/modules
+        - /usr/src:/usr/src
+        # Needed for accessing kernel headers
+        - /:/host:ro
         # Needed to access /sys/kernel/tracing/kprobe
         - /sys/kernel:/sys/kernel
-        # Needed for accessing kernel headers
-        - /usr/src:/usr/src
     permissions:
       contents: read
       packages: write
