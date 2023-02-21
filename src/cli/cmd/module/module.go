@@ -31,7 +31,7 @@ var ModuleCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("module called")
 	},
-	PreRun: func(cmd *cobra.Command, args []string) {
+	PersistentPreRun: func(cmd *cobra.Command, args []string) {
 		if apiAddress == "" {
 			newApiAddress, err := kubernetes.GetAPIAddress()
 			if err != nil {

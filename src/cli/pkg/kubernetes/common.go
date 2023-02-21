@@ -2,6 +2,7 @@ package kubernetes
 
 import (
 	"context"
+	"fmt"
 	v1 "k8s.io/api/core/v1"
 	matav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	k8s "k8s.io/client-go/kubernetes"
@@ -33,6 +34,11 @@ func getStarshipServicePort(client *k8s.Clientset) (int32, error) {
 	if err != nil {
 		return 0, err
 	}
+	for _, port := range service.Spec.Ports {
+		if port.Name == "serverhttp" {
+			return port.Port, nil
+		}
+	}
 	return service.Spec.Ports[0].Port, nil
 }
 
@@ -49,5 +55,6 @@ func GetAPIAddress() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return ip + ":" + string(port), nil
+	apiAddress := fmt.Sprintf("%s:%d", ip, port)
+	return apiAddress, nil
 }
