@@ -23,76 +23,61 @@ community.
 
 ## Get Started
 
-☸️ [Helm-charts](https://github.com/tricorder-observability/helm-charts), install Starship
-on your Kubernetes cluster with helm.
+☸️  [Helm-charts](https://github.com/tricorder-observability/helm-charts),
+install Starship on your Kubernetes cluster with helm.
 
 🤿 Before diving into the code base:
-Starship is built for Kubernetes platform. Starship provides all things you'll need to
-get started with Zero-Cost (or Zero-Friction) Observability,
-where no effort other than [installation](https://tricorder-observability.github.io/helm-charts/)
-is required to get the value of Observability.
 
-Starship provides `Service Map`, the most valuable information
-for understanding Cloud Native applications,
-and numerous other data, analytic, and
-visualization capabilities to satisfy
-the full spectrum of your needs in running
-and managing Cloud Native applications
-on Kubernetes.
+- Starship is built for Kubernetes platform. Starship provides all things you'll
+  need to get started with Zero-Cost (or Zero-Friction) Observability.
+- Starship provides `Service Map`, the most valuable information for
+  understanding Cloud Native applications, and numerous other data, analytic,
+  and visualization capabilities to satisfy the full spectrum of your needs in
+  running and managing Cloud Native applications on Kubernetes.
+- The core of starship is the tricorder agent, which runs data collection
+  modules written in your favorite language, and are executed in eBPF+WASM.  You
+  can write your own modules in C/C++ (Go, Rust, and more languages are coming).
 
-Starship comprises 4 components:
-1. A data collection agent running as daemonset
-2. A database for storing observability data
-3. A visualization component for Observability data,
-   we use Grafana
-4. An API Server to manage all the above compnents
-
-The core of starship is the tricorder agent,
-which runs data collection modules written in
-your favorite language, and are executed in eBPF+WASM.
-
-You can write your own modules in
-C/C++ (Go, Rust, and more languages are coming).
-
-Tricorder agent supports all major frontend languages
-of writing eBPF programs, including:
+Tricorder is working on supporting all major frontend languages of writing eBPF
+programs, including:
 * [BCC](https://github.com/iovisor/bcc)
 * [BPFtrace](https://github.com/iovisor/bpftrace)
-* Rust ([readbpf](https://github.com/foniod/redbpf) [aya](https://github.com/aya-rs/aya))
+* Rust ([readbpf](https://github.com/foniod/redbpf)
+  [aya](https://github.com/aya-rs/aya))
 
-Additionally, [libbpf](https://github.com/libbpf/libbpf)-style eBPF binary object files
-are supported as well.
-
-Tricorder agent also supports writing WASM in C/C++, Go, and Rust as well.
-
-More details will be added for how to combine eBPF and WASM
-together to build a complete data collection module.
+Additionally, [libbpf](https://github.com/libbpf/libbpf)-style eBPF binary
+object files are supported as well.
 
 ## Components
 
-* Starship [Tricorder](src/agent) (aka. Starship Agent):
-  a data collection agent running as daemonset. Agent executes eBPF+WASM modules and export structured data to storage engine.
-  The code lives in [src/agent](src/agent).
-* Starship [API Server](src/api-server):
-  manages Tricorder agents, and Promscale & Grafana backend server; also supports management Web UI and CLI.
-  The code lives in [src/api-server](src/api-server).
-* Starship [CLI](src/cli): the command line tool to use
-  Starship on your Kubernetes cluster. The code lives in [src/cli](src/cli).
-* Starship [Web UI](ui): a Web UI for using Starship.
-  The code lives in [ui](ui).
+* Starship [Tricorder](src/agent) (aka. Starship Agent): a data collection agent
+  running as daemonset. Agent executes eBPF+WASM modules and export structured
+  data to storage engine.  The code lives in [src/agent](src/agent).
+* Starship [API Server](src/api-server): manages Tricorder agents, and Promscale
+  & Grafana backend server; also supports management Web UI and CLI.  The code
+  lives in [src/api-server](src/api-server).
+* Starship [CLI](src/cli): the command line tool to use Starship on your
+  Kubernetes cluster. The code lives in [src/cli](src/cli).
+* Starship [Web UI](ui): a Web UI for using Starship.  The code lives in
+  [ui](ui).
 
 ### 3rd party dependencies
 
-* [Promscale](https://github.com/timescale/promscale): A unified metric and trace observability backend for Prometheus & OpenTelemetry.
-  Starship use `Promscale` to support Prom and OTel.
-* [Grafana](https://github.com/grafana/grafana): Starship use `Grafana` to visualize Observability data.
+* [Promscale](https://github.com/timescale/promscale): A unified metric and
+  trace observability backend for Prometheus & OpenTelemetry.  Starship use
+  `Promscale` to support Prom and OTel.
+* [Grafana](https://github.com/grafana/grafana): Starship use `Grafana` to
+  visualize Observability data.
 
 ### Prepherials
 
-* [Kube-state-metrics](https://github.com/kubernetes/kube-state-metrics) (KSM): listens to the Kubernetes API server
-  and generates metrics about the state of the objects. Starship use `KSM` to expose cluster-level metrics.
-* [Prometheus](https://github.com/prometheus/prometheus): collects metrics from `KSM` and then remote write to `Promscale`.
-* [OpenTelemetry](https://github.com/open-telemetry): for distributed tracing and other awesome Observability features.
+* [Kube-state-metrics](https://github.com/kubernetes/kube-state-metrics) (KSM):
+  listens to the Kubernetes API server and generates metrics about the state of
+  the objects. Starship use `KSM` to expose cluster-level metrics.
+* [Prometheus](https://github.com/prometheus/prometheus): collects metrics from
+  `KSM` and then remote write to `Promscale`.
+* [OpenTelemetry](https://github.com/open-telemetry): for distributed tracing
+  and other awesome Observability features.
 
 ## Contributing
 
@@ -136,30 +121,4 @@ variable (or put this into your shell's rc file):
 ```
 source devops/dev_image/env.inc
 ```
-
 Afterwards, run `bazel build src/...` to build all targets in the Starship repo.
-
-### Bazel & bazelisk
-
-Starship uses [bazel](https://bazel.build/), an opinionated monorepo build
-system open sourced by Google.
-
-You should first read an overview of the
-[major Bazel concepts](https://bazel.build/concepts/build-ref)
-to get yourself familiarized.
-
-Specifically, Starship uses [bazelisk](https://github.com/bazelbuild/bazelisk)
-instead of bazel directly. Bazelisk reads `.bazeliskrc` to get the specified
-bazel version, download and execute the designated version. This ensures bazel
-version consistent with repo commit, see [bazelisk config](
-https://github.com/bazelbuild/bazelisk#how-does-bazelisk-know-which-bazel-version-to-run)
-for more details.
-
-## Dotfiles
-
-Various config files for git, and other tools are here (Top of Tree or ToT).
-
-* `.bazelignore` config for bazel to ignore certain directory, see [bazelrc](https://bazel.build/run/bazelrc)
-* `.commitlintrc.yml` commitlint config file, see [commitlint](https://github.com/conventional-changelog/commitlint)
-* `.bazel_fix_commands.json` ibazel auto fix config, see [bazel-watcher output-runner](https://github.com/bazelbuild/bazel-watcher#output-runner)
-* `.golangci.yml` golangci-lint config, see [golangci-lint](https://github.com/golangci/golangci-lint)
