@@ -42,7 +42,7 @@ jobs:
         id: extract_tag
         #if: ${GITHUB_REF#refs/tags/v} != ""
         run: echo tags:${GITHUB_REF#refs/tags/v}
-        run: echo "{TAG}=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
+        #run: echo "{TAG}=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
       - name: Print container tag
         run: echo "Running release build for ${{ steps.extract_tag.outputs.tag }}"
       - uses: bazelbuild/setup-bazelisk@v2
