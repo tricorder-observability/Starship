@@ -22,8 +22,8 @@ import (
 
 	"github.com/tricorder/src/utils/log"
 
-	swaggerFiles "github.com/swaggo/files"
-	ginSwagger "github.com/swaggo/gin-swagger"
+	swagfiles "github.com/swaggo/files"
+	ginswag "github.com/swaggo/gin-swagger"
 
 	"github.com/tricorder/src/api-server/dao"
 	"github.com/tricorder/src/api-server/http/grafana"
@@ -75,7 +75,7 @@ func StartHTTPService(cfg Config, pgClient *pg.Client) {
 		api.POST(fmt.Sprintf("/%s", http_utils.UN_DEPLOY), cm.undeployCode)
 	}
 
-	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	router.GET("/swagger/*any", ginswag.WrapHandler(swagfiles.Handler))
 
 	addr := fmt.Sprintf(":%d", cfg.Port)
 	log.Infof("Listening on %s ...", addr)
