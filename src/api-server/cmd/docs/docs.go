@@ -267,6 +267,9 @@ const docTemplate = `{
         "ebpf.ProbeSpec": {
             "type": "object",
             "properties": {
+                "binary_path": {
+                    "type": "string"
+                },
                 "entry": {
                     "type": "string"
                 },
@@ -288,11 +291,21 @@ const docTemplate = `{
             "type": "integer",
             "enum": [
                 0,
-                1
+                1,
+                2,
+                3,
+                4,
+                5,
+                6
             ],
             "x-enum-varnames": [
                 "ProbeSpec_KPROBE",
-                "ProbeSpec_SAMPLE_PROBE"
+                "ProbeSpec_SYSCALL_PROBE",
+                "ProbeSpec_UPROBE",
+                "ProbeSpec_TRACEPOINT",
+                "ProbeSpec_XDP",
+                "ProbeSpec_SAMPLE_PROBE",
+                "ProbeSpec_USDT"
             ]
         },
         "ebpf.Program": {

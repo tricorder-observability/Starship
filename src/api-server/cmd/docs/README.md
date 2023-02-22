@@ -6,7 +6,7 @@ server.
 [Wwag](https://pkg.go.dev/github.com/go-openapi/swag) CLI to create API spec:
 
 ```shell
-cd starship/src/api-server/cmd
+cd src/api-server/cmd
 swag init -g ./api-server/http/http.go -d ../../
 ```
 
