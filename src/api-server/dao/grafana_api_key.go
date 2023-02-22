@@ -22,6 +22,8 @@ import (
 )
 
 // GrafanaAPIKeyGORM sqlite gorm storage object
+// TODO(zhihui): This will be removed, replaced by dynamically created API key.
+// i.e., API Server will delete old API key on Grafana, and create new one.
 type GrafanaAPIKeyGORM struct {
 	ID         int    `gorm:"'id' primarykey"`
 	Name       string `gorm:"name"`
