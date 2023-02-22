@@ -20,7 +20,9 @@ env:
 jobs:
   build-and-push-images:
     runs-on: ubuntu-latest
-    if: always()
+    if: |
+      always() &&
+      ${{ github.event.workflow_run.conclusion == 'success' }}
     container:
       image: public.ecr.aws/tricorder/ci_image:202302140538
     timeout-minutes: 90
