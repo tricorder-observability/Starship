@@ -46,8 +46,8 @@ func getStarshipServicePort(client *k8s.Clientset) (int32, error) {
 	return service.Spec.Ports[0].Port, nil
 }
 
-// GetAPIAddress returns the starship Service ClusterIP and serverhttp port
-func GetAPIAddress() (string, error) {
+// GetStarshipAPIAddress returns the starship Service ClusterIP and serverhttp port
+func GetStarshipAPIAddress() (string, error) {
 	client, err := NewClient()
 	if err != nil {
 		return "", err
