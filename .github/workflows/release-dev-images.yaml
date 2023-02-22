@@ -4,8 +4,6 @@ on:
   workflow_run:
     workflows: [Bazel build and test]
     types: [completed]
-    branches:
-      - main
   pull_request:
     branches:
       - main
