@@ -19,6 +19,7 @@ package deployer
 import (
 	"context"
 	"fmt"
+	"io"
 
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
@@ -102,8 +103,12 @@ func (s *Deployer) StartModuleDeployLoop() error {
 	eg.Go(func() error {
 		for {
 			in, err := s.stream.Recv()
+			if err == io.EOF {
+				return nil
+			}
 			if err != nil {
-				return fmt.Errorf("failed to read stream from DeplyModule(), error: %v", err)
+				log.Fatalf("failed to read stream from DeplyModule(), error: %v", err)
+				return err
 			}
 
 			log.Infof("received request to deploy module. ID: [%s], Name: [%s]", in.ID, in.Name)
