@@ -4,7 +4,7 @@ on:
   # TODO(jian): after debug finish, make this requires manual trigger
   push:
     branches:
-      - main
+      - *
   pull_request:
     branches:
       - main
