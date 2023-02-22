@@ -20,9 +20,6 @@ env:
 jobs:
   build-and-push-images:
     runs-on: ubuntu-latest
-    if: |
-      always() &&
-      ${{ github.event.workflow_run.conclusion == 'success' }}
     container:
       image: public.ecr.aws/tricorder/ci_image:202302140538
     timeout-minutes: 90
@@ -32,6 +29,7 @@ jobs:
       TAG: ${{ github.sha }}
     steps:
       - uses: actions/checkout@v3
+      - uses: ahmadnassri/action-workflow-run-wait@v1
       - name: Login to GitHub Package Registry
         uses: docker/login-action@v2.1.0
         with:
