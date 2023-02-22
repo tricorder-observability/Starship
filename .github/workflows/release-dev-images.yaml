@@ -3,8 +3,9 @@ name: release-dev-images
 on:
   workflow_run:
     workflows: ["Bazel build and test"]
-    types: 
-      - completed
+    types: [completed]
+    branches:
+      - main
   pull_request:
     branches:
       - main
@@ -20,6 +21,7 @@ env:
 jobs:
   build-and-push-images:
     runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     container:
       image: public.ecr.aws/tricorder/ci_image:202302140538
     timeout-minutes: 90
