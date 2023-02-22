@@ -16,6 +16,7 @@
 package bcc
 
 import (
+	"os/exec"
 	"testing"
 	"time"
 
@@ -210,17 +211,23 @@ func TestAttachUProbe(t *testing.T) {
 	require.Nil(err)
 	defer m.Close()
 
+	const sampleUPROBEPath = "src/agent/ebpf/bcc/programs/test_uprobe"
+	testBin := testutils.TestFilePath(sampleUPROBEPath)
+
 	err = m.attachUProbe(&ebpfpb.ProbeSpec{
 		Type:       ebpfpb.ProbeSpec_UPROBE,
-		Target:     "readline",
+		Target:     "main.sum",
 		Entry:      "sample_probe",
-		BinaryPath: "/bin/bash",
+		BinaryPath: testBin,
 	})
 	assert.Nil(err)
 
 	perfBuf, err := m.NewPerfBuffer("events")
 	require.Nil(err)
 	perfBuf.Start()
+
+	cmd := exec.Command(testBin)
+	assert.Nil(cmd.Run())
 
 	time.Sleep(1 * time.Second)
 	bytesSlice := perfBuf.Poll()
@@ -232,15 +239,18 @@ func TestAttachUProbe(t *testing.T) {
 	// return probe
 	err = m.attachUProbe(&ebpfpb.ProbeSpec{
 		Type:       ebpfpb.ProbeSpec_UPROBE,
-		Target:     "readline",
+		Target:     "main.sum",
 		Return:     "sample_probe",
-		BinaryPath: "/bin/bash",
+		BinaryPath: testBin,
 	})
 	assert.Nil(err)
 
 	perfBuf, err = m.NewPerfBuffer("events")
 	require.Nil(err)
 	perfBuf.Start()
+
+	cmd = exec.Command(testBin)
+	assert.Nil(cmd.Run())
 
 	time.Sleep(1 * time.Second)
 	bytesSlice = perfBuf.Poll()
