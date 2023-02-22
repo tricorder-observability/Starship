@@ -25,12 +25,14 @@ jobs:
       TAG: ${{ github.sha }}
     steps:
       - uses: actions/checkout@v3
+      # - name: Login to GitHub Package Registry
+      #   uses: docker/login-action@v2.1.0
+      #   with:
+      #     registry: ghcr.io
+      #     username: ${{ github.repository_owner }}
+      #     password: ${{ secrets.ACTIONS_TOKEN }}
       - name: Login to GitHub Package Registry
-        uses: docker/login-action@v2.1.0
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.ACTIONS_TOKEN }}
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
       - uses: bazelbuild/setup-bazelisk@v2
       - name: Build and push starship api-server image
         run: bazel run --define=TAG=${TAG} --define=REGISTRY=${REGISTRY_SERVER_ADDRESS} //src/api-server/cmd:push_api-server_image
