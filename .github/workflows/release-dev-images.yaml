@@ -11,17 +11,17 @@ on:
 env:
   REGISTRY_SERVER_ADDRESS: ghcr.io/${{ github.repository_owner }}
   REGISTRY_USER_NAME: ${{ github.repository_owner }}
-  REGISTRY_PASSWORD: ${{ secrets.ACTIONS_TOKEN }}
+  REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
   build-and-push-images:
     # This matches the dev_image and base image used in the code base.
     runs-on: ubuntu-22.04
+    permissions:
+      packages: write
+      contents: read
     container:
       image: public.ecr.aws/tricorder/ci_image:202302140538
-    permissions:
-      contents: read
-      packages: write
     timeout-minutes: 90
     env:
       TAG: ${{ github.sha }}
@@ -32,7 +32,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
-          password: ${{ secrets.ACTIONS_TOKEN }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       - uses: bazelbuild/setup-bazelisk@v2
       - name: Build and push starship api-server image
         run: bazel run --define=TAG=${TAG} --define=REGISTRY=${REGISTRY_SERVER_ADDRESS} //src/api-server/cmd:push_api-server_image
