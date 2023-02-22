@@ -12,7 +12,7 @@ env:
   REGISTRY_SERVER_ADDRESS: ghcr.io/${{ github.repository_owner }}
 
 jobs:
-  release-images:
+  build-and-push-images:
     # This matches the dev_image and base image used in the code base.
     runs-on: ubuntu-22.04
     container:
@@ -33,8 +33,6 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build and push starship api-server image
-        run: |
-          bazel run --define=TAG=${TAG} --define=REGISTRY=${REGISTRY_SERVER_ADDRESS} //src/api-server/cmd:api-server_image
-          docker push ${REGISTRY_SERVER_ADDRESS}/api-server:${TAG}
+        run: bazel run --define=TAG=${TAG} --define=REGISTRY=${REGISTRY_SERVER_ADDRESS} //src/api-server/cmd:push_api-server_image
         working-directory: .
 
