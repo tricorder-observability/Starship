@@ -11,7 +11,7 @@ on:
 env:
   REGISTRY_SERVER_ADDRESS: ghcr.io/tricorder-observability
   REGISTRY_USER_NAME: ${{ github.repository_owner }}
-  REGISTRY_PASSWORD: ${{ secrets.REGISTRY_TOKEN }}
+  REGISTRY_PASSWORD: ${{ secrets.STARSHIP_RELEASE }}
 
 jobs:
   release-images:
