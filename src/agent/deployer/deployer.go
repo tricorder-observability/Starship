@@ -103,7 +103,7 @@ func (s *Deployer) StartModuleDeployLoop() error {
 		for {
 			in, err := s.stream.Recv()
 			if err != nil {
-				log.Fatalf("failed to read stream from DeplyModule(), error: %v", err)
+				return fmt.Errorf("failed to read stream from DeplyModule(), error: %v", err)
 			}
 
 			log.Infof("received request to deploy module. ID: [%s], Name: [%s]", in.ID, in.Name)
