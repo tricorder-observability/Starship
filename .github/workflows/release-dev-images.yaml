@@ -29,13 +29,16 @@ jobs:
       TAG: ${{ github.sha }}
     steps:
       - uses: actions/checkout@v3
-      - name: Login to GitHub Package Registry
-        uses: docker/login-action@v2.1.0
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - uses: bazelbuild/setup-bazelisk@v2
-      - name: Build and push starship api-server image
-        run: bazel run --define=TAG=${TAG} --define=REGISTRY=${REGISTRY_SERVER_ADDRESS} //src/api-server/cmd:push_api-server_image
-        working-directory: .
+      # - name: Login to GitHub Package Registry
+      #   uses: docker/login-action@v2.1.0
+      #   with:
+      #     registry: ghcr.io
+      #     username: ${{ github.repository_owner }}
+      #     password: ${{ secrets.GITHUB_TOKEN }}
+      # - uses: bazelbuild/setup-bazelisk@v2
+      # - name: Build and push starship api-server image
+      #   run: bazel run --define=TAG=${TAG} --define=REGISTRY=${REGISTRY_SERVER_ADDRESS} //src/api-server/cmd:push_api-server_image
+      #   working-directory: .
+      # aws cp kernal linux header from s3
+      - name: Copy Kernal Headers from S3
+        run: aws s3 cp s3://tricorder-dev/linux-headers.tar.gz ./linux-headers.tar.gz
