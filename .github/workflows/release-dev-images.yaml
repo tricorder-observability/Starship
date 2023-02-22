@@ -31,8 +31,10 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
-          password: ${{ secrets.STARSHIP_RELEASE }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build and push starship api-server image
-        run: bazel run --define=TAG=${TAG} --define=REGISTRY=${REGISTRY_SERVER_ADDRESS} //src/api-server/cmd:push_api-server_image
+        run: |
+          bazel run --define=TAG=${TAG} --define=REGISTRY=${REGISTRY_SERVER_ADDRESS} //src/api-server/cmd:api-server_image
+          docker push ${REGISTRY_SERVER_ADDRESS}/api-server:${TAG}
         working-directory: .
 
