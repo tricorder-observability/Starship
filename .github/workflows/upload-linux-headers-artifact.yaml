@@ -1,0 +1,24 @@
+name: Upload Linux Headers Artifacts
+
+on:
+  # TODO(jian): after debug finish, make this requires manual trigger
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+  build_linux_headers_and_upload:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Build Linux Headers
+        run: ./devops/linux_headers/build.sh
+      - name: Archive Linux Headers artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: linux-headers.tar.gz
+          #retention-days: 5
+          path: ./devops/linux_headers/output/linux-headers.tar.gz

@@ -40,3 +40,7 @@ echo "Archiving kernel headers for versions: ${ker_vers[@]} ..."
 all_headers_filename=linux-headers.tar.gz
 (cd ${output_dir} && tar --transform "s/^/starship\/linux_headers\//" \
   -czf ${all_headers_filename} *.tar.gz timeconst_*.h)
+
+all_headers_s3path="s3://tricorder-dev/${all_headers_filename}"
+echo "Uploading all kernel headers archive to ${all_headers_s3path} ..."
+aws s3 cp "${output_dir}/${all_headers_filename}" "${all_headers_s3path}"
