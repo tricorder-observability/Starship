@@ -128,6 +128,11 @@ func (s *Deployer) Stop() {
 }
 
 func (s *Deployer) deployModule(in *pb.DeployModuleReq) error {
+	if _, found := s.idDeployMap[in.ID]; found {
+		log.Warnf("Module '%s' was already deployed, skip ...", in.ID)
+		// TODO(yzhao): Might consider returning an error value to distinguish from other errors.
+		return nil
+	}
 	// deployer create a deployment and driver will start this deploys logical
 	deployment, err := driver.Deploy(in.Module, s.PGClient)
 	if err != nil {
@@ -135,6 +140,8 @@ func (s *Deployer) deployModule(in *pb.DeployModuleReq) error {
 	}
 	s.idDeployMap[in.ID] = deployment
 
+	// This will start a loop to continuously polling perf buffer and feeding data to WASM.
+	// And then write them into database.
 	go deployment.StartPoll()
 	return nil
 }
