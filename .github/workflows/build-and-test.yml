@@ -78,7 +78,6 @@ jobs:
         shell: bash
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v3
-      - uses: martialonline/workflow-status@v3
 
   build-and-test-with-host-mount-linux-headers:
     name: Bazel build and test with host mount (for BPF)
@@ -117,7 +116,6 @@ jobs:
         # Need to --cache_test_results=no because bazel has been cache last result
         run: .github/scripts/bazel_test.sh test --config=github-actions --flaky_test_attempts=3 --config=bpf --cache_test_results=no ${{ steps.q.outputs.all }}
         shell: bash
-      - uses: martialonline/workflow-status@v3
 
   build-and-test-with-merged-linux-headers:
     name: Bazel build and test with no host mount (for BPF)
@@ -155,4 +153,3 @@ jobs:
         if: steps.q.outputs.any_affected == 'true'
         run: .github/scripts/bazel_test.sh test --config=github-actions --flaky_test_attempts=3 --config=bpf --cache_test_results=no ${{ steps.q.outputs.all }}
         shell: bash
-      - uses: martialonline/workflow-status@v3
