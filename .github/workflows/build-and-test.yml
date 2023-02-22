@@ -30,7 +30,7 @@ jobs:
           echo ${{ steps.src-changed.outputs.any_changed }}
 
   build-and-test:
-    name: Bazel build and test
+    name: build and test
     # This matches the dev_image and base image used in the code base.
     runs-on: ubuntu-22.04
     # require the first job to have ran

@@ -2,7 +2,7 @@ name: release-dev-images
 
 on:
   workflow_run:
-    workflows: ["Bazel build and test"]
+    workflows: [Bazel build and test]
     types: [completed]
     branches:
       - main
