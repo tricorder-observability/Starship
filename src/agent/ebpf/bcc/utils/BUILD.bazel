@@ -5,7 +5,10 @@ go_library(
     srcs = ["probe_cleaner.go"],
     importpath = "github.com/tricorder/src/agent/ebpf/bcc/utils",
     visibility = ["//visibility:public"],
-    deps = ["//src/utils/file"],
+    deps = [
+        "//src/utils/file",
+        "//src/utils/log",
+    ],
 )
 
 go_test(

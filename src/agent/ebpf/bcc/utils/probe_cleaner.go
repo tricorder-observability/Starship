@@ -21,14 +21,22 @@ import (
 	"strings"
 
 	"github.com/tricorder/src/utils/file"
+	"github.com/tricorder/src/utils/log"
 )
 
 const (
 	// The path of kprobe files under /sys, join with the host sys root path to form the correct path inside container.
 	kprobeEventsSysRelPath = "kernel/debug/tracing/kprobe_events"
 	uprobeEventsSysRelPath = "kernel/debug/tracing/uprobe_events"
+
+	// Marker is set at:
 	// https://github.com/Tricorder Observability/bcc/commit/50de7107d6a48fcfe4f82d33433960f965d1a16a
-	// Marker is set here.
+	//
+	// This ensures we only removing Tricorder attached probes, and not affecting the probes attached by other users
+	// using different tools.
+	//
+	// This only applies to BCC with Debugfs (an alternative is BTF? TODO(yzhao): Needs more investigation):
+	// https://github.com/iovisor/bcc/blob/master/INSTALL.md#setup-required-to-run-the-tools
 	tricorderMarker = "__tricorder__"
 )
 
@@ -83,10 +91,21 @@ func findAndCleanProbes(probeFile string, marker string) error {
 	if err != nil {
 		return fmt.Errorf("while cleaning probes, failed to find relevant kprobes, error: %v", err)
 	}
+
+	origCount := len(probes)
+
 	err = cleanProbes(probeFile, probes)
 	if err != nil {
 		return fmt.Errorf("while cleaning probes, failed to clean kprobes, error: %v", err)
 	}
+
+	probes, err = findProbes(probeFile, tricorderMarker)
+	afterCleanCount := len(probes)
+	if err == nil {
+		log.Infof("Found %d probes in %s with marker %s, %d probes left after cleaning",
+			origCount, probeFile, marker, afterCleanCount)
+	}
+
 	return nil
 }
 

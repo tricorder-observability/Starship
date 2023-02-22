@@ -36,8 +36,10 @@ var (
 		"localhost:50051",
 		"The address of API Server's ModuleDeployer and ProcessCollector service",
 	)
-	modulePGURL     = flag.String("pg_url", "postgresql://postgres:password@localhost", "The URL to PostgreSQL instance")
-	hostSysRootPath = flag.String("host_sys_root_path", "/host/sys", "The path to the host's /sys file system that "+
+	modulePGURL = flag.String("pg_url", "postgresql://postgres:password@localhost", "The URL to PostgreSQL instance")
+	// The default value is incompatible with the container environment, which mounts the host's `/` to `/host` inside
+	// the container. This is for easier testing during development, which is not inside a container.
+	hostSysRootPath = flag.String("host_sys_root_path", "/sys", "The path to the host's /sys file system that "+
 		"can be accessed by agent, this is mounted by Kubernetes. Tricorder reads cgroup and BPF probes from files "+
 		"under this directory")
 )
