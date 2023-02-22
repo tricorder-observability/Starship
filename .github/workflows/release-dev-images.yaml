@@ -9,9 +9,7 @@ on:
       - main
 
 env:
-  REGISTRY_SERVER_ADDRESS: ghcr.io/tricorder-observability
-  REGISTRY_USER_NAME: ${{ github.repository_owner }}
-  REGISTRY_PASSWORD: ${{ secrets.REGISTRY_TOKEN }}
+  REGISTRY_SERVER_ADDRESS: ghcr.io/${{ github.repository_owner }}
 
 jobs:
   release-images:
