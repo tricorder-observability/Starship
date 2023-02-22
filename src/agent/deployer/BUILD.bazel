@@ -8,14 +8,12 @@ go_library(
     deps = [
         "//src/agent/driver",
         "//src/api-server/pb",
-        "//src/utils/errors",
+        "//src/utils/grpcerr",
         "//src/utils/log",
         "//src/utils/pg",
         "//src/utils/uuid",
         "@org_golang_google_grpc//:go_default_library",
-        "@org_golang_google_grpc//codes",
         "@org_golang_google_grpc//credentials/insecure",
-        "@org_golang_google_grpc//status",
         "@org_golang_x_sync//errgroup",
     ],
 )

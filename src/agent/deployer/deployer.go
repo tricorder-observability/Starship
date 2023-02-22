@@ -23,11 +23,9 @@ import (
 
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials/insecure"
-	"google.golang.org/grpc/status"
 
-	"github.com/tricorder/src/utils/errors"
+	"github.com/tricorder/src/utils/grpcerr"
 	"github.com/tricorder/src/utils/log"
 
 	"github.com/tricorder/src/agent/driver"
@@ -37,6 +35,9 @@ import (
 	pb "github.com/tricorder/src/api-server/pb"
 )
 
+// Deployer manages the communication with API Server:
+// * Receive instructions to deploy modules
+// * Reply deployment status
 type Deployer struct {
 	uuid string
 
@@ -113,16 +114,16 @@ func (s *Deployer) StartModuleDeployLoop() error {
 			if in.Deploy == pb.DeployModuleReq_DEPLOY {
 				err := s.deployModule(in)
 				resp := createDeployModuleResp(in.ID, err)
-				err = s.replyDeployResult(&resp)
-				if status.Code(err) == codes.Unavailable {
-					return fmt.Errorf("streaming connection with api-server is broken, error: %v", err)
+				err = s.sendResp(resp)
+				if grpcerr.IsUnavailable(err) {
+					log.Fatalf("streaming connection with api-server is broken, error: %v", err)
 				}
 			} else if in.Deploy == pb.DeployModuleReq_UNDEPLOY {
 				err := s.undeployModlue(in)
 				resp := createDeployModuleResp(in.ID, err)
-				err = s.replyDeployResult(&resp)
-				if status.Code(err) == codes.Unavailable {
-					return fmt.Errorf("streaming connection with api-server is broken, error: %v", err)
+				err = s.sendResp(resp)
+				if grpcerr.IsUnavailable(err) {
+					log.Fatalf("streaming connection with api-server is broken, error: %v", err)
 				}
 			}
 		}
@@ -157,7 +158,6 @@ func (s *Deployer) deployModule(in *pb.DeployModuleReq) error {
 	return nil
 }
 
-// undeploy
 func (s *Deployer) undeployModlue(in *pb.DeployModuleReq) error {
 	d, ok := s.idDeployMap[in.ID]
 	if !ok {
@@ -172,7 +172,7 @@ func (s *Deployer) undeployModlue(in *pb.DeployModuleReq) error {
 }
 
 // createDeployModuleResp returns a response message to describe the results of a module deployment operation.
-func createDeployModuleResp(id string, err error) pb.DeployModuleResp {
+func createDeployModuleResp(id string, err error) *pb.DeployModuleResp {
 	resp := pb.DeployModuleResp{
 		ID:     id,
 		Status: pb.DeploymentStatus_DEPLOYMENT_SUCCEEDED,
@@ -181,13 +181,10 @@ func createDeployModuleResp(id string, err error) pb.DeployModuleResp {
 		resp.Status = pb.DeploymentStatus_DEPLOYMENT_FAILED
 		resp.Desc = err.Error()
 	}
-	return resp
+	return &resp
 }
 
-func (s *Deployer) replyDeployResult(resp *pb.DeployModuleResp) error {
-	err := s.stream.Send(&resp)
-	if err != nil {
-		return errors.Wrap("replying deployment result", "send gRPC streaming message", err)
-	}
-	return nil
+func (s *Deployer) sendResp(resp *pb.DeployModuleResp) error {
+	// Preserve the original error message, as it's needed to check the status code.
+	return s.stream.Send(resp)
 }

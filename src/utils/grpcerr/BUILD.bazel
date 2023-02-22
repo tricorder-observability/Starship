@@ -1,0 +1,12 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "grpcerr",
+    srcs = ["error.go"],
+    importpath = "github.com/tricorder/src/utils/grpcerr",
+    visibility = ["//visibility:public"],
+    deps = [
+        "@org_golang_google_grpc//codes",
+        "@org_golang_google_grpc//status",
+    ],
+)
