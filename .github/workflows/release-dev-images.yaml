@@ -19,14 +19,6 @@ jobs:
     runs-on: ubuntu-22.04
     container:
       image: public.ecr.aws/tricorder/ci_image:202302140538
-      options: --privileged
-      volumes:
-        # Needed for accessing kernel headers
-        - /usr/src:/usr/src
-        # Needed for accessing kernel headers
-        - /:/host:ro
-        # Needed to access /sys/kernel/tracing/kprobe
-        - /sys/kernel:/sys/kernel
     permissions:
       contents: read
       packages: write
