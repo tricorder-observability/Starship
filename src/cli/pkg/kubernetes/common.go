@@ -9,19 +9,20 @@ import (
 	k8s "k8s.io/client-go/kubernetes"
 )
 
-var (
-	DefaultNamespace   = "tricorder"
-	DefaultServiceName = "api-server"
+const (
+	DefaultNamespace       = "tricorder"
+	DefaultServiceName     = "api-server"
+	DefaultServicePortName = "serverhttp"
 )
 
-// GetService returns a Service by name and namespace
-func GetService(client *k8s.Clientset, namespace, serviceName string) (*v1.Service, error) {
+// getService returns a Service by name and namespace
+func getService(client *k8s.Clientset, namespace, serviceName string) (*v1.Service, error) {
 	return client.CoreV1().Services(namespace).Get(context.TODO(), serviceName, matav1.GetOptions{})
 }
 
 // GetStarshipService returns the starship Service by name and namespace
-func GetStarshipService(client *k8s.Clientset) (*v1.Service, error) {
-	return GetService(client, DefaultNamespace, DefaultServiceName)
+func getStarshipService(client *k8s.Clientset) (*v1.Service, error) {
+	return getService(client, DefaultNamespace, DefaultServiceName)
 }
 
 // getStarshipServiceURL returns the starship Service ClusterIP
@@ -40,7 +41,7 @@ func getStarshipServicePort(client *k8s.Clientset) (int32, error) {
 		return 0, err
 	}
 	for _, port := range service.Spec.Ports {
-		if port.Name == "serverhttp" {
+		if port.Name == DefaultServicePortName {
 			return port.Port, nil
 		}
 	}

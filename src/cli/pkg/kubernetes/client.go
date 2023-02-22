@@ -1,15 +1,13 @@
 package kubernetes
 
 import (
-	"fmt"
-
 	k8s "k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 )
 
-// GetConfig returns the kubernetes config.
-func GetConfig() (*rest.Config, error) {
+// getConfig returns the kubernetes config.
+func getConfig() (*rest.Config, error) {
 	// get config
 	// 1. in-cluster config
 	// 2. `KUBECONFIG` env
@@ -28,19 +26,11 @@ func GetConfig() (*rest.Config, error) {
 	return clientcmd.NewDefaultClientConfig(*startConfig, nil).ClientConfig()
 }
 
-// GetClientForConfig returns the kubernetes client for the given config.
-func GetClientForConfig(config *rest.Config) (*k8s.Clientset, error) {
-	if config == nil {
-		return nil, fmt.Errorf("config is nil")
-	}
-	return k8s.NewForConfig(config)
-}
-
 // NewClient returns the kubernetes client.
 func NewClient() (*k8s.Clientset, error) {
-	config, err := GetConfig()
+	config, err := getConfig()
 	if err != nil {
 		return nil, err
 	}
-	return GetClientForConfig(config)
+	return k8s.NewForConfig(config)
 }

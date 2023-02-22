@@ -1,18 +1,18 @@
-load("@io_bazel_rules_go//go:def.bzl", "go_library")
+load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
 
 go_library(
     name = "kubernetes",
     srcs = [
         "client.go",
-        "common.go",
-    ],
+        "common.go"
+        ],
     importpath = "github.com/tricorder/src/cli/pkg/kubernetes",
     visibility = ["//visibility:public"],
     deps = [
-        "@io_k8s_api//core/v1:core",
-        "@io_k8s_apimachinery//pkg/apis/meta/v1:meta",
-        "@io_k8s_client_go//kubernetes",
-        "@io_k8s_client_go//rest",
-        "@io_k8s_client_go//tools/clientcmd",
+        "@io_k8s_client_go//rest:client_go_rest",
+        "@io_k8s_client_go//tools/clientcmd:client_go_tools_clientcmd",
+        "@io_k8s_client_go//kubernetes:client_go_kubernetes",
+        "@io_k8s_apimachinery//pkg/apis/meta/v1:io_k8s_apimachinery_pkg_apis_meta_v1",
+        "@io_k8s_api//core/v1:io_k8s_api_core_v1"
     ],
 )
