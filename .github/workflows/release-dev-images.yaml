@@ -29,7 +29,6 @@ jobs:
       TAG: ${{ github.sha }}
     steps:
       - uses: actions/checkout@v3
-      - uses: ahmadnassri/action-workflow-run-wait@v1
       - name: Login to GitHub Package Registry
         uses: docker/login-action@v2.1.0
         with:
