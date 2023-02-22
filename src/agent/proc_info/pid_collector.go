@@ -92,6 +92,8 @@ func (c *Collector) StartProcInfoReport() error {
 			}
 			processInfo, err := grabProcessInfo(c.hostSysRootPath+"/fs/cgroup", containerInfo)
 			if err != nil {
+				// TODO(yzhao): Consider downgrade this logging severity to debug, when process info resolution becomes more
+				// stable.
 				log.Errorf("while collecting process info for container '%v', "+
 					"failed to grab process info, error: %v", containerInfo, err)
 				continue
