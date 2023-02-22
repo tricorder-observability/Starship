@@ -4,10 +4,8 @@ on:
   pull_request:
     branches:
       - main
-
 permissions:
   contents: read
-
 jobs:
   query-changed-src-files:
     name: List changed files
