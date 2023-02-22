@@ -1,0 +1,48 @@
+name: release-dev-images
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+env:
+  REGISTRY_SERVER_ADDRESS: ghcr.io/tricorder-observability
+  REGISTRY_USER_NAME: ${{ github.repository_owner }}
+  REGISTRY_PASSWORD: ${{ secrets.REGISTRY_TOKEN }}
+
+jobs:
+  release-images:
+    # This matches the dev_image and base image used in the code base.
+    runs-on: ubuntu-22.04
+    container:
+      image: public.ecr.aws/tricorder/ci_image:202302140538
+      options: --privileged
+      volumes:
+        # Needed for accessing kernel headers
+        - /usr/src:/usr/src
+        # Needed for accessing kernel headers
+        - /:/host:ro
+        # Needed to access /sys/kernel/tracing/kprobe
+        - /sys/kernel:/sys/kernel
+    permissions:
+      contents: read
+      packages: write
+    timeout-minutes: 90
+    env:
+      TAG: ${{ github.sha }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: bazelbuild/setup-bazelisk@v2
+      - name: Login to GitHub Package Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.ACTIONS_TOKEN }}
+      - name: Build and push starship api-server image
+        run: bazel run --define=TAG=${TAG} --define=REGISTRY=${REGISTRY_SERVER_ADDRESS} //src/api-server/cmd:push_api-server_image
+        working-directory: .
+
