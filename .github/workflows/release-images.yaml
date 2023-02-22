@@ -11,7 +11,6 @@ on:
       - 'v[0-9]+.[0-9]+.[0-9]+'
 
 env:
-  # Use docker.io for Docker Hub if empty
   REGISTRY_SERVER_ADDRESS: ghcr.io/jaredtan95
   REGISTRY_USER_NAME: ${{ github.repository_owner }}
   REGISTRY_PASSWORD: ${{ secrets.REGISTRY_TOKEN }}
@@ -52,7 +51,20 @@ jobs:
       - name: Build and push starship api-server image
         run: bazel run -c opt --define=TAG=${TAG} --define=REGISTRY=${REGISTRY_SERVER_ADDRESS} //src/api-server/cmd:push_api-server_image
         working-directory: .
+        # aws cli for agent download linux kernal headers packages
+      - uses: chrislennon/action-aws-cli@v1.1
       - name: Build and push starship agent image
         run: bazel run -c opt --define=TAG=${TAG} --define=REGISTRY=${REGISTRY_SERVER_ADDRESS} //src/agent/cmd:push_agent_image
         working-directory: .
+      # - name: Login to Another Package Registry
+      #   uses: docker/login-action@v2
+      #   with:
+      #     registry: docker.io
+      #     username: ${{ github.repository_owner }}
+      #     password: ${{ secrets.ACTIONS_TOKEN }}
+      # - name: Docker tag and push
+      #   # TODO(jian): docker tag api-server, agent, ui to another registry and push
+      #   run: |
+      #     docker tag ${REGISTRY_SERVER_ADDRESS}/agent:${TAG} another-registry/agent:${TAG} && docker push another-registry/agent:${TAG}
+      #     docker tag ${REGISTRY_SERVER_ADDRESS}/api-server:${TAG} another-registry/api-server:${TAG} && docker push another-registry/api-server:${TAG}
 
