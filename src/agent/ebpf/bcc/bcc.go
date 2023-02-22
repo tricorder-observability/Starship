@@ -123,7 +123,6 @@ func (m *module) attachTPProbe(probeFunc, probeName string) error {
 }
 
 func (m *module) attachKProbe(probe *ebpfpb.ProbeSpec) error {
-	log.Infof("Attaching kprobe %v", probe)
 	if probe.Type != ebpfpb.ProbeSpec_KPROBE {
 		return fmt.Errorf("must be kprobe, got %v", probe)
 	}

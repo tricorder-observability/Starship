@@ -1,5 +1,5 @@
 {
-    "name":"ddos_event_module",
+    "name":"ddos_event_module_1",
     "wasm":{
         "code":"",
         "fn_name":"write_events_to_output",

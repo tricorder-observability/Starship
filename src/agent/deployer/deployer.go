@@ -23,8 +23,11 @@ import (
 
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/status"
 
+	"github.com/tricorder/src/utils/errors"
 	"github.com/tricorder/src/utils/log"
 
 	"github.com/tricorder/src/agent/driver"
@@ -109,10 +112,18 @@ func (s *Deployer) StartModuleDeployLoop() error {
 
 			if in.Deploy == pb.DeployModuleReq_DEPLOY {
 				err := s.deployModule(in)
-				s.replyDeployResult(in.ID, err)
+				resp := createDeployModuleResp(in.ID, err)
+				err = s.replyDeployResult(&resp)
+				if status.Code(err) == codes.Unavailable {
+					return fmt.Errorf("streaming connection with api-server is broken, error: %v", err)
+				}
 			} else if in.Deploy == pb.DeployModuleReq_UNDEPLOY {
 				err := s.undeployModlue(in)
-				s.replyDeployResult(in.ID, err)
+				resp := createDeployModuleResp(in.ID, err)
+				err = s.replyDeployResult(&resp)
+				if status.Code(err) == codes.Unavailable {
+					return fmt.Errorf("streaming connection with api-server is broken, error: %v", err)
+				}
 			}
 		}
 	})
@@ -160,19 +171,23 @@ func (s *Deployer) undeployModlue(in *pb.DeployModuleReq) error {
 	return nil
 }
 
-func (s *Deployer) replyDeployResult(id string, deploymentErr error) {
+// createDeployModuleResp returns a response message to describe the results of a module deployment operation.
+func createDeployModuleResp(id string, err error) pb.DeployModuleResp {
 	resp := pb.DeployModuleResp{
 		ID:     id,
 		Status: pb.DeploymentStatus_DEPLOYMENT_SUCCEEDED,
 	}
-
-	if deploymentErr != nil {
+	if err != nil {
 		resp.Status = pb.DeploymentStatus_DEPLOYMENT_FAILED
-		resp.Desc = deploymentErr.Error()
+		resp.Desc = err.Error()
 	}
+	return resp
+}
 
-	sendErr := s.stream.Send(&resp)
-	if sendErr != nil {
-		log.Errorf("reply deploy result error: %v", sendErr)
+func (s *Deployer) replyDeployResult(resp *pb.DeployModuleResp) error {
+	err := s.stream.Send(&resp)
+	if err != nil {
+		return errors.Wrap("replying deployment result", "send gRPC streaming message", err)
 	}
+	return nil
 }
