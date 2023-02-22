@@ -125,11 +125,23 @@ var loadCmd = &cobra.Command{
 func init() {
 	loadCmd.Flags().StringVarP(&moduleFilePath, "module-file-path", "m",
 		moduleFilePath, `The file path of module in json format.`)
-	loadCmd.MarkFlagRequired("module-file-path")
+	err := loadCmd.MarkFlagRequired("module-file-path")
+	if err != nil {
+		log.Errorf("set required flag error: %v", err)
+	}
 	loadCmd.Flags().StringVarP(&bccFilePath, "bcc-file-path", "b", bccFilePath, `The file path of bcc code.`)
-	loadCmd.MarkFlagRequired("bcc-file-path")
+	err = loadCmd.MarkFlagRequired("bcc-file-path")
+	if err != nil {
+		log.Errorf("set required flag error: %v", err)
+	}
 	loadCmd.Flags().StringVarP(&wasmFilePath, "wasm-file-path", "w", wasmFilePath, `The file path of wasm code.`)
-	loadCmd.MarkFlagRequired("wasm-file-path")
+	err = loadCmd.MarkFlagRequired("wasm-file-path")
+	if err != nil {
+		log.Errorf("set required flag error: %v", err)
+	}
 	loadCmd.Flags().StringVarP(&dbFilePath, "output", "o", dbFilePath, `The file path of SQLite db.`)
-	loadCmd.MarkFlagRequired("output")
+	err = loadCmd.MarkFlagRequired("output")
+	if err != nil {
+		log.Errorf("set required flag error: %v", err)
+	}
 }
