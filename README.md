@@ -26,8 +26,7 @@ community.
 ☸️  [Helm-charts](https://github.com/tricorder-observability/helm-charts),
 install Starship on your Kubernetes cluster with helm.
 
-We recommend start with [Minikube](https://minikube.sigs.k8s.io/docs/start/)
-**v1.29.0** or newer.
+We recommend [Minikube](https://minikube.sigs.k8s.io/docs/start/) **v1.29.0** or newer.
 
 ```
 minikube version
@@ -35,7 +34,7 @@ $ minikube version: v1.29.0
 $ commit: ddac20b4b34a9c8c857fc602203b6ba2679794d3
 
 # First start the minikube cluster, and make sure have at least 8 cpus and
-# 8196MB memory.
+# 8196 MB memory.
 minikube start --cpus=8 --memory=8192
 
 # Create a namespace for installing Starship.
@@ -62,7 +61,8 @@ Then expose the API Server http endpoint with `kubectl port-forward`:
 kubectl port-forward service/api-server 8081:80 -n tricorder
 ```
 
-> DO NOT use the Web UI, as it's not working right now [issue/#80](https://github.com/tricorder-observability/starship/issues/80).
+> DO NOT use the Web UI, as it's not working right now
+> [issue/#80](https://github.com/tricorder-observability/starship/issues/80).
 
 Then make sure you are the root of the Starship repo, and create a pre-built module:
 ```
@@ -154,7 +154,7 @@ object files are supported as well.
 - Createing Pull Request
 - Wait for review
 
-## Building Starship
+### Building Starship
 
 The development environment is based on Ubuntu.
 The easiest way to get started with building Starship is to use the dev image:
