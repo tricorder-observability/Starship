@@ -17,7 +17,9 @@ package module
 
 import (
 	"fmt"
+
 	"github.com/spf13/cobra"
+
 	"github.com/tricorder/src/cli/pkg/kubernetes"
 )
 

@@ -17,6 +17,7 @@ go_library(
         "//src/api-server/dao",
         "//src/api-server/http/api",
         "//src/cli/internal/outputs",
+        "//src/cli/pkg/kubernetes",
         "//src/pb/module",
         "//src/utils/file",
         "//src/utils/log",
