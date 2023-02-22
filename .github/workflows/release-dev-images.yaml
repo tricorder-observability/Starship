@@ -38,7 +38,13 @@ jobs:
       - uses: bazelbuild/setup-bazelisk@v2
       # aws cp kernal linux header from s3, TODO(jian): add caches
       - name: Download Kernal Headers from S3
-        run: curl -L https://tricorder-dev.s3.ap-northeast-1.amazonaws.com/linux-headers.tar.gz  -o ./bazel-out/k8-fastbuild/bin/devops/linux_headers/build/linux-headers.tar.gz
+        uses: enflo/curl-action@master
+        with:
+          curl: -L https://tricorder-dev.s3.ap-northeast-1.amazonaws.com/linux-headers.tar.gz  -o ./bazel-out/k8-fastbuild/bin/devops/linux_headers/build/linux-headers.tar.gz
+      - uses: actions/upload-artifact@v3
+        with:
+          name: linux-headers.tar.gz
+          path: ./bazel-out/k8-fastbuild/bin/devops/linux_headers/build/linux-headers.tar.gz
       - name: Build and push starship agent image
         run: bazel run --define=TAG=${TAG} --define=REGISTRY=${REGISTRY_SERVER_ADDRESS} //src/agent/cmd:push_agent_image
         working-directory: .
