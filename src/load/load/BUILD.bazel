@@ -12,7 +12,6 @@ go_library(
         "//src/api-server/dao",
         "//src/pb/module",
         "//src/utils/file",
-        "//src/utils/log",
         "//src/utils/uuid",
         "@com_github_spf13_cobra//:cobra",
     ],
