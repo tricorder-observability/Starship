@@ -31,7 +31,6 @@ var rootCmd = &cobra.Command{
 	We use this tool to load pre-built eBPF+WASM modules into Starship's official release.`,
 }
 
-// Execute load command.
 func Execute() {
 	err := rootCmd.Execute()
 	if err != nil {
