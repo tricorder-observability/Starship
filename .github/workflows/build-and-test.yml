@@ -4,17 +4,9 @@ on:
   pull_request:
     branches:
       - main
-  push:
-    branches:
-      - main
 
 permissions:
   contents: read
-
-env:
-  REGISTRY_SERVER_ADDRESS: ghcr.io/${{ github.repository_owner }}
-  REGISTRY_USER_NAME: ${{ github.repository_owner }}
-  REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
   query-changed-src-files:
@@ -163,26 +155,3 @@ jobs:
         if: steps.q.outputs.any_affected == 'true'
         run: .github/scripts/bazel_test.sh test --config=github-actions --flaky_test_attempts=3 --config=bpf --cache_test_results=no ${{ steps.q.outputs.all }}
         shell: bash
-
-  build-and-push-images:
-    runs-on: ubuntu-latest
-    needs: build-and-test
-    container:
-      image: public.ecr.aws/tricorder/ci_image:202302140538
-    timeout-minutes: 90
-    permissions:
-      packages: write
-    env:
-      TAG: ${{ github.sha }}
-    steps:
-      - uses: actions/checkout@v3
-      - name: Login to GitHub Package Registry
-        uses: docker/login-action@v2.1.0
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - uses: bazelbuild/setup-bazelisk@v2
-      - name: Build and push starship api-server image
-        run: bazel run --define=TAG=${TAG} --define=REGISTRY=${REGISTRY_SERVER_ADDRESS} //src/api-server/cmd:push_api-server_image
-        working-directory: .
