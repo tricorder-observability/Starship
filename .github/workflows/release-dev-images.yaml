@@ -13,17 +13,15 @@ env:
   REGISTRY_USER_NAME: ${{ github.repository_owner }}
   REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
 
-permissions:
-  contents: read
-  packages: write
-
 jobs:
   build-and-push-images:
     # This matches the dev_image and base image used in the code base.
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     container:
       image: public.ecr.aws/tricorder/ci_image:202302140538
     timeout-minutes: 90
+    permissions:
+      packages: write
     env:
       TAG: ${{ github.sha }}
     steps:
