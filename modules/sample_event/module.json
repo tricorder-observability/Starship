@@ -1,5 +1,5 @@
 {
-    "name":"sample_json_module",
+    "name":"sample_event_module",
     "wasm":{
         "code":"",
         "fn_name":"write_events_to_output",
