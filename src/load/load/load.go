@@ -23,11 +23,10 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/tricorder/src/utils/log"
-
 	"github.com/tricorder/src/api-server/dao"
 	modulepb "github.com/tricorder/src/pb/module"
 	"github.com/tricorder/src/utils/file"
+	"github.com/tricorder/src/utils/log"
 	"github.com/tricorder/src/utils/uuid"
 )
 
