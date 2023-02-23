@@ -46,7 +46,7 @@ func checkRequiredEnvVarsAreDefined(envVars map[string]string) error {
 	var missingVarNames []string
 	for _, n := range requiredEnvVarNames {
 		val, found := envVars[n]
-		if !found || len(val) != 0 {
+		if !found || len(val) == 0 {
 			missingVarNames = append(missingVarNames, n)
 		}
 	}
@@ -61,7 +61,7 @@ func newConfig() (*config, error) {
 	envVars := sys.EnvVars()
 	err := checkRequiredEnvVarsAreDefined(envVars)
 	if err != nil {
-		return *errors.Wrap("newing agent config", "check env vars", err)
+		return nil, errors.Wrap("newing agent config", "check env vars", err)
 	}
 	c := new(config)
 	c.nodeName, _ = envVars[NODE_NAME]
