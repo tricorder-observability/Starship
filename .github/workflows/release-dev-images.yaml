@@ -11,6 +11,9 @@ on:
   push:
     branches:
       - main
+concurrency:
+  group: starship-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 env:
   REGISTRY_SERVER_ADDRESS: ghcr.io/${{ github.repository_owner }}
@@ -18,7 +21,29 @@ env:
   REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
-  build-and-push-images:
+  build-apiserver-and-push-images:
+    runs-on: ubuntu-latest
+    container:
+      image: public.ecr.aws/tricorder/ci_image:202302140538
+    timeout-minutes: 90
+    permissions:
+      packages: write
+    env:
+      TAG: ${{ github.sha }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Login to GitHub Package Registry
+        uses: docker/login-action@v2.1.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: bazelbuild/setup-bazelisk@v2
+      - name: Build and push starship api-server image
+        run: bazel run --define=TAG=${TAG} --define=REGISTRY=${REGISTRY_SERVER_ADDRESS} //src/api-server/cmd:push_api-server_image
+        working-directory: .
+
+  build-agent-and-push-images:
     runs-on: ubuntu-latest
     container:
       image: public.ecr.aws/tricorder/ci_image:202302140538
@@ -40,14 +65,11 @@ jobs:
       - name: Download Kernal Headers from S3
         uses: enflo/curl-action@master
         with:
-          curl: -L https://tricorder-dev.s3.ap-northeast-1.amazonaws.com/linux-headers.tar.gz  -o ./bazel-out/k8-fastbuild/bin/devops/linux_headers/build/linux-headers.tar.gz
+          curl: -L https://tricorder-dev.s3.ap-northeast-1.amazonaws.com/linux-headers.tar.gz  -o ./linux-headers.tar.gz
       - uses: actions/upload-artifact@v3
         with:
           name: linux-headers.tar.gz
-          path: ./bazel-out/k8-fastbuild/bin/devops/linux_headers/build/linux-headers.tar.gz
+          path: ./linux-headers.tar.gz
       - name: Build and push starship agent image
         run: bazel run --define=TAG=${TAG} --define=REGISTRY=${REGISTRY_SERVER_ADDRESS} //src/agent/cmd:push_agent_image
-        working-directory: .
-      - name: Build and push starship api-server image
-        run: bazel run --define=TAG=${TAG} --define=REGISTRY=${REGISTRY_SERVER_ADDRESS} //src/api-server/cmd:push_api-server_image
         working-directory: .
