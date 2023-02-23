@@ -57,7 +57,7 @@ func checkRequiredEnvVarsAreDefined() error {
 
 	for _, n := range requiredEnvVarNames {
 		val, found := envVars[n]
-		if !found || len(val) != 0 {
+		if !found || len(val) == 0 {
 			missingVarNames = append(missingVarNames, n)
 		}
 	}

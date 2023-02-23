@@ -20,11 +20,16 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestRunningContainer(t *testing.T) {
+	assert := assert.New(t)
+
 	postgresRunner := Runner{
 		ImageName: "postgres",
+		EnvVars:   map[string]string{"a": "b"},
 		Options:   []string{"--env=POSTGRES_PASSWORD=passwd"},
 		RdyMsg:    "database system is ready to accept connections",
 	}
@@ -55,4 +60,7 @@ func TestRunningContainer(t *testing.T) {
 	if err != nil {
 		t.Errorf("Could not obtain exposed port for 5432, error: %s", err)
 	}
+
+	out := postgresRunner.Exec([]string{"bash", "-c", "echo -n ${POSTGRES_PASSWORD}"})
+	assert.Equal("passwd", out)
 }

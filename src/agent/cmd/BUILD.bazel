@@ -23,7 +23,6 @@ go_test(
     srcs = ["agent_image_test.go"],
     data = [":agent_image.tar"],
     embed = [":cmd_lib"],
-    tags = ["manual"],
     deps = [
         "//src/testing/bazel",
         "//src/testing/docker",

@@ -30,10 +30,21 @@ import (
 
 // Runner describes how to run an image.
 type Runner struct {
+	// Name of the container, used for easier reference.
 	ContainerName string
-	ImageName     string
-	Options       []string
-	Cmd           *exec.Command
+
+	// The name of the container image, aka. registry/repository:tag of the image.
+	ImageName string
+
+	// A list of environment variables passed to the container.
+	// This is created to separate from Options for more robust handling.
+	EnvVars map[string]string
+
+	// Command line flags supplied to `docker run`.
+	Options []string
+
+	// The underlying subprocess that executes the `docker run` command.
+	Cmd *exec.Command
 
 	// A list of command line flags passed to application process
 	// Note that this not the same as Options
@@ -41,6 +52,14 @@ type Runner struct {
 
 	// Look for this message in stdout and stderr before finishing launching.
 	RdyMsg string
+}
+
+func getEnvVarCmdLineFlagVals(envVars map[string]string) []string {
+	var flagValues []string
+	for k, v := range envVars {
+		flagValues = append(flagValues, fmt.Sprintf("--env=%s=%s", k, v))
+	}
+	return flagValues
 }
 
 // Run starts the subprocess to run the declared command.
@@ -60,6 +79,7 @@ func (r *Runner) Launch(timeout time.Duration) error {
 		// Delete container when it's stopped.
 		"--rm",
 	}
+	cmdSlice = append(cmdSlice, getEnvVarCmdLineFlagVals(r.EnvVars)...)
 	cmdSlice = append(cmdSlice, r.Options...)
 	if len(r.ContainerName) == 0 {
 		r.ContainerName = common.RandStr(24)
@@ -188,4 +208,21 @@ func (r *Runner) GetExposedPort(containerPort int) (int, error) {
 		}
 	}
 	return -1, fmt.Errorf("Could not get exposed port for %d, output: %s", containerPort, outStr)
+}
+
+// Exec runs `docker exec` inside the container ran by this Runner.
+func (r *Runner) Exec(args []string) string {
+	cmdSlice := []string{"docker", "exec", r.ContainerName}
+	cmdSlice = append(cmdSlice, args...)
+	outStr, outErr, err := exec.Run(cmdSlice)
+	if err != nil {
+		log.Fatalf(
+			"Failed to exec command inside container '%s', stdout: %s, stderr: %s, error: %v",
+			r.ContainerName,
+			outStr,
+			outErr,
+			err,
+		)
+	}
+	return outStr
 }
