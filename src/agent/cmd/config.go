@@ -64,7 +64,7 @@ func newConfig() (*config, error) {
 		return nil, errors.Wrap("newing agent config", "check env vars", err)
 	}
 	c := new(config)
-	c.nodeName, _ = envVars[NODE_NAME]
-	c.podID, _ = envVars[POD_ID]
+	c.nodeName = envVars[NODE_NAME]
+	c.podID = envVars[POD_ID]
 	return c, nil
 }
