@@ -61,11 +61,6 @@ jobs:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
       - uses: bazelbuild/setup-bazelisk@v2
       - name: Build and push starship agent image
         run: bazel run --define=TAG=${TAG} --sandbox_debug --define=REGISTRY=${REGISTRY_SERVER_ADDRESS} //src/agent/cmd:push_agent_image

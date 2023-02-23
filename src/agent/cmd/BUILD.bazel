@@ -1,4 +1,5 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library", "go_test")
+load("@rules_pkg//:pkg.bzl", "pkg_tar")
 load("//:bazel/container_image.bzl", "container_image", "container_push", "go_image")
 
 go_library(
@@ -41,10 +42,16 @@ go_image(
     binary = ":agent",
 )
 
+pkg_tar(
+    name = "linux_headers",
+    srcs = ["@download_linux_headers_from_s3_url//file"],
+    package_dir = "/",
+)
+
 container_image(
     name = "agent_image",
     base = ":agent_base_image",
-    tars = ["//devops/linux_headers/build:download_linux_headers_from_s3"],
+    tars = [":linux_headers"],
 )
 
 container_push(

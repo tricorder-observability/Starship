@@ -1,6 +1,6 @@
 workspace(name = "tricorder")
 
-load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive", "http_file")
 
 # https://github.com/bazelbuild/rules_go#setup
 http_archive(
@@ -112,3 +112,9 @@ go_image_repos()
 load("//:bazel/container_pulls.bzl", "container_pulls")
 
 container_pulls()
+
+http_file(
+    name = "download_linux_headers_from_s3_url",
+    sha256 = "c43ff01e1e65f34714154db27070851e5a9327fa73aeb57bf018fc2290b23b60",
+    urls = ["https://tricorder-dev.s3.ap-northeast-1.amazonaws.com/linux-headers.tar.gz"],
+)
