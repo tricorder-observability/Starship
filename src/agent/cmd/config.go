@@ -8,6 +8,7 @@ import (
 	"github.com/tricorder/src/utils/sys"
 )
 
+// config records configuration entires for agent.
 type config struct {
 	// The name of the Kubernetes node on which this agent is running.
 	// This is used to distinguish the currently-running agent and the terminated one after agent restarts.
@@ -24,11 +25,10 @@ const (
 	POD_ID    string = "POD_ID"
 )
 
-var requiredEnvVarNames []string = []string{NODE_NAME, POD_ID}
+var requiredEnvVarNames = []string{NODE_NAME, POD_ID}
 
-func checkRequiredEnvVarsAreDefined() error {
+func checkRequiredEnvVarsAreDefined(envVars map[string]string) error {
 	var missingVarNames []string
-	envVars := sys.EnvVars()
 	for _, n := range requiredEnvVarNames {
 		val, found := envVars[n]
 		if !found || len(val) != 0 {
@@ -43,10 +43,13 @@ func checkRequiredEnvVarsAreDefined() error {
 }
 
 func newConfig() (*config, error) {
-	err := checkRequiredEnvVarsAreDefined()
+	envVars := sys.EnvVars()
+	err := checkRequiredEnvVarsAreDefined(envVars)
 	if err != nil {
 		return *errors.Wrap("newing agent config", "check env vars", err)
 	}
-	envVars := sys.EnvVars()
-
+	c := new(config)
+	c.nodeName, _ = envVars[NODE_NAME]
+	c.podID, _ = entires[POD_ID]
+	return c, nil
 }

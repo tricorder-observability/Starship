@@ -17,11 +17,8 @@ package main
 
 import (
 	"flag"
-	"fmt"
-	"strings"
 
 	"github.com/tricorder/src/utils/log"
-	"github.com/tricorder/src/utils/sys"
 
 	"github.com/tricorder/src/agent/deployer"
 	"github.com/tricorder/src/agent/proc_info"
@@ -47,32 +44,12 @@ var (
 		"under this directory")
 )
 
-func checkRequiredEnvVarsAreDefined() error {
-	requiredEnvVarNames := []string{
-		"POD_ID",
-		"NODE_NAME",
-	}
-	var missingVarNames []string
-	envVars := sys.EnvVars()
-
-	for _, n := range requiredEnvVarNames {
-		val, found := envVars[n]
-		if !found || len(val) == 0 {
-			missingVarNames = append(missingVarNames, n)
-		}
-	}
-	if len(missingVarNames) > 0 {
-		return fmt.Errorf("required env vars [%s], missing [%s]", strings.Join(requiredEnvVarNames, ", "),
-			strings.Join(missingVarNames, ", "))
-	}
-	return nil
-}
-
 func main() {
 	flag.Parse()
 
-	if err := checkRequiredEnvVarsAreDefined(); err != nil {
-		log.Fatalf("Missing required environment variables, check your Kubernetes deployment spec, error: %v", err)
+	cfg, err := newConfig()
+	if err != nil {
+		log.Fatalf("Failed to create config, error: %v", err)
 	}
 
 	if err := utils.CleanTricorderProbes(*hostSysRootPath); err != nil {

@@ -4,7 +4,7 @@ package(default_visibility = ["//src/agent:__subpackages__"])
 
 go_library(
     name = "proc_info",
-    srcs = ["pid_collector.go"],
+    srcs = ["collector.go"],
     importpath = "github.com/tricorder/src/agent/proc_info",
     deps = [
         "//src/api-server/pb",
