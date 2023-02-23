@@ -100,6 +100,6 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           push: true
-          file: ./ui/Dockerfile
+          file: ./ui/docker/Dockerfile
           context: ./
           tags: ${{ env.REGISTRY_SERVER_ADDRESS }}/mgmt-ui:${{ env.TAG }}
