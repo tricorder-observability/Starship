@@ -101,5 +101,5 @@ jobs:
         with:
           push: true
           file: ./ui/docker/Dockerfile
-          context: ./
+          context: ./ui
           tags: ${{ env.REGISTRY_SERVER_ADDRESS }}/mgmt-ui:${{ env.TAG }}
