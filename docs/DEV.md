@@ -38,3 +38,9 @@ Various config files for git, and other tools are here (Top of Tree or ToT).
 Do not try to fix non-trivial bug introduced by a previous commit.
 Revert it, and then fix in a measured pace with sufficient guardrail of normal development process.
 Otherwise, you might be too stressful and make a lot of mistakes.
+
+## Docker run --etnrypoint
+
+```
+docker run --rm -it --name agent --entrypoint bash <image>
+```
