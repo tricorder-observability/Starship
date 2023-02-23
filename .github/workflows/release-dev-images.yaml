@@ -100,4 +100,4 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           push: true
-          tags: ${REGISTRY_SERVER_ADDRESS}/mgmt-ui:${TAG}
+          tags: ${{ env.REGISTRY_SERVER_ADDRESS }}/mgmt-ui:${{ env.TAG }}
