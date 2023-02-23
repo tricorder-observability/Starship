@@ -44,7 +44,7 @@ go_image(
 container_image(
     name = "agent_image",
     base = ":agent_base_image",
-    tars = ["//devops/linux_headers/build:download_linux_headers_from_s3_url"],
+    tars = ["//devops/linux_headers/build:download_linux_headers_from_s3"],
 )
 
 container_push(
