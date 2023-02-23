@@ -113,6 +113,7 @@ load("//:bazel/container_pulls.bzl", "container_pulls")
 
 container_pulls()
 
+# We need to turn on the AWS S3 Bucket ACL and then make `linux-headers.tar.gz` object can be access bu public URL
 http_file(
     name = "download_linux_headers_from_s3_url",
     sha256 = "c43ff01e1e65f34714154db27070851e5a9327fa73aeb57bf018fc2290b23b60",

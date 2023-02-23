@@ -11,6 +11,8 @@ on:
   push:
     branches:
       - main
+# no dependencies between jobs, so we can save time by building in concurrency
+# refs: https://docs.github.com/en/actions/using-jobs/using-concurrency
 concurrency:
   group: starship-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
@@ -19,7 +21,6 @@ env:
   REGISTRY_SERVER_ADDRESS: ghcr.io/${{ github.repository_owner }}
   REGISTRY_USER_NAME: ${{ github.repository_owner }}
   REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
-  AWS_REGION: ap-northeast-1
 
 jobs:
   build-apiserver-and-push-images:

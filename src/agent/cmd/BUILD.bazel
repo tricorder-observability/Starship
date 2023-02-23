@@ -45,7 +45,7 @@ go_image(
 pkg_tar(
     name = "linux_headers",
     srcs = ["@download_linux_headers_from_s3_url//file"],
-    package_dir = "/",
+    package_dir = "/starship/",
 )
 
 container_image(
