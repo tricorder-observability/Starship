@@ -29,7 +29,7 @@ aws ecr-public get-login-password --region us-east-1 |\
     docker login --username AWS --password-stdin public.ecr.aws/tricorder
 
 bazel run -c opt --define=TAG=${tag} --define=REGISTRY=public.ecr.aws/tricorder //src/api-server/cmd:push_api-server_image
-bazel run -c opt --define=TAG=${tag} //src/agent/cmd:push_agent_image
+bazel run -c opt --define=TAG=${tag} --define=REGISTRY=public.ecr.aws/tricorder //src/agent/cmd:push_agent_image
 
 ToT=$(git rev-parse --show-toplevel)
 ${ToT}/devops/release/build_and_push_mgmt_ui_image.sh ${tag}

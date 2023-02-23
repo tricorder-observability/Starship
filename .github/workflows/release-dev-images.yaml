@@ -11,6 +11,11 @@ on:
   push:
     branches:
       - main
+# no dependencies between jobs, so we can save time by building in concurrency
+# refs: https://docs.github.com/en/actions/using-jobs/using-concurrency
+concurrency:
+  group: starship-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 env:
   REGISTRY_SERVER_ADDRESS: ghcr.io/${{ github.repository_owner }}
@@ -18,7 +23,7 @@ env:
   REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
-  build-and-push-images:
+  build-apiserver-and-push-images:
     runs-on: ubuntu-latest
     container:
       image: public.ecr.aws/tricorder/ci_image:202302140538
@@ -38,4 +43,26 @@ jobs:
       - uses: bazelbuild/setup-bazelisk@v2
       - name: Build and push starship api-server image
         run: bazel run --define=TAG=${TAG} --define=REGISTRY=${REGISTRY_SERVER_ADDRESS} //src/api-server/cmd:push_api-server_image
+        working-directory: .
+
+  build-agent-and-push-images:
+    runs-on: ubuntu-latest
+    container:
+      image: public.ecr.aws/tricorder/ci_image:202302140538
+    timeout-minutes: 90
+    permissions:
+      packages: write
+    env:
+      TAG: ${{ github.sha }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Login to GitHub Package Registry
+        uses: docker/login-action@v2.1.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: bazelbuild/setup-bazelisk@v2
+      - name: Build and push starship agent image
+        run: bazel run --define=TAG=${TAG} --sandbox_debug --define=REGISTRY=${REGISTRY_SERVER_ADDRESS} //src/agent/cmd:push_agent_image
         working-directory: .
