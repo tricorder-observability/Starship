@@ -7,10 +7,10 @@ go_library(
     importpath = "github.com/tricorder/src/api-server/cmd",
     visibility = ["//visibility:private"],
     deps = [
-        "//src/api-server/cmd/docs",
         "//src/api-server/dao",
         "//src/api-server/grpc",
         "//src/api-server/http",
+        "//src/api-server/http/docs",
         "//src/api-server/meta",
         "//src/api-server/pb",
         "//src/utils/log",

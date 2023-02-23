@@ -1,19 +1,18 @@
 # HTTP
 
-The HTTP service component of the API server. It connects with the management
-Web UI, and forwards user requests to API server's other internal components for
-actual processing.
-
-Uses Gin framework: https://github.com/gin-gonic/gin.
+The HTTP service component of the API server. It supports the management Web UI,
+and Starship CLI. It forwards user requests to API server's other internal
+components for actual processing. Implemented with
+[Gin](https://github.com/gin-gonic/gin).
 
 ## SQLite
 
-# SQLite Demo
+You can use SQLite CLI to examine the pre-generated tricorder.db file,
+this file is packaged into the API Server image, and pre-loaded with a list of
+modules.
 
 - [SQLite Home](https://www.sqlite.org/index.html)
 - [Download SQLite](https://www.sqlite.org/download.html)
-
-## SQLite command
 
 ### Open database file or create databasefile
 if database file(example test.db) not exist, will auto create test.db
