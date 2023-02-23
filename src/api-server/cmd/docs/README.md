@@ -3,7 +3,7 @@
 Swagger DOCs are HTTP serving handler that are hosted together with the HTTP
 server.
 
-[Wwag](https://pkg.go.dev/github.com/go-openapi/swag) CLI to create API spec:
+[Swag](https://pkg.go.dev/github.com/go-openapi/swag) CLI to create API spec:
 
 ```shell
 cd src/api-server/cmd
