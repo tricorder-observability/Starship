@@ -17,8 +17,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
-	"strings"
 
 	"github.com/tricorder/src/utils/log"
 
@@ -26,7 +24,6 @@ import (
 	"github.com/tricorder/src/agent/proc_info"
 	"github.com/tricorder/src/utils/pg"
 	"github.com/tricorder/src/utils/retry"
-	"github.com/tricorder/src/utils/sys"
 
 	"github.com/tricorder/src/agent/ebpf/bcc/linux_headers"
 	"github.com/tricorder/src/agent/ebpf/bcc/utils"
@@ -47,32 +44,12 @@ var (
 		"under this directory")
 )
 
-func checkRequiredEnvVarsAreDefined() error {
-	requiredEnvVarNames := []string{
-		"POD_ID",
-		"NODE_NAME",
-	}
-	var missingVarNames []string
-	envVars := sys.EnvVars()
-
-	for _, n := range requiredEnvVarNames {
-		val, found := envVars[n]
-		if !found || len(val) == 0 {
-			missingVarNames = append(missingVarNames, n)
-		}
-	}
-	if len(missingVarNames) > 0 {
-		return fmt.Errorf("required env vars [%s], missing [%s]", strings.Join(requiredEnvVarNames, ", "),
-			strings.Join(missingVarNames, ", "))
-	}
-	return nil
-}
-
 func main() {
 	flag.Parse()
 
-	if err := checkRequiredEnvVarsAreDefined(); err != nil {
-		log.Fatalf("Missing required environment variables, check your Kubernetes deployment spec, error: %v", err)
+	cfg, err := newConfig()
+	if err != nil {
+		log.Fatalf("Failed to create config, error: %v", err)
 	}
 
 	if err := utils.CleanTricorderProbes(*hostSysRootPath); err != nil {
@@ -85,7 +62,7 @@ func main() {
 
 	var deployer deployer.Deployer
 
-	err := retry.ExpBackOffWithLimit(func() error {
+	err = retry.ExpBackOffWithLimit(func() error {
 		return deployer.ConnectToAPIServer(*apiServerAddr)
 	})
 	if err != nil {
@@ -104,7 +81,7 @@ func main() {
 		log.Fatalf("Failed to establish stream connection to module deploy service, error: %v", err)
 	}
 
-	collector := proc_info.NewCollector(*hostSysRootPath, *apiServerAddr)
+	collector := proc_info.NewCollector(*hostSysRootPath, *apiServerAddr, cfg.nodeName)
 	if err := collector.StartProcInfoReport(); err != nil {
 		log.Errorf("Failed to ReportProcess, error: %v", err)
 	}
