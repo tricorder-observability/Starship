@@ -42,16 +42,10 @@ go_image(
     binary = ":agent",
 )
 
-pkg_tar(
-    name = "linux_headers",
-    srcs = ["@download_linux_headers_from_s3_url//file"],
-    package_dir = "/",
-)
-
 container_image(
     name = "agent_image",
     base = ":agent_base_image",
-    tars = [":linux_headers"],
+    tars = ["@download_linux_headers_from_s3_url//file"],
 )
 
 container_push(
