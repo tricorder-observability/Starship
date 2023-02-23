@@ -237,6 +237,8 @@ func TestAttachUProbe(t *testing.T) {
 	perfBuf.Stop()
 
 	// return probe
+	// golang uretprobe maybe happen some error
+	// https://github.com/golang/go/issues/22008
 	err = m.attachUProbe(&ebpfpb.ProbeSpec{
 		Type:       ebpfpb.ProbeSpec_UPROBE,
 		Target:     "main.sum",
