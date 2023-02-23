@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/tricorder/src/utils/errors"
+
 	v1 "k8s.io/api/core/v1"
 	matav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	k8s "k8s.io/client-go/kubernetes"
@@ -27,7 +29,7 @@ func getStarshipService(client *k8s.Clientset) (*v1.Service, error) {
 
 // getStarshipServiceURL returns the starship Service ClusterIP
 func getStarshipServiceURL(client *k8s.Clientset) (string, error) {
-	service, err := GetStarshipService(client)
+	service, err := getStarshipService(client)
 	if err != nil {
 		return "", err
 	}
@@ -36,7 +38,7 @@ func getStarshipServiceURL(client *k8s.Clientset) (string, error) {
 
 // getStarshipServicePort returns the starship Service serverhttp port
 func getStarshipServicePort(client *k8s.Clientset) (int32, error) {
-	service, err := GetStarshipService(client)
+	service, err := getStarshipService(client)
 	if err != nil {
 		return 0, err
 	}
@@ -52,7 +54,7 @@ func getStarshipServicePort(client *k8s.Clientset) (int32, error) {
 func GetStarshipAPIAddress() (string, error) {
 	client, err := NewClient()
 	if err != nil {
-		return "", err
+		return "", errors.Wrap("init kubernetes client for config", "new client", err)
 	}
 	ip, err := getStarshipServiceURL(client)
 	if err != nil {
