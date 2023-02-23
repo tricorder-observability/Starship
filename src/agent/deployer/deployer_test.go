@@ -157,10 +157,12 @@ func TestDeployAndRun(t *testing.T) {
 	// init kernel headers
 	assert.Nil(linux_headers.Init())
 
-	d := new(Deployer)
 	_, addr := newMockGRPCServer(t)
+
+	d := New(addr.String(), "node_name", "pid_id")
+
 	d.apiServerAddr = addr.String()
-	err := d.ConnectToAPIServer(addr.String())
+	err := d.ConnectToAPIServer()
 	require.NoError(t, err)
 
 	err = d.InitModuleDeployLink()

@@ -37,7 +37,7 @@ func TestAgentImageHasNoLinkingIssue(t *testing.T) {
 
 	agentRunner := docker.Runner{
 		ImageName: imageName,
-		RdyMsg:    "connecting to API Server",
+		RdyMsg:    "Connecting to API Server",
 		EnvVars:   map[string]string{"POD_ID": "test", "NODE_NAME": "test"},
 	}
 	assert.Nil(agentRunner.Launch(5 * time.Second))

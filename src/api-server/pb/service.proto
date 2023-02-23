@@ -85,18 +85,21 @@ message DeployModuleReq {
 }
 
 message DeployModuleResp {
-  // The same ID as in DeployModuleReq.
-  string ID = 1;
+  // The ID of the module being deployed.
+  string module_id = 1;
+
+  // The ID of the agent's pod.
+  string agent_pod_id = 2;
+
+  // The ID of the agent.
+  string agent_id = 3;
 
   // The actual state of the deployment.
-  // NOTE: Not all of the status enum makes sense in this message, as some of
-  // them does not reflect a possible on the agent's side.
-  DeploymentState state = 2;
+  DeploymentState state = 4;
 
-  // A description for the receiver to figure out what's going on.
-  // It could be an explanation of the status, or the causes of failure or
-  // error.
-  string desc = 3;
+  // A description for the receiver to figure out what's going on.  It could be
+  // an explanation of the status, or other error situations.
+  string desc = 5;
 }
 
 // TODO(yzhao): Also need undeploy req.

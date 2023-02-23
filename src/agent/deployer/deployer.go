@@ -25,6 +25,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
+	"github.com/tricorder/src/utils/errors"
 	"github.com/tricorder/src/utils/grpcerr"
 	"github.com/tricorder/src/utils/log"
 
@@ -44,6 +45,12 @@ type Deployer struct {
 	// The remote API server's address. This deployer receives deployment request from the API server.
 	apiServerAddr string
 
+	// The name of the node that runs this agent.
+	nodeName string
+
+	// The ID of this pod agent.
+	podID string
+
 	// Key is the eBPF+WASM module's ID, value is the Module object.
 	// The Module object keeps track of the module's deployment state.
 	idDeployMap map[string]*driver.Module
@@ -56,35 +63,43 @@ type Deployer struct {
 	PGClient *pg.Client
 }
 
-func (s *Deployer) ConnectToAPIServer(apiServerAddr string) error {
-	log.Infof("connecting to API Server at %s", apiServerAddr)
+// New returns a new Deployer instance or error if failed.
+func New(apiServerAddr, nodeName, podID string) *Deployer {
+	d := new(Deployer)
 
-	s.uuid = uuid.New()
-	s.apiServerAddr = apiServerAddr
-	s.idDeployMap = make(map[string]*driver.Module)
-	grpcConn, err := grpc.Dial(apiServerAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	d.uuid = uuid.New()
+	d.apiServerAddr = apiServerAddr
+	d.nodeName = nodeName
+	d.podID = podID
+	d.idDeployMap = make(map[string]*driver.Module)
+
+	return d
+}
+
+func (d *Deployer) ConnectToAPIServer() error {
+	log.Infof("Connecting to API Server at %s", d.apiServerAddr)
+	grpcConn, err := grpc.Dial(d.apiServerAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
-		return fmt.Errorf("failed to connect to API Server at '%s', error: %v", apiServerAddr, err)
+		return errors.Wrap("connecting to API Server", "dial", err)
 	}
-	s.grpcConn = grpcConn
-	client := pb.NewModuleDeployerClient(grpcConn)
-	s.client = client
+	d.grpcConn = grpcConn
+	d.client = pb.NewModuleDeployerClient(grpcConn)
 	return nil
 }
 
 // InitModuleDeployLink connects with the module module deployer's stream gRPC service.
 // And sends the first message to the server to inform the server about its own identity.
 func (s *Deployer) InitModuleDeployLink() error {
-	log.Infof("initializing stream connection with ModuleDeployer at %s", s.apiServerAddr)
+	log.Infof("Initializing stream connection with ModuleDeployer at %s", s.apiServerAddr)
 
 	deployModuleStream, err := s.client.DeployModule(context.Background())
 	if err != nil {
-		return fmt.Errorf("could not open stream to DeplyModule RPC at %s, %v", s.apiServerAddr, err)
+		return fmt.Errorf("Could not open stream to DeplyModule RPC at %s, %v", s.apiServerAddr, err)
 	}
 	s.stream = deployModuleStream
 
 	resp := pb.DeployModuleResp{
-		ID: s.uuid,
+		AgentId: s.uuid,
 	}
 
 	err = s.stream.Send(&resp)
@@ -177,8 +192,8 @@ func (s *Deployer) undeployModlue(in *pb.DeployModuleReq) error {
 // createDeployModuleResp returns a response message to describe the results of a module deployment operation.
 func createDeployModuleResp(id string, err error) *pb.DeployModuleResp {
 	resp := pb.DeployModuleResp{
-		ID:    id,
-		State: pb.DeploymentState_DEPLOYMENT_SUCCEEDED,
+		ModuleId: id,
+		State:    pb.DeploymentState_DEPLOYMENT_SUCCEEDED,
 	}
 	if err != nil {
 		resp.State = pb.DeploymentState_DEPLOYMENT_FAILED

@@ -8,6 +8,7 @@ go_library(
     deps = [
         "//src/agent/driver",
         "//src/api-server/pb",
+        "//src/utils/errors",
         "//src/utils/grpcerr",
         "//src/utils/log",
         "//src/utils/pg",

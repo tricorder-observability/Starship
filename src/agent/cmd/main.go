@@ -60,10 +60,9 @@ func main() {
 		log.Errorf("Failed to initialize Linux headers for bcc, error: %v", err)
 	}
 
-	var deployer deployer.Deployer
-
+	deployer := deployer.New(*apiServerAddr, cfg.nodeName, cfg.podID)
 	err = retry.ExpBackOffWithLimit(func() error {
-		return deployer.ConnectToAPIServer(*apiServerAddr)
+		return deployer.ConnectToAPIServer()
 	})
 	if err != nil {
 		log.Fatalf("Failed to connect to API server, error: %v", err)

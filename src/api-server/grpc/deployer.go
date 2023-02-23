@@ -50,7 +50,7 @@ func (s *Deployer) DeployModule(stream pb.ModuleDeployer_DeployModuleServer) err
 		return err
 	}
 
-	log.Infof("Agent '%s' connected, starting module management loop ...", in.ID)
+	log.Infof("Agent '%s' connected, starting module management loop ...", in.AgentId)
 
 	var eg errgroup.Group
 	eg.Go(func() error {
@@ -66,7 +66,7 @@ func (s *Deployer) DeployModule(stream pb.ModuleDeployer_DeployModuleServer) err
 			}
 			// Need to be able to correctly account which nodes are deployed, and which are
 			// not deployed. TODO(yzhao & zhihui): Chat about the design.
-			err = s.Module.UpdateStatusByID(result.ID, int(result.State))
+			err = s.Module.UpdateStatusByID(result.ModuleId, int(result.State))
 			if err != nil {
 				log.Errorf("update code status error:%s", err.Error())
 			}
