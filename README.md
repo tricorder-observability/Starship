@@ -19,6 +19,7 @@ community.
 [![Additional lint](https://github.com/tricorder-observability/starship/actions/workflows/additional_lint.yml/badge.svg?event=pull_request)](https://github.com/tricorder-observability/starship/actions/workflows/additional_lint.yml)
 
 ![GitHub issues](https://img.shields.io/github/issues/tricorder-observability/starship)
+![GitHub pull requests](https://img.shields.io/github/issues-pr/tricorder-observability/starship)
 
 [![Twitter URL](https://img.shields.io/twitter/url/https/twitter.com/bukotsunikki.svg?style=plastic&label=Follow%20%40tricorder_o11y)](https://twitter.com/tricorder_o11y)
 [![Slack Badge](https://img.shields.io/badge/Slack-4A154B?logo=slack&logoColor=fff&style=plastic&label=Join%20Tricorder)](https://join.slack.com/t/tricorderobse-mfl6648/shared_invite/zt-1oxqtq793-rRA03FN1YuyCiQrN_TrZoQ)
