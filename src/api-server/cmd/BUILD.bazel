@@ -54,7 +54,6 @@ go_test(
     srcs = ["api_server_image_test.go"],
     data = [":api-server_image.tar"],
     embed = [":cmd_lib"],
-    tags = ["manual"],
     deps = [
         "//src/testing/bazel",
         "//src/testing/docker",

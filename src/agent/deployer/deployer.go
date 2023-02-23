@@ -56,14 +56,14 @@ type Deployer struct {
 }
 
 func (s *Deployer) ConnectToAPIServer(apiServerAddr string) error {
-	log.Infof("connecting to API server at %s", apiServerAddr)
+	log.Infof("connecting to API Server at %s", apiServerAddr)
 
 	s.uuid = uuid.New()
 	s.apiServerAddr = apiServerAddr
 	s.idDeployMap = make(map[string]*driver.Module)
 	grpcConn, err := grpc.Dial(apiServerAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
-		return fmt.Errorf("failed to connect to API server at '%s', error: %v", apiServerAddr, err)
+		return fmt.Errorf("failed to connect to API Server at '%s', error: %v", apiServerAddr, err)
 	}
 	s.grpcConn = grpcConn
 	client := pb.NewModuleDeployerClient(grpcConn)
