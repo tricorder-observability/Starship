@@ -47,7 +47,7 @@ var (
 func main() {
 	flag.Parse()
 
-	cfg, err := newConfig()
+	_, err := newConfig()
 	if err != nil {
 		log.Fatalf("Failed to create config, error: %v", err)
 	}
@@ -62,7 +62,7 @@ func main() {
 
 	var deployer deployer.Deployer
 
-	err := retry.ExpBackOffWithLimit(func() error {
+	err = retry.ExpBackOffWithLimit(func() error {
 		return deployer.ConnectToAPIServer(*apiServerAddr)
 	})
 	if err != nil {

@@ -65,6 +65,6 @@ func newConfig() (*config, error) {
 	}
 	c := new(config)
 	c.nodeName, _ = envVars[NODE_NAME]
-	c.podID, _ = entires[POD_ID]
+	c.podID, _ = envVars[POD_ID]
 	return c, nil
 }
