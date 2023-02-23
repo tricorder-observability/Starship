@@ -108,7 +108,7 @@ func (c *Collector) StartProcInfoReport() error {
 	return nil
 }
 
-// GetNodeName returns value injected by downwardAPI
+// GetNodeName returns value injected by downwardAPI in the helm-charts or other deployment config.
 // Inject outer-scope hostname into container, so the agent can use this to filter out updates not relevant to this node
 // from the K8s API server.
 // env:

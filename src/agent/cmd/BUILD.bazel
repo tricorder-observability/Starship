@@ -15,6 +15,7 @@ go_library(
         "//src/utils/log",
         "//src/utils/pg",
         "//src/utils/retry",
+        "//src/utils/sys",
     ],
 )
 

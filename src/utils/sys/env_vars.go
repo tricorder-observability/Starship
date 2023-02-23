@@ -18,12 +18,10 @@ package sys
 import (
 	"os"
 	"strings"
-
-	"github.com/tricorder/src/utils/log"
 )
 
-// Deprecated: Moved to src/utils/sys/env_var.go:EnvVars
-func GetEnvVars() map[string]string {
+// EnvVars returns a map of variable name and value of all environment variables.
+func EnvVars() map[string]string {
 	envVars := make(map[string]string)
 	for _, e := range os.Environ() {
 		pair := strings.SplitN(e, "=", 2)
@@ -32,7 +30,6 @@ func GetEnvVars() map[string]string {
 		if len(pair) > 1 {
 			varValue = pair[1]
 		}
-		log.Debugf("%s=%s", varName, varValue)
 		envVars[varName] = varValue
 	}
 	return envVars
