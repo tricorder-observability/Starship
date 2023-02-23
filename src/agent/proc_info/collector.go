@@ -35,7 +35,7 @@ import (
 	"github.com/tricorder/src/utils/retry"
 )
 
-// Collector is responsible for grab process info with containers/pods.
+// Collector grabs information of the processes running inside containers/pods.
 type Collector struct {
 	// The base path to the host's /sys file system (the Kubernetes node).
 	// The association between local process ID and container ID is established by looking up process ID list of cgroup
@@ -45,14 +45,18 @@ type Collector struct {
 	// The address to the API server.
 	apiServerAddr string
 
+	// The name of the node runs this agent.
+	nodeName string
+
 	// Connects to API server's process info collector server, and reports process information.
 	procCollectorClient pb.ProcessCollectorClient
 }
 
-func NewCollector(hostSysRootPath, apiServerAddr string) *Collector {
+func NewCollector(hostSysRootPath, apiServerAddr, nodeName string) *Collector {
 	return &Collector{
 		hostSysRootPath: hostSysRootPath,
 		apiServerAddr:   apiServerAddr,
+		nodeName:        nodeName,
 	}
 }
 
@@ -77,7 +81,7 @@ func (c *Collector) StartProcInfoReport() error {
 		return err
 	}
 
-	if err = stream.Send(&pb.ProcessWrapper{Msg: &pb.ProcessWrapper_NodeName{NodeName: GetNodeName()}}); err != nil {
+	if err = stream.Send(&pb.ProcessWrapper{Msg: &pb.ProcessWrapper_NodeName{NodeName: c.nodeName}}); err != nil {
 		log.Errorf("stream.Send error: %v", err)
 	}
 
@@ -106,18 +110,6 @@ func (c *Collector) StartProcInfoReport() error {
 	}()
 
 	return nil
-}
-
-// GetNodeName returns value injected by downwardAPI in the helm-charts or other deployment config.
-// Inject outer-scope hostname into container, so the agent can use this to filter out updates not relevant to this node
-// from the K8s API server.
-// env:
-//   - name: NODE_NAME
-//     valueFrom:
-//     fieldRef:
-//     fieldPath: spec.nodeName
-func GetNodeName() string {
-	return os.Getenv("NODE_NAME")
 }
 
 func getProcCreateTime(pid int32) (int64, error) {

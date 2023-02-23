@@ -47,7 +47,7 @@ var (
 func main() {
 	flag.Parse()
 
-	_, err := newConfig()
+	cfg, err := newConfig()
 	if err != nil {
 		log.Fatalf("Failed to create config, error: %v", err)
 	}
@@ -81,7 +81,7 @@ func main() {
 		log.Fatalf("Failed to establish stream connection to module deploy service, error: %v", err)
 	}
 
-	collector := proc_info.NewCollector(*hostSysRootPath, *apiServerAddr)
+	collector := proc_info.NewCollector(*hostSysRootPath, *apiServerAddr, cfg.nodeName)
 	if err := collector.StartProcInfoReport(); err != nil {
 		log.Errorf("Failed to ReportProcess, error: %v", err)
 	}

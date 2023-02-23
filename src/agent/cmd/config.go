@@ -35,12 +35,14 @@ type config struct {
 	podID string
 }
 
+// Environment variables are injected by [downwardAPI](https://kubernetes.io/docs/concepts/workloads/pods/downward-api/)
+// in the [helm-charts](https://github.com/tricorder-observability/helm-charts).
 const (
-	NODE_NAME string = "NODE_NAME"
-	POD_ID    string = "POD_ID"
+	ENV_VAR_NODE_NAME string = "NODE_NAME"
+	ENV_VAR_POD_ID    string = "POD_ID"
 )
 
-var requiredEnvVarNames = []string{NODE_NAME, POD_ID}
+var requiredEnvVarNames = []string{ENV_VAR_NODE_NAME, ENV_VAR_POD_ID}
 
 func checkRequiredEnvVarsAreDefined(envVars map[string]string) error {
 	var missingVarNames []string
@@ -64,7 +66,7 @@ func newConfig() (*config, error) {
 		return nil, errors.Wrap("newing agent config", "check env vars", err)
 	}
 	c := new(config)
-	c.nodeName = envVars[NODE_NAME]
-	c.podID = envVars[POD_ID]
+	c.nodeName = envVars[ENV_VAR_NODE_NAME]
+	c.podID = envVars[ENV_VAR_POD_ID]
 	return c, nil
 }
