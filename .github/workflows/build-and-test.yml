@@ -173,9 +173,6 @@ jobs:
       - name: Build api-server image
         run: bazel run --define=TAG=${TAG} --define=REGISTRY=${REGISTRY_SERVER_ADDRESS} //src/api-server/cmd:api-server_image
         working-directory: .
-      - name: Build agent image
-        run: bazel run --define=TAG=${TAG} --define=REGISTRY=${REGISTRY_SERVER_ADDRESS} //src/agent/cmd:agent_image
-        working-directory: .
   
   build-agent-images:
     runs-on: ubuntu-latest
@@ -194,8 +191,6 @@ jobs:
 
   build-ui-images:
     runs-on: ubuntu-latest
-    container:
-      image: public.ecr.aws/tricorder/ci_image:202302140538
     timeout-minutes: 90
     needs: build-and-test
     env:
