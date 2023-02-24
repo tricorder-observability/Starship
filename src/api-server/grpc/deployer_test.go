@@ -118,6 +118,7 @@ func newGRPCClient(t *testing.T, addr string) *grpcClient {
 
 	resp := pb.DeployModuleResp{
 		ModuleId: "testid",
+		Agent:    &pb.Agent{Id: "agent"},
 	}
 	err = deployModuleStream.Send(&resp)
 	if err != nil {

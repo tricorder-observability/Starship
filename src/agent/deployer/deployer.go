@@ -49,7 +49,7 @@ type Deployer struct {
 	nodeName string
 
 	// The ID of this pod agent.
-	podID string
+	podId string
 
 	// Key is the eBPF+WASM module's ID, value is the Module object.
 	// The Module object keeps track of the module's deployment state.
@@ -64,13 +64,13 @@ type Deployer struct {
 }
 
 // New returns a new Deployer instance or error if failed.
-func New(apiServerAddr, nodeName, podID string) *Deployer {
+func New(apiServerAddr, nodeName, podId string) *Deployer {
 	d := new(Deployer)
 
 	d.uuid = uuid.New()
 	d.apiServerAddr = apiServerAddr
 	d.nodeName = nodeName
-	d.podID = podID
+	d.podId = podId
 	d.idDeployMap = make(map[string]*driver.Module)
 
 	return d
@@ -99,7 +99,11 @@ func (s *Deployer) InitModuleDeployLink() error {
 	s.stream = deployModuleStream
 
 	resp := pb.DeployModuleResp{
-		AgentId: s.uuid,
+		Agent: &pb.Agent{
+			Id:       s.uuid,
+			PodId:    s.podId,
+			NodeName: s.nodeName,
+		},
 	}
 
 	err = s.stream.Send(&resp)
