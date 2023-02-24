@@ -62,8 +62,7 @@ func (s *Deployer) DeployModule(stream pb.ModuleDeployer_DeployModuleServer) err
 				return nil
 			}
 			if err != nil {
-				log.Errorf("receive agent result error:%s", err.Error())
-				return err
+				return errors.Wrap("handling DeployModule request", "receive mssage", err)
 			}
 			// Need to be able to correctly account which nodes are deployed, and which are
 			// not deployed. TODO(yzhao & zhihui): Chat about the design.
