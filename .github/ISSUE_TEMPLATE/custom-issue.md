@@ -2,7 +2,7 @@
 name: Custom issue
 about: Issues do not fall into the previous categories
 title: ''
-labels: help wanted
+labels: help wanted, need-triage
 assignees: yaxiong-zhao
 
 ---
