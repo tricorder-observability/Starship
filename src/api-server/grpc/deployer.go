@@ -22,6 +22,7 @@ import (
 
 	"golang.org/x/sync/errgroup"
 
+	"github.com/tricorder/src/utils/errors"
 	"github.com/tricorder/src/utils/log"
 
 	"github.com/tricorder/src/api-server/dao"
@@ -47,7 +48,7 @@ func (s *Deployer) DeployModule(stream pb.ModuleDeployer_DeployModuleServer) err
 		return nil
 	}
 	if err != nil {
-		return err
+		return errors.Wrap("handling DeployModule", "receive message", err)
 	}
 
 	log.Infof("Agent '%s' connected, starting module management loop ...", in.AgentId)
