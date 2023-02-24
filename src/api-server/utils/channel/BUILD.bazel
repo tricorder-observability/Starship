@@ -3,7 +3,7 @@ load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
 go_library(
     name = "channel",
     srcs = ["channel.go"],
-    importpath = "github.com/tricorder/src/utils/channel",
+    importpath = "github.com/tricorder/src/api-server/utils/channel",
     visibility = ["//visibility:public"],
 )
 

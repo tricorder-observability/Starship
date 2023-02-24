@@ -36,7 +36,7 @@ import (
 	"github.com/tricorder/src/api-server/dao"
 	pb "github.com/tricorder/src/api-server/pb"
 	testutil "github.com/tricorder/src/api-server/testing"
-	"github.com/tricorder/src/utils/channel"
+	"github.com/tricorder/src/api-server/utils/channel"
 	"github.com/tricorder/src/utils/sqlite"
 )
 

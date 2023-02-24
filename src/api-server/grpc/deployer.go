@@ -27,11 +27,11 @@ import (
 
 	"github.com/tricorder/src/api-server/dao"
 	pb "github.com/tricorder/src/api-server/pb"
+	"github.com/tricorder/src/api-server/utils/channel"
 	modulepb "github.com/tricorder/src/pb/module"
 	"github.com/tricorder/src/pb/module/common"
 	ebpfpb "github.com/tricorder/src/pb/module/ebpf"
 	wasmpb "github.com/tricorder/src/pb/module/wasm"
-	"github.com/tricorder/src/utils/channel"
 )
 
 type Deployer struct {

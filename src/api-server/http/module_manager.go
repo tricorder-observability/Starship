@@ -29,9 +29,9 @@ import (
 	"github.com/tricorder/src/api-server/dao"
 	"github.com/tricorder/src/api-server/http/grafana"
 	pb "github.com/tricorder/src/api-server/pb"
+	"github.com/tricorder/src/api-server/utils/channel"
 	modulepb "github.com/tricorder/src/pb/module"
 	commonpb "github.com/tricorder/src/pb/module/common"
-	"github.com/tricorder/src/utils/channel"
 	"github.com/tricorder/src/utils/pg"
 	"github.com/tricorder/src/utils/uuid"
 )
