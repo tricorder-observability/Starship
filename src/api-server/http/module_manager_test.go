@@ -199,7 +199,7 @@ func deployModule(t *testing.T, modulID string, r *gin.Engine) {
 
 	assert.Equal(t, true, strings.Contains(resultStr, "prepare to deploy"))
 
-	var deployResult DeployModuleResult
+	var deployResult DeployModuleResp
 	err := json.Unmarshal([]byte(resultStr), &deployResult)
 	if err != nil {
 		t.Errorf("deploy module error:%v", err)
@@ -214,12 +214,12 @@ func deployModule(t *testing.T, modulID string, r *gin.Engine) {
 
 	// check grafana dashboard create result
 	ds := grafana.NewDashboard()
-	detailResult, err := ds.GetDashboardDetail(deployResult.ID)
+	detailResult, err := ds.GetDashboardDetail(deployResult.UID)
 	if err != nil {
 		t.Errorf("get grafana dashboard detail error:%v", err)
 	}
 	temp := fmt.Sprint(detailResult)
-	assert.Equal(t, true, strings.Contains(temp, deployResult.ID))
+	assert.Equal(t, true, strings.Contains(temp, deployResult.UID))
 
 	// check create postgres schema result
 	const moduleDataTableNamePrefix = "tricorder_code_"

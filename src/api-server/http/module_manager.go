@@ -245,7 +245,7 @@ func (mgr *ModuleManager) deployCode(id string) DeployModuleResp {
 				Code:    500,
 				Message: "create schema error: " + err.Error(),
 			},
-			id,
+			"",
 		}
 	}
 	log.Info("Created postgres table")
@@ -259,7 +259,7 @@ func (mgr *ModuleManager) deployCode(id string) DeployModuleResp {
 				Code:    500,
 				Message: "create dashboard error",
 			},
-			id,
+			uid,
 		}
 	}
 
@@ -270,7 +270,7 @@ func (mgr *ModuleManager) deployCode(id string) DeployModuleResp {
 			Code:    200,
 			Message: "prepare to deploy module, id: " + id,
 		},
-		id,
+		uid,
 	}
 }
 
