@@ -170,7 +170,9 @@ func startAgentServerSide(port int, c dao.Module, pgClient *pg.Client, clientset
 	}
 
 	grpcServer := grpc.NewServer()
+
 	pb.RegisterModuleDeployerServer(grpcServer, &sg.Deployer{Module: c})
+
 	if *enableMetadataService {
 		pb.RegisterProcessCollectorServer(grpcServer, sg.NewPIDCollector(clientset, pgClient))
 	}
