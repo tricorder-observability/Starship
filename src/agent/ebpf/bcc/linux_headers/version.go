@@ -31,7 +31,7 @@ import (
 type Version struct {
 	ver   uint8
 	major uint8
-	minor uint8
+	minor uint16
 }
 
 // This code produces the same result as what's defined in the Linux version.h header
@@ -47,7 +47,7 @@ func (v Version) semVerStr() string {
 
 // distance returns a numeric value indicating the differences between 2 versions.
 func distance(v1, v2 Version) int {
-	return common.AbsUint8s(
+	return common.AbsUint16s(
 		v1.minor, v2.minor) + 100*common.AbsUint8s(v1.major, v2.major) + 10000*common.AbsUint8s(v1.ver, v2.ver)
 }
 
@@ -74,7 +74,7 @@ func parseVersion(str string) (Version, error) {
 	return Version{
 		ver:   uint8(ver),
 		major: uint8(major),
-		minor: uint8(minor),
+		minor: uint16(minor),
 	}, nil
 }
 

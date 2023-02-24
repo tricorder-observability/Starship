@@ -30,3 +30,10 @@ func AbsUint8s(a, b uint8) int {
 	}
 	return int(b - a)
 }
+
+func AbsUint16s(a, b uint16) int {
+	if a > b {
+		return int(a - b)
+	}
+	return int(b - a)
+}
