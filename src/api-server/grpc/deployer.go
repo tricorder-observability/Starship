@@ -23,7 +23,6 @@ import (
 
 	"github.com/tricorder/src/utils/errors"
 	"github.com/tricorder/src/utils/log"
-	pbutils "github.com/tricorder/src/utils/pb"
 
 	"github.com/tricorder/src/api-server/dao"
 	servicepb "github.com/tricorder/src/api-server/pb"
@@ -100,6 +99,7 @@ func (s *Deployer) DeployModule(stream servicepb.ModuleDeployer_DeployModuleServ
 	// The server will send deploy module request for this client to work on.
 	in, err := stream.Recv()
 	if err == io.EOF {
+		log.Warnf("Agent closed connection, this should only happens during testing; stopping ...")
 		return nil
 	}
 	if err != nil {
@@ -107,24 +107,24 @@ func (s *Deployer) DeployModule(stream servicepb.ModuleDeployer_DeployModuleServ
 	}
 
 	log.Infof("Agent '%s' connected, starting module management loop ...", in.Agent.Id)
-
 	s.agents = append(s.agents, in.Agent)
 
 	var eg errgroup.Group
-
 	// Create a goroutine to check the response from the connected agent.
 	eg.Go(func() error {
 		for {
 			result, err := stream.Recv()
 			if err == io.EOF {
-				log.Warnf("Agent closed connection, this should only happens during testing; stopping ...")
+				log.Warnf("Agent closed connection, this should **only** happens during testing; stopping ...")
 				return nil
 			}
 			if err != nil {
+				// If this happens, agent should re-initiate connection with API Server.
+				// API Server just close the handling function and wait for reconnection.
 				return errors.Wrap("handling DeployModule request", "receive mssage", err)
 			}
-			// Need to be able to correctly account which nodes are deployed, and which are
-			// not deployed. TODO(yzhao & zhihui): Chat about the design.
+			// TODO(yzhao): Should cache this result to an internal slice, and repeatively retry updating state.
+			// The current logic will drop this state and causes redeployment of the same module.
 			err = s.Module.UpdateStatusByID(result.ModuleId, int(result.State))
 			if err != nil {
 				log.Errorf("update code status error:%s", err.Error())
@@ -148,14 +148,14 @@ func (s *Deployer) DeployModule(stream servicepb.ModuleDeployer_DeployModuleServ
 
 			err = stream.Send(codeReq)
 			if err != nil {
-				log.Errorf("gRPC streaming channel to agent=%s broken, error: %v", pbutils.FormatOneLine(in.Agent), err)
-				return err
+				return errors.Wrap("handling module deployment", "send message over gRCP streaming channel", err)
 			}
 
 			// TODO(yzhao): This should set the state to PENDING, or something indicating the request is sent.
 			// Probably should update the IN_PROGRESS state in module_instance table.
 			err = s.Module.UpdateStatusByID(code.ID, int(servicepb.DeploymentState_DEPLOYMENT_SUCCEEDED))
 			if err != nil {
+				// If this happens, this module's deployment will be retried next time.
 				log.Errorf("Failed to update module (ID=%s) state, error: %v", code.ID, err)
 			}
 		}
