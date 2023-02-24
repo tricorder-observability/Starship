@@ -6,6 +6,11 @@ on:
       - main
 permissions:
   contents: read
+
+env:
+  # only for build local docker image, but not push
+  REGISTRY_SERVER_ADDRESS: localhost
+
 jobs:
   query-changed-src-files:
     name: List changed files
@@ -153,3 +158,78 @@ jobs:
         if: steps.q.outputs.any_affected == 'true'
         run: .github/scripts/bazel_test.sh test --config=github-actions --flaky_test_attempts=3 --config=bpf --cache_test_results=no ${{ steps.q.outputs.all }}
         shell: bash
+
+  build-api-server-images:
+    concurrency:
+      group: ${{ github.ref }}
+      cancel-in-progress: true
+    runs-on: ubuntu-latest
+    container:
+      image: public.ecr.aws/tricorder/ci_image:202302140538
+    timeout-minutes: 90
+    needs: build-and-test
+    env:
+      TAG: ${{ github.sha }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: bazelbuild/setup-bazelisk@v2
+      - name: Build api-server image
+        run: bazel run --define=TAG=${TAG} --define=REGISTRY=${REGISTRY_SERVER_ADDRESS} //src/api-server/cmd:api-server_image
+        working-directory: .
+      - name: Build agent image
+        run: bazel run --define=TAG=${TAG} --define=REGISTRY=${REGISTRY_SERVER_ADDRESS} //src/agent/cmd:agent_image
+        working-directory: .
+  
+  build-agent-images:
+    concurrency:
+      group: ${{ github.ref }}
+      cancel-in-progress: true
+    runs-on: ubuntu-latest
+    container:
+      image: public.ecr.aws/tricorder/ci_image:202302140538
+    timeout-minutes: 90
+    needs: build-and-test
+    env:
+      TAG: ${{ github.sha }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: bazelbuild/setup-bazelisk@v2
+      - name: Build agent image
+        run: bazel run --define=TAG=${TAG} --define=REGISTRY=${REGISTRY_SERVER_ADDRESS} //src/agent/cmd:agent_image
+        working-directory: .
+
+  build-ui-images:
+    concurrency:
+      group: ${{ github.ref }}
+      cancel-in-progress: true
+    runs-on: ubuntu-latest
+    container:
+      image: public.ecr.aws/tricorder/ci_image:202302140538
+    timeout-minutes: 90
+    needs: build-and-test
+    env:
+      TAG: ${{ github.sha }}
+    steps:
+      - uses: actions/checkout@v3
+      # build ui image
+      - name: Set Node.js 16.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.x
+      - name: Run yarn install
+        uses: borales/actions-yarn@v4
+        with:
+          cmd: install # will run `yarn install` command
+          dir: "ui"
+      - name: Build production bundle
+        uses: borales/actions-yarn@v4
+        with:
+          cmd: run build # will run `yarn run build` command
+          dir: "ui"
+      - name: Build mgmt-ui image
+        uses: docker/build-push-action@v4
+        with:
+          push: false
+          file: ./ui/docker/Dockerfile
+          context: ./ui
+          tags: ${{ env.REGISTRY_SERVER_ADDRESS }}/mgmt-ui:${{ env.TAG }}
