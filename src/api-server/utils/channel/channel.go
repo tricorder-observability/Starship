@@ -15,10 +15,7 @@
 
 package channel
 
-import (
-	"sync"
-)
-
+// Encloses information sent from API Server's HTTP handler to gRPC handler for more efficient job hand-off.
 type DeployChannelModule struct {
 	ID     string
 	Status int
@@ -28,27 +25,19 @@ type DeployChannelModule struct {
 // This should be put inside src/api-server/shared/chan.go; where HTTP server writes to this
 // channel, and gRPC side waits on this channel, and triggers API server to query SQLite DB.
 var (
-	chanInstance    chan DeployChannelModule
-	chanOnceManager sync.Once
+	notifyChan chan DeployChannelModule
 )
 
-// init chan only once
-// TODO(yzhao): Can be replaced by init() in the package:
 // https://www.digitalocean.com/community/tutorials/understanding-init-in-go
-func initAgentChan() chan DeployChannelModule {
-	chanOnceManager.Do(func() {
-		chanInstance = make(chan DeployChannelModule, 100)
-	})
-	return chanInstance
+func init() {
+	notifyChan = make(chan DeployChannelModule, 100)
 }
 
 func SendMessage(module DeployChannelModule) {
-	initAgentChan()
-	chanInstance <- module
+	notifyChan <- module
 }
 
 func ReceiveMessage() DeployChannelModule {
-	initAgentChan()
-	message := <-chanInstance
+	message := <-notifyChan
 	return message
 }
