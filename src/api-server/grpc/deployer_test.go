@@ -47,12 +47,10 @@ func TestService(t *testing.T) {
 	testDir, _ := os.Getwd()
 	testDbFilePath := testDir + "/testdata/"
 	sqliteClient, _ := dao.InitSqlite(testDbFilePath)
-
 	codeDao := dao.Module{
 		Client: sqliteClient,
 	}
 	testutil.PrepareTricorderDBData(codeID, codeDao)
-
 	withServerAndClient(t, sqliteClient, func(server *grpcServer, c *grpcClient) {
 		in, err := c.stream.Recv()
 		if err == io.EOF {
