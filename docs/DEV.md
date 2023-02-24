@@ -44,3 +44,8 @@ Otherwise, you might be too stressful and make a lot of mistakes.
 ```
 docker run --rm -it --name agent --entrypoint bash <image>
 ```
+
+## bazel -c dbg
+
+`bazel -c dbg` adds `gcflags=-N -l` to go code, which disable optimization `-N`
+and inlining `-l`.
