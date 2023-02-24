@@ -126,19 +126,19 @@ func (s *Deployer) StartModuleDeployLoop() error {
 				log.Fatalf("failed to read stream from DeplyModule(), error: %v", err)
 			}
 
-			log.Infof("received request to deploy module. ID: [%s], Name: [%s]", in.ID, in.Name)
+			log.Infof("received request to deploy module. ID: [%s], Name: [%s]", in.Id, in.Name)
 			log.Debugf("received request to deploy module: %v", in)
 
 			if in.Deploy == pb.DeployModuleReq_DEPLOY {
 				err := s.deployModule(in)
-				resp := createDeployModuleResp(in.ID, err)
+				resp := createDeployModuleResp(in.Id, err)
 				err = s.sendResp(resp)
 				if grpcerr.IsUnavailable(err) {
 					log.Fatalf("streaming connection with api-server is broken, error: %v", err)
 				}
 			} else if in.Deploy == pb.DeployModuleReq_UNDEPLOY {
 				err := s.undeployModlue(in)
-				resp := createDeployModuleResp(in.ID, err)
+				resp := createDeployModuleResp(in.Id, err)
 				err = s.sendResp(resp)
 				if grpcerr.IsUnavailable(err) {
 					log.Fatalf("streaming connection with api-server is broken, error: %v", err)
@@ -158,17 +158,17 @@ func (s *Deployer) Stop() {
 }
 
 func (s *Deployer) deployModule(in *pb.DeployModuleReq) error {
-	if _, found := s.idDeployMap[in.ID]; found {
-		log.Warnf("Module '%s' was already deployed, skip ...", in.ID)
+	if _, found := s.idDeployMap[in.Id]; found {
+		log.Warnf("Module '%s' was already deployed, skip ...", in.Id)
 		// TODO(yzhao): Might consider returning an error value to distinguish from other errors.
 		return nil
 	}
 	// deployer create a deployment and driver will start this deploys logical
 	deployment, err := driver.Deploy(in.Module, s.PGClient)
 	if err != nil {
-		return fmt.Errorf("while deploying module '%s', failed to deploy, error: %v", in.ID, err)
+		return fmt.Errorf("while deploying module '%s', failed to deploy, error: %v", in.Id, err)
 	}
-	s.idDeployMap[in.ID] = deployment
+	s.idDeployMap[in.Id] = deployment
 
 	// This will start a loop to continuously polling perf buffer and feeding data to WASM.
 	// And then write them into database.
@@ -177,15 +177,15 @@ func (s *Deployer) deployModule(in *pb.DeployModuleReq) error {
 }
 
 func (s *Deployer) undeployModlue(in *pb.DeployModuleReq) error {
-	d, ok := s.idDeployMap[in.ID]
+	d, ok := s.idDeployMap[in.Id]
 	if !ok {
-		return fmt.Errorf("while undeploying module ID '%s', could not find deployment record", in.ID)
+		return fmt.Errorf("while undeploying module ID '%s', could not find deployment record", in.Id)
 	}
 
-	log.Infof("Prepare undeploy module [ID: %s], [Name: %s]", in.ID, d.Name())
+	log.Infof("Prepare undeploy module [ID: %s], [Name: %s]", in.Id, d.Name())
 
 	d.Undeploy()
-	delete(s.idDeployMap, in.ID)
+	delete(s.idDeployMap, in.Id)
 	return nil
 }
 

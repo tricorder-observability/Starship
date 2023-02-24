@@ -64,11 +64,11 @@ func mockDeployReqs() ([]*pb.DeployModuleReq, error) {
 	return []*pb.DeployModuleReq{
 		{},
 		{
-			ID:   "mock_empty_ebpf_code-1",
+			Id:   "mock_empty_ebpf_code-1",
 			Name: "mock_empty_ebpf_code",
 		},
 		{
-			ID:             "mock_test_deploy_module_req-1",
+			Id:             "mock_test_deploy_module_req-1",
 			Name:           "mock_test_deploy_module_req",
 			LifeTimeSecond: 0,
 			Module: &module.Module{
@@ -105,7 +105,7 @@ func mockDeployReqs() ([]*pb.DeployModuleReq, error) {
 			Deploy: pb.DeployModuleReq_DEPLOY,
 		},
 		{
-			ID:     "mock_test_deploy_module_req-1",
+			Id:     "mock_test_deploy_module_req-1",
 			Name:   "mock_test_deploy_module_req",
 			Deploy: pb.DeployModuleReq_UNDEPLOY,
 		},

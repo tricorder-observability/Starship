@@ -116,7 +116,7 @@ func (s *Deployer) DeployModule(stream pb.ModuleDeployer_DeployModuleServer) err
 			}
 
 			codeReq := pb.DeployModuleReq{
-				ID:   code.ID,
+				Id:   code.ID,
 				Name: code.Name,
 				Module: &modulepb.Module{
 					Ebpf: ebpf,

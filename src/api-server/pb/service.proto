@@ -59,7 +59,7 @@ enum DeploymentState {
 
 message DeployModuleReq {
   // A unique ID assigned to the module
-  string ID = 1;
+  string id = 1;
 
   // A descriptive name
   string name = 2;

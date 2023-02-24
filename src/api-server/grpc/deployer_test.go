@@ -61,7 +61,7 @@ func TestService(t *testing.T) {
 		}
 
 		fmt.Printf("Received request to deploy module: %v", in)
-		assert.Equal(t, codeID, in.ID)
+		assert.Equal(t, codeID, in.Id)
 		_ = os.RemoveAll(testDbFilePath)
 	})
 	_ = os.RemoveAll(testDir + "/tricorder.db")
