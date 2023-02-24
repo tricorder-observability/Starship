@@ -20,7 +20,6 @@ import (
 	"fmt"
 	"net"
 
-	"github.com/pkg/errors"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
 	"k8s.io/client-go/kubernetes"
@@ -32,6 +31,7 @@ import (
 	"github.com/tricorder/src/api-server/http/docs"
 	"github.com/tricorder/src/api-server/meta"
 	pb "github.com/tricorder/src/api-server/pb"
+	"github.com/tricorder/src/utils/errors"
 	"github.com/tricorder/src/utils/log"
 	"github.com/tricorder/src/utils/pg"
 	"github.com/tricorder/src/utils/retry"
@@ -166,7 +166,7 @@ func startAgentServerSide(port int, c dao.Module, pgClient *pg.Client, clientset
 
 	grpcLis, err := net.Listen("tcp", addr)
 	if err != nil {
-		return errors.Wrapf(err, "Failed to start listening on gRPC address %s", addr)
+		return errors.Wrap("starting gRPC server", "listen tcp at "+addr, err)
 	}
 
 	grpcServer := grpc.NewServer()
@@ -177,7 +177,7 @@ func startAgentServerSide(port int, c dao.Module, pgClient *pg.Client, clientset
 	err = grpcServer.Serve(grpcLis)
 
 	if err != nil {
-		return errors.Wrap(err, "start grpc server")
+		return errors.Wrap("starting gRPC server", "serve gRPC listener", err)
 	}
 	return nil
 }
