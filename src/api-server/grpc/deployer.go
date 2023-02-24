@@ -56,6 +56,10 @@ func (s *Deployer) DeployModule(stream pb.ModuleDeployer_DeployModuleServer) err
 	eg.Go(func() error {
 		for {
 			result, err := stream.Recv()
+			if err == io.EOF {
+				log.Warnf("Agent closed connection, this should only happens during testing; stopping ...")
+				return nil
+			}
 			if err != nil {
 				log.Errorf("receive agent result error:%s", err.Error())
 				return err

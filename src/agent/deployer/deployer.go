@@ -19,6 +19,7 @@ package deployer
 import (
 	"context"
 	"fmt"
+	"io"
 
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
@@ -102,6 +103,10 @@ func (s *Deployer) StartModuleDeployLoop() error {
 	eg.Go(func() error {
 		for {
 			in, err := s.stream.Recv()
+			if err == io.EOF {
+				log.Warnf("Agent closed connection, this should only happens during testing; stopping ...")
+				return nil
+			}
 			if err != nil {
 				log.Fatalf("failed to read stream from DeplyModule(), error: %v", err)
 			}
