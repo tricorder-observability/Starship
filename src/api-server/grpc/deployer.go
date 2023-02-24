@@ -54,6 +54,8 @@ func (s *Deployer) DeployModule(stream pb.ModuleDeployer_DeployModuleServer) err
 	log.Infof("Agent '%s' connected, starting module management loop ...", in.AgentId)
 
 	var eg errgroup.Group
+
+	// Create a goroutine to check the response from the connected agent.
 	eg.Go(func() error {
 		for {
 			result, err := stream.Recv()
@@ -74,6 +76,7 @@ func (s *Deployer) DeployModule(stream pb.ModuleDeployer_DeployModuleServer) err
 	})
 
 	for {
+		// TODO(yzhao): This should be moved into gRPC side, not in utils.
 		message := channel.ReceiveMessage()
 		if message.Status != int(pb.DeploymentState_TO_BE_DEPLOYED) {
 			continue
