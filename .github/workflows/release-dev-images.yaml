@@ -1,21 +1,17 @@
-name: release-dev-images
+name: Release DEV images
 
 on:
-  workflow_run:
-    workflows: [Bazel build and test]
-    types:
-      - completed
   push:
     branches:
       - main
 # no dependencies between jobs, so we can save time by building in concurrency
 # refs: https://docs.github.com/en/actions/using-jobs/using-concurrency
 concurrency:
-  group: starship-${{ github.event.pull_request.number || github.ref }}
+  group: starship-${{ github.ref }}
   cancel-in-progress: true
 
 env:
-  REGISTRY_SERVER_ADDRESS: ghcr.io/${{ github.repository_owner }}
+  REGISTRY: ghcr.io/${{ github.repository_owner }}
   REGISTRY_USER_NAME: ${{ github.repository_owner }}
   REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
 
@@ -39,7 +35,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - uses: bazelbuild/setup-bazelisk@v2
       - name: Build and push starship api-server image
-        run: bazel run --define=TAG=${TAG} --define=REGISTRY=${REGISTRY_SERVER_ADDRESS} //src/api-server/cmd:push_api-server_image
+        run: bazel run --define=TAG=${TAG} --define=REGISTRY=${REGISTRY} //src/api-server/cmd:push_api-server_image
         working-directory: .
 
   build-agent-and-push-images:
@@ -61,7 +57,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - uses: bazelbuild/setup-bazelisk@v2
       - name: Build and push starship agent image
-        run: bazel run --define=TAG=${TAG} --sandbox_debug --define=REGISTRY=${REGISTRY_SERVER_ADDRESS} //src/agent/cmd:push_agent_image
+        run: bazel run --define=TAG=${TAG} --sandbox_debug --define=REGISTRY=${REGISTRY} //src/agent/cmd:push_agent_image
         working-directory: .
 
   build-ui-and-push-images:
@@ -99,4 +95,4 @@ jobs:
           push: true
           file: ./ui/docker/Dockerfile
           context: ./ui
-          tags: ${{ env.REGISTRY_SERVER_ADDRESS }}/mgmt-ui:${{ env.TAG }}
+          tags: ${{ env.REGISTRY }}/mgmt-ui:${{ env.TAG }}
