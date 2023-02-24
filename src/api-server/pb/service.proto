@@ -81,22 +81,31 @@ message DeployModuleReq {
   }
 }
 
+// Uniquely identifies an agent that connect with API Server.
+message Agent {
+  // A uuid assigned to the running agent process.
+  string id = 1;
+
+  // The ID of the running Agent Pod.
+  string pod_id = 2;
+
+  // The name of the pod that runs this agent.
+  string node_name = 3;
+}
+
 message DeployModuleResp {
   // The ID of the module being deployed.
   string module_id = 1;
 
-  // The ID of the agent's pod.
-  string agent_pod_id = 2;
-
-  // The ID of the agent.
-  string agent_id = 3;
+  // This field is set only in the first message sent from agent to API Server.
+  Agent agent = 2;
 
   // The actual state of the deployment.
-  DeploymentState state = 4;
+  DeploymentState state = 3;
 
   // A description for the receiver to figure out what's going on.  It could be
   // an explanation of the status, or other error situations.
-  string desc = 5;
+  string desc = 4;
 }
 
 // TODO(yzhao): Also need undeploy req.

@@ -34,8 +34,16 @@ import (
 	wasmpb "github.com/tricorder/src/pb/module/wasm"
 )
 
+// Manages the deployment of eBPF+WASM modules
 type Deployer struct {
+	// The DAO object that proxies with SQLite for writing and reading the serialized data.
 	Module dao.Module
+
+	// The list of agents connected with this Deployer.
+	//
+	// Each agent and this Deployer maintains a gRPC streaming channel with DeployModuleReq & DeployModuleResp
+	// flow back-and-forth.
+	agents []*pb.Agent
 }
 
 // DeployModule implements the only RPC of the ModuleDeployer service.
@@ -51,7 +59,9 @@ func (s *Deployer) DeployModule(stream pb.ModuleDeployer_DeployModuleServer) err
 		return errors.Wrap("handling DeployModule", "receive message", err)
 	}
 
-	log.Infof("Agent '%s' connected, starting module management loop ...", in.AgentId)
+	log.Infof("Agent '%s' connected, starting module management loop ...", in.Agent.Id)
+
+	s.agents = append(s.agents, in.Agent)
 
 	var eg errgroup.Group
 
