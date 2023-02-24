@@ -19,6 +19,7 @@ go_library(
         "//src/utils/errors",
         "//src/utils/grpcerr",
         "//src/utils/log",
+        "//src/utils/pb",
         "//src/utils/pg",
         "//src/utils/retry",
         "@io_k8s_api//core/v1:core",
