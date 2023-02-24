@@ -142,7 +142,7 @@ func (s *Deployer) DeployModule(stream servicepb.ModuleDeployer_DeployModuleServ
 			codeReq, err := getDeployReqForModule(&code)
 			if err != nil {
 				log.Fatalf("Failed to create DeployModuleReq for module ID=%s, this should not happen, "+
-					"as module creation should validate module, error: %v", err)
+					"as module creation should validate module, error: %v", code.ID, err)
 				return err
 			}
 
