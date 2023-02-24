@@ -34,7 +34,7 @@ var (
 	apiServerAddr = flag.String(
 		"module_deployer_address",
 		"localhost:50051",
-		"The address of API Server's ModuleDeployer and ProcessCollector service",
+		"The grpc address of API Server's ModuleDeployer and ProcessCollector service",
 	)
 	modulePGURL = flag.String("pg_url", "postgresql://postgres:password@localhost", "The URL to PostgreSQL instance")
 	// The default value is incompatible with the container environment, which mounts the host's `/` to `/host` inside
