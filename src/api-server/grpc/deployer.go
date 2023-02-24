@@ -26,7 +26,7 @@ import (
 	pbutils "github.com/tricorder/src/utils/pb"
 
 	"github.com/tricorder/src/api-server/dao"
-	"github.com/tricorder/src/api-server/pb"
+	servicepb "github.com/tricorder/src/api-server/pb"
 	"github.com/tricorder/src/api-server/utils/channel"
 	modulepb "github.com/tricorder/src/pb/module"
 	"github.com/tricorder/src/pb/module/common"
@@ -43,10 +43,10 @@ type Deployer struct {
 	//
 	// Each agent and this Deployer maintains a gRPC streaming channel with DeployModuleReq & DeployModuleResp
 	// flow back-and-forth.
-	agents []*pb.Agent
+	agents []*servicepb.Agent
 }
 
-func getDeployReqForModule(code *dao.ModuleGORM) (*pb.DeployModuleReq, error) {
+func getDeployReqForModule(code *dao.ModuleGORM) (*servicepb.DeployModuleReq, error) {
 	var probeSpecs []*ebpfpb.ProbeSpec
 	if len(code.EbpfProbes) > 0 {
 		err := json.Unmarshal([]byte(code.EbpfProbes), &probeSpecs)
@@ -82,20 +82,20 @@ func getDeployReqForModule(code *dao.ModuleGORM) (*pb.DeployModuleReq, error) {
 		Code: code.Wasm,
 	}
 
-	codeReq := pb.DeployModuleReq{
+	codeReq := servicepb.DeployModuleReq{
 		ModuleId: code.ID,
 		Module: &modulepb.Module{
 			Ebpf: ebpf,
 			Wasm: wasm,
 		},
-		Deploy: pb.DeployModuleReq_DEPLOY,
+		Deploy: servicepb.DeployModuleReq_DEPLOY,
 	}
 	return &codeReq, nil
 }
 
 // DeployModule implements the only RPC of the ModuleDeployer service.
 // It continuously sends deployment request to the connected agent (as client).
-func (s *Deployer) DeployModule(stream pb.ModuleDeployer_DeployModuleServer) error {
+func (s *Deployer) DeployModule(stream servicepb.ModuleDeployer_DeployModuleServer) error {
 	// The first message is sent from the client, but the remaining loops are driven by the server.
 	// The server will send deploy module request for this client to work on.
 	in, err := stream.Recv()
@@ -134,10 +134,10 @@ func (s *Deployer) DeployModule(stream pb.ModuleDeployer_DeployModuleServer) err
 
 	for {
 		message := channel.ReceiveMessage()
-		if message.Status != int(pb.DeploymentState_TO_BE_DEPLOYED) {
+		if message.Status != int(servicepb.DeploymentState_TO_BE_DEPLOYED) {
 			continue
 		}
-		undeployList, _ := s.Module.ListCodeByStatus(int(pb.DeploymentState_TO_BE_DEPLOYED))
+		undeployList, _ := s.Module.ListCodeByStatus(int(servicepb.DeploymentState_TO_BE_DEPLOYED))
 		for _, code := range undeployList {
 			codeReq, err := getDeployReqForModule(&code)
 			if err != nil {
@@ -154,7 +154,7 @@ func (s *Deployer) DeployModule(stream pb.ModuleDeployer_DeployModuleServer) err
 
 			// TODO(yzhao): This should set the state to PENDING, or something indicating the request is sent.
 			// Probably should update the IN_PROGRESS state in module_instance table.
-			err = s.Module.UpdateStatusByID(code.ID, int(pb.DeploymentState_DEPLOYMENT_SUCCEEDED))
+			err = s.Module.UpdateStatusByID(code.ID, int(servicepb.DeploymentState_DEPLOYMENT_SUCCEEDED))
 			if err != nil {
 				log.Errorf("Failed to update module (ID=%s) state, error: %v", code.ID, err)
 			}
