@@ -86,7 +86,6 @@ func (s *Deployer) DeployModule(stream pb.ModuleDeployer_DeployModuleServer) err
 	})
 
 	for {
-		// TODO(yzhao): This should be moved into gRPC side, not in utils.
 		message := channel.ReceiveMessage()
 		if message.Status != int(pb.DeploymentState_TO_BE_DEPLOYED) {
 			continue
