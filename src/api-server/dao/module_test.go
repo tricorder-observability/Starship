@@ -53,7 +53,7 @@ func TestModule(t *testing.T) {
 	id := strings.Replace(uuid.New(), "-", "_", -1)
 	code := &ModuleGORM{
 		ID:                 id,
-		Status:             int(pb.DeploymentStatus_CREATED),
+		Status:             int(pb.DeploymentState_CREATED),
 		Name:               "TestCode",
 		Wasm:               []byte("WasmUid"),
 		CreateTime:         time.Now().Format("2006-01-02 15:04:05"),
@@ -95,12 +95,12 @@ func TestModule(t *testing.T) {
 	}
 
 	// test code.Status
-	if code.Status != int(pb.DeploymentStatus_CREATED) {
-		t.Errorf("query code status error, code.Status != DeploymentStatus_CREATED ")
+	if code.Status != int(pb.DeploymentState_CREATED) {
+		t.Errorf("query code status error, code.Status != DeploymentState_CREATED ")
 	}
 
 	// test update code status
-	err = codeDao.UpdateStatusByID(code.ID, int(pb.DeploymentStatus_TO_BE_DEPLOYED))
+	err = codeDao.UpdateStatusByID(code.ID, int(pb.DeploymentState_TO_BE_DEPLOYED))
 	if err != nil {
 		t.Errorf("change code status error: %v", err)
 	}
@@ -109,7 +109,7 @@ func TestModule(t *testing.T) {
 		t.Errorf("query code by ID error: %v", err)
 	}
 	// check code status
-	if code.Status != int(pb.DeploymentStatus_TO_BE_DEPLOYED) {
+	if code.Status != int(pb.DeploymentState_TO_BE_DEPLOYED) {
 		t.Errorf("change code status by ID error: not change code status")
 	}
 	// get code list *

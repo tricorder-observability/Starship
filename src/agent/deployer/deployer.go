@@ -177,11 +177,11 @@ func (s *Deployer) undeployModlue(in *pb.DeployModuleReq) error {
 // createDeployModuleResp returns a response message to describe the results of a module deployment operation.
 func createDeployModuleResp(id string, err error) *pb.DeployModuleResp {
 	resp := pb.DeployModuleResp{
-		ID:     id,
-		Status: pb.DeploymentStatus_DEPLOYMENT_SUCCEEDED,
+		ID:    id,
+		State: pb.DeploymentState_DEPLOYMENT_SUCCEEDED,
 	}
 	if err != nil {
-		resp.Status = pb.DeploymentStatus_DEPLOYMENT_FAILED
+		resp.State = pb.DeploymentState_DEPLOYMENT_FAILED
 		resp.Desc = err.Error()
 	}
 	return &resp

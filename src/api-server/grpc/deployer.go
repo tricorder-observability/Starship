@@ -66,7 +66,7 @@ func (s *Deployer) DeployModule(stream pb.ModuleDeployer_DeployModuleServer) err
 			}
 			// Need to be able to correctly account which nodes are deployed, and which are
 			// not deployed. TODO(yzhao & zhihui): Chat about the design.
-			err = s.Module.UpdateStatusByID(result.ID, int(result.Status))
+			err = s.Module.UpdateStatusByID(result.ID, int(result.State))
 			if err != nil {
 				log.Errorf("update code status error:%s", err.Error())
 			}
@@ -75,10 +75,10 @@ func (s *Deployer) DeployModule(stream pb.ModuleDeployer_DeployModuleServer) err
 
 	for {
 		message := channel.ReceiveMessage()
-		if message.Status != int(pb.DeploymentStatus_TO_BE_DEPLOYED) {
+		if message.Status != int(pb.DeploymentState_TO_BE_DEPLOYED) {
 			continue
 		}
-		undeployList, _ := s.Module.ListCodeByStatus(int(pb.DeploymentStatus_TO_BE_DEPLOYED))
+		undeployList, _ := s.Module.ListCodeByStatus(int(pb.DeploymentState_TO_BE_DEPLOYED))
 		for _, code := range undeployList {
 			var probeSpecs []*ebpfpb.ProbeSpec
 			if len(code.EbpfProbes) > 0 {
@@ -132,12 +132,12 @@ func (s *Deployer) DeployModule(stream pb.ModuleDeployer_DeployModuleServer) err
 				// should be write into the sqlite database.instead of a logging message.
 				log.Errorf("Deploy: [%s] failed: %s", code.Name, err.Error())
 
-				err = s.Module.UpdateStatusByID(code.ID, int(pb.DeploymentStatus_DEPLOYMENT_FAILED))
+				err = s.Module.UpdateStatusByID(code.ID, int(pb.DeploymentState_DEPLOYMENT_FAILED))
 				if err != nil {
 					log.Errorf("update code status error:%s", err.Error())
 				}
 			} else {
-				err = s.Module.UpdateStatusByID(code.ID, int(pb.DeploymentStatus_DEPLOYMENT_SUCCEEDED))
+				err = s.Module.UpdateStatusByID(code.ID, int(pb.DeploymentState_DEPLOYMENT_SUCCEEDED))
 				if err != nil {
 					log.Errorf("update code status error:%s", err.Error())
 				}

@@ -21,7 +21,7 @@ service ModuleDeployer {
 }
 
 // Describe a modules's deployment status
-enum DeploymentStatus {
+enum DeploymentState {
     // Module is created. Has not been instructed to be deployed.
     // This is the initial state after creating the module.
     CREATED      = 0;
@@ -88,12 +88,14 @@ message DeployModuleResp {
   // The same ID as in DeployModuleReq.
   string ID = 1;
 
-  // The actual status of the deployment.
-  // NOTE: Not all of the status enum makes sense for this context.
-  DeploymentStatus status = 2;
+  // The actual state of the deployment.
+  // NOTE: Not all of the status enum makes sense in this message, as some of
+  // them does not reflect a possible on the agent's side.
+  DeploymentState state = 2;
 
-  // A description that is useful for the receiver to figure out what's going on.
-  // It could be an explanation of the status, or other error situations.
+  // A description for the receiver to figure out what's going on.
+  // It could be an explanation of the status, or the causes of failure or
+  // error.
   string desc = 3;
 }
 

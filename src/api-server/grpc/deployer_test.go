@@ -126,7 +126,7 @@ func newGRPCClient(t *testing.T, addr string) *grpcClient {
 
 	message := channel.DeployChannelModule{
 		ID:     "moduleID",
-		Status: int(pb.DeploymentStatus_TO_BE_DEPLOYED),
+		Status: int(pb.DeploymentState_TO_BE_DEPLOYED),
 	}
 	channel.SendMessage(message)
 	return &grpcClient{

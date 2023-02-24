@@ -87,7 +87,7 @@ func (mgr *ModuleManager) createModule(c *gin.Context) {
 		ID:                 strings.Replace(uuid.New(), "-", "_", -1),
 		Name:               body.Name,
 		CreateTime:         time.Now().Format("2006-01-02 15:04:05"),
-		Status:             int(pb.DeploymentStatus_CREATED),
+		Status:             int(pb.DeploymentState_CREATED),
 		Ebpf:               body.Ebpf.Code,
 		EbpfFmt:            int(body.Ebpf.Fmt),
 		EbpfLang:           int(body.Ebpf.Lang),
@@ -220,7 +220,7 @@ func (mgr *ModuleManager) undeployCode(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"code": "500", "message": "id cannot be empty"})
 		return
 	}
-	err := mgr.Module.UpdateStatusByID(id, int(pb.DeploymentStatus_TO_BE_UNDEPLOYED))
+	err := mgr.Module.UpdateStatusByID(id, int(pb.DeploymentState_TO_BE_UNDEPLOYED))
 	if err != nil {
 		log.Errorf("pre-undeploy code: [%s] failed: %s", id, err.Error())
 		c.JSON(http.StatusOK, gin.H{"code": "500", "message": "undeploy error: " + err.Error()})
@@ -278,7 +278,7 @@ func (mgr *ModuleManager) createGrafanaDashboard(moduleID string) (string, error
 		return "", err
 	}
 
-	err = mgr.Module.UpdateStatusByID(moduleID, int(pb.DeploymentStatus_TO_BE_DEPLOYED))
+	err = mgr.Module.UpdateStatusByID(moduleID, int(pb.DeploymentState_TO_BE_DEPLOYED))
 	if err != nil {
 		log.Errorf("pre-deploy code: [%s] failed: %s", moduleID, err.Error())
 		return "", err
@@ -286,7 +286,7 @@ func (mgr *ModuleManager) createGrafanaDashboard(moduleID string) (string, error
 
 	message := channel.DeployChannelModule{
 		ID:     moduleID,
-		Status: int(pb.DeploymentStatus_TO_BE_DEPLOYED),
+		Status: int(pb.DeploymentState_TO_BE_DEPLOYED),
 	}
 	channel.SendMessage(message)
 

@@ -26,7 +26,7 @@ import (
 func TestChannelDeployModule(t *testing.T) {
 	message := DeployChannelModule{
 		ID:     "moduleID",
-		Status: int(pb.DeploymentStatus_TO_BE_DEPLOYED),
+		Status: int(pb.DeploymentState_TO_BE_DEPLOYED),
 	}
 
 	SendMessage(message)

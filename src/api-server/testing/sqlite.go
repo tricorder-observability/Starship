@@ -45,7 +45,7 @@ func PrepareTricorderDBData(codeID string, codeDao dao.Module) {
 		Ebpf:               ebpfJson,
 		Wasm:               []byte("codeString"),
 		CreateTime:         time.Date(2022, 12, 31, 14, 30, 0, 0, time.Local).Format("2006-01-02 15:04:05"),
-		Status:             int(pb.DeploymentStatus_TO_BE_DEPLOYED),
+		Status:             int(pb.DeploymentState_TO_BE_DEPLOYED),
 		Name:               "test-code-foo",
 		EbpfFmt:            0,
 		EbpfLang:           0,
