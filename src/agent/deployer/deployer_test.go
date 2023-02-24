@@ -64,13 +64,11 @@ func mockDeployReqs() ([]*pb.DeployModuleReq, error) {
 	return []*pb.DeployModuleReq{
 		{},
 		{
-			Id:   "mock_empty_ebpf_code-1",
-			Name: "mock_empty_ebpf_code",
+			ModuleId: "mock_empty_ebpf_code-1",
 		},
 		{
-			Id:             "mock_test_deploy_module_req-1",
-			Name:           "mock_test_deploy_module_req",
-			LifeTimeSecond: 0,
+			ModuleId:        "mock_test_deploy_module_req-1",
+			LifeTimeSeconds: 0,
 			Module: &module.Module{
 				Ebpf: &ebpf.Program{
 					Fmt:            common.Format_TEXT,
@@ -105,9 +103,8 @@ func mockDeployReqs() ([]*pb.DeployModuleReq, error) {
 			Deploy: pb.DeployModuleReq_DEPLOY,
 		},
 		{
-			Id:     "mock_test_deploy_module_req-1",
-			Name:   "mock_test_deploy_module_req",
-			Deploy: pb.DeployModuleReq_UNDEPLOY,
+			ModuleId: "mock_test_deploy_module_req-1",
+			Deploy:   pb.DeployModuleReq_UNDEPLOY,
 		},
 	}, nil
 }

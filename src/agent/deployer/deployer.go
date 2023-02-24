@@ -123,25 +123,25 @@ func (s *Deployer) StartModuleDeployLoop() error {
 				return nil
 			}
 			if err != nil {
-				log.Fatalf("failed to read stream from DeplyModule(), error: %v", err)
+				log.Fatalf("Failed to read stream from DeplyModule(), error: %v", err)
 			}
 
-			log.Infof("received request to deploy module. ID: [%s], Name: [%s]", in.Id, in.Name)
-			log.Debugf("received request to deploy module: %v", in)
+			log.Infof("Received request to deploy module. ID=%s", in.ModuleId)
+			log.Debugf("Received request to deploy module: %v", in)
 
 			if in.Deploy == pb.DeployModuleReq_DEPLOY {
 				err := s.deployModule(in)
-				resp := createDeployModuleResp(in.Id, err)
+				resp := createDeployModuleResp(in.ModuleId, err)
 				err = s.sendResp(resp)
 				if grpcerr.IsUnavailable(err) {
-					log.Fatalf("streaming connection with api-server is broken, error: %v", err)
+					log.Fatalf("Streaming connection with api-server is broken, error: %v", err)
 				}
 			} else if in.Deploy == pb.DeployModuleReq_UNDEPLOY {
 				err := s.undeployModlue(in)
-				resp := createDeployModuleResp(in.Id, err)
+				resp := createDeployModuleResp(in.ModuleId, err)
 				err = s.sendResp(resp)
 				if grpcerr.IsUnavailable(err) {
-					log.Fatalf("streaming connection with api-server is broken, error: %v", err)
+					log.Fatalf("Streaming connection with api-server is broken, error: %v", err)
 				}
 			}
 		}
@@ -152,23 +152,23 @@ func (s *Deployer) StartModuleDeployLoop() error {
 func (s *Deployer) Stop() {
 	err := s.stream.CloseSend()
 	if err != nil {
-		log.Errorf("failed to Close stream, error: %v", err)
+		log.Errorf("Failed to Close stream, error: %v", err)
 	}
 	s.grpcConn.Close()
 }
 
 func (s *Deployer) deployModule(in *pb.DeployModuleReq) error {
-	if _, found := s.idDeployMap[in.Id]; found {
-		log.Warnf("Module '%s' was already deployed, skip ...", in.Id)
+	if _, found := s.idDeployMap[in.ModuleId]; found {
+		log.Warnf("Module '%s' was already deployed, skip ...", in.ModuleId)
 		// TODO(yzhao): Might consider returning an error value to distinguish from other errors.
 		return nil
 	}
 	// deployer create a deployment and driver will start this deploys logical
 	deployment, err := driver.Deploy(in.Module, s.PGClient)
 	if err != nil {
-		return fmt.Errorf("while deploying module '%s', failed to deploy, error: %v", in.Id, err)
+		return fmt.Errorf("while deploying module '%s', failed to deploy, error: %v", in.ModuleId, err)
 	}
-	s.idDeployMap[in.Id] = deployment
+	s.idDeployMap[in.ModuleId] = deployment
 
 	// This will start a loop to continuously polling perf buffer and feeding data to WASM.
 	// And then write them into database.
@@ -177,15 +177,15 @@ func (s *Deployer) deployModule(in *pb.DeployModuleReq) error {
 }
 
 func (s *Deployer) undeployModlue(in *pb.DeployModuleReq) error {
-	d, ok := s.idDeployMap[in.Id]
+	d, ok := s.idDeployMap[in.ModuleId]
 	if !ok {
-		return fmt.Errorf("while undeploying module ID '%s', could not find deployment record", in.Id)
+		return fmt.Errorf("while undeploying module ID '%s', could not find deployment record", in.ModuleId)
 	}
 
-	log.Infof("Prepare undeploy module [ID: %s], [Name: %s]", in.Id, d.Name())
+	log.Infof("Prepare undeploy module [ID: %s], [Name: %s]", in.ModuleId, d.Name())
 
 	d.Undeploy()
-	delete(s.idDeployMap, in.Id)
+	delete(s.idDeployMap, in.ModuleId)
 	return nil
 }
 

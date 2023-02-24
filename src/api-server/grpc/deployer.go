@@ -116,8 +116,7 @@ func (s *Deployer) DeployModule(stream pb.ModuleDeployer_DeployModuleServer) err
 			}
 
 			codeReq := pb.DeployModuleReq{
-				Id:   code.ID,
-				Name: code.Name,
+				ModuleId: code.ID,
 				Module: &modulepb.Module{
 					Ebpf: ebpf,
 					Wasm: wasm,
@@ -125,7 +124,6 @@ func (s *Deployer) DeployModule(stream pb.ModuleDeployer_DeployModuleServer) err
 				Deploy: pb.DeployModuleReq_DEPLOY,
 			}
 
-			log.Infof("Sending module deployment request to API Server: %s", codeReq.Name)
 			err = stream.Send(&codeReq)
 			if err != nil {
 				// TODO(jian): The failure reason recorded in the err,
