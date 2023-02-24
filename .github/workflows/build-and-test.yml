@@ -160,9 +160,6 @@ jobs:
         shell: bash
 
   build-api-server-images:
-    concurrency:
-      group: ${{ github.ref }}
-      cancel-in-progress: true
     runs-on: ubuntu-latest
     container:
       image: public.ecr.aws/tricorder/ci_image:202302140538
@@ -181,9 +178,6 @@ jobs:
         working-directory: .
   
   build-agent-images:
-    concurrency:
-      group: ${{ github.ref }}
-      cancel-in-progress: true
     runs-on: ubuntu-latest
     container:
       image: public.ecr.aws/tricorder/ci_image:202302140538
@@ -199,9 +193,6 @@ jobs:
         working-directory: .
 
   build-ui-images:
-    concurrency:
-      group: ${{ github.ref }}
-      cancel-in-progress: true
     runs-on: ubuntu-latest
     container:
       image: public.ecr.aws/tricorder/ci_image:202302140538
