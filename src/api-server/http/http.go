@@ -68,11 +68,11 @@ func StartHTTPService(cfg Config, pgClient *pg.Client) {
 	// TODO: Use swagger to define these APIs.
 	api := router.Group(fmt.Sprintf("/%s", http_utils.API_ROOT))
 	{
-		api.POST(fmt.Sprintf("/%s", http_utils.ADD_CODE), cm.createModule)
-		api.GET(fmt.Sprintf("/%s", http_utils.DELETE_MODULE), cm.deleteCode)
-		api.GET(fmt.Sprintf("/%s", http_utils.LIST_CODE), cm.listCode)
-		api.POST(fmt.Sprintf("/%s", http_utils.DEPLOY), cm.deployCode)
-		api.POST(fmt.Sprintf("/%s", http_utils.UN_DEPLOY), cm.undeployCode)
+		api.POST(fmt.Sprintf("/%s", http_utils.ADD_CODE), cm.createModuleHttp)
+		api.GET(fmt.Sprintf("/%s", http_utils.DELETE_MODULE), cm.deleteCodeHttp)
+		api.GET(fmt.Sprintf("/%s", http_utils.LIST_CODE), cm.listCodeHttp)
+		api.POST(fmt.Sprintf("/%s", http_utils.DEPLOY), cm.deployCodeHttp)
+		api.POST(fmt.Sprintf("/%s", http_utils.UN_DEPLOY), cm.undeployCodeHttp)
 	}
 
 	router.GET("/swagger/*any", ginswag.WrapHandler(swagfiles.Handler))

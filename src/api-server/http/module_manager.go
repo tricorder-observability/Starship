@@ -30,8 +30,9 @@ import (
 	"github.com/tricorder/src/api-server/http/grafana"
 	pb "github.com/tricorder/src/api-server/pb"
 	"github.com/tricorder/src/api-server/utils/channel"
-	modulepb "github.com/tricorder/src/pb/module"
 	commonpb "github.com/tricorder/src/pb/module/common"
+	"github.com/tricorder/src/pb/module/ebpf"
+	"github.com/tricorder/src/pb/module/wasm"
 	"github.com/tricorder/src/utils/pg"
 	"github.com/tricorder/src/utils/uuid"
 )
@@ -44,17 +45,17 @@ type ModuleManager struct {
 	PGClient      *pg.Client
 }
 
-// ShowAccount godoc
-// @Summary      Add module
+// CreateModule  godoc
+// @Summary      Create module
 // @Description  Create Module
-// @Tags         accounts
+// @Tags         module
 // @Accept       json
 // @Produce      json
-// @Param			   module	body	module.Module	true	"Add module"
-// @Success      200  {object}  module.Module
+// @Param			   module	body	CreateModuleReq	true	"Create module"
+// @Success      200  {object}  CreateModuleResp
 // @Router       /api/addCode [post]
-func (mgr *ModuleManager) createModule(c *gin.Context) {
-	var body modulepb.Module
+func (mgr *ModuleManager) createModuleHttp(c *gin.Context) {
+	var body CreateModuleReq
 
 	err := c.ShouldBind(&body)
 	if err != nil {
@@ -63,24 +64,35 @@ func (mgr *ModuleManager) createModule(c *gin.Context) {
 		return
 	}
 
+	result := mgr.createModule(body)
+	c.JSON(http.StatusOK, result)
+}
+
+func (mgr *ModuleManager) createModule(body CreateModuleReq) CreateModuleResp {
 	m, _ := mgr.Module.QueryByName(body.Name)
 	if m != nil && len(m.Name) > 0 {
-		c.JSON(http.StatusOK, gin.H{"code": "500", "message": fmt.Sprintf("Name '%s' already exists", body.Name)})
-		return
+		return CreateModuleResp{HTTPResp{
+			Code:    500,
+			Message: fmt.Sprintf("Name '%s' already exists", body.Name),
+		}}
 	}
 
 	ebpfProbes, err := json.Marshal(body.Ebpf.Probes)
 	if err != nil {
 		log.Errorf("while creating module, failed to marshal ebpf probespecs, error: %v", err)
-		c.JSON(http.StatusOK, gin.H{"code": "500", "message": "request error: " + err.Error()})
-		return
+		return CreateModuleResp{HTTPResp{
+			Code:    500,
+			Message: "request error: " + err.Error(),
+		}}
 	}
 
 	schemaAttr, err := json.Marshal(body.Wasm.OutputSchema.Fields)
 	if err != nil {
 		log.Errorf("while creating module, failed to marshal wasm output fields, error: %v", err)
-		c.JSON(http.StatusOK, gin.H{"code": "500", "message": "request error: " + err.Error()})
-		return
+		return CreateModuleResp{HTTPResp{
+			Code:    500,
+			Message: "request error: " + err.Error(),
+		}}
 	}
 
 	mod := &dao.ModuleGORM{
@@ -105,28 +117,40 @@ func (mgr *ModuleManager) createModule(c *gin.Context) {
 	err = mgr.Module.SaveCode(mod)
 	if err != nil {
 		log.Errorf("save code module error: %v", err)
-		c.JSON(http.StatusOK, gin.H{"code": "500", "message": "Save code module error"})
-		return
+		return CreateModuleResp{HTTPResp{
+			Code:    500,
+			Message: "Save code module error",
+		}}
 	}
 
-	c.JSON(http.StatusOK, gin.H{"code": "200", "message": "create success, module id: " + mod.ID})
+	return CreateModuleResp{HTTPResp{
+		Code:    200,
+		Message: "create success, module id: " + mod.ID,
+	}}
 }
 
-// ShowAccount godoc
+// GetAllListModule godoc
 // @Summary      List all moudle
-// @Description  Create Module
-// @Tags         accounts
+// @Description  List all moudle
+// @Tags         module
 // @Accept       json
 // @Produce      json
 // @Param			   fields	 query	string	false  "query field search like 'id,name,createTime'"
-// @Success      200  {array}  module.Module
+// @Success      200  {object}  ListModuleResp
 // @Router       /api/listCode [get]
-func (mgr *ModuleManager) listCode(c *gin.Context) {
+func (mgr *ModuleManager) listCodeHttp(c *gin.Context) {
+	// ?fields=id,name,status
+	fields, _ := c.GetQuery("fields")
+
+	result := mgr.listCode(fields)
+	c.JSON(http.StatusOK, result)
+}
+
+func (mgr *ModuleManager) listCode(fields string) ListModuleResp {
 	var resultList []dao.ModuleGORM
 	var err error
-	// ?fields=id,name,status
-	fields, exist := c.GetQuery("fields")
-	if exist {
+
+	if len(fields) > 0 {
 		resultList, err = mgr.Module.ListCode(fields)
 	} else {
 		resultList, err = mgr.Module.ListCode()
@@ -134,36 +158,53 @@ func (mgr *ModuleManager) listCode(c *gin.Context) {
 
 	if err != nil {
 		log.Errorf("Failed to list code, error: %v", err)
-		c.JSON(http.StatusOK, gin.H{"code": "500", "message": "Query Error: " + err.Error()})
-		return
+		return ListModuleResp{HTTPResp{
+			Code:    500,
+			Message: "Query Error: " + err.Error(),
+		}, resultList}
 	}
-	c.JSON(http.StatusOK, gin.H{"code": "200", "message": "Success", "data": resultList})
+
+	return ListModuleResp{HTTPResp{
+		Code:    200,
+		Message: "Success",
+	}, resultList}
 }
 
-// ShowAccount godoc
-// @Summary      Delete module by id
-// @Description  Create Module
-// @Tags         accounts
+// DeleteModule  godoc
+// @Summary      Delete module
+// @Description  Delete Module by id
+// @Tags         module
 // @Accept       json
 // @Produce      json
 // @Param			   id	  query		  string	true	"delete module id"
-// @Success      200  {object}  module.Module
+// @Success      200  {object}   HTTPResp
 // @Router       /api/deleteCode [get]
-func (mgr *ModuleManager) deleteCode(c *gin.Context) {
+func (mgr *ModuleManager) deleteCodeHttp(c *gin.Context) {
 	id, exist := c.GetQuery("id")
 	if !exist {
 		c.JSON(http.StatusOK, gin.H{"code": "500", "message": "id does not exist"})
+		c.JSON(http.StatusOK, HTTPResp{
+			Code:    500,
+			Message: "id does not exist",
+		})
 		return
 	}
 	err := mgr.Module.DeleteByID(id)
 	if err != nil {
-		c.JSON(http.StatusOK, gin.H{"code": "500", "message": "delete error: " + err.Error()})
+		c.JSON(http.StatusOK, HTTPResp{
+			Code:    500,
+			Message: "delete error: " + err.Error(),
+		})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"code": "200", "message": "Success"})
+	c.JSON(http.StatusOK, HTTPResp{
+		Code:    200,
+		Message: "Success",
+	})
 }
 
+// ~/go/bin/swag init -g http.go -o src/api-server/http/docs -d src/api-server/http
 // ShowAccount godoc
 // @Summary      Deploy module
 // @Description  Create Module
@@ -171,62 +212,100 @@ func (mgr *ModuleManager) deleteCode(c *gin.Context) {
 // @Accept       json
 // @Produce      json
 // @Param			   id	  query		  string	true	"deploy module id"
-// @Success      200  {object}  module.Module
+// @Success      200  {object}  DeployModuleResp
 // @Router       /api/deployCode [post]
-func (mgr *ModuleManager) deployCode(c *gin.Context) {
+func (mgr *ModuleManager) deployCodeHttp(c *gin.Context) {
 	id, exist := c.GetQuery("id")
 	if !exist {
 		c.JSON(http.StatusOK, gin.H{"code": "500", "message": "id cannot be empty"})
 		return
 	}
+	result := mgr.deployCode(id)
+	c.JSON(http.StatusOK, result)
+}
+
+func (mgr *ModuleManager) deployCode(id string) DeployModuleResp {
 	// Check whether the code exists
 	code, err := mgr.Module.QueryByID(id)
 	if err != nil {
-		c.JSON(http.StatusOK, gin.H{"code": "500", "message": "module does not exist"})
-		return
+		return DeployModuleResp{
+			HTTPResp{
+				Code:    500,
+				Message: "module does not exist",
+			},
+			id,
+		}
 	}
 
 	err = mgr.createPGTable(code)
 	if err != nil {
 		log.Error("Failed to create PG table")
-		c.JSON(http.StatusOK, gin.H{"code": "500", "message": "create schema error: " + err.Error()})
-		return
+		return DeployModuleResp{
+			HTTPResp{
+				Code:    500,
+				Message: "create schema error: " + err.Error(),
+			},
+			id,
+		}
 	}
 	log.Info("Created postgres table")
 
 	uid, err := mgr.createGrafanaDashboard(code.ID)
 	if err != nil {
 		log.Error("Failed to create Grafana dashboard")
-		c.JSON(http.StatusOK, gin.H{"code": "500", "message": "create dashboard error"})
-		return
+
+		return DeployModuleResp{
+			HTTPResp{
+				Code:    500,
+				Message: "create dashboard error",
+			},
+			id,
+		}
 	}
+
 	log.Infof("Created Grafana dashboard with UID: %s", uid)
 
-	c.JSON(http.StatusOK, gin.H{"code": "200", "message": "prepare to deploy module, id: " + id})
+	return DeployModuleResp{
+		HTTPResp{
+			Code:    200,
+			Message: "prepare to deploy module, id: " + id,
+		},
+		id,
+	}
 }
 
-// ShowAccount godoc
+// UndeployModule godoc
 // @Summary      Undeploy module
-// @Description  Create Module
-// @Tags         accounts
+// @Description  Undeploy Module By ID
+// @Tags         module
 // @Accept       json
 // @Produce      json
 // @Param			   id	  query		 string	 true	 "undeploy module id"
-// @Success      200  {object}  module.Module
+// @Success      200  {object}  HTTPResp
 // @Router       /api/undeployCode [post]
-func (mgr *ModuleManager) undeployCode(c *gin.Context) {
+func (mgr *ModuleManager) undeployCodeHttp(c *gin.Context) {
 	id, exist := c.GetQuery("id")
 	if !exist {
-		c.JSON(http.StatusOK, gin.H{"code": "500", "message": "id cannot be empty"})
+		c.JSON(http.StatusOK, HTTPResp{
+			Code:    500,
+			Message: "id cannot be empty",
+		})
 		return
 	}
 	err := mgr.Module.UpdateStatusByID(id, int(pb.DeploymentState_TO_BE_UNDEPLOYED))
 	if err != nil {
 		log.Errorf("pre-undeploy code: [%s] failed: %s", id, err.Error())
-		c.JSON(http.StatusOK, gin.H{"code": "500", "message": "undeploy error: " + err.Error()})
+		c.JSON(http.StatusOK, HTTPResp{
+			Code:    500,
+			Message: "undeploy error: " + err.Error(),
+		})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"code": "200", "message": "un-deploy success"})
+
+	c.JSON(http.StatusOK, HTTPResp{
+		Code:    200,
+		Message: "un-deploy success",
+	})
 }
 
 // Generate schema name tricorder_code_{moduleID}
@@ -291,4 +370,31 @@ func (mgr *ModuleManager) createGrafanaDashboard(moduleID string) (string, error
 	channel.SendMessage(message)
 
 	return result.UID, nil
+}
+
+type CreateModuleReq struct {
+	ID   string        `json:"id"`
+	Name string        `json:"name"`
+	Wasm *wasm.Program `json:"wasm"`
+	Ebpf *ebpf.Program `json:"ebpf"`
+}
+
+type HTTPResp struct {
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+	Success bool   `json:"success"`
+}
+
+type CreateModuleResp struct {
+	HTTPResp
+}
+
+type ListModuleResp struct {
+	HTTPResp
+	Data []dao.ModuleGORM `json:"data"`
+}
+
+type DeployModuleResp struct {
+	HTTPResp
+	UID string `json:"uid"`
 }
