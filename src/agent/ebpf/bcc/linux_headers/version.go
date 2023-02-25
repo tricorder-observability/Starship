@@ -40,6 +40,11 @@ func (v Version) code() uint32 {
 	return uint32(v.ver)<<16 + uint32(v.major)<<8 + uint32(v.minor)
 }
 
+func (v Version) code2() uint32 {
+	return uint32(v.ver)<<16 | uint32(v.major)<<8 | uint32(v.minor)
+
+}
+
 // semVerStr returns a semantic version string.
 func (v Version) semVerStr() string {
 	return fmt.Sprintf("%d.%d.%d", v.ver, v.major, v.minor)
