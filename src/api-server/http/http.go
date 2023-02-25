@@ -38,7 +38,7 @@ type Config struct {
 	GrafanaUserPass string
 	DatasourceName  string
 	DatasourceUID   string
-	Module          dao.Module
+	Module          dao.ModuleDao
 	GrafanaAPIKey   dao.GrafanaAPIKey
 }
 

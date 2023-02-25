@@ -45,7 +45,7 @@ func SetUpRouter() *gin.Engine {
 	// test.
 
 	sqliteClient, _ := dao.InitSqlite(testDbFilePath)
-	cm.Module = dao.Module{
+	cm.Module = dao.ModuleDao{
 		Client: sqliteClient,
 	}
 	grafanaAPIDao := dao.GrafanaAPIKey{
@@ -152,7 +152,7 @@ func AddModule(t *testing.T, wasmUid string, r *gin.Engine) string {
 	}
 	// check whether the name in the database is moduleName
 	assert.Equal(t, true, moduleName == moduleResult.Name)
-	assert.Equal(t, true, int(pb.DeploymentState_CREATED) == moduleResult.Status)
+	assert.Equal(t, true, int(pb.DeploymentState_CREATED) == moduleResult.DesiredState)
 	return moduleResult.ID
 }
 
@@ -187,7 +187,7 @@ func unDeployModule(t *testing.T, modulID string, r *gin.Engine) {
 	if err != nil {
 		t.Errorf("query module by id error:%v", err)
 	}
-	assert.Equal(t, int(pb.DeploymentState_TO_BE_UNDEPLOYED), resultModule.Status)
+	assert.Equal(t, int(pb.DeploymentState_TO_BE_UNDEPLOYED), resultModule.DesiredState)
 }
 
 func deployModule(t *testing.T, modulID string, r *gin.Engine) {
@@ -210,7 +210,7 @@ func deployModule(t *testing.T, modulID string, r *gin.Engine) {
 	if err != nil {
 		t.Errorf("query module by id error:%v", err)
 	}
-	assert.Equal(t, int(pb.DeploymentState_TO_BE_DEPLOYED), moduleResult.Status)
+	assert.Equal(t, int(pb.DeploymentState_TO_BE_DEPLOYED), moduleResult.DesiredState)
 
 	// check grafana dashboard create result
 	ds := grafana.NewDashboard()

@@ -40,7 +40,7 @@ import (
 // ModuleManager provides APIs to manage eBPF+WASM module received from the management Web UI.
 type ModuleManager struct {
 	DatasourceUID string
-	Module        dao.Module
+	Module        dao.ModuleDao
 	GrafanaClient GrafanaManagement
 	PGClient      *pg.Client
 }
@@ -99,7 +99,7 @@ func (mgr *ModuleManager) createModule(body CreateModuleReq) CreateModuleResp {
 		ID:                 strings.Replace(uuid.New(), "-", "_", -1),
 		Name:               body.Name,
 		CreateTime:         time.Now().Format("2006-01-02 15:04:05"),
-		Status:             int(pb.DeploymentState_CREATED),
+		DesiredState:       int(pb.DeploymentState_CREATED),
 		Ebpf:               body.Ebpf.Code,
 		EbpfFmt:            int(body.Ebpf.Fmt),
 		EbpfLang:           int(body.Ebpf.Lang),
@@ -114,7 +114,7 @@ func (mgr *ModuleManager) createModule(body CreateModuleReq) CreateModuleResp {
 
 	mod.SchemaName = fmt.Sprintf("%s_%s", "tricorder_code", mod.ID)
 
-	err = mgr.Module.SaveCode(mod)
+	err = mgr.Module.SaveModule(mod)
 	if err != nil {
 		log.Errorf("save code module error: %v", err)
 		return CreateModuleResp{HTTPResp{
@@ -151,9 +151,9 @@ func (mgr *ModuleManager) listCode(fields string) ListModuleResp {
 	var err error
 
 	if len(fields) > 0 {
-		resultList, err = mgr.Module.ListCode(fields)
+		resultList, err = mgr.Module.List(fields)
 	} else {
-		resultList, err = mgr.Module.ListCode()
+		resultList, err = mgr.Module.List()
 	}
 
 	if err != nil {

@@ -36,7 +36,7 @@ import (
 // Manages the deployment of eBPF+WASM modules
 type Deployer struct {
 	// The DAO object that proxies with SQLite for writing and reading the serialized data.
-	Module dao.Module
+	Module dao.ModuleDao
 
 	// The list of agents connected with this Deployer.
 	//
@@ -137,7 +137,7 @@ func (s *Deployer) DeployModule(stream servicepb.ModuleDeployer_DeployModuleServ
 		if message.Status != int(servicepb.DeploymentState_TO_BE_DEPLOYED) {
 			continue
 		}
-		undeployList, _ := s.Module.ListCodeByStatus(int(servicepb.DeploymentState_TO_BE_DEPLOYED))
+		undeployList, _ := s.Module.ListByStatus(int(servicepb.DeploymentState_TO_BE_DEPLOYED))
 		for _, code := range undeployList {
 			codeReq, err := getDeployReqForModule(&code)
 			if err != nil {

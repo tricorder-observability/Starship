@@ -25,7 +25,7 @@ import (
 type ModuleGORM struct {
 	ID                 string `gorm:"'id' primarykey" json:"id,omitempty"`
 	Name               string `gorm:"name" json:"name,omitempty"`
-	Status             int    `gorm:"status" json:"status,omitempty"`
+	DesiredState       int    `gorm:"desired_state" json:"desired_state,omitempty"`
 	CreateTime         string `gorm:"create_time" json:"create_time,omitempty"`
 	Ebpf               string `gorm:"ebpf" json:"ebpf,omitempty"`
 	EbpfFmt            int    `gorm:"ebpf_fmt" json:"ebpf_fmt,omitempty"`
@@ -42,20 +42,19 @@ type ModuleGORM struct {
 }
 
 func (ModuleGORM) TableName() string {
-	return "code"
+	return "module"
 }
 
-// TODO(zhihui): Rename to ModuleDao
-type Module struct {
+type ModuleDao struct {
 	Client *sqlite.ORM
 }
 
-func (g *Module) SaveCode(mod *ModuleGORM) error {
+func (g *ModuleDao) SaveModule(mod *ModuleGORM) error {
 	result := g.Client.Engine.Create(mod)
 	return result.Error
 }
 
-func (g *Module) UpdateByID(mod *ModuleGORM) error {
+func (g *ModuleDao) UpdateByID(mod *ModuleGORM) error {
 	if len(mod.ID) == 0 {
 		return fmt.Errorf("code is 0")
 	}
@@ -64,41 +63,41 @@ func (g *Module) UpdateByID(mod *ModuleGORM) error {
 	return result.Error
 }
 
-func (g *Module) UpdateStatusByID(id string, status int) error {
-	result := g.Client.Engine.Model(&ModuleGORM{ID: id}).Select("Status").Updates(ModuleGORM{Status: status})
+func (g *ModuleDao) UpdateStatusByID(id string, desiredState int) error {
+	result := g.Client.Engine.Model(&ModuleGORM{ID: id}).Select("desired_state").Updates(ModuleGORM{DesiredState: desiredState})
 	return result.Error
 }
 
-func (g *Module) DeleteByID(id string) error {
+func (g *ModuleDao) DeleteByID(id string) error {
 	result := g.Client.Engine.Delete(&ModuleGORM{ID: id})
 	return result.Error
 }
 
-func (g *Module) ListCode(query ...string) ([]ModuleGORM, error) {
-	var codeList []ModuleGORM
+func (g *ModuleDao) List(query ...string) ([]ModuleGORM, error) {
+	var modeList []ModuleGORM
 	if len(query) == 0 {
-		query = []string{"id", "name", "status", "create_time", "schema_attr", "fn", "ebpf"}
+		query = []string{"id", "name", "desired_state", "create_time", "schema_attr", "fn", "ebpf"}
 	}
 	result := g.Client.Engine.
 		Select(query).Where("name is not null and name != '' ").
 		Order("create_time desc").
-		Find(&codeList)
+		Find(&modeList)
 	if result.Error != nil {
 		return nil, fmt.Errorf("query code list error:%v", result.Error)
 	}
-	return codeList, nil
+	return modeList, nil
 }
 
-func (g *Module) ListCodeByStatus(status int) ([]ModuleGORM, error) {
-	var codeList []ModuleGORM
-	result := g.Client.Engine.Where(&ModuleGORM{Status: status}).Order("create_time desc").Find(&codeList)
+func (g *ModuleDao) ListByStatus(desiredState int) ([]ModuleGORM, error) {
+	var moduleList []ModuleGORM
+	result := g.Client.Engine.Where(&ModuleGORM{DesiredState: desiredState}).Order("create_time desc").Find(&moduleList)
 	if result.Error != nil {
-		return make([]ModuleGORM, 0), fmt.Errorf("query code list by status error:%v", result.Error)
+		return make([]ModuleGORM, 0), fmt.Errorf("query code list by desiredStatus error:%v", result.Error)
 	}
-	return codeList, nil
+	return moduleList, nil
 }
 
-func (g *Module) QueryByName(name string) (*ModuleGORM, error) {
+func (g *ModuleDao) QueryByName(name string) (*ModuleGORM, error) {
 	code := &ModuleGORM{}
 	result := g.Client.Engine.Where(&ModuleGORM{Name: name}).First(code)
 	if result.Error != nil {
@@ -107,7 +106,7 @@ func (g *Module) QueryByName(name string) (*ModuleGORM, error) {
 	return code, nil
 }
 
-func (g *Module) QueryByID(id string) (*ModuleGORM, error) {
+func (g *ModuleDao) QueryByID(id string) (*ModuleGORM, error) {
 	code := &ModuleGORM{}
 	result := g.Client.Engine.Where(&ModuleGORM{ID: id}).First(code)
 	if result.Error != nil {
