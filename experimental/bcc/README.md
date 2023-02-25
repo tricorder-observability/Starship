@@ -9,7 +9,7 @@ as receiving those events and processing (simple print) them.
 # Prerquisites
 
 * It is assumed that the local node has compiled and installed bcc from source
-  with guide [Build BCC on Ubuntu 20.04](../doc/build-bcc).
+  with guide [Build BCC on Ubuntu 20.04](../docs/build-bcc).
 * golang needs to be installed.
 
 # Build
