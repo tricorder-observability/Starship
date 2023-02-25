@@ -43,6 +43,10 @@ func InitSqlite(dbPath string) (*sqlite.ORM, error) {
 	if err != nil {
 		return nil, fmt.Errorf("create node agent table error %v", err)
 	}
+	err = engine.CreateTable(&ModuleInstanceGORM{})
+	if err != nil {
+		return nil, fmt.Errorf("create module instance table error %v", err)
+	}
 	err = engine.CreateTable(&GrafanaAPIKeyGORM{})
 	if err != nil {
 		return nil, fmt.Errorf("create grafana_api table error %v", err)

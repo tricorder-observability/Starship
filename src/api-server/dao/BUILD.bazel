@@ -5,6 +5,7 @@ go_library(
     srcs = [
         "grafana_api_key.go",
         "module.go",
+        "module_instance.go",
         "node_agent.go",
         "sqlite.go",
     ],
