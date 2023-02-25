@@ -99,7 +99,7 @@ func (mgr *ModuleManager) createModule(body CreateModuleReq) CreateModuleResp {
 		ID:                 strings.Replace(uuid.New(), "-", "_", -1),
 		Name:               body.Name,
 		CreateTime:         time.Now().Format("2006-01-02 15:04:05"),
-		Status:             int(pb.DeploymentState_CREATED),
+		DesireState:        int(pb.DeploymentState_CREATED),
 		Ebpf:               body.Ebpf.Code,
 		EbpfFmt:            int(body.Ebpf.Fmt),
 		EbpfLang:           int(body.Ebpf.Lang),

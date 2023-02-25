@@ -25,7 +25,7 @@ import (
 type ModuleGORM struct {
 	ID                 string `gorm:"'id' primarykey" json:"id,omitempty"`
 	Name               string `gorm:"name" json:"name,omitempty"`
-	Status             int    `gorm:"status" json:"status,omitempty"`
+	DesireState        int    `gorm:"desire_state" json:"desire_state,omitempty"`
 	CreateTime         string `gorm:"create_time" json:"create_time,omitempty"`
 	Ebpf               string `gorm:"ebpf" json:"ebpf,omitempty"`
 	EbpfFmt            int    `gorm:"ebpf_fmt" json:"ebpf_fmt,omitempty"`
@@ -64,7 +64,7 @@ func (g *ModuleDao) UpdateByID(mod *ModuleGORM) error {
 }
 
 func (g *ModuleDao) UpdateStatusByID(id string, status int) error {
-	result := g.Client.Engine.Model(&ModuleGORM{ID: id}).Select("Status").Updates(ModuleGORM{Status: status})
+	result := g.Client.Engine.Model(&ModuleGORM{ID: id}).Select("desire_state").Updates(ModuleGORM{DesireState: status})
 	return result.Error
 }
 
@@ -76,7 +76,7 @@ func (g *ModuleDao) DeleteByID(id string) error {
 func (g *ModuleDao) ListModule(query ...string) ([]ModuleGORM, error) {
 	var moduleList []ModuleGORM
 	if len(query) == 0 {
-		query = []string{"id", "name", "status", "create_time", "schema_attr", "fn", "ebpf"}
+		query = []string{"id", "name", "desire_state", "create_time", "schema_attr", "fn", "ebpf"}
 	}
 	result := g.Client.Engine.
 		Select(query).Where("name is not null and name != '' ").
@@ -90,7 +90,7 @@ func (g *ModuleDao) ListModule(query ...string) ([]ModuleGORM, error) {
 
 func (g *ModuleDao) ListModuleByStatus(status int) ([]ModuleGORM, error) {
 	var moduleList []ModuleGORM
-	result := g.Client.Engine.Where(&ModuleGORM{Status: status}).Order("create_time desc").Find(&moduleList)
+	result := g.Client.Engine.Where(&ModuleGORM{DesireState: status}).Order("create_time desc").Find(&moduleList)
 	if result.Error != nil {
 		return make([]ModuleGORM, 0), fmt.Errorf("query module list by status error:%v", result.Error)
 	}
