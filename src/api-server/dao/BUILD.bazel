@@ -5,6 +5,7 @@ go_library(
     srcs = [
         "grafana_api_key.go",
         "module.go",
+        "node_agent.go",
         "sqlite.go",
     ],
     importpath = "github.com/tricorder/src/api-server/dao",
@@ -20,6 +21,7 @@ go_test(
     srcs = [
         "grafana_api_key_test.go",
         "module_test.go",
+        "node_agent_test.go",
         "sqlite_test.go",
     ],
     embed = [":dao"],
