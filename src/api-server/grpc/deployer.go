@@ -17,7 +17,6 @@ package grpc
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 
 	"golang.org/x/sync/errgroup"
@@ -26,7 +25,7 @@ import (
 	"github.com/tricorder/src/utils/log"
 
 	"github.com/tricorder/src/api-server/dao"
-	pb "github.com/tricorder/src/api-server/pb"
+	servicepb "github.com/tricorder/src/api-server/pb"
 	"github.com/tricorder/src/api-server/utils/channel"
 	modulepb "github.com/tricorder/src/pb/module"
 	"github.com/tricorder/src/pb/module/common"
@@ -43,16 +42,64 @@ type Deployer struct {
 	//
 	// Each agent and this Deployer maintains a gRPC streaming channel with DeployModuleReq & DeployModuleResp
 	// flow back-and-forth.
-	agents []*pb.Agent
+	agents []*servicepb.Agent
+}
+
+func getDeployReqForModule(code *dao.ModuleGORM) (*servicepb.DeployModuleReq, error) {
+	var probeSpecs []*ebpfpb.ProbeSpec
+	if len(code.EbpfProbes) > 0 {
+		err := json.Unmarshal([]byte(code.EbpfProbes), &probeSpecs)
+		if err != nil {
+			return nil, errors.Wrap("creating DeployModuleReq for module", "unmarshal ebpf probes", err)
+		}
+	}
+
+	ebpf := &ebpfpb.Program{
+		Fmt:            common.Format(code.EbpfFmt),
+		Lang:           common.Lang(code.EbpfLang),
+		Code:           code.Ebpf,
+		PerfBufferName: code.EbpfPerfBufferName,
+		Probes:         probeSpecs,
+	}
+
+	var fields []*common.DataField
+	if len(code.SchemaAttr) > 0 {
+		err := json.Unmarshal([]byte(code.SchemaAttr), &fields)
+		if err != nil {
+			return nil, errors.Wrap("creatign DeployModuleReq for module", "unmarshal data fields", err)
+		}
+	}
+
+	wasm := &wasmpb.Program{
+		Fmt:    common.Format(code.WasmFmt),
+		Lang:   common.Lang(code.WasmLang),
+		FnName: code.Fn,
+		OutputSchema: &common.Schema{
+			Name:   code.SchemaName,
+			Fields: fields,
+		},
+		Code: code.Wasm,
+	}
+
+	codeReq := servicepb.DeployModuleReq{
+		ModuleId: code.ID,
+		Module: &modulepb.Module{
+			Ebpf: ebpf,
+			Wasm: wasm,
+		},
+		Deploy: servicepb.DeployModuleReq_DEPLOY,
+	}
+	return &codeReq, nil
 }
 
 // DeployModule implements the only RPC of the ModuleDeployer service.
 // It continuously sends deployment request to the connected agent (as client).
-func (s *Deployer) DeployModule(stream pb.ModuleDeployer_DeployModuleServer) error {
+func (s *Deployer) DeployModule(stream servicepb.ModuleDeployer_DeployModuleServer) error {
 	// The first message is sent from the client, but the remaining loops are driven by the server.
 	// The server will send deploy module request for this client to work on.
 	in, err := stream.Recv()
 	if err == io.EOF {
+		log.Warnf("Agent closed connection, this should only happens during testing; stopping ...")
 		return nil
 	}
 	if err != nil {
@@ -60,24 +107,24 @@ func (s *Deployer) DeployModule(stream pb.ModuleDeployer_DeployModuleServer) err
 	}
 
 	log.Infof("Agent '%s' connected, starting module management loop ...", in.Agent.Id)
-
 	s.agents = append(s.agents, in.Agent)
 
 	var eg errgroup.Group
-
 	// Create a goroutine to check the response from the connected agent.
 	eg.Go(func() error {
 		for {
 			result, err := stream.Recv()
 			if err == io.EOF {
-				log.Warnf("Agent closed connection, this should only happens during testing; stopping ...")
+				log.Warnf("Agent closed connection, this should **only** happens during testing; stopping ...")
 				return nil
 			}
 			if err != nil {
+				// If this happens, agent should re-initiate connection with API Server.
+				// API Server just close the handling function and wait for reconnection.
 				return errors.Wrap("handling DeployModule request", "receive mssage", err)
 			}
-			// Need to be able to correctly account which nodes are deployed, and which are
-			// not deployed. TODO(yzhao & zhihui): Chat about the design.
+			// TODO(yzhao): Should cache this result to an internal slice, and repeatively retry updating state.
+			// The current logic will drop this state and causes redeployment of the same module.
 			err = s.Module.UpdateStatusByID(result.ModuleId, int(result.State))
 			if err != nil {
 				log.Errorf("update code status error:%s", err.Error())
@@ -87,70 +134,29 @@ func (s *Deployer) DeployModule(stream pb.ModuleDeployer_DeployModuleServer) err
 
 	for {
 		message := channel.ReceiveMessage()
-		if message.Status != int(pb.DeploymentState_TO_BE_DEPLOYED) {
+		if message.Status != int(servicepb.DeploymentState_TO_BE_DEPLOYED) {
 			continue
 		}
-		undeployList, _ := s.Module.ListCodeByStatus(int(pb.DeploymentState_TO_BE_DEPLOYED))
+		undeployList, _ := s.Module.ListCodeByStatus(int(servicepb.DeploymentState_TO_BE_DEPLOYED))
 		for _, code := range undeployList {
-			var probeSpecs []*ebpfpb.ProbeSpec
-			if len(code.EbpfProbes) > 0 {
-				err = json.Unmarshal([]byte(code.EbpfProbes), &probeSpecs)
-				if err != nil {
-					return fmt.Errorf("while deploying module, failed to unmarshal ebpf probes, error: %v", err)
-				}
-			}
-
-			ebpf := &ebpfpb.Program{
-				Fmt:            common.Format(code.EbpfFmt),
-				Lang:           common.Lang(code.EbpfLang),
-				Code:           code.Ebpf,
-				PerfBufferName: code.EbpfPerfBufferName,
-				Probes:         probeSpecs,
-			}
-
-			var fields []*common.DataField
-			if len(code.SchemaAttr) > 0 {
-				err = json.Unmarshal([]byte(code.SchemaAttr), &fields)
-				if err != nil {
-					return fmt.Errorf("while deploying module, failed to unmarshal data fields, error: %v", err)
-				}
-			}
-
-			wasm := &wasmpb.Program{
-				Fmt:    common.Format(code.WasmFmt),
-				Lang:   common.Lang(code.WasmLang),
-				FnName: code.Fn,
-				OutputSchema: &common.Schema{
-					Name:   code.SchemaName,
-					Fields: fields,
-				},
-				Code: code.Wasm,
-			}
-
-			codeReq := pb.DeployModuleReq{
-				ModuleId: code.ID,
-				Module: &modulepb.Module{
-					Ebpf: ebpf,
-					Wasm: wasm,
-				},
-				Deploy: pb.DeployModuleReq_DEPLOY,
-			}
-
-			err = stream.Send(&codeReq)
+			codeReq, err := getDeployReqForModule(&code)
 			if err != nil {
-				// TODO(jian): The failure reason recorded in the err,
-				// should be write into the sqlite database.instead of a logging message.
-				log.Errorf("Deploy: [%s] failed: %s", code.Name, err.Error())
+				log.Fatalf("Failed to create DeployModuleReq for module ID=%s, this should not happen, "+
+					"as module creation should validate module, error: %v", code.ID, err)
+				return err
+			}
 
-				err = s.Module.UpdateStatusByID(code.ID, int(pb.DeploymentState_DEPLOYMENT_FAILED))
-				if err != nil {
-					log.Errorf("update code status error:%s", err.Error())
-				}
-			} else {
-				err = s.Module.UpdateStatusByID(code.ID, int(pb.DeploymentState_DEPLOYMENT_SUCCEEDED))
-				if err != nil {
-					log.Errorf("update code status error:%s", err.Error())
-				}
+			err = stream.Send(codeReq)
+			if err != nil {
+				return errors.Wrap("handling module deployment", "send message over gRCP streaming channel", err)
+			}
+
+			// TODO(yzhao): This should set the state to PENDING, or something indicating the request is sent.
+			// Probably should update the IN_PROGRESS state in module_instance table.
+			err = s.Module.UpdateStatusByID(code.ID, int(servicepb.DeploymentState_DEPLOYMENT_SUCCEEDED))
+			if err != nil {
+				// If this happens, this module's deployment will be retried next time.
+				log.Errorf("Failed to update module (ID=%s) state, error: %v", code.ID, err)
 			}
 		}
 	}
