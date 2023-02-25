@@ -64,7 +64,8 @@ func (g *ModuleDao) UpdateByID(mod *ModuleGORM) error {
 }
 
 func (g *ModuleDao) UpdateStatusByID(id string, desiredState int) error {
-	result := g.Client.Engine.Model(&ModuleGORM{ID: id}).Select("desired_state").Updates(ModuleGORM{DesiredState: desiredState})
+	result := g.Client.Engine.Model(&ModuleGORM{ID: id}).
+		Select("desired_state").Updates(ModuleGORM{DesiredState: desiredState})
 	return result.Error
 }
 

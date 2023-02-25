@@ -39,13 +39,13 @@ int sample_json(struct bpf_perf_event_data *ctx) {
 `
 
 // PrepareTricorderDBData writes test data into a testing database
-func PrepareTricorderDBData(codeID string, codeDao dao.Module) {
+func PrepareTricorderDBData(codeID string, codeDao dao.ModuleDao) {
 	code := &dao.ModuleGORM{
 		ID:                 codeID,
 		Ebpf:               ebpfJson,
 		Wasm:               []byte("codeString"),
 		CreateTime:         time.Date(2022, 12, 31, 14, 30, 0, 0, time.Local).Format("2006-01-02 15:04:05"),
-		Status:             int(pb.DeploymentState_TO_BE_DEPLOYED),
+		DesiredState:       int(pb.DeploymentState_TO_BE_DEPLOYED),
 		Name:               "test-code-foo",
 		EbpfFmt:            0,
 		EbpfLang:           0,
@@ -57,7 +57,7 @@ func PrepareTricorderDBData(codeID string, codeDao dao.Module) {
 		WasmFmt:    0,
 		WasmLang:   0,
 	}
-	err := codeDao.SaveCode(code)
+	err := codeDao.SaveModule(code)
 	if err != nil {
 		log.Fatalf("While writing data to database for testing, failed to save code data, error: %v", err)
 	}

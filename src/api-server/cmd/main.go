@@ -101,7 +101,7 @@ func main() {
 	}
 
 	sqliteClient, _ := dao.InitSqlite(*moduleDBDirPath)
-	codeDao := dao.Module{
+	codeDao := dao.ModuleDao{
 		Client: sqliteClient,
 	}
 	grafanaAPIDao := dao.GrafanaAPIKey{
@@ -160,7 +160,7 @@ func main() {
 	_ = eg.Wait()
 }
 
-func startAgentServerSide(port int, c dao.Module, pgClient *pg.Client, clientset kubernetes.Interface) error {
+func startAgentServerSide(port int, c dao.ModuleDao, pgClient *pg.Client, clientset kubernetes.Interface) error {
 	addr := fmt.Sprintf(":%d", port)
 	log.Infof("Starting gRPC server at %s", addr)
 
