@@ -36,7 +36,7 @@ import (
 // Manages the deployment of eBPF+WASM modules
 type Deployer struct {
 	// The DAO object that proxies with SQLite for writing and reading the serialized data.
-	Module dao.Module
+	Module dao.ModuleDao
 
 	// The list of agents connected with this Deployer.
 	//
@@ -45,44 +45,44 @@ type Deployer struct {
 	agents []*servicepb.Agent
 }
 
-func getDeployReqForModule(code *dao.ModuleGORM) (*servicepb.DeployModuleReq, error) {
+func getDeployReqForModule(module *dao.ModuleGORM) (*servicepb.DeployModuleReq, error) {
 	var probeSpecs []*ebpfpb.ProbeSpec
-	if len(code.EbpfProbes) > 0 {
-		err := json.Unmarshal([]byte(code.EbpfProbes), &probeSpecs)
+	if len(module.EbpfProbes) > 0 {
+		err := json.Unmarshal([]byte(module.EbpfProbes), &probeSpecs)
 		if err != nil {
 			return nil, errors.Wrap("creating DeployModuleReq for module", "unmarshal ebpf probes", err)
 		}
 	}
 
 	ebpf := &ebpfpb.Program{
-		Fmt:            common.Format(code.EbpfFmt),
-		Lang:           common.Lang(code.EbpfLang),
-		Code:           code.Ebpf,
-		PerfBufferName: code.EbpfPerfBufferName,
+		Fmt:            common.Format(module.EbpfFmt),
+		Lang:           common.Lang(module.EbpfLang),
+		Code:           module.Ebpf,
+		PerfBufferName: module.EbpfPerfBufferName,
 		Probes:         probeSpecs,
 	}
 
 	var fields []*common.DataField
-	if len(code.SchemaAttr) > 0 {
-		err := json.Unmarshal([]byte(code.SchemaAttr), &fields)
+	if len(module.SchemaAttr) > 0 {
+		err := json.Unmarshal([]byte(module.SchemaAttr), &fields)
 		if err != nil {
 			return nil, errors.Wrap("creatign DeployModuleReq for module", "unmarshal data fields", err)
 		}
 	}
 
 	wasm := &wasmpb.Program{
-		Fmt:    common.Format(code.WasmFmt),
-		Lang:   common.Lang(code.WasmLang),
-		FnName: code.Fn,
+		Fmt:    common.Format(module.WasmFmt),
+		Lang:   common.Lang(module.WasmLang),
+		FnName: module.Fn,
 		OutputSchema: &common.Schema{
-			Name:   code.SchemaName,
+			Name:   module.SchemaName,
 			Fields: fields,
 		},
-		Code: code.Wasm,
+		Code: module.Wasm,
 	}
 
 	codeReq := servicepb.DeployModuleReq{
-		ModuleId: code.ID,
+		ModuleId: module.ID,
 		Module: &modulepb.Module{
 			Ebpf: ebpf,
 			Wasm: wasm,
@@ -137,7 +137,7 @@ func (s *Deployer) DeployModule(stream servicepb.ModuleDeployer_DeployModuleServ
 		if message.Status != int(servicepb.DeploymentState_TO_BE_DEPLOYED) {
 			continue
 		}
-		undeployList, _ := s.Module.ListCodeByStatus(int(servicepb.DeploymentState_TO_BE_DEPLOYED))
+		undeployList, _ := s.Module.ListModuleByStatus(int(servicepb.DeploymentState_TO_BE_DEPLOYED))
 		for _, code := range undeployList {
 			codeReq, err := getDeployReqForModule(&code)
 			if err != nil {

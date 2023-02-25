@@ -1,4 +1,4 @@
-header:
+:header:
   license:
     # refs: https://spdx.org/licenses/
     spdx-id: AGPL-3.0-or-later

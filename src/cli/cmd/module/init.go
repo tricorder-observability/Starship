@@ -74,7 +74,7 @@ func init() {
 
 func initModule(body *modulepb.Module) error {
 	sqliteClient, _ := dao.InitSqlite(dbFilePath)
-	codeDao := dao.Module{
+	moduleDao := dao.ModuleDao{
 		Client: sqliteClient,
 	}
 
@@ -92,7 +92,7 @@ func initModule(body *modulepb.Module) error {
 		ID:                 strings.Replace(uuid.New(), "-", "_", -1),
 		Name:               body.Name,
 		CreateTime:         time.Now().Format("2006-01-02 15:04:05"),
-		Status:             int(0),
+		DesireState:        int(0),
 		Ebpf:               body.Ebpf.Code,
 		EbpfFmt:            int(body.Ebpf.Fmt),
 		EbpfLang:           int(body.Ebpf.Lang),
@@ -105,8 +105,8 @@ func initModule(body *modulepb.Module) error {
 		WasmLang:           int(body.Wasm.Lang),
 	}
 
-	mod.SchemaName = fmt.Sprintf("%s_%s", "tricorder_code", mod.ID)
+	mod.SchemaName = fmt.Sprintf("%s_%s", "tricorder_module", mod.ID)
 
-	err = codeDao.SaveCode(mod)
+	err = moduleDao.SaveModule(mod)
 	return err
 }

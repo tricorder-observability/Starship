@@ -37,7 +37,7 @@ var listCmd = &cobra.Command{
 $ starship-cli module list
 `,
 	Run: func(cmd *cobra.Command, args []string) {
-		url := http_utils.GetAPIUrl(apiAddress, http_utils.API_ROOT, http_utils.LIST_CODE)
+		url := http_utils.GetAPIUrl(apiAddress, http_utils.API_ROOT, http_utils.LIST_MODULE)
 		resp, err := listModules(url)
 		if err != nil {
 			log.Error(err)

@@ -4,7 +4,7 @@
         "contact": {}
     },
     "paths": {
-        "/api/addCode": {
+        "/api/addModule": {
             "post": {
                 "description": "Create Module",
                 "consumes": [
@@ -38,7 +38,7 @@
                 }
             }
         },
-        "/api/deleteCode": {
+        "/api/deleteModule": {
             "get": {
                 "description": "Delete Module by id",
                 "consumes": [
@@ -70,7 +70,7 @@
                 }
             }
         },
-        "/api/deployCode": {
+        "/api/deployModule": {
             "post": {
                 "description": "Create Module",
                 "consumes": [
@@ -102,7 +102,7 @@
                 }
             }
         },
-        "/api/listCode": {
+        "/api/listModule": {
             "get": {
                 "description": "List all moudle",
                 "consumes": [
@@ -133,7 +133,7 @@
                 }
             }
         },
-        "/api/undeployCode": {
+        "/api/undeployModule": {
             "post": {
                 "description": "Undeploy Module By ID",
                 "consumes": [

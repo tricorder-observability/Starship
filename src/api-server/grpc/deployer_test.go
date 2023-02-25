@@ -47,7 +47,7 @@ func TestService(t *testing.T) {
 	testDir, _ := os.Getwd()
 	testDbFilePath := testDir + "/testdata/"
 	sqliteClient, _ := dao.InitSqlite(testDbFilePath)
-	codeDao := dao.Module{
+	codeDao := dao.ModuleDao{
 		Client: sqliteClient,
 	}
 	testutil.PrepareTricorderDBData(codeID, codeDao)
@@ -72,7 +72,7 @@ func newDeployerServer(t *testing.T, sqliteClient *sqlite.ORM) (*grpc.Server, ne
 	grpcServer := grpc.NewServer()
 
 	pb.RegisterModuleDeployerServer(grpcServer, &Deployer{
-		Module: dao.Module{
+		Module: dao.ModuleDao{
 			Client: sqliteClient,
 		},
 	})
