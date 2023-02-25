@@ -101,7 +101,7 @@ func main() {
 	}
 
 	sqliteClient, _ := dao.InitSqlite(*moduleDBDirPath)
-	codeDao := dao.Module{
+	moduleDao := dao.ModuleDao{
 		Client: sqliteClient,
 	}
 	grafanaAPIDao := dao.GrafanaAPIKey{
@@ -121,7 +121,7 @@ func main() {
 	var eg errgroup.Group
 	eg.Go(func() error {
 		// Agent service server side, including module deployer and process collector service
-		err := startAgentServerSide(*agentServicePort, codeDao, pgClient, clientset)
+		err := startAgentServerSide(*agentServicePort, moduleDao, pgClient, clientset)
 		if err != nil {
 			log.Fatalf("Could not start server, error: %v", err)
 		}
@@ -138,7 +138,7 @@ func main() {
 				GrafanaUserPass: *moduleGrafanaUserPassword,
 				DatasourceName:  *moduleDatasourceName,
 				DatasourceUID:   *moduleDatasourceUID,
-				Module:          codeDao,
+				Module:          moduleDao,
 				GrafanaAPIKey:   grafanaAPIDao,
 			}
 
@@ -160,7 +160,7 @@ func main() {
 	_ = eg.Wait()
 }
 
-func startAgentServerSide(port int, c dao.Module, pgClient *pg.Client, clientset kubernetes.Interface) error {
+func startAgentServerSide(port int, c dao.ModuleDao, pgClient *pg.Client, clientset kubernetes.Interface) error {
 	addr := fmt.Sprintf(":%d", port)
 	log.Infof("Starting gRPC server at %s", addr)
 

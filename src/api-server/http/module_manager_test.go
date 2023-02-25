@@ -45,7 +45,7 @@ func SetUpRouter() *gin.Engine {
 	// test.
 
 	sqliteClient, _ := dao.InitSqlite(testDbFilePath)
-	cm.Module = dao.Module{
+	cm.Module = dao.ModuleDao{
 		Client: sqliteClient,
 	}
 	grafanaAPIDao := dao.GrafanaAPIKey{
@@ -95,8 +95,8 @@ func TestModuleManager(t *testing.T) {
 }
 
 func ListModule(t *testing.T, r *gin.Engine) {
-	r.GET("/api/listCode", cm.listCodeHttp)
-	req, _ := http.NewRequest("GET", "/api/listCode?fields=id,name,status", nil)
+	r.GET("/api/listModule", cm.listModuleHttp)
+	req, _ := http.NewRequest("GET", "/api/listModule?fields=id,name,status", nil)
 
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, req)
@@ -135,13 +135,13 @@ func AddModule(t *testing.T, wasmUid string, r *gin.Engine) string {
 		}
 	}`, moduleName)
 	jsonData := []byte(moduleBody)
-	r.POST("/api/addCode", cm.createModuleHttp)
-	req, _ := http.NewRequest("POST", "/api/addCode", bytes.NewBuffer(jsonData))
+	r.POST("/api/addModule", cm.createModuleHttp)
+	req, _ := http.NewRequest("POST", "/api/addModule", bytes.NewBuffer(jsonData))
 	req.Header.Set("Content-Type", "application/json; charset=utf-8")
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, req)
 	resultStr := w.Body.String()
-	fmt.Printf("add code: %s", resultStr)
+	fmt.Printf("add module: %s", resultStr)
 	// check http result
 	assert.Equal(t, true, strings.Contains(resultStr, "success"))
 
@@ -158,8 +158,8 @@ func AddModule(t *testing.T, wasmUid string, r *gin.Engine) string {
 
 // delete module
 func deleteModule(t *testing.T, modulID string, r *gin.Engine) {
-	r.GET("/api/deleteCode", cm.deleteCodeHttp)
-	req, _ := http.NewRequest("GET", fmt.Sprintf("/api/deleteCode?id=%s", modulID), nil)
+	r.GET("/api/deleteModule", cm.deleteModuleHttp)
+	req, _ := http.NewRequest("GET", fmt.Sprintf("/api/deleteModule?id=%s", modulID), nil)
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, req)
 	resultStr := w.Body.String()
@@ -174,8 +174,8 @@ func deleteModule(t *testing.T, modulID string, r *gin.Engine) {
 
 // undeploy module
 func unDeployModule(t *testing.T, modulID string, r *gin.Engine) {
-	r.GET("/api/undeploy", cm.undeployCodeHttp)
-	req, _ := http.NewRequest("GET", fmt.Sprintf("/api/undeploy?id=%s", modulID), nil)
+	r.GET("/api/undeployModule", cm.undeployModuleHttp)
+	req, _ := http.NewRequest("GET", fmt.Sprintf("/api/undeployModule?id=%s", modulID), nil)
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, req)
 	resultStr := w.Body.String()
@@ -191,8 +191,8 @@ func unDeployModule(t *testing.T, modulID string, r *gin.Engine) {
 }
 
 func deployModule(t *testing.T, modulID string, r *gin.Engine) {
-	r.GET("/api/deploy", cm.deployCodeHttp)
-	req, _ := http.NewRequest("GET", fmt.Sprintf("/api/deploy?id=%s", modulID), nil)
+	r.GET("/api/deployModule", cm.deployModuleHttp)
+	req, _ := http.NewRequest("GET", fmt.Sprintf("/api/deployModule?id=%s", modulID), nil)
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, req)
 	resultStr := w.Body.String()
@@ -205,7 +205,7 @@ func deployModule(t *testing.T, modulID string, r *gin.Engine) {
 		t.Errorf("deploy module error:%v", err)
 	}
 
-	// check code's status
+	// check module's status
 	moduleResult, err := cm.Module.QueryByID(modulID)
 	if err != nil {
 		t.Errorf("query module by id error:%v", err)
@@ -222,7 +222,7 @@ func deployModule(t *testing.T, modulID string, r *gin.Engine) {
 	assert.Equal(t, true, strings.Contains(temp, deployResult.UID))
 
 	// check create postgres schema result
-	const moduleDataTableNamePrefix = "tricorder_code_"
+	const moduleDataTableNamePrefix = "tricorder_module_"
 	err = cm.PGClient.CheckTableExist(moduleDataTableNamePrefix + moduleResult.ID)
 	if err != nil {
 		t.Errorf("check postgress table exist error:%v", err)

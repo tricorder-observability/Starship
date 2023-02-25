@@ -37,7 +37,7 @@ import (
 // Manages the deployment of eBPF+WASM modules
 type Deployer struct {
 	// The DAO object that proxies with SQLite for writing and reading the serialized data.
-	Module dao.Module
+	Module dao.ModuleDao
 
 	// The list of agents connected with this Deployer.
 	//
@@ -80,7 +80,7 @@ func (s *Deployer) DeployModule(stream pb.ModuleDeployer_DeployModuleServer) err
 			// not deployed. TODO(yzhao & zhihui): Chat about the design.
 			err = s.Module.UpdateStatusByID(result.ModuleId, int(result.State))
 			if err != nil {
-				log.Errorf("update code status error:%s", err.Error())
+				log.Errorf("update module status error:%s", err.Error())
 			}
 		}
 	})
@@ -90,45 +90,45 @@ func (s *Deployer) DeployModule(stream pb.ModuleDeployer_DeployModuleServer) err
 		if message.Status != int(pb.DeploymentState_TO_BE_DEPLOYED) {
 			continue
 		}
-		undeployList, _ := s.Module.ListCodeByStatus(int(pb.DeploymentState_TO_BE_DEPLOYED))
-		for _, code := range undeployList {
+		undeployList, _ := s.Module.ListModuleByStatus(int(pb.DeploymentState_TO_BE_DEPLOYED))
+		for _, module := range undeployList {
 			var probeSpecs []*ebpfpb.ProbeSpec
-			if len(code.EbpfProbes) > 0 {
-				err = json.Unmarshal([]byte(code.EbpfProbes), &probeSpecs)
+			if len(module.EbpfProbes) > 0 {
+				err = json.Unmarshal([]byte(module.EbpfProbes), &probeSpecs)
 				if err != nil {
 					return fmt.Errorf("while deploying module, failed to unmarshal ebpf probes, error: %v", err)
 				}
 			}
 
 			ebpf := &ebpfpb.Program{
-				Fmt:            common.Format(code.EbpfFmt),
-				Lang:           common.Lang(code.EbpfLang),
-				Code:           code.Ebpf,
-				PerfBufferName: code.EbpfPerfBufferName,
+				Fmt:            common.Format(module.EbpfFmt),
+				Lang:           common.Lang(module.EbpfLang),
+				Code:           module.Ebpf,
+				PerfBufferName: module.EbpfPerfBufferName,
 				Probes:         probeSpecs,
 			}
 
 			var fields []*common.DataField
-			if len(code.SchemaAttr) > 0 {
-				err = json.Unmarshal([]byte(code.SchemaAttr), &fields)
+			if len(module.SchemaAttr) > 0 {
+				err = json.Unmarshal([]byte(module.SchemaAttr), &fields)
 				if err != nil {
 					return fmt.Errorf("while deploying module, failed to unmarshal data fields, error: %v", err)
 				}
 			}
 
 			wasm := &wasmpb.Program{
-				Fmt:    common.Format(code.WasmFmt),
-				Lang:   common.Lang(code.WasmLang),
-				FnName: code.Fn,
+				Fmt:    common.Format(module.WasmFmt),
+				Lang:   common.Lang(module.WasmLang),
+				FnName: module.Fn,
 				OutputSchema: &common.Schema{
-					Name:   code.SchemaName,
+					Name:   module.SchemaName,
 					Fields: fields,
 				},
-				Code: code.Wasm,
+				Code: module.Wasm,
 			}
 
-			codeReq := pb.DeployModuleReq{
-				ModuleId: code.ID,
+			moduleReq := pb.DeployModuleReq{
+				ModuleId: module.ID,
 				Module: &modulepb.Module{
 					Ebpf: ebpf,
 					Wasm: wasm,
@@ -136,20 +136,20 @@ func (s *Deployer) DeployModule(stream pb.ModuleDeployer_DeployModuleServer) err
 				Deploy: pb.DeployModuleReq_DEPLOY,
 			}
 
-			err = stream.Send(&codeReq)
+			err = stream.Send(&moduleReq)
 			if err != nil {
 				// TODO(jian): The failure reason recorded in the err,
 				// should be write into the sqlite database.instead of a logging message.
-				log.Errorf("Deploy: [%s] failed: %s", code.Name, err.Error())
+				log.Errorf("Deploy: [%s] failed: %s", module.Name, err.Error())
 
-				err = s.Module.UpdateStatusByID(code.ID, int(pb.DeploymentState_DEPLOYMENT_FAILED))
+				err = s.Module.UpdateStatusByID(module.ID, int(pb.DeploymentState_DEPLOYMENT_FAILED))
 				if err != nil {
-					log.Errorf("update code status error:%s", err.Error())
+					log.Errorf("update module status error:%s", err.Error())
 				}
 			} else {
-				err = s.Module.UpdateStatusByID(code.ID, int(pb.DeploymentState_DEPLOYMENT_SUCCEEDED))
+				err = s.Module.UpdateStatusByID(module.ID, int(pb.DeploymentState_DEPLOYMENT_SUCCEEDED))
 				if err != nil {
-					log.Errorf("update code status error:%s", err.Error())
+					log.Errorf("update module status error:%s", err.Error())
 				}
 			}
 		}

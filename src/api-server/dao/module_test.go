@@ -29,13 +29,13 @@ import (
 )
 
 // Save test data in this path
-const SQLiteFilePath string = "code_test"
+const SQLiteFilePath string = "module_test"
 
-// test code dao fun
+// test module dao fun
 // init sqlit gorm and create table
-// test dao.SaveCode and check save result
+// test dao.SaveModule and check save result
 // test dao.QueryBiID and dao.QueryByWasmID
-// test update code status and check update result
+// test update module status and check update result
 func TestModule(t *testing.T) {
 	assert := assert.New(t)
 
@@ -46,112 +46,112 @@ func TestModule(t *testing.T) {
 
 	sqliteClient, _ := InitSqlite(dirPath)
 
-	codeDao := Module{
+	moduleDao := ModuleDao{
 		Client: sqliteClient,
 	}
 
 	id := strings.Replace(uuid.New(), "-", "_", -1)
-	code := &ModuleGORM{
+	module := &ModuleGORM{
 		ID:                 id,
 		Status:             int(pb.DeploymentState_CREATED),
-		Name:               "TestCode",
+		Name:               "TestModule",
 		Wasm:               []byte("WasmUid"),
 		CreateTime:         time.Now().Format("2006-01-02 15:04:05"),
 		EbpfPerfBufferName: "events",
 	}
-	// save code module
-	err := codeDao.SaveCode(code)
+	// save module
+	err := moduleDao.SaveModule(module)
 	if err != nil {
-		t.Errorf("save code err %v", err)
+		t.Errorf("save module err %v", err)
 	}
 	// test queryByID
 
-	code, err = codeDao.QueryByID(id)
+	module, err = moduleDao.QueryByID(id)
 	if err != nil {
-		t.Errorf("not query ID=%s data, save code err %v", id, err)
+		t.Errorf("not query ID=%s data, save module err %v", id, err)
 	}
-	if code.ID != id {
-		t.Errorf("save code error, code.ID !=  " + id)
+	if module.ID != id {
+		t.Errorf("save module error, module.ID !=  " + id)
 	}
 
-	// if code.Name != TestCode, code save error
-	if code.Name != "TestCode" {
-		t.Errorf("save code error, code.Name != TestCode ")
+	// if module.Name != TestModule, module save error
+	if module.Name != "TestModule" {
+		t.Errorf("save module error, module.Name != TestModule ")
 	}
 
 	// update status
-	code.Name = "UpdateName"
-	err = codeDao.UpdateByID(code)
+	module.Name = "UpdateName"
+	err = moduleDao.UpdateByID(module)
 	if err != nil {
-		t.Errorf("update code error: %v", err)
+		t.Errorf("update module error: %v", err)
 	}
-	code, err = codeDao.QueryByID(code.ID)
+	module, err = moduleDao.QueryByID(module.ID)
 	if err != nil {
-		t.Errorf("query code by ID error: %v", err)
+		t.Errorf("query module by ID error: %v", err)
 	}
 	// check update name result
-	if code.Name != "UpdateName" {
-		t.Errorf("update code.Name=UpdateName error")
+	if module.Name != "UpdateName" {
+		t.Errorf("update module.Name=UpdateName error")
 	}
 
-	// test code.Status
-	if code.Status != int(pb.DeploymentState_CREATED) {
-		t.Errorf("query code status error, code.Status != DeploymentState_CREATED ")
+	// test module.Status
+	if module.Status != int(pb.DeploymentState_CREATED) {
+		t.Errorf("query module status error, module.Status != DeploymentState_CREATED ")
 	}
 
-	// test update code status
-	err = codeDao.UpdateStatusByID(code.ID, int(pb.DeploymentState_TO_BE_DEPLOYED))
+	// test update module status
+	err = moduleDao.UpdateStatusByID(module.ID, int(pb.DeploymentState_TO_BE_DEPLOYED))
 	if err != nil {
-		t.Errorf("change code status error: %v", err)
+		t.Errorf("change module status error: %v", err)
 	}
-	code, err = codeDao.QueryByID(code.ID)
+	module, err = moduleDao.QueryByID(module.ID)
 	if err != nil {
-		t.Errorf("query code by ID error: %v", err)
+		t.Errorf("query module by ID error: %v", err)
 	}
-	// check code status
-	if code.Status != int(pb.DeploymentState_TO_BE_DEPLOYED) {
-		t.Errorf("change code status by ID error: not change code status")
+	// check module status
+	if module.Status != int(pb.DeploymentState_TO_BE_DEPLOYED) {
+		t.Errorf("change module status by ID error: not change module status")
 	}
-	// get code list *
-	list, err := codeDao.ListCode("*")
+	// get module list *
+	list, err := moduleDao.ListModule("*")
 	if err != nil {
-		t.Errorf("query code list error: %v", err)
+		t.Errorf("query module list error: %v", err)
 	}
 	if len(list) == 0 {
-		t.Errorf("query code list error: not found code data")
+		t.Errorf("query module list error: not found module data")
 	}
 
 	if len(list[0].Wasm) == 0 {
-		t.Errorf("query code list erro default: not found wasm data")
+		t.Errorf("query module list erro default: not found wasm data")
 	}
 
-	// get code list default
-	list, err = codeDao.ListCode()
+	// get module list default
+	list, err = moduleDao.ListModule()
 	if err != nil {
-		t.Errorf("query code list default error: %v", err)
+		t.Errorf("query module list default error: %v", err)
 	}
 	if len(list) == 0 {
-		t.Errorf("query code list erro default: not found code data")
+		t.Errorf("query module list erro default: not found module data")
 	}
 	if len(list[0].Wasm) != 0 {
-		t.Errorf("query code list erro default: not found wasm data")
+		t.Errorf("query module list erro default: not found wasm data")
 	}
 
-	// get code list default
-	list, err = codeDao.ListCode("id", "name")
+	// get module list default
+	list, err = moduleDao.ListModule("id", "name")
 	if err != nil {
-		t.Errorf("query code list default error: %v", err)
+		t.Errorf("query module list default error: %v", err)
 	}
 	if len(list) == 0 {
-		t.Errorf("query code list erro default: not found code data")
+		t.Errorf("query module list erro default: not found module data")
 	}
 	if len(list[0].ID) == 0 {
-		t.Errorf("query code list erro default: ID is empty")
+		t.Errorf("query module list erro default: ID is empty")
 	}
 	if len(list[0].Name) == 0 {
-		t.Errorf("query code list erro default: Name is empty")
+		t.Errorf("query module list erro default: Name is empty")
 	}
 	if len(list[0].Wasm) != 0 {
-		t.Errorf("query code list erro default: Wasm is not empty")
+		t.Errorf("query module list erro default: Wasm is not empty")
 	}
 }

@@ -204,7 +204,7 @@ definitions:
 info:
   contact: {}
 paths:
-  /api/addCode:
+  /api/addModule:
     post:
       consumes:
       - application/json
@@ -226,7 +226,7 @@ paths:
       summary: Create module
       tags:
       - module
-  /api/deleteCode:
+  /api/deleteModule:
     get:
       consumes:
       - application/json
@@ -247,7 +247,7 @@ paths:
       summary: Delete module
       tags:
       - module
-  /api/deployCode:
+  /api/deployModule:
     post:
       consumes:
       - application/json
@@ -268,7 +268,7 @@ paths:
       summary: Deploy module
       tags:
       - module
-  /api/listCode:
+  /api/listModule:
     get:
       consumes:
       - application/json
@@ -288,7 +288,7 @@ paths:
       summary: List all moudle
       tags:
       - module
-  /api/undeployCode:
+  /api/undeployModule:
     post:
       consumes:
       - application/json

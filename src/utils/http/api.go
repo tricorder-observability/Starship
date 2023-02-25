@@ -23,12 +23,12 @@ import (
 // API path component
 const (
 	API_ROOT      = "api"
-	LIST_CODE     = "listCode"
-	ADD_CODE      = "addCode"
+	LIST_MODULE   = "listModule"
+	ADD_MODULE    = "addModule"
 	UPLOAD        = "uploadFile"
-	DEPLOY        = "deploy"
-	UN_DEPLOY     = "undeploy"
-	DELETE_MODULE = "deleteCode"
+	DEPLOY        = "deployModule"
+	UN_DEPLOY     = "undeployModule"
+	DELETE_MODULE = "deleteModule"
 )
 
 // GetAPIUrl returns a http URL that corresponds to the requested path.

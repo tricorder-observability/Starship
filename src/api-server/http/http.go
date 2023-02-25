@@ -38,7 +38,7 @@ type Config struct {
 	GrafanaUserPass string
 	DatasourceName  string
 	DatasourceUID   string
-	Module          dao.Module
+	Module          dao.ModuleDao
 	GrafanaAPIKey   dao.GrafanaAPIKey
 }
 
@@ -68,11 +68,11 @@ func StartHTTPService(cfg Config, pgClient *pg.Client) {
 	// TODO: Use swagger to define these APIs.
 	api := router.Group(fmt.Sprintf("/%s", http_utils.API_ROOT))
 	{
-		api.POST(fmt.Sprintf("/%s", http_utils.ADD_CODE), cm.createModuleHttp)
-		api.GET(fmt.Sprintf("/%s", http_utils.DELETE_MODULE), cm.deleteCodeHttp)
-		api.GET(fmt.Sprintf("/%s", http_utils.LIST_CODE), cm.listCodeHttp)
-		api.POST(fmt.Sprintf("/%s", http_utils.DEPLOY), cm.deployCodeHttp)
-		api.POST(fmt.Sprintf("/%s", http_utils.UN_DEPLOY), cm.undeployCodeHttp)
+		api.POST(fmt.Sprintf("/%s", http_utils.ADD_MODULE), cm.createModuleHttp)
+		api.GET(fmt.Sprintf("/%s", http_utils.DELETE_MODULE), cm.deleteModuleHttp)
+		api.GET(fmt.Sprintf("/%s", http_utils.LIST_MODULE), cm.listModuleHttp)
+		api.POST(fmt.Sprintf("/%s", http_utils.DEPLOY), cm.deployModuleHttp)
+		api.POST(fmt.Sprintf("/%s", http_utils.UN_DEPLOY), cm.undeployModuleHttp)
 	}
 
 	router.GET("/swagger/*any", ginswag.WrapHandler(swagfiles.Handler))
