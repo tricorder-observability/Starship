@@ -96,7 +96,7 @@ func TestModuleManager(t *testing.T) {
 
 func ListModule(t *testing.T, r *gin.Engine) {
 	r.GET("/api/listCode", cm.listCodeHttp)
-	req, _ := http.NewRequest("GET", "/api/listCode?fields=id,name,status", nil)
+	req, _ := http.NewRequest("GET", "/api/listCode?fields=id,name,desired_state", nil)
 
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, req)
