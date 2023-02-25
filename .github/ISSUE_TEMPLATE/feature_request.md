@@ -13,6 +13,12 @@ A clear and concise description of what the problem is. Ex. I'm always frustrate
 **Describe the solution you'd like**
 A clear and concise description of what you want to happen.
 
+**Are you on Kubernetes**
+Yes/No
+
+**Kernel version**
+4.xx/5.xx/6.xx
+
 **Describe alternatives you've considered**
 A clear and concise description of any alternative solutions or features you've considered.
 
