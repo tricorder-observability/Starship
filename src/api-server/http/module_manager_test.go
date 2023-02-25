@@ -95,7 +95,7 @@ func TestModuleManager(t *testing.T) {
 }
 
 func ListModule(t *testing.T, r *gin.Engine) {
-	r.GET("/api/listCode", cm.listCode)
+	r.GET("/api/listCode", cm.listCodeHttp)
 	req, _ := http.NewRequest("GET", "/api/listCode?fields=id,name,status", nil)
 
 	w := httptest.NewRecorder()
@@ -135,7 +135,7 @@ func AddModule(t *testing.T, wasmUid string, r *gin.Engine) string {
 		}
 	}`, moduleName)
 	jsonData := []byte(moduleBody)
-	r.POST("/api/addCode", cm.createModule)
+	r.POST("/api/addCode", cm.createModuleHttp)
 	req, _ := http.NewRequest("POST", "/api/addCode", bytes.NewBuffer(jsonData))
 	req.Header.Set("Content-Type", "application/json; charset=utf-8")
 	w := httptest.NewRecorder()
@@ -158,7 +158,7 @@ func AddModule(t *testing.T, wasmUid string, r *gin.Engine) string {
 
 // delete module
 func deleteModule(t *testing.T, modulID string, r *gin.Engine) {
-	r.GET("/api/deleteCode", cm.deleteCode)
+	r.GET("/api/deleteCode", cm.deleteCodeHttp)
 	req, _ := http.NewRequest("GET", fmt.Sprintf("/api/deleteCode?id=%s", modulID), nil)
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, req)
@@ -174,7 +174,7 @@ func deleteModule(t *testing.T, modulID string, r *gin.Engine) {
 
 // undeploy module
 func unDeployModule(t *testing.T, modulID string, r *gin.Engine) {
-	r.GET("/api/undeploy", cm.undeployCode)
+	r.GET("/api/undeploy", cm.undeployCodeHttp)
 	req, _ := http.NewRequest("GET", fmt.Sprintf("/api/undeploy?id=%s", modulID), nil)
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, req)
@@ -191,7 +191,7 @@ func unDeployModule(t *testing.T, modulID string, r *gin.Engine) {
 }
 
 func deployModule(t *testing.T, modulID string, r *gin.Engine) {
-	r.GET("/api/deploy", cm.deployCode)
+	r.GET("/api/deploy", cm.deployCodeHttp)
 	req, _ := http.NewRequest("GET", fmt.Sprintf("/api/deploy?id=%s", modulID), nil)
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, req)
@@ -199,7 +199,7 @@ func deployModule(t *testing.T, modulID string, r *gin.Engine) {
 
 	assert.Equal(t, true, strings.Contains(resultStr, "prepare to deploy"))
 
-	var deployResult DeployModuleResult
+	var deployResult DeployModuleResp
 	err := json.Unmarshal([]byte(resultStr), &deployResult)
 	if err != nil {
 		t.Errorf("deploy module error:%v", err)
@@ -214,12 +214,12 @@ func deployModule(t *testing.T, modulID string, r *gin.Engine) {
 
 	// check grafana dashboard create result
 	ds := grafana.NewDashboard()
-	detailResult, err := ds.GetDashboardDetail(deployResult.ID)
+	detailResult, err := ds.GetDashboardDetail(deployResult.UID)
 	if err != nil {
 		t.Errorf("get grafana dashboard detail error:%v", err)
 	}
 	temp := fmt.Sprint(detailResult)
-	assert.Equal(t, true, strings.Contains(temp, deployResult.ID))
+	assert.Equal(t, true, strings.Contains(temp, deployResult.UID))
 
 	// check create postgres schema result
 	const moduleDataTableNamePrefix = "tricorder_code_"

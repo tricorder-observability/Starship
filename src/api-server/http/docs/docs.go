@@ -40,17 +40,17 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "accounts"
+                    "module"
                 ],
-                "summary": "Add module",
+                "summary": "Create module",
                 "parameters": [
                     {
-                        "description": "Add module",
+                        "description": "Create module",
                         "name": "module",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/module.Module"
+                            "$ref": "#/definitions/http.CreateModuleReq"
                         }
                     }
                 ],
@@ -58,7 +58,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/module.Module"
+                            "$ref": "#/definitions/http.CreateModuleResp"
                         }
                     }
                 }
@@ -66,7 +66,7 @@ const docTemplate = `{
         },
         "/api/deleteCode": {
             "get": {
-                "description": "Create Module",
+                "description": "Delete Module by id",
                 "consumes": [
                     "application/json"
                 ],
@@ -74,9 +74,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "accounts"
+                    "module"
                 ],
-                "summary": "Delete module by id",
+                "summary": "Delete module",
                 "parameters": [
                     {
                         "type": "string",
@@ -90,7 +90,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/module.Module"
+                            "$ref": "#/definitions/http.HTTPResp"
                         }
                     }
                 }
@@ -122,7 +122,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/module.Module"
+                            "$ref": "#/definitions/http.DeployModuleResp"
                         }
                     }
                 }
@@ -130,7 +130,7 @@ const docTemplate = `{
         },
         "/api/listCode": {
             "get": {
-                "description": "Create Module",
+                "description": "List all moudle",
                 "consumes": [
                     "application/json"
                 ],
@@ -138,7 +138,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "accounts"
+                    "module"
                 ],
                 "summary": "List all moudle",
                 "parameters": [
@@ -153,10 +153,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/module.Module"
-                            }
+                            "$ref": "#/definitions/http.ListModuleResp"
                         }
                     }
                 }
@@ -164,7 +161,7 @@ const docTemplate = `{
         },
         "/api/undeployCode": {
             "post": {
-                "description": "Create Module",
+                "description": "Undeploy Module By ID",
                 "consumes": [
                     "application/json"
                 ],
@@ -172,7 +169,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "accounts"
+                    "module"
                 ],
                 "summary": "Undeploy module",
                 "parameters": [
@@ -188,7 +185,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/module.Module"
+                            "$ref": "#/definitions/http.HTTPResp"
                         }
                     }
                 }
@@ -264,6 +261,60 @@ const docTemplate = `{
                 }
             }
         },
+        "dao.ModuleGORM": {
+            "type": "object",
+            "properties": {
+                "create_time": {
+                    "type": "string"
+                },
+                "ebpf": {
+                    "type": "string"
+                },
+                "ebpf_fmt": {
+                    "type": "integer"
+                },
+                "ebpf_lang": {
+                    "type": "integer"
+                },
+                "ebpf_perf_name": {
+                    "type": "string"
+                },
+                "ebpf_probes": {
+                    "type": "string"
+                },
+                "fn": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "schema_attr": {
+                    "type": "string"
+                },
+                "schema_name": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "integer"
+                },
+                "wasm": {
+                    "description": "wasm store the whole wasm file content",
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "wasm_fmt": {
+                    "type": "integer"
+                },
+                "wasm_lang": {
+                    "type": "integer"
+                }
+            }
+        },
         "ebpf.ProbeSpec": {
             "type": "object",
             "properties": {
@@ -331,35 +382,87 @@ const docTemplate = `{
                 }
             }
         },
-        "module.Module": {
+        "http.CreateModuleReq": {
             "type": "object",
             "properties": {
                 "ebpf": {
                     "$ref": "#/definitions/ebpf.Program"
+                },
+                "id": {
+                    "type": "string"
                 },
                 "name": {
                     "type": "string"
                 },
                 "wasm": {
                     "$ref": "#/definitions/wasm.Program"
-                },
-                "wasm_output_encoding": {
-                    "$ref": "#/definitions/module.Module_EncodingParadigm"
                 }
             }
         },
-        "module.Module_EncodingParadigm": {
-            "type": "integer",
-            "enum": [
-                0,
-                1,
-                2
-            ],
-            "x-enum-varnames": [
-                "Module_NONE",
-                "Module_TLV",
-                "Module_JSON"
-            ]
+        "http.CreateModuleResp": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "http.DeployModuleResp": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "success": {
+                    "type": "boolean"
+                },
+                "uid": {
+                    "type": "string"
+                }
+            }
+        },
+        "http.HTTPResp": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "http.ListModuleResp": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dao.ModuleGORM"
+                    }
+                },
+                "message": {
+                    "type": "string"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
         },
         "wasm.Program": {
             "type": "object",

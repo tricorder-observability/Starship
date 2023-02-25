@@ -49,6 +49,42 @@ definitions:
       name:
         type: string
     type: object
+  dao.ModuleGORM:
+    properties:
+      create_time:
+        type: string
+      ebpf:
+        type: string
+      ebpf_fmt:
+        type: integer
+      ebpf_lang:
+        type: integer
+      ebpf_perf_name:
+        type: string
+      ebpf_probes:
+        type: string
+      fn:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      schema_attr:
+        type: string
+      schema_name:
+        type: string
+      status:
+        type: integer
+      wasm:
+        description: wasm store the whole wasm file content
+        items:
+          type: integer
+        type: array
+      wasm_fmt:
+        type: integer
+      wasm_lang:
+        type: integer
+    type: object
   ebpf.ProbeSpec:
     properties:
       binary_path:
@@ -97,27 +133,59 @@ definitions:
           $ref: '#/definitions/ebpf.ProbeSpec'
         type: array
     type: object
-  module.Module:
+  http.CreateModuleReq:
     properties:
       ebpf:
         $ref: '#/definitions/ebpf.Program'
+      id:
+        type: string
       name:
         type: string
       wasm:
         $ref: '#/definitions/wasm.Program'
-      wasm_output_encoding:
-        $ref: '#/definitions/module.Module_EncodingParadigm'
     type: object
-  module.Module_EncodingParadigm:
-    enum:
-    - 0
-    - 1
-    - 2
-    type: integer
-    x-enum-varnames:
-    - Module_NONE
-    - Module_TLV
-    - Module_JSON
+  http.CreateModuleResp:
+    properties:
+      code:
+        type: integer
+      message:
+        type: string
+      success:
+        type: boolean
+    type: object
+  http.DeployModuleResp:
+    properties:
+      code:
+        type: integer
+      message:
+        type: string
+      success:
+        type: boolean
+      uid:
+        type: string
+    type: object
+  http.HTTPResp:
+    properties:
+      code:
+        type: integer
+      message:
+        type: string
+      success:
+        type: boolean
+    type: object
+  http.ListModuleResp:
+    properties:
+      code:
+        type: integer
+      data:
+        items:
+          $ref: '#/definitions/dao.ModuleGORM'
+        type: array
+      message:
+        type: string
+      success:
+        type: boolean
+    type: object
   wasm.Program:
     properties:
       code:
@@ -142,27 +210,27 @@ paths:
       - application/json
       description: Create Module
       parameters:
-      - description: Add module
+      - description: Create module
         in: body
         name: module
         required: true
         schema:
-          $ref: '#/definitions/module.Module'
+          $ref: '#/definitions/http.CreateModuleReq'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/module.Module'
-      summary: Add module
+            $ref: '#/definitions/http.CreateModuleResp'
+      summary: Create module
       tags:
-      - accounts
+      - module
   /api/deleteCode:
     get:
       consumes:
       - application/json
-      description: Create Module
+      description: Delete Module by id
       parameters:
       - description: delete module id
         in: query
@@ -175,10 +243,10 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/module.Module'
-      summary: Delete module by id
+            $ref: '#/definitions/http.HTTPResp'
+      summary: Delete module
       tags:
-      - accounts
+      - module
   /api/deployCode:
     post:
       consumes:
@@ -196,7 +264,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/module.Module'
+            $ref: '#/definitions/http.DeployModuleResp'
       summary: Deploy module
       tags:
       - module
@@ -204,7 +272,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: Create Module
+      description: List all moudle
       parameters:
       - description: query field search like 'id,name,createTime'
         in: query
@@ -216,17 +284,15 @@ paths:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/module.Module'
-            type: array
+            $ref: '#/definitions/http.ListModuleResp'
       summary: List all moudle
       tags:
-      - accounts
+      - module
   /api/undeployCode:
     post:
       consumes:
       - application/json
-      description: Create Module
+      description: Undeploy Module By ID
       parameters:
       - description: undeploy module id
         in: query
@@ -239,8 +305,8 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/module.Module'
+            $ref: '#/definitions/http.HTTPResp'
       summary: Undeploy module
       tags:
-      - accounts
+      - module
 swagger: "2.0"
