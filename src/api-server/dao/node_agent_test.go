@@ -47,8 +47,8 @@ func TestNodeAgent(t *testing.T) {
 
 	id := strings.Replace(uuid.New(), "-", "_", -1)
 	node := &NodeAgentGORM{
-		ID:   id,
-		Name: "TestNodeAgent",
+		AgentID:  id,
+		NodeName: "TestNodeAgent",
 	}
 
 	// save module
@@ -62,52 +62,73 @@ func TestNodeAgent(t *testing.T) {
 	if err != nil {
 		t.Errorf("not query ID=%s data, save node agent err %v", id, err)
 	}
-	if node.ID != id {
+	if node.AgentID != id {
 		t.Errorf("save node error, node.ID !=  " + id)
 	}
 
-	// if node.Name != TestNodeAgent, node save error
-	if node.Name != "TestNodeAgent" {
+	// if node.NodeName != TestNodeAgent, node save error
+	if node.NodeName != "TestNodeAgent" {
 		t.Errorf("save agent error, node.Name != TestNodeAgent")
 	}
 
-	listA, _ := nodeAgentDao.List()
-	t.Errorf("all list %v", listA)
+	createTime := *node.CreateTime
+	lastUpdateTime := *node.LastUpdateTime
 
 	// update ID
 	newID := strings.Replace(uuid.New(), "-", "_", -1)
-	node.ID = newID
+	node.AgentID = newID
 	err = nodeAgentDao.UpdateByName(node)
 	if err != nil {
 		t.Errorf("update node error: %v", err)
 	}
-	node, err = nodeAgentDao.QueryByName(node.Name)
+
+	node, err = nodeAgentDao.QueryByName(node.NodeName)
 	if err != nil {
 		t.Errorf("query node by Name error: %v", err)
 	}
 	// check update id result
-	if node.ID != newID {
-		t.Errorf("update node.ID=newID error")
+	if node.AgentID != newID {
+		t.Errorf("update node.AgentID=newID error")
 	}
 
+	if *node.LastUpdateTime == lastUpdateTime {
+		t.Errorf("update node.AgentID=newID error, LastUpdateTime not update")
+	}
+
+	if *node.CreateTime != createTime {
+		t.Errorf("update node.AgentID=newID error, can not update CreateTime")
+	}
+
+	createTime = *node.CreateTime
+	lastUpdateTime = *node.LastUpdateTime
+
 	// test node.Status
-	if node.Status != int(AgentStatusOnline) {
-		t.Errorf("query node status error, node.Status != AgentStatusOnline ")
+	if node.State != int(AgentStateOnline) {
+		t.Errorf("query node state error, node.Status != AgentStatusOnline ")
 	}
 
 	// test update module status
-	err = nodeAgentDao.UpdateStatusByName(node.Name, int(AgentStatusOffline))
+	err = nodeAgentDao.UpdateStatusByName(node.NodeName, int(AgentStateOffline))
 	if err != nil {
-		t.Errorf("change node status error: %v", err)
+		t.Errorf("change node state error: %v", err)
 	}
-	node, err = nodeAgentDao.QueryByID(node.ID)
+	node, err = nodeAgentDao.QueryByID(node.AgentID)
 	if err != nil {
-		t.Errorf("query node by ID error: %v", err)
+		t.Errorf("query node by AgentID error: %v", err)
 	}
 	// check node status
-	if node.Status != int(AgentStatusOffline) {
-		t.Errorf("change node status by ID error: not change node status")
+	if node.State != int(AgentStateOffline) {
+		t.Errorf("change node status by AgentID error: not change node status")
 	}
+
+	if *node.LastUpdateTime == lastUpdateTime {
+		t.Errorf("change node status by AgentID error, LastUpdateTime not update")
+	}
+
+	if *node.CreateTime != createTime {
+		t.Errorf("change node status by AgentID error, can not update CreateTime")
+	}
+
 	// get module list *
 	list, err := nodeAgentDao.List("*")
 	if err != nil {
@@ -117,7 +138,7 @@ func TestNodeAgent(t *testing.T) {
 		t.Errorf("query node list error: not found node data")
 	}
 
-	if list[0].ID != node.ID {
+	if list[0].AgentID != node.AgentID {
 		t.Errorf("query node list erro default: not found inserted node")
 	}
 
@@ -129,22 +150,22 @@ func TestNodeAgent(t *testing.T) {
 	if len(list) == 0 {
 		t.Errorf("query module list erro default: not found node data")
 	}
-	if list[0].ID != node.ID {
+	if list[0].AgentID != node.AgentID {
 		t.Errorf("query module list erro default: not found inserted node")
 	}
 
 	// get module list default
-	list, err = nodeAgentDao.List("id", "name")
+	list, err = nodeAgentDao.List("agent_id", "node_name")
 	if err != nil {
 		t.Errorf("query node list default error: %v", err)
 	}
 	if len(list) == 0 {
 		t.Errorf("query node list erro default: not found node data")
 	}
-	if len(list[0].ID) == 0 {
-		t.Errorf("query node list erro default: ID is empty")
+	if len(list[0].AgentID) == 0 {
+		t.Errorf("query node list erro default: AgentID is empty")
 	}
-	if len(list[0].Name) == 0 {
-		t.Errorf("query node list erro default: Name is empty")
+	if len(list[0].NodeName) == 0 {
+		t.Errorf("query node list erro default: NodeName is empty")
 	}
 }
