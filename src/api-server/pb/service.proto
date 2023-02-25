@@ -65,7 +65,7 @@ message DeployModuleReq {
   // the agent,
   // so that one can deploy and forget if setting
   // this to a finite number
-  // 0 means inifite lifetime
+  // 0 means infinite lifetime
   int32 life_time_seconds = 2;
 
   // Describe a complete eBPF+WASM module.

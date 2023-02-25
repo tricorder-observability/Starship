@@ -73,6 +73,10 @@ func TestParseVersion(t *testing.T) {
 			"5.15.0-1028.32-aws",
 			Version{5, 15, 0},
 		},
+		{
+			"5.15.257-1028.32-aws",
+			Version{5, 15, 257},
+		},
 	} {
 		v, err := parseVersion(c.str)
 		assert.Nil(err)
