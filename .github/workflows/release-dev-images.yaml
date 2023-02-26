@@ -36,16 +36,16 @@ jobs:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - uses: bazelbuild/setup-bazelisk@v2
-      - name: Build and push starship api-server image to Github Packages
-        run: bazel run --define=TAG=${TAG} --define=REGISTRY=${REGISTRY} //src/api-server/cmd:push_api-server_image
-        working-directory: .
       - name: Login to Docker Hub
         uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
         with:
           #registry: docker.io
           username: ${{ secrets.DOCKER_HUB_USER_NAME }}
           password: ${{ secrets.DOCKER_HUB_USER_PASSWORD }}
+      - uses: bazelbuild/setup-bazelisk@v2
+      - name: Build and push starship api-server image to Github Packages
+        run: bazel run --define=TAG=${TAG} --define=REGISTRY=${REGISTRY} //src/api-server/cmd:push_api-server_image
+        working-directory: .
       - name: Build and push starship api-server image to Docker hub
         run: bazel run --define=TAG=${TAG} --define=REGISTRY=${DOCKER_HUB_REGISTRY} //src/api-server/cmd:push_api-server_image
         working-directory: .
