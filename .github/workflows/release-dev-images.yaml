@@ -42,8 +42,8 @@ jobs:
       - name: Build and push starship api-server image
         run: bazel run --define=TAG=${TAG} --define=REGISTRY=${REGISTRY} //src/api-server/cmd:push_api-server_image
         working-directory: .
-      - name: Docker tag ${REGISTRY}/api-server:${TAG} ${{ env.REGISTRY }}/api-server:${TAG}
-        run: docker tag 
+      - name: Docker tag
+        run: docker tag ${REGISTRY}/api-server:${TAG} ${{ env.REGISTRY }}/api-server:${TAG} 
       - name: Login to Docker Hub Registry
         uses: docker/login-action@v2.1.0
         with:
