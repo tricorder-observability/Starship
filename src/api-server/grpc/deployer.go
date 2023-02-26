@@ -165,7 +165,7 @@ func (s *Deployer) DeployModule(stream servicepb.ModuleDeployer_DeployModuleServ
 
 // NewDeployer returns a Deployer object with the input SQLite ORM client.
 func NewDeployer(orm *sqlite.ORM) *Deployer {
-	return Deployer{
+	return &Deployer{
 		Module: dao.ModuleDao{
 			Client: orm,
 		},

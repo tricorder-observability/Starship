@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"net"
 
-	"github.com/tricorder/src/utils/errors"
 	"google.golang.org/grpc"
+
+	"github.com/tricorder/src/utils/errors"
 )
 
 // Includes the underlying data structures for serving gRPC RPCs.
@@ -23,7 +24,7 @@ type serverFixture struct {
 
 // Returns a new serverFixture that listens at the specified port of the localhost.
 func newServerFixture(port int) (*serverFixture, error) {
-	addrStr := fmt.Sprintf(":%d", prot)
+	addrStr := fmt.Sprintf(":%d", port)
 	listener, err := net.Listen("tcp", addrStr)
 	if err != nil {
 		return nil, errors.Wrap("newing serverFixture", "listen "+addrStr, err)
