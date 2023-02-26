@@ -53,6 +53,7 @@ const (
 type ModuleInstanceGORM struct {
 	ID             string     `gorm:"'id' primarykey" json:"id,omitempty"`
 	ModuleID       string     `gorm:"module_id" json:"module_id,omitempty"`
+	ModuleName     string     `gorm:"module_name" json:"module_name,omitempty"`
 	NodeName       string     `gorm:"node_name" json:"node_name,omitempty"`
 	AgentID        string     `gorm:"agent_id" json:"agent_id,omitempty"`
 	State          int        `gorm:"state" json:"state,omitempty"`
@@ -90,13 +91,13 @@ func (g *ModuleInstanceDao) UpdateByID(module *ModuleInstanceGORM) error {
 }
 
 func (g *ModuleInstanceDao) UpdateStatusByID(ID string, statue int) error {
-	agent := NodeAgentGORM{}
+	module := ModuleInstanceGORM{}
 
-	agent.LastUpdateTime = &time.Time{}
-	*agent.LastUpdateTime = time.Now()
-	agent.State = statue
+	module.LastUpdateTime = &time.Time{}
+	*module.LastUpdateTime = time.Now()
+	module.State = statue
 
-	result := g.Client.Engine.Model(&ModuleInstanceGORM{}).Where("id", ID).Updates(agent)
+	result := g.Client.Engine.Model(&ModuleInstanceGORM{}).Where("id", ID).Updates(module)
 	return result.Error
 }
 
@@ -109,7 +110,7 @@ func (g *ModuleInstanceDao) List(query ...string) ([]ModuleInstanceGORM, error) 
 	var moduleList []ModuleInstanceGORM
 	if len(query) == 0 {
 		query = []string{
-			"id", "module_id", "node_name", "agent_id", "state",
+			"id", "module_id", "module_name", "node_name", "agent_id", "state",
 			"desire_state", "create_time", "last_update_time",
 		}
 	}
@@ -123,7 +124,7 @@ func (g *ModuleInstanceDao) List(query ...string) ([]ModuleInstanceGORM, error) 
 	return moduleList, nil
 }
 
-func (g *ModuleInstanceDao) ListByStatus(state int) ([]ModuleInstanceGORM, error) {
+func (g *ModuleInstanceDao) ListByState(state int) ([]ModuleInstanceGORM, error) {
 	var moduleList []ModuleInstanceGORM
 	result := g.Client.Engine.Where(&ModuleInstanceGORM{State: state}).Order("create_time desc").Find(&moduleList)
 	if result.Error != nil {
@@ -132,7 +133,7 @@ func (g *ModuleInstanceDao) ListByStatus(state int) ([]ModuleInstanceGORM, error
 	return moduleList, nil
 }
 
-func (g *ModuleInstanceDao) ListByAgentID(nodeName string) ([]ModuleInstanceGORM, error) {
+func (g *ModuleInstanceDao) ListByNodeName(nodeName string) ([]ModuleInstanceGORM, error) {
 	var moduleList []ModuleInstanceGORM
 	result := g.Client.Engine.Where(&ModuleInstanceGORM{NodeName: nodeName}).Order("create_time desc").Find(&moduleList)
 	if result.Error != nil {
@@ -150,7 +151,7 @@ func (g *ModuleInstanceDao) ListByModuleID(moduleID string) ([]ModuleInstanceGOR
 	return moduleList, nil
 }
 
-func (g *ModuleInstanceDao) ListByAgentName(agentID string) ([]ModuleInstanceGORM, error) {
+func (g *ModuleInstanceDao) ListByAgentID(agentID string) ([]ModuleInstanceGORM, error) {
 	var moduleList []ModuleInstanceGORM
 	result := g.Client.Engine.Where(&ModuleInstanceGORM{AgentID: agentID}).Order("create_time desc").Find(&moduleList)
 	if result.Error != nil {

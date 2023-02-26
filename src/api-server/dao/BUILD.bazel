@@ -21,6 +21,7 @@ go_test(
     name = "dao_test",
     srcs = [
         "grafana_api_key_test.go",
+        "module_instance_test.go",
         "module_test.go",
         "node_agent_test.go",
         "sqlite_test.go",
