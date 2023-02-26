@@ -43,7 +43,7 @@ jobs:
     # only run there are changed files
     if: needs.query-changed-src-files.outputs.any_changed == 'true'
     container:
-      image: public.ecr.aws/tricorder/ci_image:202302140538
+      image: docker.io/tricorderobservability/ci_image:202302140538
       options: --privileged
       volumes:
         # Needed for accessing kernel headers
@@ -93,7 +93,7 @@ jobs:
     # only run there are changed files
     if: needs.query-changed-src-files.outputs.any_changed == 'true'
     container:
-      image: public.ecr.aws/tricorder/ci_image:202302140538
+      image: docker.io/tricorderobservability/ci_image:202302140538
       options: --privileged
       volumes:
         # Needed for accessing kernel headers
@@ -131,7 +131,7 @@ jobs:
     # only run there are changed files
     if: needs.query-changed-src-files.outputs.any_changed == 'true'
     container:
-      image: public.ecr.aws/tricorder/ci_image:202302140538
+      image: docker.io/tricorderobservability/ci_image:202302140538
       options: --privileged
       volumes:
         # Needed to access /sys/kernel/tracing/kprobe
@@ -162,7 +162,7 @@ jobs:
   build-api-server-images:
     runs-on: ubuntu-latest
     container:
-      image: public.ecr.aws/tricorder/ci_image:202302140538
+      image: docker.io/tricorderobservability/ci_image:202302140538
     timeout-minutes: 90
     needs: build-and-test
     env:
@@ -177,7 +177,7 @@ jobs:
   build-agent-images:
     runs-on: ubuntu-latest
     container:
-      image: public.ecr.aws/tricorder/ci_image:202302140538
+      image: docker.io/tricorderobservability/ci_image:202302140538
     timeout-minutes: 90
     needs: build-and-test
     env:
