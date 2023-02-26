@@ -4,6 +4,10 @@ on:
   push:
     branches:
       - main
+  # TODO(jian): delete this.
+  pull_request:
+    branches:
+      - main
 # no dependencies between jobs, so we can save time by building in concurrency
 # refs: https://docs.github.com/en/actions/using-jobs/using-concurrency
 concurrency:
