@@ -49,7 +49,7 @@ const (
 	ModuleInstanceFailed = 3
 )
 
-// NodeAgentGORM sqlite gorm storage and response object
+// ModuleInstanceGORM sqlite gorm storage and response object
 type ModuleInstanceGORM struct {
 	ID             string     `gorm:"'id' primarykey" json:"id,omitempty"`
 	ModuleID       string     `gorm:"module_id" json:"module_id,omitempty"`
