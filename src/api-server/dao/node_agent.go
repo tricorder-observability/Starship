@@ -77,7 +77,7 @@ func (g *NodeAgentDao) SaveAgent(agent *NodeAgentGORM) error {
 
 func (g *NodeAgentDao) UpdateByName(agent *NodeAgentGORM) error {
 	if len(agent.NodeName) == 0 {
-		return fmt.Errorf("name is empty")
+		return fmt.Errorf("name shuold not be empty")
 	}
 
 	agent.LastUpdateTime = &time.Time{}
