@@ -20,7 +20,10 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"io"
+	"log"
 	"net/http"
+	"strconv"
+	"strings"
 )
 
 type AuthToken struct {
@@ -36,6 +39,7 @@ func NewAuthToken() *AuthToken {
 // AuthKeyResult corresponds to the returned auth key after authenticating with Grafana.
 // This is used for invoking Grafana APIs at corresponding API path.
 type AuthKeyResult struct {
+	ID int `json:"id"`
 	// API name, essentially a URL path.
 	Name string `json:"name"`
 	Key  string `json:"key"`
@@ -72,4 +76,55 @@ func (g *AuthToken) GetToken(apiPath string) (*AuthKeyResult, error) {
 		return &out, nil
 	}
 	return nil, err
+}
+
+// GetAllGrafanaAPIKey get all create grafana keys.
+func (g *AuthToken) GetAllGrafanaAPIKey() ([]AuthKeyResult, error) {
+	req, err := http.NewRequest("GET", CreateAuthKeysURI, strings.NewReader(""))
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Content-Type", "application/json; charset=UTF-8")
+	req.Header.Set("Authorization", "Basic "+base64.StdEncoding.EncodeToString([]byte(BasicAuth)))
+	resp, err := g.client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err == nil {
+		var out []AuthKeyResult
+		err = json.Unmarshal(body, &out)
+		if err != nil {
+			return nil, err
+		}
+		return out, nil
+	}
+	return nil, err
+}
+
+// RemoveGrafanaAPIKeyById remove exist grafana api key by id
+func (g *AuthToken) RemoveGrafanaAPIKeyById(ID int) error {
+	req, err := http.NewRequest("DELETE", CreateAuthKeysURI+"/"+strconv.Itoa(ID), strings.NewReader(""))
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Content-Type", "application/json; charset=UTF-8")
+	req.Header.Set("Authorization", "Basic "+base64.StdEncoding.EncodeToString([]byte(BasicAuth)))
+	resp, err := g.client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err == nil {
+		log.Println("delete grafana result:", body)
+		// if err != nil {
+		// 	return err
+		// }
+		return nil
+	}
+	return err
 }
