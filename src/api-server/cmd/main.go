@@ -120,7 +120,7 @@ func main() {
 		if err != nil {
 			log.Fatalf("Failed to create gRPC server fixture, error: %v", err)
 		}
-		pb.RegisterModuleDeployerServer(f.Server, &sg.Deployer{Module: moduleDao})
+		pb.RegisterModuleDeployerServer(f.Server, sg.NewDeployer(sqliteClient))
 		if *enableMetadataService {
 			pb.RegisterProcessCollectorServer(f.Server, sg.NewPIDCollector(clientset, pgClient))
 		}
