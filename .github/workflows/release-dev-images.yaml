@@ -43,7 +43,7 @@ jobs:
         run: bazel run --define=TAG=${TAG} --define=REGISTRY=${REGISTRY} //src/api-server/cmd:push_api-server_image
         working-directory: .
       - name: Docker tag
-        run: docker tag ${REGISTRY}/api-server:${TAG} ${{ env.REGISTRY }}/api-server:${TAG} 
+        run: docker tag ${REGISTRY}/api-server:${TAG} ${{ env.DOCKER_HUB_REGISTRY }}/api-server:${TAG} 
       - name: Login to Docker Hub Registry
         uses: docker/login-action@v2.1.0
         with:
@@ -51,7 +51,7 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USER_NAME }}
           password: ${{ secrets.DOCKER_HUB_USER_PASSWORD }}
       - name: Push starship api-server image to Docker Hub
-        run: docker push ${{ env.REGISTRY }}/api-server:${TAG}
+        run: docker push ${{ env.DOCKER_HUB_REGISTRY }}/api-server:${TAG}
 
   build-agent-and-push-images:
     runs-on: ubuntu-latest
