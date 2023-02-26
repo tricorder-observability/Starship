@@ -351,7 +351,7 @@ func (mgr *ModuleManager) createGrafanaDashboard(moduleID string) (string, error
 	}
 
 	ds := grafana.NewDashboard()
-	result, err := ds.CreateDashboard(grafanaAPIKey, getModuleDataTableName(moduleID), mgr.DatasourceUID)
+	result, err := ds.CreateDashboard(grafanaAPIKey.AuthValue, getModuleDataTableName(moduleID), mgr.DatasourceUID)
 	if err != nil {
 		log.Println("Create dashboard", err)
 		return "", err
