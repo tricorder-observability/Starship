@@ -10,33 +10,33 @@ import (
 )
 
 // Includes the underlying data structures for serving gRPC RPCs.
-type serverFixture struct {
+type ServerFixture struct {
 	// A listener to accept client connection.
 	// gRPC server needs this to start serving client requests.
 	listener net.Listener
 
 	// A server that drives the server process.
-	server *grpc.Server
+	Server *grpc.Server
 
 	// The actual address this server listens.
 	addr net.Addr
 }
 
-// Returns a new serverFixture that listens at the specified port of the localhost.
-func newServerFixture(port int) (*serverFixture, error) {
+// Returns a new ServerFixture that listens at the specified port of the localhost.
+func NewServerFixture(port int) (*ServerFixture, error) {
 	addrStr := fmt.Sprintf(":%d", port)
 	listener, err := net.Listen("tcp", addrStr)
 	if err != nil {
-		return nil, errors.Wrap("newing serverFixture", "listen "+addrStr, err)
+		return nil, errors.Wrap("newing ServerFixture", "listen "+addrStr, err)
 	}
-	return &serverFixture{
+	return &ServerFixture{
 		listener: listener,
-		server:   grpc.NewServer(),
+		Server:   grpc.NewServer(),
 		addr:     listener.Addr(),
 	}, nil
 }
 
 // Starts serving gRPC service.
-func (f *serverFixture) serve() error {
-	return f.server.Serve(f.listener)
+func (f *ServerFixture) Serve() error {
+	return f.Server.Serve(f.listener)
 }
