@@ -61,97 +61,55 @@ func TestModule(t *testing.T) {
 	}
 	// save module
 	err := moduleDao.SaveModule(module)
-	if err != nil {
-		t.Errorf("save module err %v", err)
-	}
-	// test queryByID
+	assert.Nil(err, "save module err %v", err)
 
+	// test queryByID
 	module, err = moduleDao.QueryByID(id)
-	if err != nil {
-		t.Errorf("not query ID=%s data, save module err %v", id, err)
-	}
-	if module.ID != id {
-		t.Errorf("save module error, module.ID !=  " + id)
-	}
+	assert.Nil(err, "not query ID=%s data, save module err %v", id, err)
+	assert.Equal(module.ID, id, "save module error, module.ID !=  "+id)
 
 	// if module.Name != TestModule, module save error
-	if module.Name != "TestModule" {
-		t.Errorf("save module error, module.Name != TestModule ")
-	}
+	assert.Equal(module.Name, "TestModule", "save module error, module.Name != TestModule ")
 
 	// update status
 	module.Name = "UpdateName"
 	err = moduleDao.UpdateByID(module)
-	if err != nil {
-		t.Errorf("update module error: %v", err)
-	}
+	assert.Nil(err, "update module error: %v", err)
+
 	module, err = moduleDao.QueryByID(module.ID)
-	if err != nil {
-		t.Errorf("query module by ID error: %v", err)
-	}
-	// check update name result
-	if module.Name != "UpdateName" {
-		t.Errorf("update module.Name=UpdateName error")
-	}
+	assert.Nil(err, "query module by ID error: %v", err)
+	assert.Equal(module.Name, "UpdateName", "update module.Name=UpdateName error")
 
 	// test module.DesireState
-	if module.DesireState != int(pb.DeploymentState_CREATED) {
-		t.Errorf("query module status error, module.DesireState != DeploymentState_CREATED ")
-	}
+	assert.Equal(module.DesireState, int(pb.DeploymentState_CREATED), "query module status error, module.DesireState != DeploymentState_CREATED ")
 
 	// test update module status
 	err = moduleDao.UpdateStatusByID(module.ID, int(pb.DeploymentState_TO_BE_DEPLOYED))
-	if err != nil {
-		t.Errorf("change module status error: %v", err)
-	}
+	assert.Nil(err, "change module status error: %v", err)
+
 	module, err = moduleDao.QueryByID(module.ID)
-	if err != nil {
-		t.Errorf("query module by ID error: %v", err)
-	}
+	assert.Nil(err, "query module by ID error: %v", err)
+
 	// check module DesireState
-	if module.DesireState != int(pb.DeploymentState_TO_BE_DEPLOYED) {
-		t.Errorf("change module status by ID error: not change module status")
-	}
+	assert.Equal(module.DesireState, int(pb.DeploymentState_TO_BE_DEPLOYED), "change module status error: not change module status")
+
 	// get module list *
 	list, err := moduleDao.ListModule("*")
-	if err != nil {
-		t.Errorf("query module list error: %v", err)
-	}
-	if len(list) == 0 {
-		t.Errorf("query module list error: not found module data")
-	}
-
-	if len(list[0].Wasm) == 0 {
-		t.Errorf("query module list erro default: not found wasm data")
-	}
+	assert.Nil(err, "query module list error: %v", err)
+	assert.NotEqual(len(list), 0, "query module list error: not found module data")
+	assert.NotEqual(len(list[0].Wasm), 0, "query module list error: not found wasm data")
 
 	// get module list default
 	list, err = moduleDao.ListModule()
-	if err != nil {
-		t.Errorf("query module list default error: %v", err)
-	}
-	if len(list) == 0 {
-		t.Errorf("query module list erro default: not found module data")
-	}
-	if len(list[0].Wasm) != 0 {
-		t.Errorf("query module list erro default: not found wasm data")
-	}
+	assert.Nil(err, "query module list default error: %v", err)
+	assert.NotEqual(len(list), 0, "query module list erro default: not found module data")
+	assert.Equal(len(list[0].Wasm), 0, "query module list erro default: not found wasm data")
 
 	// get module list default
 	list, err = moduleDao.ListModule("id", "name")
-	if err != nil {
-		t.Errorf("query module list default error: %v", err)
-	}
-	if len(list) == 0 {
-		t.Errorf("query module list erro default: not found module data")
-	}
-	if len(list[0].ID) == 0 {
-		t.Errorf("query module list erro default: ID is empty")
-	}
-	if len(list[0].Name) == 0 {
-		t.Errorf("query module list erro default: Name is empty")
-	}
-	if len(list[0].Wasm) != 0 {
-		t.Errorf("query module list erro default: Wasm is not empty")
-	}
+	assert.Nil(err, "query module list default error: %v", err)
+	assert.NotEqual(len(list), 0, "query module list erro default: not found module data")
+	assert.NotEqual(len(list[0].ID), 0, "query module list erro default: ID is empty")
+	assert.NotEqual(len(list[0].Name), 0, "query module list erro default: Name is empty")
+	assert.Equal(len(list[0].Wasm), 0, "query module list erro default: Wasm is not empty")
 }

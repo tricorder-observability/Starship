@@ -53,23 +53,13 @@ func TestNodeAgent(t *testing.T) {
 
 	// save module
 	err := nodeAgentDao.SaveAgent(node)
-	if err != nil {
-		t.Errorf("save node agent err %v", err)
-	}
+	assert.Nil(err, "save node agent err %v", err)
 
 	// test queryByID
 	node, err = nodeAgentDao.QueryByID(id)
-	if err != nil {
-		t.Errorf("not query ID=%s data, save node agent err %v", id, err)
-	}
-	if node.AgentID != id {
-		t.Errorf("save node error, node.ID !=  " + id)
-	}
-
-	// if node.NodeName != TestNodeAgent, node save error
-	if node.NodeName != "TestNodeAgent" {
-		t.Errorf("save agent error, node.Name != TestNodeAgent")
-	}
+	assert.Nil(err, "not query ID=%s data, save node agent err %v", id, err)
+	assert.Equal(node.AgentID, id, "save node error, node.ID !=  "+id)
+	assert.Equal(node.NodeName, "TestNodeAgent", "save agent error, node.Name != TestNodeAgent")
 
 	createTime := *node.CreateTime
 	lastUpdateTime := *node.LastUpdateTime
@@ -78,94 +68,49 @@ func TestNodeAgent(t *testing.T) {
 	newID := strings.Replace(uuid.New(), "-", "_", -1)
 	node.AgentID = newID
 	err = nodeAgentDao.UpdateByName(node)
-	if err != nil {
-		t.Errorf("update node error: %v", err)
-	}
+	assert.Nil(err, "update node error: %v", err)
 
 	node, err = nodeAgentDao.QueryByName(node.NodeName)
-	if err != nil {
-		t.Errorf("query node by Name error: %v", err)
-	}
-	// check update id result
-	if node.AgentID != newID {
-		t.Errorf("update node.AgentID=newID error")
-	}
-
-	if *node.LastUpdateTime == lastUpdateTime {
-		t.Errorf("update node.AgentID=newID error, LastUpdateTime not update")
-	}
-
-	if *node.CreateTime != createTime {
-		t.Errorf("update node.AgentID=newID error, can not update CreateTime")
-	}
+	assert.Nil(err, "not query ID=%s data, save node agent err %v", id, err)
+	assert.Equal(node.AgentID, newID, "update node error, node.ID !=  "+newID)
+	assert.Equal(node.NodeName, "TestNodeAgent", "update agent error, node.Name != TestNodeAgent")
+	assert.NotEqual(*node.LastUpdateTime, lastUpdateTime, "update node error, LastUpdateTime not update")
+	assert.Equal(*node.CreateTime, createTime, "update node error, can not update CreateTime")
 
 	createTime = *node.CreateTime
 	lastUpdateTime = *node.LastUpdateTime
 
 	// test node.Status
-	if node.State != int(AgentStateOnline) {
-		t.Errorf("query node state error, node.Status != AgentStatusOnline ")
-	}
+	assert.Equal(node.State, int(AgentStateOnline), "query node state error, node.Status != AgentStatusOnline ")
 
 	// test update module status
 	err = nodeAgentDao.UpdateStatusByName(node.NodeName, int(AgentStateOffline))
-	if err != nil {
-		t.Errorf("change node state error: %v", err)
-	}
+	assert.Nil(err, "change node state error: %v", err)
+
 	node, err = nodeAgentDao.QueryByID(node.AgentID)
-	if err != nil {
-		t.Errorf("query node by AgentID error: %v", err)
-	}
-	// check node status
-	if node.State != int(AgentStateOffline) {
-		t.Errorf("change node status by AgentID error: not change node status")
-	}
-
-	if *node.LastUpdateTime == lastUpdateTime {
-		t.Errorf("change node status by AgentID error, LastUpdateTime not update")
-	}
-
-	if *node.CreateTime != createTime {
-		t.Errorf("change node status by AgentID error, can not update CreateTime")
-	}
+	assert.Nil(err, "not query ID=%s data, save node agent err %v", id, err)
+	assert.Equal(node.State, int(AgentStateOffline), "change node state error, node.Status != AgentStatusOffline ")
+	assert.NotEqual(*node.LastUpdateTime, lastUpdateTime, "change node state error, LastUpdateTime not update")
+	assert.Equal(*node.CreateTime, createTime, "change node state error, can not update CreateTime")
+	assert.Equal(node.AgentID, newID, "change node state error, node.ID !=  "+newID)
 
 	// get module list *
 	list, err := nodeAgentDao.List("*")
-	if err != nil {
-		t.Errorf("query node list error: %v", err)
-	}
-	if len(list) == 0 {
-		t.Errorf("query node list error: not found node data")
-	}
-
-	if list[0].AgentID != node.AgentID {
-		t.Errorf("query node list erro default: not found inserted node")
-	}
+	assert.Nil(err, "query node list error: %v", err)
+	assert.NotEqual(len(list), 0, "query node list error: not found node data")
+	assert.Equal(list[0].AgentID, node.AgentID, "query node list erro default: not found inserted node")
 
 	// get node list default
 	list, err = nodeAgentDao.List()
-	if err != nil {
-		t.Errorf("query module list default error: %v", err)
-	}
-	if len(list) == 0 {
-		t.Errorf("query module list erro default: not found node data")
-	}
-	if list[0].AgentID != node.AgentID {
-		t.Errorf("query module list erro default: not found inserted node")
-	}
+	assert.Nil(err, "query node list default error: %v", err)
+	assert.NotEqual(len(list), 0, "query node list erro default: not found node data")
+	assert.Equal(list[0].AgentID, node.AgentID, "query node list erro default: not found inserted node")
 
 	// get module list default
 	list, err = nodeAgentDao.List("agent_id", "node_name")
-	if err != nil {
-		t.Errorf("query node list default error: %v", err)
-	}
-	if len(list) == 0 {
-		t.Errorf("query node list erro default: not found node data")
-	}
-	if len(list[0].AgentID) == 0 {
-		t.Errorf("query node list erro default: AgentID is empty")
-	}
-	if len(list[0].NodeName) == 0 {
-		t.Errorf("query node list erro default: NodeName is empty")
-	}
+	assert.Nil(err, "query node list default error: %v", err)
+	assert.NotEqual(len(list), 0, "query node list erro default: not found node data")
+	assert.Equal(list[0].AgentID, node.AgentID, "query node list erro default: not found inserted node")
+	assert.NotEqual(len(list[0].AgentID), 0, "query node list erro default: AgentID is not empty")
+	assert.NotEqual(len(list[0].NodeName), 0, "query node list erro default: NodeName is not empty")
 }
