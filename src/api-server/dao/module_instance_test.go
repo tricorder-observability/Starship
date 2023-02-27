@@ -22,13 +22,14 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
+	pb "github.com/tricorder/src/api-server/pb"
 	bazelutils "github.com/tricorder/src/testing/bazel"
 	"github.com/tricorder/src/utils/uuid"
 )
 
 // test module dao fun
 // init sqlit gorm and create table
-// test dao.SaveCode and check save result
+// test dao.SaveModuleInstance and check save result
 // test dao.QueryByID
 // test update code status and check update result
 func TestModuleInstance(t *testing.T) {
@@ -52,7 +53,7 @@ func TestModuleInstance(t *testing.T) {
 		ModuleName: "TestModule",
 		AgentID:    id,
 		NodeName:   "TestNodeAgent",
-		State:      ModuleInstanceInit,
+		State:      int(pb.ModuleInstanceState_INIT),
 	}
 
 	// save module
@@ -87,18 +88,18 @@ func TestModuleInstance(t *testing.T) {
 	lastUpdateTime = *moduleInstance.LastUpdateTime
 
 	// test node.Status
-	assert.Equal(moduleInstance.State, int(ModuleInstanceInit),
-		"query moduleInstance state error, moduleInstance.Status != ModuleInstanceInit ")
+	assert.Equal(moduleInstance.State, int(pb.ModuleInstanceState_INIT),
+		"query moduleInstance state error, moduleInstance.Status != pb.ModuleInstanceState_INIT ")
 
 	// test update module status
-	err = ModuleInstanceDao.UpdateStatusByID(moduleInstance.ID, int(ModuleInstanceSucceeed))
+	err = ModuleInstanceDao.UpdateStatusByID(moduleInstance.ID, int(pb.ModuleInstanceState_SUCCEEDED))
 	assert.Nil(err, "update moduleInstance status by ID error: %v", err)
 
 	moduleInstance, err = ModuleInstanceDao.QueryByID(moduleInstance.ID)
 	assert.Nil(err, "query moduleInstance by ID error: %v", err)
 
 	// check node status
-	assert.Equal(moduleInstance.State, int(ModuleInstanceSucceeed),
+	assert.Equal(moduleInstance.State, int(pb.ModuleInstanceState_SUCCEEDED),
 		"change moduleInstance status by ID error: not change moduleInstance status")
 	assert.NotEqual(*moduleInstance.LastUpdateTime, lastUpdateTime,
 		"change moduleInstance status by ID error, LastUpdateTime not update")
@@ -131,7 +132,7 @@ func TestModuleInstance(t *testing.T) {
 		"query moduleInstance list erro default: NodeName is empty")
 
 	// get moduleInstance list By State
-	list, err = ModuleInstanceDao.ListByState(ModuleInstanceSucceeed)
+	list, err = ModuleInstanceDao.ListByState(int(pb.ModuleInstanceState_SUCCEEDED))
 	assert.Nil(err, "query moduleInstance list by state error: %v", err)
 	assert.NotEqual(len(list), 0, "query moduleInstance list by state error: not found moduleInstance data")
 	assert.Equal(list[0].ID, moduleInstance.ID,

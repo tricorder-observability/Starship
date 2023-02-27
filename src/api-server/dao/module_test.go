@@ -53,7 +53,7 @@ func TestModule(t *testing.T) {
 	id := strings.Replace(uuid.New(), "-", "_", -1)
 	module := &ModuleGORM{
 		ID:                 id,
-		DesireState:        int(pb.DeploymentState_CREATED),
+		DesireState:        int(pb.ModuleState_CREATED_),
 		Name:               "TestModule",
 		Wasm:               []byte("WasmUid"),
 		CreateTime:         time.Now().Format("2006-01-02 15:04:05"),
@@ -85,14 +85,14 @@ func TestModule(t *testing.T) {
 		"query module status error, module.DesireState != DeploymentState_CREATED ")
 
 	// test update module status
-	err = moduleDao.UpdateStatusByID(module.ID, int(pb.DeploymentState_TO_BE_DEPLOYED))
+	err = moduleDao.UpdateStatusByID(module.ID, int(pb.ModuleState_DEPLOYED))
 	assert.Nil(err, "change module status error: %v", err)
 
 	module, err = moduleDao.QueryByID(module.ID)
 	assert.Nil(err, "query module by ID error: %v", err)
 
 	// check module DesireState
-	assert.Equal(module.DesireState, int(pb.DeploymentState_TO_BE_DEPLOYED),
+	assert.Equal(module.DesireState, int(pb.ModuleState_DEPLOYED),
 		"change module status error: not change module status")
 
 	// get module list *
