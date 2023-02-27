@@ -52,7 +52,7 @@ func SetUpRouter() *gin.Engine {
 		Client: sqliteClient,
 	}
 	cm.GrafanaClient = GrafanaManagement{
-		GrafanaAPIKey: grafanaAPIDao,
+		grafanaAPIKey: grafanaAPIDao,
 	}
 
 	return router
@@ -71,7 +71,7 @@ func TestModuleManager(t *testing.T) {
 
 	grafana.InitGrafanaConfig(grafanaURL, "admin", "admin")
 	grafanaManager := GrafanaManagement{
-		GrafanaAPIKey: cm.GrafanaClient.GrafanaAPIKey,
+		grafanaAPIKey: cm.GrafanaClient.grafanaAPIKey,
 	}
 	assert.Nil(grafanaManager.InitGrafanaAPIToken())
 	cm.GrafanaClient = grafanaManager

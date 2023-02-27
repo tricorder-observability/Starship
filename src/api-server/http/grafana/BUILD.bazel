@@ -10,6 +10,7 @@ go_library(
     ],
     importpath = "github.com/tricorder/src/api-server/http/grafana",
     visibility = ["//visibility:public"],
+    deps = ["//src/utils/errors"],
 )
 
 go_test(

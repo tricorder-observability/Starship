@@ -43,7 +43,7 @@ func TestInitGrafanaAPIToken(t *testing.T) {
 	assert.Nil(err)
 
 	grafanaManager := GrafanaManagement{
-		GrafanaAPIKey: dao.GrafanaAPIKey{
+		grafanaAPIKey: dao.GrafanaAPIKey{
 			Client: sqliteClient,
 		},
 	}

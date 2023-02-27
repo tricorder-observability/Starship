@@ -20,10 +20,11 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"io"
-	"log"
 	"net/http"
 	"strconv"
 	"strings"
+
+	"github.com/tricorder/src/utils/errors"
 )
 
 type AuthToken struct {
@@ -108,23 +109,19 @@ func (g *AuthToken) GetAllGrafanaAPIKey() ([]AuthKeyResult, error) {
 func (g *AuthToken) RemoveGrafanaAPIKeyById(ID int) error {
 	req, err := http.NewRequest("DELETE", CreateAuthKeysURI+"/"+strconv.Itoa(ID), strings.NewReader(""))
 	if err != nil {
-		return err
+		return errors.Wrap("create grafana http request", "load", err)
 	}
 	req.Header.Set("Content-Type", "application/json; charset=UTF-8")
 	req.Header.Set("Authorization", "Basic "+base64.StdEncoding.EncodeToString([]byte(BasicAuth)))
 	resp, err := g.client.Do(req)
 	if err != nil {
-		return err
+		return errors.Wrap("remove grafana api key", "load", err)
 	}
 	defer resp.Body.Close()
 
-	body, err := io.ReadAll(resp.Body)
-	if err == nil {
-		log.Println("delete grafana result:", body)
-		// if err != nil {
-		// 	return err
-		// }
-		return nil
+	_, err = io.ReadAll(resp.Body)
+	if err != nil {
+		return errors.Wrap("read delete result", "load", err)
 	}
-	return err
+	return nil
 }

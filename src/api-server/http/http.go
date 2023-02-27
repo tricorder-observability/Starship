@@ -47,9 +47,7 @@ func StartHTTPService(cfg Config, pgClient *pg.Client) {
 
 	grafana.InitGrafanaConfig(cfg.GrafanaURL, cfg.GrafanaUserName, cfg.GrafanaUserPass)
 
-	grafanaManager := GrafanaManagement{
-		GrafanaAPIKey: cfg.GrafanaAPIKey,
-	}
+	grafanaManager := NewGrafanaManagement(cfg.GrafanaAPIKey)
 	err := grafanaManager.InitGrafanaAPIToken()
 	if err != nil {
 		log.Fatalf("Failed to initialize Grafana API token, error: %v", err)
