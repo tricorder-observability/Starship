@@ -22,10 +22,10 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/tricorder/src/api-server/http/api"
 	"github.com/tricorder/src/utils/log"
 
 	outputs "github.com/tricorder/src/cli/internal/outputs"
-	http_utils "github.com/tricorder/src/utils/http"
 )
 
 var deployCmd = &cobra.Command{
@@ -36,7 +36,7 @@ var deployCmd = &cobra.Command{
 		"For example:\n" +
 		"    starship-cli module deploy --id=ce8a4fbe_45db_49bb_9568_6688dd84480b",
 	Run: func(cmd *cobra.Command, args []string) {
-		url := http_utils.GetAPIUrl(apiAddress, http_utils.API_ROOT, http_utils.DEPLOY)
+		url := api.GetURL(apiAddress, api.DEPLOY_MODULE_PATH)
 		resp, err := deployModule(url, moduleId)
 		if err != nil {
 			log.Fatalf("Failed to deploy module, id='%s', error: %v", moduleId, err)

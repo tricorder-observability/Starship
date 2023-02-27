@@ -31,23 +31,22 @@ import (
 	pb "github.com/tricorder/src/api-server/pb"
 	"github.com/tricorder/src/api-server/utils/channel"
 	commonpb "github.com/tricorder/src/pb/module/common"
-	"github.com/tricorder/src/pb/module/ebpf"
-	"github.com/tricorder/src/pb/module/wasm"
 	"github.com/tricorder/src/utils/pg"
 	"github.com/tricorder/src/utils/uuid"
 )
 
 // ModuleManager provides APIs to manage eBPF+WASM module received from the management Web UI.
 type ModuleManager struct {
+	// Use this to specify the data source when creating Grafana dashboard.
 	DatasourceUID string
 	Module        dao.ModuleDao
 	GrafanaClient GrafanaManagement
 	PGClient      *pg.Client
 }
 
-// CreateModule  godoc
+// createModuleHttp  godoc
 // @Summary      Create module
-// @Description  Create Module
+// @Description  Store module data into SQLite database
 // @Tags         module
 // @Accept       json
 // @Produce      json
@@ -56,14 +55,11 @@ type ModuleManager struct {
 // @Router       /api/addModule [post]
 func (mgr *ModuleManager) createModuleHttp(c *gin.Context) {
 	var body CreateModuleReq
-
 	err := c.ShouldBind(&body)
 	if err != nil {
-		log.Errorf("while creating module, failed to bind request body to module structure, error: %v", err)
 		c.JSON(http.StatusOK, gin.H{"code": "500", "message": "Request Error: " + err.Error()})
 		return
 	}
-
 	result := mgr.createModule(body)
 	c.JSON(http.StatusOK, result)
 }
@@ -86,9 +82,15 @@ func (mgr *ModuleManager) createModule(body CreateModuleReq) CreateModuleResp {
 		}}
 	}
 
+	if len(body.Wasm.OutputSchema.Fields) == 0 {
+		return CreateModuleResp{HTTPResp{
+			Code:    500,
+			Message: "input data fields cannot be empty",
+		}}
+	}
+
 	schemaAttr, err := json.Marshal(body.Wasm.OutputSchema.Fields)
 	if err != nil {
-		log.Errorf("while creating module, failed to marshal wasm output fields, error: %v", err)
 		return CreateModuleResp{HTTPResp{
 			Code:    500,
 			Message: "request error: " + err.Error(),
@@ -129,7 +131,7 @@ func (mgr *ModuleManager) createModule(body CreateModuleReq) CreateModuleResp {
 	}}
 }
 
-// GetAllListModule godoc
+// listModuleHttp godoc
 // @Summary      List all moudle
 // @Description  List all moudle
 // @Tags         module
@@ -139,29 +141,22 @@ func (mgr *ModuleManager) createModule(body CreateModuleReq) CreateModuleResp {
 // @Success      200  {object}  ListModuleResp
 // @Router       /api/listModule [get]
 func (mgr *ModuleManager) listModuleHttp(c *gin.Context) {
-	// ?fields=id,name,status
-	fields, _ := c.GetQuery("fields")
-
-	result := mgr.listModule(fields)
+	fields, err := checkQuery(c, "fields")
+	if err != nil {
+		return
+	}
+	result := mgr.listModule(ListModuleReq{Fields: fields})
 	c.JSON(http.StatusOK, result)
 }
 
-func (mgr *ModuleManager) listModule(fields string) ListModuleResp {
-	var resultList []dao.ModuleGORM
-	var err error
-
-	if len(fields) > 0 {
-		resultList, err = mgr.Module.ListModule(fields)
-	} else {
-		resultList, err = mgr.Module.ListModule()
-	}
-
+func (mgr *ModuleManager) listModule(req ListModuleReq) ListModuleResp {
+	resultList, err := mgr.Module.ListModule(req.Fields)
 	if err != nil {
 		log.Errorf("Failed to list module, error: %v", err)
 		return ListModuleResp{HTTPResp{
 			Code:    500,
 			Message: "Query Error: " + err.Error(),
-		}, resultList}
+		}, nil}
 	}
 
 	return ListModuleResp{HTTPResp{
@@ -170,9 +165,9 @@ func (mgr *ModuleManager) listModule(fields string) ListModuleResp {
 	}, resultList}
 }
 
-// DeleteModule  godoc
+// deleteModuleHttp  godoc
 // @Summary      Delete module
-// @Description  Delete Module by id
+// @Description  Delete module by id
 // @Tags         module
 // @Accept       json
 // @Produce      json
@@ -180,34 +175,30 @@ func (mgr *ModuleManager) listModule(fields string) ListModuleResp {
 // @Success      200  {object}   HTTPResp
 // @Router       /api/deleteModule [get]
 func (mgr *ModuleManager) deleteModuleHttp(c *gin.Context) {
-	id, exist := c.GetQuery("id")
-	if !exist {
-		c.JSON(http.StatusOK, gin.H{"code": "500", "message": "id does not exist"})
-		c.JSON(http.StatusOK, HTTPResp{
-			Code:    500,
-			Message: "id does not exist",
-		})
-		return
-	}
-	err := mgr.Module.DeleteByID(id)
+	id, err := checkQuery(c, "id")
 	if err != nil {
-		c.JSON(http.StatusOK, HTTPResp{
-			Code:    500,
-			Message: "delete error: " + err.Error(),
-		})
 		return
 	}
-
-	c.JSON(http.StatusOK, HTTPResp{
-		Code:    200,
-		Message: "Success",
-	})
+	c.JSON(http.StatusOK, mgr.deleteModule(id))
 }
 
-// ~/go/bin/swag init -g http.go -o src/api-server/http/docs -d src/api-server/http
-// ShowAccount godoc
+func (mgr *ModuleManager) deleteModule(id string) DeleteModuleResp {
+	err := mgr.Module.DeleteByID(id)
+	if err != nil {
+		return DeleteModuleResp{HTTPResp{
+			Code:    500,
+			Message: "delete error: " + err.Error(),
+		}}
+	}
+	return DeleteModuleResp{HTTPResp{
+		Code:    200,
+		Message: "Success",
+	}}
+}
+
+// deployModuleHttp godoc
 // @Summary      Deploy module
-// @Description  Create Module
+// @Description  Deploy the specified module onto every agent in the cluster
 // @Tags         module
 // @Accept       json
 // @Produce      json
@@ -215,9 +206,8 @@ func (mgr *ModuleManager) deleteModuleHttp(c *gin.Context) {
 // @Success      200  {object}  DeployModuleResp
 // @Router       /api/deployModule [post]
 func (mgr *ModuleManager) deployModuleHttp(c *gin.Context) {
-	id, exist := c.GetQuery("id")
-	if !exist {
-		c.JSON(http.StatusOK, gin.H{"code": "500", "message": "id cannot be empty"})
+	id, err := checkQuery(c, "id")
+	if err != nil {
 		return
 	}
 	result := mgr.deployModule(id)
@@ -274,9 +264,9 @@ func (mgr *ModuleManager) deployModule(id string) DeployModuleResp {
 	}
 }
 
-// UndeployModule godoc
+// undeployModuleHttp godoc
 // @Summary      Undeploy module
-// @Description  Undeploy Module By ID
+// @Description  Undeploy the specified module from all agents in the cluster
 // @Tags         module
 // @Accept       json
 // @Produce      json
@@ -284,28 +274,25 @@ func (mgr *ModuleManager) deployModule(id string) DeployModuleResp {
 // @Success      200  {object}  HTTPResp
 // @Router       /api/undeployModule [post]
 func (mgr *ModuleManager) undeployModuleHttp(c *gin.Context) {
-	id, exist := c.GetQuery("id")
-	if !exist {
-		c.JSON(http.StatusOK, HTTPResp{
-			Code:    500,
-			Message: "id cannot be empty",
-		})
+	id, err := checkQuery(c, "id")
+	if err != nil {
 		return
 	}
+	c.JSON(http.StatusOK, mgr.undeployModule(id))
+}
+
+func (mgr *ModuleManager) undeployModule(id string) UndeployModuleResp {
 	err := mgr.Module.UpdateStatusByID(id, int(pb.DeploymentState_TO_BE_UNDEPLOYED))
 	if err != nil {
-		log.Errorf("pre-undeploy module: [%s] failed: %s", id, err.Error())
-		c.JSON(http.StatusOK, HTTPResp{
+		return UndeployModuleResp{HTTPResp{
 			Code:    500,
 			Message: "undeploy error: " + err.Error(),
-		})
-		return
+		}}
 	}
-
-	c.JSON(http.StatusOK, HTTPResp{
+	return UndeployModuleResp{HTTPResp{
 		Code:    200,
 		Message: "un-deploy success",
-	})
+	}}
 }
 
 // Generate schema name tricorder_module_{moduleID}
@@ -324,8 +311,7 @@ func (mgr *ModuleManager) createPGTable(module *dao.ModuleGORM) error {
 			"failed to unmarshal column schemas, error: %v", module.Name, err)
 	}
 	if len(fields) == 0 {
-		log.Infof("Module '%s' has no data schema defined", module.Name)
-		return nil
+		return fmt.Errorf("module data fields cannot be empty")
 	}
 	columns, err := DataFieldsToPGColumns(fields)
 	if err != nil {
@@ -370,31 +356,4 @@ func (mgr *ModuleManager) createGrafanaDashboard(moduleID string) (string, error
 	channel.SendMessage(message)
 
 	return result.UID, nil
-}
-
-type CreateModuleReq struct {
-	ID   string        `json:"id"`
-	Name string        `json:"name"`
-	Wasm *wasm.Program `json:"wasm"`
-	Ebpf *ebpf.Program `json:"ebpf"`
-}
-
-type HTTPResp struct {
-	Code    int    `json:"code"`
-	Message string `json:"message"`
-	Success bool   `json:"success"`
-}
-
-type CreateModuleResp struct {
-	HTTPResp
-}
-
-type ListModuleResp struct {
-	HTTPResp
-	Data []dao.ModuleGORM `json:"data"`
-}
-
-type DeployModuleResp struct {
-	HTTPResp
-	UID string `json:"uid"`
 }

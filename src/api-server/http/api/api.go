@@ -13,25 +13,26 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-package http
+package api
 
-import (
-	"fmt"
-	"strings"
-)
-
-// API path component
+// API path components.
 const (
-	API_ROOT      = "api"
-	LIST_MODULE   = "listModule"
-	ADD_MODULE    = "addModule"
-	UPLOAD        = "uploadFile"
-	DEPLOY        = "deployModule"
-	UN_DEPLOY     = "undeployModule"
-	DELETE_MODULE = "deleteModule"
+	ROOT            = "/api"
+	LIST_MODULE     = "/listModule"
+	CREATE_MODULE   = "/createModule"
+	DEPLOY_MODULE   = "/deployModule"
+	UNDEPLOY_MODULE = "/undeployModule"
+	DELETE_MODULE   = "/deleteModule"
+
+	LIST_MODULE_PATH     = ROOT + LIST_MODULE
+	CREATE_MODULE_PATH   = ROOT + CREATE_MODULE
+	DEPLOY_MODULE_PATH   = ROOT + DEPLOY_MODULE
+	UNDEPLOY_MODULE_PATH = ROOT + UNDEPLOY_MODULE
+	DELETE_MODULE_PATH   = ROOT + DELETE_MODULE
 )
 
-// GetAPIUrl returns a http URL that corresponds to the requested path.
-func GetAPIUrl(addr, root, path string) string {
-	return fmt.Sprintf("http://%s", strings.Join([]string{addr, root, path}, "/"))
+// GetURL returns a http URL that corresponds to the requested path.
+// The path has to start with '/'
+func GetURL(addr, path string) string {
+	return "http://" + addr + path
 }

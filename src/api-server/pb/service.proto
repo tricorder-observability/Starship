@@ -21,6 +21,7 @@ service ModuleDeployer {
 }
 
 // Describe a modules's deployment status
+// TODO(jun): Remove this enum once all existing code has migrated to use the new enum.
 enum DeploymentState {
     // Module is created. Has not been instructed to be deployed.
     // This is the initial state after creating the module.
@@ -55,6 +56,78 @@ enum DeploymentState {
 
     UNDEPLOYMENT_FAILED = 7;
     UNDEPLOYMENT_SUCCEEDED = 8;
+}
+
+// Describes the state of a module in the scope of a whole Kubernetes cluster.
+// These states are desired, which describes the eventual state of the module
+// when everything comes to success.
+//
+// ModuleState and ModuleInstanceState together fully describe the state of a
+// module in the whole cluster. In other words, ModuleState describes the
+// eventual state, ModuleInstanceState describes the state on individual
+// agent/node.
+enum ModuleState {
+    // Module is created. Has not been instructed to be deployed.
+    // This is the initial state after creating the module.
+    //
+    // TODO(jun/yzhao): The trailing _ is to distinguish with the CREATED in
+    // DeploymentState, which is kept around for not breaking existing code.
+    // Remove trailing _ when removing DeploymentState.
+    CREATED_      = 0;
+
+    // Module is selected by **users** (from the management Web UI or CLI) to be
+    // deployed.
+    //
+    // Further actions on all agents are required to deploy this module on every
+    // agent.
+    DEPLOYED   = 1;
+
+    // Module is selected by **users** to be undeployed.
+    UNDEPLOYED = 2;
+
+    // Module is selected to be deleted.
+    DELETED = 3;
+}
+
+// Describes the state of a module instance on an agent.
+// ModuleState and ModuleInstanceState together describe the progress of a
+// module's deployment over the whole cluster.
+//
+// As of 2023-02-27, a module always deploy to all agents/nodes. In the future,
+// only a subset of agents/nodes get deployed. And that means selectively
+// picking agents/nodes in module_instance table.
+enum ModuleInstanceState {
+    // The initial state assigned to a module instance.
+    // Indicates this module instance has been put into deployment, but the
+    // actual deployment has not been performed yet.
+    INIT = 0;
+
+    // This module instance reaches its desired state.
+    // No further action is needed.
+    SUCCEEDED = 1;
+
+    // This module instance failed to reach its desired state.
+    // No further action could be done.
+    // API Server can retry by cleanup this state, and reset the state to INIT.
+    FAILED = 2;
+
+    // This module instance is in the process of transitioning to the desired
+    // state.
+    // Need to wait the process to succeed or fail.
+    IN_PROGRESS = 3;
+}
+
+// Used to describe the state of a agent.
+enum AgentState {
+    // Agent connected to API Server, and everything seems working as expected.
+    ONLINE = 0;
+
+    // gRPC streaming channel between agent and API Server is broken.
+    // But the agent might reconnect with API Server later.
+    OFFLINE = 1;
+
+    // The agent's pod has been terminated, as indicated by K8s API Server.
+    TERMINATED = 2;
 }
 
 message DeployModuleReq {

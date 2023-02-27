@@ -24,8 +24,8 @@ import (
 
 	"github.com/tricorder/src/utils/log"
 
+	"github.com/tricorder/src/api-server/http/api"
 	"github.com/tricorder/src/cli/internal/outputs"
-	http_utils "github.com/tricorder/src/utils/http"
 )
 
 var undeployCmd = &cobra.Command{
@@ -36,7 +36,7 @@ var undeployCmd = &cobra.Command{
 $ starship-cli module undeploy --id ce8a4fbe_45db_49bb_9568_6688dd84480b
 `,
 	Run: func(cmd *cobra.Command, args []string) {
-		url := http_utils.GetAPIUrl(apiAddress, http_utils.API_ROOT, http_utils.UN_DEPLOY)
+		url := api.GetURL(apiAddress, api.UNDEPLOY_MODULE_PATH)
 		resp, err := undeployModule(url, moduleId)
 		if err != nil {
 			log.Error(err)

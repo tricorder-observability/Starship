@@ -25,10 +25,10 @@ import (
 
 	"github.com/tricorder/src/utils/log"
 
+	"github.com/tricorder/src/api-server/http/api"
 	"github.com/tricorder/src/cli/internal/outputs"
 	modulepb "github.com/tricorder/src/pb/module"
 	"github.com/tricorder/src/utils/file"
-	http_utils "github.com/tricorder/src/utils/http"
 )
 
 var createCmd = &cobra.Command{
@@ -55,7 +55,7 @@ $ starship-cli module create -b path/to/bcc_file -m path/to/module_json_file -w 
 		moduleReq.Ebpf.Code = bccStr
 		// override wasm code contet by wasm file
 		moduleReq.Wasm.Code = wasmBytes
-		url := http_utils.GetAPIUrl(apiAddress, http_utils.API_ROOT, http_utils.ADD_MODULE)
+		url := api.GetURL(apiAddress, api.CREATE_MODULE_PATH)
 		resp, err := createModule(url, moduleReq)
 		if err != nil {
 			log.Error(err)

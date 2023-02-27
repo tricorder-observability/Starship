@@ -26,8 +26,8 @@ import (
 	ginswag "github.com/swaggo/gin-swagger"
 
 	"github.com/tricorder/src/api-server/dao"
+	"github.com/tricorder/src/api-server/http/api"
 	"github.com/tricorder/src/api-server/http/grafana"
-	http_utils "github.com/tricorder/src/utils/http"
 	"github.com/tricorder/src/utils/pg"
 )
 
@@ -63,15 +63,12 @@ func StartHTTPService(cfg Config, pgClient *pg.Client) {
 
 	router.Use(Cors()).Use(GlobalExceptionWare)
 
-	// TODO: Use swagger to define these APIs.
-	api := router.Group(fmt.Sprintf("/%s", http_utils.API_ROOT))
-	{
-		api.POST(fmt.Sprintf("/%s", http_utils.ADD_MODULE), cm.createModuleHttp)
-		api.GET(fmt.Sprintf("/%s", http_utils.DELETE_MODULE), cm.deleteModuleHttp)
-		api.GET(fmt.Sprintf("/%s", http_utils.LIST_MODULE), cm.listModuleHttp)
-		api.POST(fmt.Sprintf("/%s", http_utils.DEPLOY), cm.deployModuleHttp)
-		api.POST(fmt.Sprintf("/%s", http_utils.UN_DEPLOY), cm.undeployModuleHttp)
-	}
+	apiRoot := router.Group(api.ROOT)
+	apiRoot.POST(api.CREATE_MODULE, cm.createModuleHttp)
+	apiRoot.GET(api.DELETE_MODULE, cm.deleteModuleHttp)
+	apiRoot.GET(api.LIST_MODULE, cm.listModuleHttp)
+	apiRoot.POST(api.DEPLOY_MODULE, cm.deployModuleHttp)
+	apiRoot.POST(api.UNDEPLOY_MODULE, cm.undeployModuleHttp)
 
 	router.GET("/swagger/*any", ginswag.WrapHandler(swagfiles.Handler))
 

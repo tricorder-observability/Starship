@@ -14,6 +14,7 @@ go_library(
     visibility = ["//src/api-server:__subpackages__"],
     deps = [
         "//src/api-server/dao",
+        "//src/api-server/http/api",
         "//src/api-server/http/grafana",
         "//src/api-server/pb",
         "//src/api-server/utils/channel",
@@ -21,7 +22,6 @@ go_library(
         "//src/pb/module/ebpf",
         "//src/pb/module/wasm",
         "//src/utils/errors",
-        "//src/utils/http",
         "//src/utils/log",
         "//src/utils/pg",
         "//src/utils/uuid",
@@ -44,6 +44,7 @@ go_test(
     srcs = [
         "grafana_test.go",
         "module_manager_test.go",
+        "types_test.go",
     ],
     data = ["//src/api-server/http/testdata:tricorder_test_db"],
     embed = [":http"],

@@ -23,6 +23,7 @@ import (
 
 	"github.com/tricorder/src/utils/errors"
 	"github.com/tricorder/src/utils/log"
+	"github.com/tricorder/src/utils/sqlite"
 
 	"github.com/tricorder/src/api-server/dao"
 	servicepb "github.com/tricorder/src/api-server/pb"
@@ -159,5 +160,14 @@ func (s *Deployer) DeployModule(stream servicepb.ModuleDeployer_DeployModuleServ
 				log.Errorf("Failed to update module (ID=%s) state, error: %v", code.ID, err)
 			}
 		}
+	}
+}
+
+// NewDeployer returns a Deployer object with the input SQLite ORM client.
+func NewDeployer(orm *sqlite.ORM) *Deployer {
+	return &Deployer{
+		Module: dao.ModuleDao{
+			Client: orm,
+		},
 	}
 }

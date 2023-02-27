@@ -3,6 +3,14 @@
 This doc describes rules that are not enforceable in linter, and require
 conscious effort to uphold during writing and reviewing code.
 
+## Common styles
+
+### Date and time
+
+Use [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) date and time format.
+YYYY-MM-DD HOUR:MINUTE:SECONDS
+2023-02-27 21:00 (you can omit seconds if it's not needed)
+
 ## General
 
 [Golang Best Practices](

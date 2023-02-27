@@ -82,7 +82,14 @@ func TestModuleManager(t *testing.T) {
 
 	cm.PGClient = pgClient
 
-	ListModule(t, r)
+	r.GET("/api/listModule", cm.listModuleHttp)
+	req, _ := http.NewRequest("GET", "/api/listModule?fields=id,name,desire_state", nil)
+
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+	resultStr := w.Body.String()
+	fmt.Printf("list module: %s", resultStr)
+	assert.Equal(true, strings.Contains(resultStr, "Success"))
 
 	wasmUid := "test_wasm_uid"
 	modulID := AddModule(t, wasmUid, r)
@@ -92,17 +99,6 @@ func TestModuleManager(t *testing.T) {
 	unDeployModule(t, modulID, r)
 
 	deleteModule(t, modulID, r)
-}
-
-func ListModule(t *testing.T, r *gin.Engine) {
-	r.GET("/api/listModule", cm.listModuleHttp)
-	req, _ := http.NewRequest("GET", "/api/listModule?fields=id,name,desire_state", nil)
-
-	w := httptest.NewRecorder()
-	r.ServeHTTP(w, req)
-	resultStr := w.Body.String()
-	fmt.Printf("list module: %s", resultStr)
-	assert.Equal(t, true, strings.Contains(resultStr, "Success"))
 }
 
 func AddModule(t *testing.T, wasmUid string, r *gin.Engine) string {
@@ -156,7 +152,46 @@ func AddModule(t *testing.T, wasmUid string, r *gin.Engine) string {
 	return moduleResult.ID
 }
 
-// delete module
+// Tests that createModuleHttp failed if the input data fields are empty.
+func TestCreateModuleEmptyDataFields(t *testing.T) {
+	assert := assert.New(t)
+
+	moduleName := "test_module"
+	moduleBody := fmt.Sprintf(`{
+		"name": "%s",
+		"wasm":{
+			"code": "",
+			"fn_name":"copy_input_to_output",
+			"output_schema":{
+				"name":"test_tabel_name",
+				"fields":[]
+			}
+		},
+		"ebpf":{
+			"code": "",
+			"perf_buffer_name":"events",
+			"probes":[
+				{
+					"target":"",
+					"entry":"sample_json",
+					"return":""
+				}
+			]
+		}
+	}`, moduleName)
+
+	jsonData := []byte(moduleBody)
+	r := SetUpRouter()
+	r.POST("/api/createModule", cm.createModuleHttp)
+	req, _ := http.NewRequest("POST", "/api/createModule", bytes.NewBuffer(jsonData))
+	req.Header.Set("Content-Type", "application/json; charset=utf-8")
+
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+
+	assert.Equal(`{"code":500,"message":"input data fields cannot be empty"}`, w.Body.String())
+}
+
 func deleteModule(t *testing.T, modulID string, r *gin.Engine) {
 	r.GET("/api/deleteModule", cm.deleteModuleHttp)
 	req, _ := http.NewRequest("GET", fmt.Sprintf("/api/deleteModule?id=%s", modulID), nil)
@@ -172,7 +207,6 @@ func deleteModule(t *testing.T, modulID string, r *gin.Engine) {
 	}
 }
 
-// undeploy module
 func unDeployModule(t *testing.T, modulID string, r *gin.Engine) {
 	r.GET("/api/undeployModule", cm.undeployModuleHttp)
 	req, _ := http.NewRequest("GET", fmt.Sprintf("/api/undeployModule?id=%s", modulID), nil)
@@ -227,10 +261,4 @@ func deployModule(t *testing.T, modulID string, r *gin.Engine) {
 	if err != nil {
 		t.Errorf("check postgress table exist error:%v", err)
 	}
-}
-
-type DeployModuleResult struct {
-	// The underlying engine that provides all APIs.
-	ID   string `json:"id"`
-	Code string `json:"code"`
 }

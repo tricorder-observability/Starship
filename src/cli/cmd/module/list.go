@@ -23,8 +23,8 @@ import (
 
 	"github.com/tricorder/src/utils/log"
 
+	"github.com/tricorder/src/api-server/http/api"
 	"github.com/tricorder/src/cli/internal/outputs"
-	http_utils "github.com/tricorder/src/utils/http"
 
 	"github.com/spf13/cobra"
 )
@@ -37,7 +37,7 @@ var listCmd = &cobra.Command{
 $ starship-cli module list
 `,
 	Run: func(cmd *cobra.Command, args []string) {
-		url := http_utils.GetAPIUrl(apiAddress, http_utils.API_ROOT, http_utils.LIST_MODULE)
+		url := api.GetURL(apiAddress, api.LIST_MODULE_PATH)
 		resp, err := listModules(url)
 		if err != nil {
 			log.Error(err)
