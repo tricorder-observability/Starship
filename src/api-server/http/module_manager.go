@@ -330,14 +330,14 @@ func (mgr *ModuleManager) createPGTable(module *dao.ModuleGORM) error {
 }
 
 func (mgr *ModuleManager) createGrafanaDashboard(moduleID string) (string, error) {
-	grafanaAPIKey, err := mgr.GrafanaClient.getGrafanaKey(dashboardAPIURL, dashboardAPIURLName)
+	grafanaAPIKey, err := mgr.GrafanaClient.getGrafanaKey(dashboardAPIURL)
 	if err != nil {
 		log.Println("deploy error, auth dashboary error", err)
 		return "", err
 	}
 
 	ds := grafana.NewDashboard()
-	result, err := ds.CreateDashboard(grafanaAPIKey.AuthValue, getModuleDataTableName(moduleID), mgr.DatasourceUID)
+	result, err := ds.CreateDashboard(grafanaAPIKey, getModuleDataTableName(moduleID), mgr.DatasourceUID)
 	if err != nil {
 		log.Println("Create dashboard", err)
 		return "", err

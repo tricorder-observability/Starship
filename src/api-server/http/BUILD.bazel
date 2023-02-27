@@ -21,6 +21,7 @@ go_library(
         "//src/pb/module/common",
         "//src/pb/module/ebpf",
         "//src/pb/module/wasm",
+        "//src/utils/errors",
         "//src/utils/log",
         "//src/utils/pg",
         "//src/utils/uuid",

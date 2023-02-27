@@ -16,61 +16,60 @@
 package http
 
 import (
-	"fmt"
-	"time"
-
 	"github.com/tricorder/src/api-server/dao"
 	"github.com/tricorder/src/api-server/http/grafana"
+	"github.com/tricorder/src/utils/errors"
 
 	// Load sqlite driver
 	_ "github.com/mattn/go-sqlite3"
 )
 
 type GrafanaManagement struct {
-	GrafanaAPIKey dao.GrafanaAPIKey
+	grafanaAPIKey dao.GrafanaAPIKey
 }
 
 var (
-	dashboardAPIURL      = "/api/dashboards/db"
-	datasourceAPIURL     = "/api/datasources"
-	dashboardAPIURLName  = "dashboardAPIURL"
-	datasourceAPIURLName = "datasourceAPIURL"
+	dashboardAPIURL  = "/api/dashboards/db"
+	grafanaAPIKeyMap = make(map[string]string)
 )
 
-// TODO(yzhao): Rename apiKey to apiPath
-func (g *GrafanaManagement) getGrafanaKey(apiKey, apiName string) (*dao.GrafanaAPIKeyGORM, error) {
-	grafanaAPIKey, _ := g.GrafanaAPIKey.QueryByAPIKey(apiKey)
-	if grafanaAPIKey == nil {
-		authToken := grafana.NewAuthToken()
-		token, err := authToken.GetToken(apiKey)
+func NewGrafanaManagement(grafananAPIKey dao.GrafanaAPIKey) GrafanaManagement {
+	grafanaManager := GrafanaManagement{
+		grafanaAPIKey: grafananAPIKey,
+	}
+	return grafanaManager
+}
+
+func (g *GrafanaManagement) getGrafanaKey(apiPath string) (string, error) {
+	if token, isExist := grafanaAPIKeyMap[apiPath]; isExist {
+		return token, nil
+	}
+
+	authToken := grafana.NewAuthToken()
+	allGrafanaAPIKey, err := authToken.GetAllGrafanaAPIKey()
+	if err != nil {
+		return "", errors.Wrap("get grafana all api token list", "load", err)
+	}
+	for _, value := range allGrafanaAPIKey {
+		err = authToken.RemoveGrafanaAPIKeyById(value.ID)
 		if err != nil {
-			return nil, fmt.Errorf("get grafana api token error %v", err)
-		}
-		if len(token.Key) > 0 {
-			grafanaAPIKey = &dao.GrafanaAPIKeyGORM{
-				Name:       apiName,
-				APIKEY:     apiKey,
-				AuthValue:  token.Key,
-				CreateTime: time.Now().Format("2006-01-02 15:04:05"),
-			}
-			err = g.GrafanaAPIKey.SaveGrafanaAPI(grafanaAPIKey)
-			if err != nil {
-				return nil, fmt.Errorf("create grafana api token error %v", err)
-			}
+			return "", errors.Wrap("remove grafana api token", "load", err)
 		}
 	}
-	return grafanaAPIKey, nil
+
+	grafanaToken, err := authToken.GetToken(apiPath)
+	if err != nil {
+		return "", errors.Wrap("get grafana api token", "load", err)
+	}
+	grafanaAPIKeyMap[apiPath] = grafanaToken.Key
+
+	return grafanaToken.Key, nil
 }
 
 func (g *GrafanaManagement) InitGrafanaAPIToken() error {
-	_, err := g.getGrafanaKey(datasourceAPIURL, datasourceAPIURLName)
+	_, err := g.getGrafanaKey(dashboardAPIURL)
 	if err != nil {
-		return nil
+		return err
 	}
-	_, err = g.getGrafanaKey(dashboardAPIURL, dashboardAPIURLName)
-	if err != nil {
-		return nil
-	}
-	time.Sleep(3 * time.Second)
 	return nil
 }
