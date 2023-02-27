@@ -165,6 +165,8 @@ jobs:
       image: docker.io/tricorderobservability/ci_image:202302140538
     timeout-minutes: 90
     needs: build-and-test
+    # Disable image building for PRs. We do not seem need this for now.
+    if: false
     env:
       TAG: ${{ github.sha }}
     steps:
@@ -180,6 +182,8 @@ jobs:
       image: docker.io/tricorderobservability/ci_image:202302140538
     timeout-minutes: 90
     needs: build-and-test
+    # Disable image building for PRs.
+    if: false
     env:
       TAG: ${{ github.sha }}
     steps:
@@ -193,6 +197,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 90
     needs: build-and-test
+    # Disable image building for PRs.
+    if: false
     env:
       TAG: ${{ github.sha }}
     steps:
