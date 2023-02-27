@@ -1,0 +1,18 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+
+go_library(
+    name = "cond",
+    srcs = ["cond.go"],
+    importpath = "github.com/tricorder/src/utils/cond",
+    visibility = ["//visibility:public"],
+)
+
+go_test(
+    name = "cond_test",
+    srcs = ["cond_test.go"],
+    embed = [":cond"],
+    deps = [
+        "@com_github_stretchr_testify//assert",
+        "@org_golang_x_sync//errgroup",
+    ],
+)
