@@ -48,7 +48,6 @@ func init() {
 		"the style(json,yaml,table) of output, yaml is default.")
 
 	ModuleCmd.AddCommand(listCmd)
-	ModuleCmd.AddCommand(uploadCmd)
 	ModuleCmd.AddCommand(createCmd)
 	ModuleCmd.AddCommand(deployCmd)
 	ModuleCmd.AddCommand(deleteCmd)

@@ -10,7 +10,6 @@ go_library(
         "list.go",
         "module.go",
         "undeploy.go",
-        "upload.go",
     ],
     importpath = "github.com/tricorder/src/cli/cmd/module",
     visibility = ["//visibility:public"],
