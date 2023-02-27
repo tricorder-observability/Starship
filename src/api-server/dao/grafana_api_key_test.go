@@ -48,23 +48,15 @@ func TestGrafanaAPIDAO(t *testing.T) {
 		CreateTime: time.Now().Format("2006-01-02 15:04:05"),
 	}
 	err := grafanaAPIDao.SaveGrafanaAPI(grafanaAPIKey)
-	if err != nil {
-		t.Errorf("save grafana api err %v", err)
-	}
+	assert.Nil(err, "save grafana api err %v", err)
 
 	queryResult, err := grafanaAPIDao.QueryByID(grafanaAPIKey.ID)
-	if err != nil {
-		t.Errorf("query grafana api by id err %v", err)
-	}
-	if grafanaAPIKey.Name != queryResult.Name {
-		t.Errorf("save grafana api by id error: not found name == %v", grafanaAPIKey.Name)
-	}
+	assert.Nil(err, "query grafana api by id err %v", err)
+	assert.Equal(grafanaAPIKey.Name, queryResult.Name,
+		"save grafana api by id error: not found name == %v", grafanaAPIKey.Name)
 
 	queryResult, err = grafanaAPIDao.QueryByAPIKey(grafanaAPIKey.APIKEY)
-	if err != nil {
-		t.Errorf("query grafana api by id err %v", err)
-	}
-	if grafanaAPIKey.APIKEY != queryResult.APIKEY {
-		t.Errorf("save grafana api by api key error: not found apiKey == %v", grafanaAPIKey.APIKEY)
-	}
+	assert.Nil(err, "query grafana api by api key err %v", err)
+	assert.Equal(grafanaAPIKey.APIKEY, queryResult.APIKEY,
+		"save grafana api by api key error: not found apiKey == %v", grafanaAPIKey.APIKEY)
 }
