@@ -37,6 +37,7 @@ import (
 
 // ModuleManager provides APIs to manage eBPF+WASM module received from the management Web UI.
 type ModuleManager struct {
+	// Use this to specify the data source when creating Grafana dashboard.
 	DatasourceUID string
 	Module        dao.ModuleDao
 	GrafanaClient GrafanaManagement
@@ -45,7 +46,7 @@ type ModuleManager struct {
 
 // createModuleHttp  godoc
 // @Summary      Create module
-// @Description  Create Module
+// @Description  Store module data into SQLite database
 // @Tags         module
 // @Accept       json
 // @Produce      json
@@ -81,9 +82,15 @@ func (mgr *ModuleManager) createModule(body CreateModuleReq) CreateModuleResp {
 		}}
 	}
 
+	if len(body.Wasm.OutputSchema.Fields) == 0 {
+		return CreateModuleResp{HTTPResp{
+			Code:    500,
+			Message: "input data fields cannot be empty",
+		}}
+	}
+
 	schemaAttr, err := json.Marshal(body.Wasm.OutputSchema.Fields)
 	if err != nil {
-		log.Errorf("while creating module, failed to marshal wasm output fields, error: %v", err)
 		return CreateModuleResp{HTTPResp{
 			Code:    500,
 			Message: "request error: " + err.Error(),
@@ -160,7 +167,7 @@ func (mgr *ModuleManager) listModule(req ListModuleReq) ListModuleResp {
 
 // deleteModuleHttp  godoc
 // @Summary      Delete module
-// @Description  Delete Module by id
+// @Description  Delete module by id
 // @Tags         module
 // @Accept       json
 // @Produce      json
@@ -191,7 +198,7 @@ func (mgr *ModuleManager) deleteModule(id string) DeleteModuleResp {
 
 // deployModuleHttp godoc
 // @Summary      Deploy module
-// @Description  Create Module
+// @Description  Deploy the specified module onto every agent in the cluster
 // @Tags         module
 // @Accept       json
 // @Produce      json
@@ -259,7 +266,7 @@ func (mgr *ModuleManager) deployModule(id string) DeployModuleResp {
 
 // undeployModuleHttp godoc
 // @Summary      Undeploy module
-// @Description  Undeploy Module By ID
+// @Description  Undeploy the specified module from all agents in the cluster
 // @Tags         module
 // @Accept       json
 // @Produce      json
@@ -304,8 +311,7 @@ func (mgr *ModuleManager) createPGTable(module *dao.ModuleGORM) error {
 			"failed to unmarshal column schemas, error: %v", module.Name, err)
 	}
 	if len(fields) == 0 {
-		log.Infof("Module '%s' has no data schema defined", module.Name)
-		return nil
+		return fmt.Errorf("module data fields cannot be empty")
 	}
 	columns, err := DataFieldsToPGColumns(fields)
 	if err != nil {
