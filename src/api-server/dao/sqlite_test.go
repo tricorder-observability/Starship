@@ -15,12 +15,16 @@
 
 package dao
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+)
 
 func TestInitSqlitGorm(t *testing.T) {
+	assert := assert.New(t)
+
 	testDbFilePath := "test_un_deploy_code"
 	_, err := InitSqlite(testDbFilePath)
-	if err != nil {
-		t.Errorf("init sqlite gorm error")
-	}
+	assert.Nil(err)
 }
