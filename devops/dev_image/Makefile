@@ -1,6 +1,3 @@
-TOT	:= $$(git rev-parse --show-toplevel)
-DEV_IMAGE_FILE := $(TOT)/tools/docker/dev_image/DEV_IMAGE
-DOCKER := docker
 PACKER := packer
 DEV_IMAGE_REPO := docker.io/tricorderobservability
 DEV_IMAGE_TAG := $(shell date "+%Y%m%d%H%M")
