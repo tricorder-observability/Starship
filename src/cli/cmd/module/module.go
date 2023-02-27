@@ -19,6 +19,9 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
+
+	"github.com/tricorder/src/cli/pkg/kubernetes"
+	"github.com/tricorder/src/utils/log"
 )
 
 var ModuleCmd = &cobra.Command{
@@ -31,6 +34,16 @@ var ModuleCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("module called")
 	},
+	PersistentPreRun: func(cmd *cobra.Command, args []string) {
+		// if Starship apiAddress is not set, try to get it from kubernetes
+		if apiAddress == "" {
+			newApiAddress, err := kubernetes.GetStarshipAPIAddress()
+			if err != nil {
+				log.Fatal("Failed to connect to Kubernetes API Server, please use --api-address to set api address manually.")
+			}
+			apiAddress = newApiAddress
+		}
+	},
 }
 
 var (
@@ -42,8 +55,6 @@ var (
 func init() {
 	// Here you will define your flags and configuration settings.
 	ModuleCmd.PersistentFlags().StringVar(&apiAddress, "api-address", "", "address of starship api server.")
-	_ = ModuleCmd.MarkPersistentFlagRequired("api-address")
-
 	ModuleCmd.PersistentFlags().StringVarP(&output, "output", "o", "yaml",
 		"the style(json,yaml,table) of output, yaml is default.")
 
