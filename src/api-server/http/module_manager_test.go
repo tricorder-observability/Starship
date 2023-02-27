@@ -48,7 +48,17 @@ func SetUpRouter() *gin.Engine {
 	cm.Module = dao.ModuleDao{
 		Client: sqliteClient,
 	}
+
+	cm.ModuleInstance = dao.ModuleInstanceDao{
+		Client: sqliteClient,
+	}
+
+	cm.NodeAgent = dao.NodeAgentDao{
+		Client: sqliteClient,
+	}
+
 	cm.GrafanaClient = NewGrafanaManagement()
+
 	return router
 }
 

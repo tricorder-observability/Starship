@@ -81,8 +81,8 @@ func TestModule(t *testing.T) {
 	assert.Equal(module.Name, "UpdateName", "update module.Name=UpdateName error")
 
 	// test module.DesireState
-	assert.Equal(module.DesireState, int(pb.DeploymentState_CREATED),
-		"query module status error, module.DesireState != DeploymentState_CREATED ")
+	assert.Equal(module.DesireState, int(pb.ModuleState_CREATED_),
+		"query module status error, module.DesireState != ModuleState_CREATED_ ")
 
 	// test update module status
 	err = moduleDao.UpdateStatusByID(module.ID, int(pb.ModuleState_DEPLOYED))

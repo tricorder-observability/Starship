@@ -103,6 +103,13 @@ func main() {
 	moduleDao := dao.ModuleDao{
 		Client: sqliteClient,
 	}
+	nodeAgentDao := dao.NodeAgentDao{
+		Client: sqliteClient,
+	}
+
+	moduleInstanceDao := dao.ModuleInstanceDao{
+		Client: sqliteClient,
+	}
 
 	if *enableMetadataService {
 		err = retry.ExpBackOffWithLimit(func() error {
@@ -145,6 +152,8 @@ func main() {
 				DatasourceName:  *moduleDatasourceName,
 				DatasourceUID:   *moduleDatasourceUID,
 				Module:          moduleDao,
+				NodeAgent:       nodeAgentDao,
+				ModuleInstance:  moduleInstanceDao,
 			}
 
 			http.StartHTTPService(config, pgClient)

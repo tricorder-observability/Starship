@@ -39,6 +39,8 @@ type Config struct {
 	DatasourceName  string
 	DatasourceUID   string
 	Module          dao.ModuleDao
+	NodeAgent       dao.NodeAgentDao
+	ModuleInstance  dao.ModuleInstanceDao
 }
 
 func StartHTTPService(cfg Config, pgClient *pg.Client) {
@@ -53,10 +55,12 @@ func StartHTTPService(cfg Config, pgClient *pg.Client) {
 	}
 
 	cm := ModuleManager{
-		DatasourceUID: cfg.DatasourceUID,
-		GrafanaClient: grafanaManager,
-		Module:        cfg.Module,
-		PGClient:      pgClient,
+		DatasourceUID:  cfg.DatasourceUID,
+		GrafanaClient:  grafanaManager,
+		Module:         cfg.Module,
+		NodeAgent:      cfg.NodeAgent,
+		ModuleInstance: cfg.ModuleInstance,
+		PGClient:       pgClient,
 	}
 	router := gin.Default()
 

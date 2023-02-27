@@ -37,8 +37,9 @@ import (
 // Manages the deployment of eBPF+WASM modules
 type Deployer struct {
 	// The DAO object that proxies with SQLite for writing and reading the serialized data.
-	Module dao.ModuleDao
-
+	Module         dao.ModuleDao
+	NodeAgent      dao.NodeAgentDao
+	ModuleInstance dao.ModuleInstanceDao
 	// The list of agents connected with this Deployer.
 	//
 	// Each agent and this Deployer maintains a gRPC streaming channel with DeployModuleReq & DeployModuleResp
