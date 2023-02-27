@@ -25,24 +25,23 @@ import (
 )
 
 type GrafanaManagement struct {
-	grafanaAPIKey    dao.GrafanaAPIKey
-	grafanaAPIKeyMap map[string]string
+	grafanaAPIKey dao.GrafanaAPIKey
 }
 
 var (
-	dashboardAPIURL = "/api/dashboards/db"
+	dashboardAPIURL  = "/api/dashboards/db"
+	grafanaAPIKeyMap = make(map[string]string)
 )
 
 func NewGrafanaManagement(grafananAPIKey dao.GrafanaAPIKey) GrafanaManagement {
 	grafanaManager := GrafanaManagement{
 		grafanaAPIKey: grafananAPIKey,
 	}
-	grafanaManager.grafanaAPIKeyMap = make(map[string]string)
 	return grafanaManager
 }
 
 func (g *GrafanaManagement) getGrafanaKey(apiPath string) (string, error) {
-	if token, isExist := g.grafanaAPIKeyMap[apiPath]; isExist {
+	if token, isExist := grafanaAPIKeyMap[apiPath]; isExist {
 		return token, nil
 	}
 
@@ -62,7 +61,7 @@ func (g *GrafanaManagement) getGrafanaKey(apiPath string) (string, error) {
 	if err != nil {
 		return "", errors.Wrap("get grafana api token", "load", err)
 	}
-	g.grafanaAPIKeyMap[apiPath] = grafanaToken.Key
+	grafanaAPIKeyMap[apiPath] = grafanaToken.Key
 
 	return grafanaToken.Key, nil
 }
