@@ -30,5 +30,6 @@ go_test(
         "//src/testing/bazel",
         "//src/utils/uuid",
         "@com_github_stretchr_testify//assert",
+        "@com_github_stretchr_testify//require",
     ],
 )

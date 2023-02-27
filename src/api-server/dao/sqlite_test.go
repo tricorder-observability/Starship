@@ -18,15 +18,15 @@ package dao
 import (
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	"github.com/tricorder/src/testing/bazel"
 )
 
 func TestInitSqlitGorm(t *testing.T) {
-	assert := assert.New(t)
+	require := require.New(t)
 
 	testDbFilePath := bazel.GetTmpFile()
 	_, err := InitSqlite(testDbFilePath)
-	assert.Nil(err)
+	require.Nil(err)
 }
