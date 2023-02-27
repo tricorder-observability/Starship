@@ -28,7 +28,9 @@ import (
 	"github.com/tricorder/src/api-server/http/docs"
 	"github.com/tricorder/src/api-server/meta"
 	pb "github.com/tricorder/src/api-server/pb"
+	"github.com/tricorder/src/utils/cond"
 	"github.com/tricorder/src/utils/errors"
+	"github.com/tricorder/src/utils/lock"
 	"github.com/tricorder/src/utils/log"
 	"github.com/tricorder/src/utils/pg"
 	"github.com/tricorder/src/utils/retry"
@@ -111,6 +113,9 @@ func main() {
 		Client: sqliteClient,
 	}
 
+	waitCond := cond.NewCond()
+	gLock := lock.NewLock()
+
 	if *enableMetadataService {
 		err = retry.ExpBackOffWithLimit(func() error {
 			clientset, err = kubernetes.NewForConfig(ctrl.GetConfigOrDie())
@@ -130,7 +135,7 @@ func main() {
 			if err != nil {
 				return errors.Wrap("starting gRPC server", "create server fixture", err)
 			}
-			pb.RegisterModuleDeployerServer(f.Server, sg.NewDeployer(sqliteClient))
+			pb.RegisterModuleDeployerServer(f.Server, sg.NewDeployer(sqliteClient, gLock, waitCond))
 			if *enableMetadataService {
 				pb.RegisterProcessCollectorServer(f.Server, sg.NewPIDCollector(clientset, pgClient))
 			}
@@ -154,6 +159,8 @@ func main() {
 				Module:          moduleDao,
 				NodeAgent:       nodeAgentDao,
 				ModuleInstance:  moduleInstanceDao,
+				WaitCond:        waitCond,
+				GLock:           gLock,
 			}
 
 			http.StartHTTPService(config, pgClient)

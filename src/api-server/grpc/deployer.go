@@ -21,13 +21,14 @@ import (
 
 	"golang.org/x/sync/errgroup"
 
+	"github.com/tricorder/src/utils/cond"
 	"github.com/tricorder/src/utils/errors"
+	"github.com/tricorder/src/utils/lock"
 	"github.com/tricorder/src/utils/log"
 	"github.com/tricorder/src/utils/sqlite"
 
 	"github.com/tricorder/src/api-server/dao"
 	servicepb "github.com/tricorder/src/api-server/pb"
-	"github.com/tricorder/src/api-server/utils/channel"
 	modulepb "github.com/tricorder/src/pb/module"
 	"github.com/tricorder/src/pb/module/common"
 	ebpfpb "github.com/tricorder/src/pb/module/ebpf"
@@ -40,6 +41,8 @@ type Deployer struct {
 	Module         dao.ModuleDao
 	NodeAgent      dao.NodeAgentDao
 	ModuleInstance dao.ModuleInstanceDao
+	gLock          *lock.Lock
+	waitCond       *cond.Cond
 	// The list of agents connected with this Deployer.
 	//
 	// Each agent and this Deployer maintains a gRPC streaming channel with DeployModuleReq & DeployModuleResp
@@ -135,10 +138,7 @@ func (s *Deployer) DeployModule(stream servicepb.ModuleDeployer_DeployModuleServ
 	})
 
 	for {
-		message := channel.ReceiveMessage()
-		if message.Status != int(servicepb.DeploymentState_TO_BE_DEPLOYED) {
-			continue
-		}
+		s.waitCond.Wait()
 		undeployList, _ := s.Module.ListModuleByStatus(int(servicepb.DeploymentState_TO_BE_DEPLOYED))
 		for _, code := range undeployList {
 			codeReq, err := getDeployReqForModule(&code)
@@ -165,10 +165,12 @@ func (s *Deployer) DeployModule(stream servicepb.ModuleDeployer_DeployModuleServ
 }
 
 // NewDeployer returns a Deployer object with the input SQLite ORM client.
-func NewDeployer(orm *sqlite.ORM) *Deployer {
+func NewDeployer(orm *sqlite.ORM, gLock *lock.Lock, waitCond *cond.Cond) *Deployer {
 	return &Deployer{
 		Module: dao.ModuleDao{
 			Client: orm,
 		},
+		waitCond: waitCond,
+		gLock:    gLock,
 	}
 }
