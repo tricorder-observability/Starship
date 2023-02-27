@@ -29,3 +29,11 @@ func TestWrap(t *testing.T) {
 	wrappedErr := Wrap("while testing Wrap", "create", err)
 	assert.Equal("while testing Wrap, failed to create, error: <nil>", wrappedErr.Error())
 }
+
+// Tests that New returns error has the expected message.
+func TestNew(t *testing.T) {
+	assert := assert.New(t)
+
+	wrappedErr := New("while testing Wrap", "create")
+	assert.Equal("while testing Wrap, failed to create", wrappedErr.Error())
+}

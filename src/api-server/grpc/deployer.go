@@ -28,6 +28,7 @@ import (
 	"github.com/tricorder/src/utils/sqlite"
 
 	"github.com/tricorder/src/api-server/dao"
+	pb "github.com/tricorder/src/api-server/pb"
 	servicepb "github.com/tricorder/src/api-server/pb"
 	modulepb "github.com/tricorder/src/pb/module"
 	"github.com/tricorder/src/pb/module/common"
@@ -102,6 +103,7 @@ func getDeployReqForModule(module *dao.ModuleGORM) (*servicepb.DeployModuleReq, 
 func (s *Deployer) DeployModule(stream servicepb.ModuleDeployer_DeployModuleServer) error {
 	// The first message is sent from the client, but the remaining loops are driven by the server.
 	// The server will send deploy module request for this client to work on.
+	var isNewNode bool
 	in, err := stream.Recv()
 	if err == io.EOF {
 		log.Warnf("Agent closed connection, this should only happens during testing; stopping ...")
@@ -112,7 +114,35 @@ func (s *Deployer) DeployModule(stream servicepb.ModuleDeployer_DeployModuleServ
 	}
 
 	log.Infof("Agent '%s' connected, starting module management loop ...", in.Agent.Id)
+	err = s.gLock.ExecWithLock(func() error {
+		node, err := s.NodeAgent.QueryByName(in.Agent.NodeName)
+		if err != nil {
+			return errors.Wrap("while handling Agent grpc request", "query node agent", err)
+		}
+		if node != nil && node.State == int(pb.AgentState_ONLINE) {
+			return errors.New("while handling Agent grpc request", "node agent already exists")
+		}
+		if node == nil {
+			node = &dao.NodeAgentGORM{
+				NodeName: in.Agent.NodeName,
+				AgentID:  in.Agent.Id,
+			}
+			s.NodeAgent.SaveAgent(node)
+			isNewNode = true
+		}
+		s.NodeAgent.UpdateStatusByName(node.NodeName, int(pb.AgentState_ONLINE))
+		return nil
+	})
+
+	if err != nil {
+		return errors.Wrap("handling agent grpc request", "query node", err)
+	}
+
 	s.agents = append(s.agents, in.Agent)
+
+	if isNewNode {
+		// If this is a new node, we need to deploy all the modules.
+	}
 
 	var eg errgroup.Group
 	// Create a goroutine to check the response from the connected agent.
@@ -168,6 +198,12 @@ func (s *Deployer) DeployModule(stream servicepb.ModuleDeployer_DeployModuleServ
 func NewDeployer(orm *sqlite.ORM, gLock *lock.Lock, waitCond *cond.Cond) *Deployer {
 	return &Deployer{
 		Module: dao.ModuleDao{
+			Client: orm,
+		},
+		NodeAgent: dao.NodeAgentDao{
+			Client: orm,
+		},
+		ModuleInstance: dao.ModuleInstanceDao{
 			Client: orm,
 		},
 		waitCond: waitCond,
