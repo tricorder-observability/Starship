@@ -22,6 +22,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
+	pb "github.com/tricorder/src/api-server/pb"
 	bazelutils "github.com/tricorder/src/testing/bazel"
 	"github.com/tricorder/src/utils/uuid"
 )
@@ -81,15 +82,15 @@ func TestNodeAgent(t *testing.T) {
 	lastUpdateTime = *node.LastUpdateTime
 
 	// test node.Status
-	assert.Equal(node.State, int(AgentStateOnline), "query node state error, node.Status != AgentStatusOnline ")
+	assert.Equal(node.State, int(pb.AgentState_ONLINE), "query node state error, node.Status != pb.AgentState_ONLINE ")
 
 	// test update module status
-	err = nodeAgentDao.UpdateStatusByName(node.NodeName, int(AgentStateOffline))
+	err = nodeAgentDao.UpdateStatusByName(node.NodeName, int(pb.AgentState_OFFLINE))
 	assert.Nil(err, "change node state error: %v", err)
 
 	node, err = nodeAgentDao.QueryByID(node.AgentID)
 	assert.Nil(err, "not query ID=%s data, save node agent err %v", id, err)
-	assert.Equal(node.State, int(AgentStateOffline), "change node state error, node.Status != AgentStatusOffline ")
+	assert.Equal(node.State, int(pb.AgentState_OFFLINE), "change node state error, node.Status != pb.AgentState_OFFLINE ")
 	assert.NotEqual(*node.LastUpdateTime, lastUpdateTime, "change node state error, LastUpdateTime not update")
 	assert.Equal(*node.CreateTime, createTime, "change node state error, can not update CreateTime")
 	assert.Equal(node.AgentID, newID, "change node state error, node.ID !=  "+newID)

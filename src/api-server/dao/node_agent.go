@@ -34,21 +34,6 @@ import (
 	"github.com/tricorder/src/utils/sqlite"
 )
 
-const (
-	// Online means the agent is working correctly and smoothly.
-	// API Server and agents rely on gRCP streaming, don't do regular heartbeating.
-	AgentStateOnline = 0
-	// Offline means the agent is disconnected from API Server, it might be because of tranisent network issue
-	// or agent is overloaded, and cannot respond.
-	// If an agent has been offline for a time period longer than certain threshold, they are considered terminated.
-	AgentStateOffline = 1
-	// Terminated means the agent pod has been deleted, and forever gone.
-	// Such state implies operations to be performed on module instances, like the new agent when the pod was
-	// restarted will have the previous deployed modules redployed.
-	// Terminated state can be inferred from the updates form K8s API Server collected by API Server.
-	AgentStateTerminated = 2
-)
-
 // NodeAgentGORM sqlite gorm storage and response object
 type NodeAgentGORM struct {
 	NodeName       string     `gorm:"'node_name' primarykey" json:"node_name,omitempty"`
