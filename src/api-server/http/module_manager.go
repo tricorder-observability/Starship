@@ -54,14 +54,11 @@ type ModuleManager struct {
 // @Router       /api/addModule [post]
 func (mgr *ModuleManager) createModuleHttp(c *gin.Context) {
 	var body CreateModuleReq
-
 	err := c.ShouldBind(&body)
 	if err != nil {
-		log.Errorf("while creating module, failed to bind request body to module structure, error: %v", err)
 		c.JSON(http.StatusOK, gin.H{"code": "500", "message": "Request Error: " + err.Error()})
 		return
 	}
-
 	result := mgr.createModule(body)
 	c.JSON(http.StatusOK, result)
 }
@@ -171,12 +168,8 @@ func (mgr *ModuleManager) listModule(req ListModuleReq) ListModuleResp {
 // @Success      200  {object}   HTTPResp
 // @Router       /api/deleteModule [get]
 func (mgr *ModuleManager) deleteModuleHttp(c *gin.Context) {
-	id, exist := c.GetQuery("id")
-	if !exist {
-		c.JSON(http.StatusOK, HTTPResp{
-			Code:    500,
-			Message: "id does not exist",
-		})
+	id, err := checkQuery(c, "id")
+	if err != nil {
 		return
 	}
 	c.JSON(http.StatusOK, mgr.deleteModule(id))
@@ -206,9 +199,8 @@ func (mgr *ModuleManager) deleteModule(id string) DeleteModuleResp {
 // @Success      200  {object}  DeployModuleResp
 // @Router       /api/deployModule [post]
 func (mgr *ModuleManager) deployModuleHttp(c *gin.Context) {
-	id, exist := c.GetQuery("id")
-	if !exist {
-		c.JSON(http.StatusOK, gin.H{"code": "500", "message": "id cannot be empty"})
+	id, err := checkQuery(c, "id")
+	if err != nil {
 		return
 	}
 	result := mgr.deployModule(id)
@@ -275,12 +267,8 @@ func (mgr *ModuleManager) deployModule(id string) DeployModuleResp {
 // @Success      200  {object}  HTTPResp
 // @Router       /api/undeployModule [post]
 func (mgr *ModuleManager) undeployModuleHttp(c *gin.Context) {
-	id, exist := c.GetQuery("id")
-	if !exist {
-		c.JSON(http.StatusOK, HTTPResp{
-			Code:    500,
-			Message: "id cannot be empty",
-		})
+	id, err := checkQuery(c, "id")
+	if err != nil {
 		return
 	}
 	c.JSON(http.StatusOK, mgr.undeployModule(id))
