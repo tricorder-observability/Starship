@@ -28,6 +28,7 @@ import (
 	"github.com/tricorder/src/api-server/http/docs"
 	"github.com/tricorder/src/api-server/meta"
 	pb "github.com/tricorder/src/api-server/pb"
+	"github.com/tricorder/src/utils/errors"
 	"github.com/tricorder/src/utils/log"
 	"github.com/tricorder/src/utils/pg"
 	"github.com/tricorder/src/utils/retry"
@@ -36,6 +37,8 @@ import (
 var (
 	// Management Web UI requires to connect to Postgres, Grafana, this allows us to disable this service in tests.
 	enableMgmtUI = flag.Bool("enable_mgmt_ui", true, "If true, start management Web UI")
+	// This allows us to disable this service in tests.
+	enableGRPC = flag.Bool("enable_grpc", true, "If true, start the gRPC server for managing agents")
 
 	// Metadata service requires to connect to Postgres, this allows us to disable this service in tests.
 	enableMetadataService = flag.Bool(
@@ -114,25 +117,29 @@ func main() {
 		}
 	}
 
-	var eg errgroup.Group
-	eg.Go(func() error {
-		f, err := sg.NewServerFixture(*agentServicePort)
-		if err != nil {
-			log.Fatalf("Failed to create gRPC server fixture, error: %v", err)
-		}
-		pb.RegisterModuleDeployerServer(f.Server, sg.NewDeployer(sqliteClient))
-		if *enableMetadataService {
-			pb.RegisterProcessCollectorServer(f.Server, sg.NewPIDCollector(clientset, pgClient))
-		}
-		err = f.Serve()
-		if err != nil {
-			log.Fatalf("Could not start server, error: %v", err)
-		}
-		return nil
-	})
+	// Launch all long-running server goroutines.
+	var srvErrGroup errgroup.Group
+
+	if *enableGRPC {
+		srvErrGroup.Go(func() error {
+			f, err := sg.NewServerFixture(*agentServicePort)
+			if err != nil {
+				return errors.Wrap("starting gRPC server", "create server fixture", err)
+			}
+			pb.RegisterModuleDeployerServer(f.Server, sg.NewDeployer(sqliteClient))
+			if *enableMetadataService {
+				pb.RegisterProcessCollectorServer(f.Server, sg.NewPIDCollector(clientset, pgClient))
+			}
+			err = f.Serve()
+			if err != nil {
+				return errors.Wrap("starting gRPC server", "serve", err)
+			}
+			return nil
+		})
+	}
 
 	if *enableMgmtUI {
-		eg.Go(func() error {
+		srvErrGroup.Go(func() error {
 			config := http.Config{
 				Port:            *mgmtUIPort,
 				GrafanaURL:      *moduleGrafanaURL,
@@ -150,7 +157,7 @@ func main() {
 	}
 
 	if *enableMetadataService {
-		eg.Go(func() error {
+		srvErrGroup.Go(func() error {
 			err := meta.StartWatchingResources(clientset, pgClient)
 			if err != nil {
 				log.Fatalf("Could not start metadata service, error: %v", err)
@@ -160,5 +167,9 @@ func main() {
 	}
 
 	log.Infof("API server has started ...")
-	_ = eg.Wait()
+
+	srvErr := srvErrGroup.Wait()
+	if srvErr != nil {
+		log.Fatalf("Server goroutines failed, error: %v", srvErr)
+	}
 }
