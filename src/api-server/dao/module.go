@@ -74,7 +74,7 @@ func (g *ModuleDao) DeleteByID(id string) error {
 }
 
 func (g *ModuleDao) ListModule(query ...string) ([]ModuleGORM, error) {
-	var moduleList []ModuleGORM
+	moduleList := make([]ModuleGORM, 0)
 	if len(query) == 0 {
 		query = []string{"id", "name", "desire_state", "create_time", "schema_attr", "fn", "ebpf"}
 	}
@@ -89,7 +89,7 @@ func (g *ModuleDao) ListModule(query ...string) ([]ModuleGORM, error) {
 }
 
 func (g *ModuleDao) ListModuleByStatus(status int) ([]ModuleGORM, error) {
-	var moduleList []ModuleGORM
+	moduleList := make([]ModuleGORM, 0)
 	result := g.Client.Engine.Where(&ModuleGORM{DesireState: status}).Order("create_time desc").Find(&moduleList)
 	if result.Error != nil {
 		return make([]ModuleGORM, 0), fmt.Errorf("query module list by status error:%v", result.Error)

@@ -37,11 +37,12 @@ import (
 
 // ModuleManager provides APIs to manage eBPF+WASM module received from the management Web UI.
 type ModuleManager struct {
-	// Use this to specify the data source when creating Grafana dashboard.
-	DatasourceUID string
-	Module        dao.ModuleDao
-	GrafanaClient GrafanaManagement
-	PGClient      *pg.Client
+	DatasourceUID  string
+	Module         dao.ModuleDao
+	NodeAgent      dao.NodeAgentDao
+	ModuleInstance dao.ModuleInstanceDao
+	GrafanaClient  GrafanaManagement
+	PGClient       *pg.Client
 }
 
 // createModuleHttp  godoc
@@ -255,6 +256,25 @@ func (mgr *ModuleManager) deployModule(id string) DeployModuleResp {
 
 	log.Infof("Created Grafana dashboard with UID: %s", uid)
 
+	err = mgr.Module.UpdateStatusByID(module.ID, int(pb.DeploymentState_TO_BE_DEPLOYED))
+	if err != nil {
+		log.Errorf("pre-deploy module: [%s] failed: %s", module.ID, err.Error())
+		return DeployModuleResp{
+			HTTPResp{
+				Code:    500,
+				Message: "update deploy status error",
+			},
+			uid,
+		}
+	}
+
+	message := channel.DeployChannelModule{
+		ID:     module.ID,
+		Status: int(pb.DeploymentState_TO_BE_DEPLOYED),
+	}
+
+	channel.SendMessage(message)
+
 	return DeployModuleResp{
 		HTTPResp{
 			Code:    200,
@@ -342,18 +362,6 @@ func (mgr *ModuleManager) createGrafanaDashboard(moduleID string) (string, error
 		log.Println("Create dashboard", err)
 		return "", err
 	}
-
-	err = mgr.Module.UpdateStatusByID(moduleID, int(pb.DeploymentState_TO_BE_DEPLOYED))
-	if err != nil {
-		log.Errorf("pre-deploy module: [%s] failed: %s", moduleID, err.Error())
-		return "", err
-	}
-
-	message := channel.DeployChannelModule{
-		ID:     moduleID,
-		Status: int(pb.DeploymentState_TO_BE_DEPLOYED),
-	}
-	channel.SendMessage(message)
 
 	return result.UID, nil
 }

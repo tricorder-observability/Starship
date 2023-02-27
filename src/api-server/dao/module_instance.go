@@ -107,7 +107,7 @@ func (g *ModuleInstanceDao) DeleteByID(ID string) error {
 }
 
 func (g *ModuleInstanceDao) List(query ...string) ([]ModuleInstanceGORM, error) {
-	var moduleList []ModuleInstanceGORM
+	moduleList := make([]ModuleInstanceGORM, 0)
 	if len(query) == 0 {
 		query = []string{
 			"id", "module_id", "module_name", "node_name", "agent_id", "state",
@@ -125,7 +125,7 @@ func (g *ModuleInstanceDao) List(query ...string) ([]ModuleInstanceGORM, error) 
 }
 
 func (g *ModuleInstanceDao) ListByState(state int) ([]ModuleInstanceGORM, error) {
-	var moduleList []ModuleInstanceGORM
+	moduleList := make([]ModuleInstanceGORM, 0)
 	result := g.Client.Engine.Where(&ModuleInstanceGORM{State: state}).Order("create_time desc").Find(&moduleList)
 	if result.Error != nil {
 		return make([]ModuleInstanceGORM, 0), fmt.Errorf("query module instance list by Status error:%v", result.Error)
@@ -134,7 +134,7 @@ func (g *ModuleInstanceDao) ListByState(state int) ([]ModuleInstanceGORM, error)
 }
 
 func (g *ModuleInstanceDao) ListByNodeName(nodeName string) ([]ModuleInstanceGORM, error) {
-	var moduleList []ModuleInstanceGORM
+	moduleList := make([]ModuleInstanceGORM, 0)
 	result := g.Client.Engine.Where(&ModuleInstanceGORM{NodeName: nodeName}).Order("create_time desc").Find(&moduleList)
 	if result.Error != nil {
 		return make([]ModuleInstanceGORM, 0), fmt.Errorf("query module instance list by nodeName error:%v", result.Error)
@@ -143,7 +143,7 @@ func (g *ModuleInstanceDao) ListByNodeName(nodeName string) ([]ModuleInstanceGOR
 }
 
 func (g *ModuleInstanceDao) ListByModuleID(moduleID string) ([]ModuleInstanceGORM, error) {
-	var moduleList []ModuleInstanceGORM
+	moduleList := make([]ModuleInstanceGORM, 0)
 	result := g.Client.Engine.Where(&ModuleInstanceGORM{ModuleID: moduleID}).Order("create_time desc").Find(&moduleList)
 	if result.Error != nil {
 		return make([]ModuleInstanceGORM, 0), fmt.Errorf("query module instance list by nodeName error:%v", result.Error)
@@ -152,7 +152,7 @@ func (g *ModuleInstanceDao) ListByModuleID(moduleID string) ([]ModuleInstanceGOR
 }
 
 func (g *ModuleInstanceDao) ListByAgentID(agentID string) ([]ModuleInstanceGORM, error) {
-	var moduleList []ModuleInstanceGORM
+	moduleList := make([]ModuleInstanceGORM, 0)
 	result := g.Client.Engine.Where(&ModuleInstanceGORM{AgentID: agentID}).Order("create_time desc").Find(&moduleList)
 	if result.Error != nil {
 		return make([]ModuleInstanceGORM, 0), fmt.Errorf("query module instance list by AgentID error:%v", result.Error)

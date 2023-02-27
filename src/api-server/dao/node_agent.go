@@ -88,10 +88,11 @@ func (g *NodeAgentDao) DeleteByName(nodeName string) error {
 }
 
 func (g *NodeAgentDao) List(query ...string) ([]NodeAgentGORM, error) {
-	var nodeList []NodeAgentGORM
+	nodeList := make([]NodeAgentGORM, 0)
 	if len(query) == 0 {
 		query = []string{"node_name", "agent_id", "state", "create_time", "last_update_time"}
 	}
+
 	result := g.Client.Engine.
 		Select(query).Where("node_name is not null and node_name != '' ").
 		Order("last_update_time desc").
@@ -103,7 +104,7 @@ func (g *NodeAgentDao) List(query ...string) ([]NodeAgentGORM, error) {
 }
 
 func (g *NodeAgentDao) ListByStatus(state int) ([]NodeAgentGORM, error) {
-	var nodeList []NodeAgentGORM
+	nodeList := make([]NodeAgentGORM, 0)
 	result := g.Client.Engine.Where(&NodeAgentGORM{State: state}).Order("create_time desc").Find(&nodeList)
 	if result.Error != nil {
 		return make([]NodeAgentGORM, 0), fmt.Errorf("query node agent list by Status error:%v", result.Error)
