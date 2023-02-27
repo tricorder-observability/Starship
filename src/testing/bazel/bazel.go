@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-package testing
+package bazel
 
 import (
 	"fmt"
@@ -75,9 +75,6 @@ func GetTmpFile() string {
 }
 
 // CreateTmpFile returns a path to a file under the temporary directory.
-// Also returns a function that delete the file, so you can use defer to automate the cleanup:
-// f, cleaner := CreateTmpFile()
-// defer cleaner()
 func CreateTmpFile() string {
 	f := GetTmpFile()
 	openedFile, err := os.Create(f)
