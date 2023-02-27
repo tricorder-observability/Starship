@@ -19,12 +19,14 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
+	"github.com/tricorder/src/testing/bazel"
 )
 
 func TestInitSqlitGorm(t *testing.T) {
 	assert := assert.New(t)
 
-	testDbFilePath := "test_un_deploy_code"
+	testDbFilePath := bazel.GetTmpFile()
 	_, err := InitSqlite(testDbFilePath)
 	assert.Nil(err)
 }
