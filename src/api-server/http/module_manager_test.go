@@ -48,13 +48,7 @@ func SetUpRouter() *gin.Engine {
 	cm.Module = dao.ModuleDao{
 		Client: sqliteClient,
 	}
-	grafanaAPIDao := dao.GrafanaAPIKey{
-		Client: sqliteClient,
-	}
-	cm.GrafanaClient = GrafanaManagement{
-		grafanaAPIKey: grafanaAPIDao,
-	}
-
+	cm.GrafanaClient = NewGrafanaManagement()
 	return router
 }
 
@@ -70,11 +64,6 @@ func TestModuleManager(t *testing.T) {
 	defer func() { assert.Nil(cleanerFn()) }()
 
 	grafana.InitGrafanaConfig(grafanaURL, "admin", "admin")
-	grafanaManager := GrafanaManagement{
-		grafanaAPIKey: cm.GrafanaClient.grafanaAPIKey,
-	}
-	assert.Nil(grafanaManager.InitGrafanaAPIToken())
-	cm.GrafanaClient = grafanaManager
 
 	pgClientCleanerFn, pgClient, err := pgclienttest.LaunchContainer()
 	require.Nil(err)

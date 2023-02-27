@@ -3,7 +3,6 @@ load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
 go_library(
     name = "dao",
     srcs = [
-        "grafana_api_key.go",
         "module.go",
         "module_instance.go",
         "node_agent.go",
@@ -20,7 +19,6 @@ go_library(
 go_test(
     name = "dao_test",
     srcs = [
-        "grafana_api_key_test.go",
         "module_instance_test.go",
         "module_test.go",
         "node_agent_test.go",

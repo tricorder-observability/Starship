@@ -16,7 +16,6 @@
 package http
 
 import (
-	"github.com/tricorder/src/api-server/dao"
 	"github.com/tricorder/src/api-server/http/grafana"
 	"github.com/tricorder/src/utils/errors"
 
@@ -24,20 +23,15 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-type GrafanaManagement struct {
-	grafanaAPIKey dao.GrafanaAPIKey
-}
+type GrafanaManagement struct{}
 
 var (
 	dashboardAPIURL  = "/api/dashboards/db"
 	grafanaAPIKeyMap = make(map[string]string)
 )
 
-func NewGrafanaManagement(grafananAPIKey dao.GrafanaAPIKey) GrafanaManagement {
-	grafanaManager := GrafanaManagement{
-		grafanaAPIKey: grafananAPIKey,
-	}
-	return grafanaManager
+func NewGrafanaManagement() GrafanaManagement {
+	return GrafanaManagement{}
 }
 
 func (g *GrafanaManagement) getGrafanaKey(apiPath string) (string, error) {

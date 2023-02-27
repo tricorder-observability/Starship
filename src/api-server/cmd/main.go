@@ -103,9 +103,6 @@ func main() {
 	moduleDao := dao.ModuleDao{
 		Client: sqliteClient,
 	}
-	grafanaAPIDao := dao.GrafanaAPIKey{
-		Client: sqliteClient,
-	}
 
 	if *enableMetadataService {
 		err = retry.ExpBackOffWithLimit(func() error {
@@ -148,7 +145,6 @@ func main() {
 				DatasourceName:  *moduleDatasourceName,
 				DatasourceUID:   *moduleDatasourceUID,
 				Module:          moduleDao,
-				GrafanaAPIKey:   grafanaAPIDao,
 			}
 
 			http.StartHTTPService(config, pgClient)

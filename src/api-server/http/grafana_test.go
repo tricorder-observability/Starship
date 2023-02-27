@@ -21,9 +21,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/tricorder/src/api-server/dao"
 	"github.com/tricorder/src/api-server/http/grafana"
-	testutils "github.com/tricorder/src/testing/bazel"
 	grafanaTest "github.com/tricorder/src/testing/grafana"
 )
 
@@ -39,13 +37,6 @@ func TestInitGrafanaAPIToken(t *testing.T) {
 	}()
 
 	grafana.InitGrafanaConfig(grafanaURL, "admin", "admin")
-	sqliteClient, err := dao.InitSqlite(testutils.GetTmpFile())
-	assert.Nil(err)
-
-	grafanaManager := GrafanaManagement{
-		grafanaAPIKey: dao.GrafanaAPIKey{
-			Client: sqliteClient,
-		},
-	}
+	grafanaManager := NewGrafanaManagement()
 	assert.Nil(grafanaManager.InitGrafanaAPIToken())
 }

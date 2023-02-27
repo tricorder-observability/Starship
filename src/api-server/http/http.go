@@ -39,7 +39,6 @@ type Config struct {
 	DatasourceName  string
 	DatasourceUID   string
 	Module          dao.ModuleDao
-	GrafanaAPIKey   dao.GrafanaAPIKey
 }
 
 func StartHTTPService(cfg Config, pgClient *pg.Client) {
@@ -47,7 +46,7 @@ func StartHTTPService(cfg Config, pgClient *pg.Client) {
 
 	grafana.InitGrafanaConfig(cfg.GrafanaURL, cfg.GrafanaUserName, cfg.GrafanaUserPass)
 
-	grafanaManager := NewGrafanaManagement(cfg.GrafanaAPIKey)
+	grafanaManager := NewGrafanaManagement()
 	err := grafanaManager.InitGrafanaAPIToken()
 	if err != nil {
 		log.Fatalf("Failed to initialize Grafana API token, error: %v", err)
