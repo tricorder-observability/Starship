@@ -21,6 +21,7 @@ service ModuleDeployer {
 }
 
 // Describe a modules's deployment status
+// TODO(jun): Remove this enum once all existing code has migrated to use the new enum.
 enum DeploymentState {
     // Module is created. Has not been instructed to be deployed.
     // This is the initial state after creating the module.
@@ -57,6 +58,38 @@ enum DeploymentState {
     UNDEPLOYMENT_SUCCEEDED = 8;
 }
 
+enum ModuleState {
+    // Module is created. Has not been instructed to be deployed.
+    // This is the initial state after creating the module.
+    CREATED      = 1;
+
+    // Module is selected by users from the management web UI to be deployed.
+    // There is no action performed about the module yet.
+    DEPLOYED   = 2;
+
+    // Module is selected by **users** to be undeployed.
+    UNDEPLOYED = 3;
+    
+    // Module is selected to be deleted.
+    DELETED = 4;
+}
+
+// Describes the state of a module instance on an agent, combined with ModuleState
+// {module_state, module_instance_state} describes the progress of a module instance's
+// deployment over the cluster.
+enum ModuleInstanceState {
+    INIT = 1;
+    SUCCEEDED = 2;
+    FAILED = 3;
+    IN_PROGRESS = 4;
+}
+
+// Used to indicate whether or not a module instance needs to be deployed.
+enum AgentState {
+    ONLINE = 1;
+    OFFLINE = 2;
+    TERMINATED = 3;
+}
 message DeployModuleReq {
   // A unique ID assigned to the module
   string module_id = 1;
