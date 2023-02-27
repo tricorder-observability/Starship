@@ -33,17 +33,17 @@ const (
 )
 
 // getService returns a Service by name and namespace
-func getService(client *k8s.Clientset, namespace, serviceName string) (*v1.Service, error) {
+func getService(client k8s.Interface, namespace, serviceName string) (*v1.Service, error) {
 	return client.CoreV1().Services(namespace).Get(context.TODO(), serviceName, matav1.GetOptions{})
 }
 
 // GetStarshipService returns the starship Service by name and namespace
-func getStarshipService(client *k8s.Clientset) (*v1.Service, error) {
+func getStarshipService(client k8s.Interface) (*v1.Service, error) {
 	return getService(client, DefaultNamespace, DefaultServiceName)
 }
 
 // getStarshipServiceURL returns the starship Service ClusterIP
-func getStarshipServiceURL(client *k8s.Clientset) (string, error) {
+func getStarshipServiceURL(client k8s.Interface) (string, error) {
 	service, err := getStarshipService(client)
 	if err != nil {
 		return "", err
@@ -52,7 +52,7 @@ func getStarshipServiceURL(client *k8s.Clientset) (string, error) {
 }
 
 // getStarshipServicePort returns the starship Service serverhttp port
-func getStarshipServicePort(client *k8s.Clientset) (int32, error) {
+func getStarshipServicePort(client k8s.Interface) (int32, error) {
 	service, err := getStarshipService(client)
 	if err != nil {
 		return 0, err
