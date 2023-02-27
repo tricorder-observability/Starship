@@ -152,7 +152,7 @@ func (mgr *ModuleManager) listModule(req ListModuleReq) ListModuleResp {
 		return ListModuleResp{HTTPResp{
 			Code:    500,
 			Message: "Query Error: " + err.Error(),
-		}, resultList}
+		}, nil}
 	}
 
 	return ListModuleResp{HTTPResp{
