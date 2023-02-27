@@ -17,11 +17,11 @@ package module
 
 import (
 	"fmt"
-	"github.com/tricorder/src/utils/log"
 
 	"github.com/spf13/cobra"
 
 	"github.com/tricorder/src/cli/pkg/kubernetes"
+	"github.com/tricorder/src/utils/log"
 )
 
 var ModuleCmd = &cobra.Command{
