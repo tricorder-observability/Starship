@@ -82,7 +82,14 @@ func TestModuleManager(t *testing.T) {
 
 	cm.PGClient = pgClient
 
-	ListModule(t, r)
+	r.GET("/api/listModule", cm.listModuleHttp)
+	req, _ := http.NewRequest("GET", "/api/listModule?fields=id,name,desire_state", nil)
+
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+	resultStr := w.Body.String()
+	fmt.Printf("list module: %s", resultStr)
+	assert.Equal(true, strings.Contains(resultStr, "Success"))
 
 	wasmUid := "test_wasm_uid"
 	modulID := AddModule(t, wasmUid, r)
@@ -92,17 +99,6 @@ func TestModuleManager(t *testing.T) {
 	unDeployModule(t, modulID, r)
 
 	deleteModule(t, modulID, r)
-}
-
-func ListModule(t *testing.T, r *gin.Engine) {
-	r.GET("/api/listModule", cm.listModuleHttp)
-	req, _ := http.NewRequest("GET", "/api/listModule?fields=id,name,desire_state", nil)
-
-	w := httptest.NewRecorder()
-	r.ServeHTTP(w, req)
-	resultStr := w.Body.String()
-	fmt.Printf("list module: %s", resultStr)
-	assert.Equal(t, true, strings.Contains(resultStr, "Success"))
 }
 
 func AddModule(t *testing.T, wasmUid string, r *gin.Engine) string {

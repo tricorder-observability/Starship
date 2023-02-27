@@ -16,15 +16,73 @@
 package http
 
 import (
+	"fmt"
+	"net/http"
+
+	"github.com/gin-gonic/gin"
+
+	"github.com/tricorder/src/api-server/dao"
 	commonpb "github.com/tricorder/src/pb/module/common"
+	"github.com/tricorder/src/pb/module/ebpf"
+	"github.com/tricorder/src/pb/module/wasm"
 	"github.com/tricorder/src/utils/pg"
 )
 
-// CreateModuleResponse binds to the HTTP response sent to the management Web UI.
-type CreateModuleResponse struct {
-	Code    string      `json:"code"`
-	Data    interface{} `json:"data"`
-	Message string      `json:"message"`
+// Common response type.
+type HTTPResp struct {
+	// Semantic and usage follow HTTP statues code convention.
+	// https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
+	Code int `json:"code"`
+
+	// A human readable message explain the details of the status.
+	Message string `json:"message"`
+}
+
+type CreateModuleReq struct {
+	ID   string        `json:"id"`
+	Name string        `json:"name"`
+	Wasm *wasm.Program `json:"wasm"`
+	Ebpf *ebpf.Program `json:"ebpf"`
+}
+
+type CreateModuleResp struct {
+	HTTPResp
+}
+
+type ListModuleReq struct {
+	// These fields of the module record are returned to the client.
+	// Empty list instructs server to return a default set of fields.
+	// This allows client to control the size of the returned data to trade-off between responsiveness and completeness of
+	// returned information.
+	Fields string
+}
+
+type ListModuleResp struct {
+	HTTPResp
+	Data []dao.ModuleGORM `json:"data"`
+}
+
+type DeployModuleResp struct {
+	HTTPResp
+	UID string `json:"uid"`
+}
+
+type UndeployModuleResp struct {
+	HTTPResp
+}
+
+type DeleteModuleResp struct {
+	HTTPResp
+}
+
+func checkQuery(c *gin.Context, key string) (string, error) {
+	val, exist := c.GetQuery(key)
+	if !exist {
+		errMsg := fmt.Sprintf("key '%s' does not exist", key)
+		c.JSON(http.StatusOK, gin.H{"code": "500", "message": errMsg})
+		return "", fmt.Errorf(errMsg)
+	}
+	return val, nil
 }
 
 // DataFieldToPGColumn returns Column from a DataField protobuf message

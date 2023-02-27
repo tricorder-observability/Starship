@@ -31,8 +31,6 @@ import (
 	pb "github.com/tricorder/src/api-server/pb"
 	"github.com/tricorder/src/api-server/utils/channel"
 	commonpb "github.com/tricorder/src/pb/module/common"
-	"github.com/tricorder/src/pb/module/ebpf"
-	"github.com/tricorder/src/pb/module/wasm"
 	"github.com/tricorder/src/utils/pg"
 	"github.com/tricorder/src/utils/uuid"
 )
@@ -129,7 +127,7 @@ func (mgr *ModuleManager) createModule(body CreateModuleReq) CreateModuleResp {
 	}}
 }
 
-// GetAllListModule godoc
+// ListModule godoc
 // @Summary      List all moudle
 // @Description  List all moudle
 // @Tags         module
@@ -139,23 +137,16 @@ func (mgr *ModuleManager) createModule(body CreateModuleReq) CreateModuleResp {
 // @Success      200  {object}  ListModuleResp
 // @Router       /api/listModule [get]
 func (mgr *ModuleManager) listModuleHttp(c *gin.Context) {
-	// ?fields=id,name,status
-	fields, _ := c.GetQuery("fields")
-
-	result := mgr.listModule(fields)
+	fields, err := checkQuery(c, "fields")
+	if err != nil {
+		return
+	}
+	result := mgr.listModule(ListModuleReq{Fields: fields})
 	c.JSON(http.StatusOK, result)
 }
 
-func (mgr *ModuleManager) listModule(fields string) ListModuleResp {
-	var resultList []dao.ModuleGORM
-	var err error
-
-	if len(fields) > 0 {
-		resultList, err = mgr.Module.ListModule(fields)
-	} else {
-		resultList, err = mgr.Module.ListModule()
-	}
-
+func (mgr *ModuleManager) listModule(req ListModuleReq) ListModuleResp {
+	resultList, err := mgr.Module.ListModule(req.Fields)
 	if err != nil {
 		log.Errorf("Failed to list module, error: %v", err)
 		return ListModuleResp{HTTPResp{
@@ -182,26 +173,27 @@ func (mgr *ModuleManager) listModule(fields string) ListModuleResp {
 func (mgr *ModuleManager) deleteModuleHttp(c *gin.Context) {
 	id, exist := c.GetQuery("id")
 	if !exist {
-		c.JSON(http.StatusOK, gin.H{"code": "500", "message": "id does not exist"})
 		c.JSON(http.StatusOK, HTTPResp{
 			Code:    500,
 			Message: "id does not exist",
 		})
 		return
 	}
+	c.JSON(http.StatusOK, mgr.deleteModule(id))
+}
+
+func (mgr *ModuleManager) deleteModule(id string) DeleteModuleResp {
 	err := mgr.Module.DeleteByID(id)
 	if err != nil {
-		c.JSON(http.StatusOK, HTTPResp{
+		return DeleteModuleResp{HTTPResp{
 			Code:    500,
 			Message: "delete error: " + err.Error(),
-		})
-		return
+		}}
 	}
-
-	c.JSON(http.StatusOK, HTTPResp{
+	return DeleteModuleResp{HTTPResp{
 		Code:    200,
 		Message: "Success",
-	})
+	}}
 }
 
 // ~/go/bin/swag init -g http.go -o src/api-server/http/docs -d src/api-server/http
@@ -292,20 +284,21 @@ func (mgr *ModuleManager) undeployModuleHttp(c *gin.Context) {
 		})
 		return
 	}
+	c.JSON(http.StatusOK, mgr.undeployModule(id))
+}
+
+func (mgr *ModuleManager) undeployModule(id string) UndeployModuleResp {
 	err := mgr.Module.UpdateStatusByID(id, int(pb.DeploymentState_TO_BE_UNDEPLOYED))
 	if err != nil {
-		log.Errorf("pre-undeploy module: [%s] failed: %s", id, err.Error())
-		c.JSON(http.StatusOK, HTTPResp{
+		return UndeployModuleResp{HTTPResp{
 			Code:    500,
 			Message: "undeploy error: " + err.Error(),
-		})
-		return
+		}}
 	}
-
-	c.JSON(http.StatusOK, HTTPResp{
+	return UndeployModuleResp{HTTPResp{
 		Code:    200,
 		Message: "un-deploy success",
-	})
+	}}
 }
 
 // Generate schema name tricorder_module_{moduleID}
@@ -370,31 +363,4 @@ func (mgr *ModuleManager) createGrafanaDashboard(moduleID string) (string, error
 	channel.SendMessage(message)
 
 	return result.UID, nil
-}
-
-type CreateModuleReq struct {
-	ID   string        `json:"id"`
-	Name string        `json:"name"`
-	Wasm *wasm.Program `json:"wasm"`
-	Ebpf *ebpf.Program `json:"ebpf"`
-}
-
-type HTTPResp struct {
-	Code    int    `json:"code"`
-	Message string `json:"message"`
-	Success bool   `json:"success"`
-}
-
-type CreateModuleResp struct {
-	HTTPResp
-}
-
-type ListModuleResp struct {
-	HTTPResp
-	Data []dao.ModuleGORM `json:"data"`
-}
-
-type DeployModuleResp struct {
-	HTTPResp
-	UID string `json:"uid"`
 }

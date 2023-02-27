@@ -43,6 +43,7 @@ go_test(
     srcs = [
         "grafana_test.go",
         "module_manager_test.go",
+        "types_test.go",
     ],
     data = ["//src/api-server/http/testdata:tricorder_test_db"],
     embed = [":http"],
