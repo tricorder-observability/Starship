@@ -17,7 +17,7 @@ package module
 
 import (
 	"fmt"
-	"log"
+	"github.com/tricorder/src/utils/log"
 
 	"github.com/spf13/cobra"
 
@@ -39,7 +39,7 @@ var ModuleCmd = &cobra.Command{
 		if apiAddress == "" {
 			newApiAddress, err := kubernetes.GetStarshipAPIAddress()
 			if err != nil {
-				log.Fatal("connect to kubernetes failed, please use --api-address to set api address manually.")
+				log.Fatal("Failed to connect to Kubernetes API Server, please use --api-address to set api address manually.")
 			}
 			apiAddress = newApiAddress
 		}
