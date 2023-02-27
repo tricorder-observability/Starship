@@ -43,7 +43,7 @@ type ModuleManager struct {
 	PGClient      *pg.Client
 }
 
-// CreateModule  godoc
+// createModuleHttp  godoc
 // @Summary      Create module
 // @Description  Create Module
 // @Tags         module
@@ -127,7 +127,7 @@ func (mgr *ModuleManager) createModule(body CreateModuleReq) CreateModuleResp {
 	}}
 }
 
-// ListModule godoc
+// listModuleHttp godoc
 // @Summary      List all moudle
 // @Description  List all moudle
 // @Tags         module
@@ -161,7 +161,7 @@ func (mgr *ModuleManager) listModule(req ListModuleReq) ListModuleResp {
 	}, resultList}
 }
 
-// DeleteModule  godoc
+// deleteModuleHttp  godoc
 // @Summary      Delete module
 // @Description  Delete Module by id
 // @Tags         module
@@ -196,8 +196,7 @@ func (mgr *ModuleManager) deleteModule(id string) DeleteModuleResp {
 	}}
 }
 
-// ~/go/bin/swag init -g http.go -o src/api-server/http/docs -d src/api-server/http
-// ShowAccount godoc
+// deployModuleHttp godoc
 // @Summary      Deploy module
 // @Description  Create Module
 // @Tags         module
@@ -266,7 +265,7 @@ func (mgr *ModuleManager) deployModule(id string) DeployModuleResp {
 	}
 }
 
-// UndeployModule godoc
+// undeployModuleHttp godoc
 // @Summary      Undeploy module
 // @Description  Undeploy Module By ID
 // @Tags         module
