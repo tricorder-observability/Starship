@@ -15,10 +15,10 @@ go_library(
     visibility = ["//visibility:public"],
     deps = [
         "//src/api-server/dao",
+        "//src/api-server/http/api",
         "//src/cli/internal/outputs",
         "//src/pb/module",
         "//src/utils/file",
-        "//src/utils/http",
         "//src/utils/log",
         "//src/utils/uuid",
         "@com_github_spf13_cobra//:cobra",
