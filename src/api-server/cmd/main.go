@@ -17,11 +17,8 @@ package main
 
 import (
 	"flag"
-	"fmt"
-	"net"
 
 	"golang.org/x/sync/errgroup"
-	"google.golang.org/grpc"
 	"k8s.io/client-go/kubernetes"
 	ctrl "sigs.k8s.io/controller-runtime"
 
@@ -31,7 +28,6 @@ import (
 	"github.com/tricorder/src/api-server/http/docs"
 	"github.com/tricorder/src/api-server/meta"
 	pb "github.com/tricorder/src/api-server/pb"
-	"github.com/tricorder/src/utils/errors"
 	"github.com/tricorder/src/utils/log"
 	"github.com/tricorder/src/utils/pg"
 	"github.com/tricorder/src/utils/retry"
@@ -120,12 +116,18 @@ func main() {
 
 	var eg errgroup.Group
 	eg.Go(func() error {
-		// Agent service server side, including module deployer and process collector service
-		err := startAgentServerSide(*agentServicePort, moduleDao, pgClient, clientset)
+		f, err := sg.NewServerFixture(*agentServicePort)
+		if err != nil {
+			log.Fatalf("Failed to create gRPC server fixture, error: %v", err)
+		}
+		pb.RegisterModuleDeployerServer(f.Server, sg.NewDeployer(sqliteClient))
+		if *enableMetadataService {
+			pb.RegisterProcessCollectorServer(f.Server, sg.NewPIDCollector(clientset, pgClient))
+		}
+		err = f.Serve()
 		if err != nil {
 			log.Fatalf("Could not start server, error: %v", err)
 		}
-
 		return nil
 	})
 
@@ -149,8 +151,9 @@ func main() {
 
 	if *enableMetadataService {
 		eg.Go(func() error {
-			if err := meta.StartWatchingResources(clientset, pgClient); err != nil {
-				log.Errorf("Could not start metadata service, error: %v", err)
+			err := meta.StartWatchingResources(clientset, pgClient)
+			if err != nil {
+				log.Fatalf("Could not start metadata service, error: %v", err)
 			}
 			return nil
 		})
@@ -158,28 +161,4 @@ func main() {
 
 	log.Infof("API server has started ...")
 	_ = eg.Wait()
-}
-
-func startAgentServerSide(port int, c dao.ModuleDao, pgClient *pg.Client, clientset kubernetes.Interface) error {
-	addr := fmt.Sprintf(":%d", port)
-	log.Infof("Starting gRPC server at %s", addr)
-
-	grpcLis, err := net.Listen("tcp", addr)
-	if err != nil {
-		return errors.Wrap("starting gRPC server", "listen tcp at "+addr, err)
-	}
-
-	grpcServer := grpc.NewServer()
-
-	pb.RegisterModuleDeployerServer(grpcServer, &sg.Deployer{Module: c})
-
-	if *enableMetadataService {
-		pb.RegisterProcessCollectorServer(grpcServer, sg.NewPIDCollector(clientset, pgClient))
-	}
-	err = grpcServer.Serve(grpcLis)
-
-	if err != nil {
-		return errors.Wrap("starting gRPC server", "serve gRPC listener", err)
-	}
-	return nil
 }
