@@ -17,6 +17,7 @@ package grpc
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 
 	"golang.org/x/sync/errgroup"
@@ -103,7 +104,7 @@ func getDeployReqForModule(module *dao.ModuleGORM) (*servicepb.DeployModuleReq, 
 func (s *Deployer) DeployModule(stream servicepb.ModuleDeployer_DeployModuleServer) error {
 	// The first message is sent from the client, but the remaining loops are driven by the server.
 	// The server will send deploy module request for this client to work on.
-	var isNewNode bool
+	var isNewNodeAgent bool
 	in, err := stream.Recv()
 	if err == io.EOF {
 		log.Warnf("Agent closed connection, this should only happens during testing; stopping ...")
@@ -114,10 +115,11 @@ func (s *Deployer) DeployModule(stream servicepb.ModuleDeployer_DeployModuleServ
 	}
 
 	log.Infof("Agent '%s' connected, starting module management loop ...", in.Agent.Id)
+	fmt.Println("11111")
 	err = s.gLock.ExecWithLock(func() error {
 		node, err := s.NodeAgent.QueryByName(in.Agent.NodeName)
 		if err != nil {
-			return errors.Wrap("while handling Agent grpc request", "query node agent", err)
+			return nil
 		}
 		if node != nil && node.State == int(pb.AgentState_ONLINE) {
 			return errors.New("while handling Agent grpc request", "node agent already exists")
@@ -128,7 +130,7 @@ func (s *Deployer) DeployModule(stream servicepb.ModuleDeployer_DeployModuleServ
 				AgentID:  in.Agent.Id,
 			}
 			s.NodeAgent.SaveAgent(node)
-			isNewNode = true
+			isNewNodeAgent = true
 		}
 		s.NodeAgent.UpdateStatusByName(node.NodeName, int(pb.AgentState_ONLINE))
 		return nil
@@ -140,8 +142,9 @@ func (s *Deployer) DeployModule(stream servicepb.ModuleDeployer_DeployModuleServ
 
 	s.agents = append(s.agents, in.Agent)
 
-	if isNewNode {
+	if isNewNodeAgent {
 		// If this is a new node, we need to deploy all the modules.
+		// todo(jun): handle the case where the node is not new, but the agent is restarted.
 	}
 
 	var eg errgroup.Group

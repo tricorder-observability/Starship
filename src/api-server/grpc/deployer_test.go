@@ -31,12 +31,13 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
+	"github.com/tricorder/src/utils/cond"
+	"github.com/tricorder/src/utils/lock"
 	"github.com/tricorder/src/utils/log"
 
 	"github.com/tricorder/src/api-server/dao"
 	pb "github.com/tricorder/src/api-server/pb"
 	testutil "github.com/tricorder/src/api-server/testing"
-	"github.com/tricorder/src/api-server/utils/channel"
 	"github.com/tricorder/src/utils/sqlite"
 )
 
@@ -67,7 +68,7 @@ func TestService(t *testing.T) {
 	_ = os.RemoveAll(testDir + "/tricorder.db")
 }
 
-func newDeployerServer(t *testing.T, sqliteClient *sqlite.ORM) (*grpc.Server, net.Addr) {
+func newDeployerServer(t *testing.T, sqliteClient *sqlite.ORM, gLock *lock.Lock, waitCOnd *cond.Cond) (*grpc.Server, net.Addr) {
 	lis, _ := net.Listen("tcp", ":0")
 	grpcServer := grpc.NewServer()
 
@@ -75,6 +76,14 @@ func newDeployerServer(t *testing.T, sqliteClient *sqlite.ORM) (*grpc.Server, ne
 		Module: dao.ModuleDao{
 			Client: sqliteClient,
 		},
+		NodeAgent: dao.NodeAgentDao{
+			Client: sqliteClient,
+		},
+		ModuleInstance: dao.ModuleInstanceDao{
+			Client: sqliteClient,
+		},
+		gLock:    gLock,
+		waitCond: waitCOnd,
 	})
 
 	go func() {
@@ -96,15 +105,15 @@ type grpcClient struct {
 	conn   *grpc.ClientConn
 }
 
-func initializeTestServerGRPCWithOptions(t *testing.T, sqliteClient *sqlite.ORM) *grpcServer {
-	server, addr := newDeployerServer(t, sqliteClient)
+func initializeTestServerGRPCWithOptions(t *testing.T, sqliteClient *sqlite.ORM, gLock *lock.Lock, waitCOnd *cond.Cond) *grpcServer {
+	server, addr := newDeployerServer(t, sqliteClient, gLock, waitCOnd)
 	return &grpcServer{
 		server:  server,
 		lisAddr: addr,
 	}
 }
 
-func newGRPCClient(t *testing.T, addr string) *grpcClient {
+func newGRPCClient(t *testing.T, addr string, waitCond *cond.Cond) *grpcClient {
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
 	conn, err := grpc.DialContext(ctx, addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
@@ -125,11 +134,8 @@ func newGRPCClient(t *testing.T, addr string) *grpcClient {
 		log.Fatalf("Could not send stream to DeplyModule RPC at %s, %v", addr, err)
 	}
 
-	message := channel.DeployChannelModule{
-		ID:     "moduleID",
-		Status: int(pb.DeploymentState_TO_BE_DEPLOYED),
-	}
-	channel.SendMessage(message)
+	waitCond.Broadcast()
+
 	return &grpcClient{
 		c:      c,
 		stream: deployModuleStream,
@@ -142,8 +148,10 @@ func withServerAndClient(
 	sqliteClient *sqlite.ORM,
 	actualTest func(server *grpcServer, client *grpcClient),
 ) {
-	server := initializeTestServerGRPCWithOptions(t, sqliteClient)
-	c := newGRPCClient(t, server.lisAddr.String())
+	gLock := lock.NewLock()
+	waitCond := cond.NewCond()
+	server := initializeTestServerGRPCWithOptions(t, sqliteClient, gLock, waitCond)
+	c := newGRPCClient(t, server.lisAddr.String(), waitCond)
 	defer server.server.Stop()
 	defer c.conn.Close()
 
