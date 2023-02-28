@@ -85,7 +85,7 @@ func TestNodeAgent(t *testing.T) {
 	assert.Equal(node.State, int(pb.AgentState_ONLINE), "query node state error, node.Status != pb.AgentState_ONLINE ")
 
 	// test update module status
-	err = nodeAgentDao.UpdateStatusByName(node.NodeName, int(pb.AgentState_OFFLINE))
+	err = nodeAgentDao.UpdateStateByName(node.NodeName, int(pb.AgentState_OFFLINE))
 	assert.Nil(err, "change node state error: %v", err)
 
 	node, err = nodeAgentDao.QueryByID(node.AgentID)

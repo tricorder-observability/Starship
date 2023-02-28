@@ -24,12 +24,13 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	"github.com/tricorder/src/utils/cond"
+	"github.com/tricorder/src/utils/lock"
 	"github.com/tricorder/src/utils/log"
 
 	"github.com/tricorder/src/api-server/dao"
 	"github.com/tricorder/src/api-server/http/grafana"
 	pb "github.com/tricorder/src/api-server/pb"
-	"github.com/tricorder/src/api-server/utils/channel"
 	commonpb "github.com/tricorder/src/pb/module/common"
 	"github.com/tricorder/src/utils/pg"
 	"github.com/tricorder/src/utils/uuid"
@@ -42,6 +43,8 @@ type ModuleManager struct {
 	NodeAgent      dao.NodeAgentDao
 	ModuleInstance dao.ModuleInstanceDao
 	GrafanaClient  GrafanaManagement
+	gLock          *lock.Lock
+	waitCond       *cond.Cond
 	PGClient       *pg.Client
 }
 
@@ -268,12 +271,7 @@ func (mgr *ModuleManager) deployModule(id string) DeployModuleResp {
 		}
 	}
 
-	message := channel.DeployChannelModule{
-		ID:     module.ID,
-		Status: int(pb.DeploymentState_TO_BE_DEPLOYED),
-	}
-
-	channel.SendMessage(message)
+	mgr.waitCond.Broadcast()
 
 	return DeployModuleResp{
 		HTTPResp{

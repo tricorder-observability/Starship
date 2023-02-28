@@ -34,6 +34,8 @@ import (
 	testutils "github.com/tricorder/src/testing/bazel"
 	grafanatest "github.com/tricorder/src/testing/grafana"
 	pgclienttest "github.com/tricorder/src/testing/pg"
+	"github.com/tricorder/src/utils/cond"
+	"github.com/tricorder/src/utils/lock"
 )
 
 var cm = ModuleManager{DatasourceUID: "test"}
@@ -56,6 +58,9 @@ func SetUpRouter() *gin.Engine {
 	cm.NodeAgent = dao.NodeAgentDao{
 		Client: sqliteClient,
 	}
+
+	cm.waitCond = cond.NewCond()
+	cm.gLock = lock.NewLock()
 
 	cm.GrafanaClient = NewGrafanaManagement()
 

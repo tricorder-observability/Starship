@@ -21,13 +21,15 @@ import (
 
 	"golang.org/x/sync/errgroup"
 
+	"github.com/tricorder/src/utils/cond"
 	"github.com/tricorder/src/utils/errors"
+	"github.com/tricorder/src/utils/lock"
 	"github.com/tricorder/src/utils/log"
 	"github.com/tricorder/src/utils/sqlite"
 
 	"github.com/tricorder/src/api-server/dao"
+	pb "github.com/tricorder/src/api-server/pb"
 	servicepb "github.com/tricorder/src/api-server/pb"
-	"github.com/tricorder/src/api-server/utils/channel"
 	modulepb "github.com/tricorder/src/pb/module"
 	"github.com/tricorder/src/pb/module/common"
 	ebpfpb "github.com/tricorder/src/pb/module/ebpf"
@@ -40,6 +42,8 @@ type Deployer struct {
 	Module         dao.ModuleDao
 	NodeAgent      dao.NodeAgentDao
 	ModuleInstance dao.ModuleInstanceDao
+	gLock          *lock.Lock
+	waitCond       *cond.Cond
 	// The list of agents connected with this Deployer.
 	//
 	// Each agent and this Deployer maintains a gRPC streaming channel with DeployModuleReq & DeployModuleResp
@@ -109,7 +113,61 @@ func (s *Deployer) DeployModule(stream servicepb.ModuleDeployer_DeployModuleServ
 	}
 
 	log.Infof("Agent '%s' connected, starting module management loop ...", in.Agent.Id)
+	agentNodeName := in.Agent.NodeName
+	agentID := in.Agent.Id
+	err = s.gLock.ExecWithLock(func() error {
+		// TODO(jun): Consider return a list of nodes, and error out when there is more than 1 records
+		// for this node. This is just being defensive, as ignoring that state, as the code below,
+		// might result into issues that are too difficult to debug.
+		node, err := s.NodeAgent.QueryByName(agentNodeName)
+		if err != nil {
+			// TODO(jun): Need to distinguish between query failure and getting no results.
+			// It seems currently, it should return an error when there is no record for node name.
+			return nil
+		}
+		// TODO(jun): If returning nil here means no record for this node name, then the above if statement
+		// should instead return err not nil.
+		if node != nil && node.State == int(pb.AgentState_ONLINE) {
+			if node.AgentID == agentID {
+				log.Warnf("Node '%s' agent ID '%s' was already 'ONLINE' when it connects", node.NodeName, node.AgentID)
+				return nil
+			}
+			// There is an agent on this node with ONLINE state. And that agent is different from my ID.
+			// Here we trust K8s, and assume metadata service (not yet implemented, @Daniel is working on this)
+			// was slow to update the state. So we explicitly set the state to TERMINATED.
+			err = s.NodeAgent.UpdateStateByName(node.NodeName, int(pb.AgentState_TERMINATED))
+			if err != nil {
+				return errors.Wrap("handling Agent grpc request", "update node agent state", err)
+			}
+			return nil
+		}
+		if node == nil {
+			node = &dao.NodeAgentGORM{
+				NodeName: agentNodeName,
+				AgentID:  agentID,
+				State:    int(pb.AgentState_ONLINE),
+			}
+			err = s.NodeAgent.SaveAgent(node)
+			if err != nil {
+				return errors.Wrap("handling Agent grpc request", "save new online agent", err)
+			}
+			return nil
+		}
+		// TODO(jun): The following code does not seem possible. We should log.Warnf() here to record this state.
+		err = s.NodeAgent.UpdateStateByName(node.NodeName, int(pb.AgentState_ONLINE))
+		if err != nil {
+			return errors.Wrap("while handling Agent grpc request", "update node agent state", err)
+		}
+		return nil
+	})
+
+	if err != nil {
+		return errors.Wrap("handling agent grpc request", "update node agent state", err)
+	}
+
 	s.agents = append(s.agents, in.Agent)
+
+	// TODO(jun): handle the case where the node is not new, but the agent is restarted.
 
 	var eg errgroup.Group
 	// Create a goroutine to check the response from the connected agent.
@@ -135,10 +193,7 @@ func (s *Deployer) DeployModule(stream servicepb.ModuleDeployer_DeployModuleServ
 	})
 
 	for {
-		message := channel.ReceiveMessage()
-		if message.Status != int(servicepb.DeploymentState_TO_BE_DEPLOYED) {
-			continue
-		}
+		s.waitCond.Wait()
 		undeployList, _ := s.Module.ListModuleByStatus(int(servicepb.DeploymentState_TO_BE_DEPLOYED))
 		for _, code := range undeployList {
 			codeReq, err := getDeployReqForModule(&code)
@@ -165,10 +220,18 @@ func (s *Deployer) DeployModule(stream servicepb.ModuleDeployer_DeployModuleServ
 }
 
 // NewDeployer returns a Deployer object with the input SQLite ORM client.
-func NewDeployer(orm *sqlite.ORM) *Deployer {
+func NewDeployer(orm *sqlite.ORM, gLock *lock.Lock, waitCond *cond.Cond) *Deployer {
 	return &Deployer{
 		Module: dao.ModuleDao{
 			Client: orm,
 		},
+		NodeAgent: dao.NodeAgentDao{
+			Client: orm,
+		},
+		ModuleInstance: dao.ModuleInstanceDao{
+			Client: orm,
+		},
+		waitCond: waitCond,
+		gLock:    gLock,
 	}
 }

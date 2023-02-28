@@ -28,6 +28,8 @@ import (
 	"github.com/tricorder/src/api-server/dao"
 	"github.com/tricorder/src/api-server/http/api"
 	"github.com/tricorder/src/api-server/http/grafana"
+	"github.com/tricorder/src/utils/cond"
+	"github.com/tricorder/src/utils/lock"
 	"github.com/tricorder/src/utils/pg"
 )
 
@@ -41,6 +43,8 @@ type Config struct {
 	Module          dao.ModuleDao
 	NodeAgent       dao.NodeAgentDao
 	ModuleInstance  dao.ModuleInstanceDao
+	GLock           *lock.Lock
+	WaitCond        *cond.Cond
 }
 
 func StartHTTPService(cfg Config, pgClient *pg.Client) {
@@ -61,6 +65,8 @@ func StartHTTPService(cfg Config, pgClient *pg.Client) {
 		NodeAgent:      cfg.NodeAgent,
 		ModuleInstance: cfg.ModuleInstance,
 		PGClient:       pgClient,
+		gLock:          cfg.GLock,
+		waitCond:       cfg.WaitCond,
 	}
 	router := gin.Default()
 
