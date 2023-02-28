@@ -1,7 +1,12 @@
 #!/bin/bash -ex
 
-aws ecr-public get-login-password --region us-east-1 |\
-    docker login --username AWS --password-stdin public.ecr.aws/tricorder
-image="public.ecr.aws/tricorder/base_build_image:v0.1"
-docker build . -t ${image}
+REGISTRY=docker.io/tricorderobservability
+
+image="${REGISTRY}/base_build_image:v0.1"
+ToT=$(git rev-parse --show-toplevel)
+
+echo "Logging into docker ..."
+docker login --username tricorderobservability
+
+docker build ${ToT}/devops/base_build_image/ -t ${image}
 docker push ${image}
