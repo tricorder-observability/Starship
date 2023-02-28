@@ -28,7 +28,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/tricorder/src/api-server/dao"
+	"github.com/tricorder/src/api-server/http/dao"
 	"github.com/tricorder/src/api-server/http/grafana"
 	pb "github.com/tricorder/src/api-server/pb"
 	testutils "github.com/tricorder/src/testing/bazel"

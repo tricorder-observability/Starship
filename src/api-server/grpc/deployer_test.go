@@ -35,7 +35,7 @@ import (
 	"github.com/tricorder/src/utils/lock"
 	"github.com/tricorder/src/utils/log"
 
-	"github.com/tricorder/src/api-server/dao"
+	"github.com/tricorder/src/api-server/http/dao"
 	pb "github.com/tricorder/src/api-server/pb"
 	testutil "github.com/tricorder/src/api-server/testing"
 	"github.com/tricorder/src/utils/sqlite"

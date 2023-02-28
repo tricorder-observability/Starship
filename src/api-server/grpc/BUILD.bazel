@@ -10,7 +10,7 @@ go_library(
     importpath = "github.com/tricorder/src/api-server/grpc",
     visibility = ["//visibility:public"],
     deps = [
-        "//src/api-server/dao",
+        "//src/api-server/http/dao",
         "//src/api-server/pb",
         "//src/pb/module",
         "//src/pb/module/common",
@@ -43,7 +43,7 @@ go_test(
     ],
     embed = [":grpc"],
     deps = [
-        "//src/api-server/dao",
+        "//src/api-server/http/dao",
         "//src/api-server/pb",
         "//src/api-server/testing",
         "//src/testing/pg",

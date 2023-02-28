@@ -28,7 +28,7 @@ import (
 	"github.com/tricorder/src/utils/lock"
 	"github.com/tricorder/src/utils/log"
 
-	"github.com/tricorder/src/api-server/dao"
+	"github.com/tricorder/src/api-server/http/dao"
 	"github.com/tricorder/src/api-server/http/grafana"
 	pb "github.com/tricorder/src/api-server/pb"
 	commonpb "github.com/tricorder/src/pb/module/common"

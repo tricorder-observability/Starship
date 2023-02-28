@@ -13,8 +13,8 @@ go_library(
     importpath = "github.com/tricorder/src/api-server/http",
     visibility = ["//src/api-server:__subpackages__"],
     deps = [
-        "//src/api-server/dao",
         "//src/api-server/http/api",
+        "//src/api-server/http/dao",
         "//src/api-server/http/grafana",
         "//src/api-server/pb",
         "//src/pb/module/common",
@@ -50,7 +50,7 @@ go_test(
     data = ["//src/api-server/http/testdata:tricorder_test_db"],
     embed = [":http"],
     deps = [
-        "//src/api-server/dao",
+        "//src/api-server/http/dao",
         "//src/api-server/http/grafana",
         "//src/api-server/pb",
         "//src/testing/bazel",

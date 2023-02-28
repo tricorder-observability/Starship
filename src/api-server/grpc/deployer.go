@@ -27,7 +27,7 @@ import (
 	"github.com/tricorder/src/utils/log"
 	"github.com/tricorder/src/utils/sqlite"
 
-	"github.com/tricorder/src/api-server/dao"
+	"github.com/tricorder/src/api-server/http/dao"
 	pb "github.com/tricorder/src/api-server/pb"
 	servicepb "github.com/tricorder/src/api-server/pb"
 	modulepb "github.com/tricorder/src/pb/module"

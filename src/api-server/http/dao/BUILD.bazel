@@ -8,7 +8,7 @@ go_library(
         "node_agent.go",
         "sqlite.go",
     ],
-    importpath = "github.com/tricorder/src/api-server/dao",
+    importpath = "github.com/tricorder/src/api-server/http/dao",
     visibility = ["//visibility:public"],
     deps = [
         "//src/utils/log",

@@ -14,8 +14,8 @@ go_library(
     importpath = "github.com/tricorder/src/cli/cmd/module",
     visibility = ["//visibility:public"],
     deps = [
-        "//src/api-server/dao",
         "//src/api-server/http/api",
+        "//src/api-server/http/dao",
         "//src/cli/internal/outputs",
         "//src/cli/pkg/kubernetes",
         "//src/pb/module",

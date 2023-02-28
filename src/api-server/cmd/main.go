@@ -22,9 +22,9 @@ import (
 	"k8s.io/client-go/kubernetes"
 	ctrl "sigs.k8s.io/controller-runtime"
 
-	"github.com/tricorder/src/api-server/dao"
 	sg "github.com/tricorder/src/api-server/grpc"
 	"github.com/tricorder/src/api-server/http"
+	"github.com/tricorder/src/api-server/http/dao"
 	"github.com/tricorder/src/api-server/http/docs"
 	"github.com/tricorder/src/api-server/meta"
 	pb "github.com/tricorder/src/api-server/pb"

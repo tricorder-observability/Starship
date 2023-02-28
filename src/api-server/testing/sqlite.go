@@ -22,7 +22,7 @@ import (
 
 	pb "github.com/tricorder/src/api-server/pb"
 
-	"github.com/tricorder/src/api-server/dao"
+	"github.com/tricorder/src/api-server/http/dao"
 )
 
 var ebpfJson = `

@@ -21,7 +21,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/tricorder/src/api-server/dao"
+	"github.com/tricorder/src/api-server/http/dao"
 	commonpb "github.com/tricorder/src/pb/module/common"
 	"github.com/tricorder/src/pb/module/ebpf"
 	"github.com/tricorder/src/pb/module/wasm"
