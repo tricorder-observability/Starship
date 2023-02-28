@@ -1,8 +1,8 @@
-TOT	:= $$(git rev-parse --show-toplevel)
-DEV_IMAGE_FILE := $(TOT)/tools/docker/dev_image/DEV_IMAGE
+
 PACKER := packer
 DEV_IMAGE_REPO := docker.io/tricorderobservability
 DEV_IMAGE_TAG := $(shell date "+%Y%m%d%H%M")
+DEV_IMAGE_FILE := dev_image-${DEV_IMAGE_TAG}.tar.gz
 
 .PHONY: build_and_push_ci_image
 build_and_push_ci_image:
