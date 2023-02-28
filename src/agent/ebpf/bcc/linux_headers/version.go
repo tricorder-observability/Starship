@@ -40,6 +40,7 @@ func (v Version) code() uint32 {
 	return uint32(v.ver)<<16 + uint32(v.major)<<8 + uint32(v.minor)
 }
 
+// An alternative version of code, which uses bit-wise-or.
 func (v Version) code2() uint32 {
 	return uint32(v.ver)<<16 | uint32(v.major)<<8 | uint32(v.minor)
 
