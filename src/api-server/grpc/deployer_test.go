@@ -68,7 +68,9 @@ func TestService(t *testing.T) {
 	_ = os.RemoveAll(testDir + "/tricorder.db")
 }
 
-func newDeployerServer(t *testing.T, sqliteClient *sqlite.ORM, gLock *lock.Lock, waitCOnd *cond.Cond) (*grpc.Server, net.Addr) {
+func newDeployerServer(t *testing.T, sqliteClient *sqlite.ORM,
+	gLock *lock.Lock, waitCOnd *cond.Cond,
+) (*grpc.Server, net.Addr) {
 	lis, _ := net.Listen("tcp", ":0")
 	grpcServer := grpc.NewServer()
 
@@ -105,7 +107,9 @@ type grpcClient struct {
 	conn   *grpc.ClientConn
 }
 
-func initializeTestServerGRPCWithOptions(t *testing.T, sqliteClient *sqlite.ORM, gLock *lock.Lock, waitCOnd *cond.Cond) *grpcServer {
+func initializeTestServerGRPCWithOptions(t *testing.T, sqliteClient *sqlite.ORM,
+	gLock *lock.Lock, waitCOnd *cond.Cond,
+) *grpcServer {
 	server, addr := newDeployerServer(t, sqliteClient, gLock, waitCOnd)
 	return &grpcServer{
 		server:  server,

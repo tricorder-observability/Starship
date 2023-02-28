@@ -71,7 +71,7 @@ func (g *NodeAgentDao) UpdateByName(agent *NodeAgentGORM) error {
 	return result.Error
 }
 
-func (g *NodeAgentDao) UpdateStatusByName(nodeName string, statue int) error {
+func (g *NodeAgentDao) UpdateStateByName(nodeName string, statue int) error {
 	agent := NodeAgentGORM{}
 
 	agent.LastUpdateTime = &time.Time{}
@@ -103,7 +103,7 @@ func (g *NodeAgentDao) List(query ...string) ([]NodeAgentGORM, error) {
 	return nodeList, nil
 }
 
-func (g *NodeAgentDao) ListByStatus(state int) ([]NodeAgentGORM, error) {
+func (g *NodeAgentDao) ListByState(state int) ([]NodeAgentGORM, error) {
 	nodeList := make([]NodeAgentGORM, 0)
 	result := g.Client.Engine.Where(&NodeAgentGORM{State: state}).Order("create_time desc").Find(&nodeList)
 	if result.Error != nil {

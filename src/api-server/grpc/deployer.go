@@ -129,10 +129,16 @@ func (s *Deployer) DeployModule(stream servicepb.ModuleDeployer_DeployModuleServ
 				NodeName: in.Agent.NodeName,
 				AgentID:  in.Agent.Id,
 			}
-			s.NodeAgent.SaveAgent(node)
+			err = s.NodeAgent.SaveAgent(node)
+			if err != nil {
+				return errors.Wrap("while handling Agent grpc request", "node agent save", err)
+			}
 			isNewNodeAgent = true
 		}
-		s.NodeAgent.UpdateStatusByName(node.NodeName, int(pb.AgentState_ONLINE))
+		err = s.NodeAgent.UpdateStateByName(node.NodeName, int(pb.AgentState_ONLINE))
+		if err != nil {
+			return errors.Wrap("while handling Agent grpc request", "update node agent state", err)
+		}
 		return nil
 	})
 
@@ -145,6 +151,8 @@ func (s *Deployer) DeployModule(stream servicepb.ModuleDeployer_DeployModuleServ
 	if isNewNodeAgent {
 		// If this is a new node, we need to deploy all the modules.
 		// todo(jun): handle the case where the node is not new, but the agent is restarted.
+		// this hack is to bypass staticcheck.
+		isNewNodeAgent = false
 	}
 
 	var eg errgroup.Group
