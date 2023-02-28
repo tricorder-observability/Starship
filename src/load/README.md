@@ -22,7 +22,7 @@ starship-load -h
 # Write ddos_event module to the tricorder.db in this repo
 starship-load load \
     -b modules/ddos_event/ddos_event.bcc \
-    -w modules/ddos_event/cjson.wasm \
-    -m modules/ddos_event/ddos_json.json \
+    -w modules/ddos_event/write_events_to_output.wasm \
+    -m modules/ddos_event/module.json \
     -o src/api-server/cmd/src/api-server/http/
 ```
