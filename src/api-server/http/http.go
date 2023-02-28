@@ -26,7 +26,6 @@ import (
 	ginswag "github.com/swaggo/gin-swagger"
 
 	"github.com/tricorder/src/api-server/http/api"
-	"github.com/tricorder/src/api-server/http/api"
 	"github.com/tricorder/src/api-server/http/dao"
 	"github.com/tricorder/src/api-server/http/grafana"
 	"github.com/tricorder/src/utils/cond"
