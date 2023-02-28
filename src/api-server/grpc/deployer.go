@@ -17,7 +17,6 @@ package grpc
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 
 	"golang.org/x/sync/errgroup"
@@ -104,7 +103,6 @@ func getDeployReqForModule(module *dao.ModuleGORM) (*servicepb.DeployModuleReq, 
 func (s *Deployer) DeployModule(stream servicepb.ModuleDeployer_DeployModuleServer) error {
 	// The first message is sent from the client, but the remaining loops are driven by the server.
 	// The server will send deploy module request for this client to work on.
-	var isNewNodeAgent bool
 	in, err := stream.Recv()
 	if err == io.EOF {
 		log.Warnf("Agent closed connection, this should only happens during testing; stopping ...")
@@ -115,25 +113,30 @@ func (s *Deployer) DeployModule(stream servicepb.ModuleDeployer_DeployModuleServ
 	}
 
 	log.Infof("Agent '%s' connected, starting module management loop ...", in.Agent.Id)
-	fmt.Println("11111")
+	agentNodeName := in.Agent.NodeName
+	agentID := in.Agent.Id
 	err = s.gLock.ExecWithLock(func() error {
-		node, err := s.NodeAgent.QueryByName(in.Agent.NodeName)
+		node, err := s.NodeAgent.QueryByName(agentNodeName)
 		if err != nil {
 			return nil
 		}
 		if node != nil && node.State == int(pb.AgentState_ONLINE) {
-			return errors.New("while handling Agent grpc request", "node agent already exists")
+			// This node is already online, we need to terminate the previous agent.
+			if node.AgentID != agentID {
+				s.NodeAgent.UpdateStateByName(node.NodeName, int(pb.AgentState_TERMINATED))
+			}
+			return nil
 		}
 		if node == nil {
 			node = &dao.NodeAgentGORM{
-				NodeName: in.Agent.NodeName,
-				AgentID:  in.Agent.Id,
+				NodeName: agentNodeName,
+				AgentID:  agentID,
+				State:    int(pb.AgentState_ONLINE),
 			}
 			err = s.NodeAgent.SaveAgent(node)
 			if err != nil {
 				return errors.Wrap("while handling Agent grpc request", "node agent save", err)
 			}
-			isNewNodeAgent = true
 		}
 		err = s.NodeAgent.UpdateStateByName(node.NodeName, int(pb.AgentState_ONLINE))
 		if err != nil {
@@ -148,12 +151,7 @@ func (s *Deployer) DeployModule(stream servicepb.ModuleDeployer_DeployModuleServ
 
 	s.agents = append(s.agents, in.Agent)
 
-	if isNewNodeAgent {
-		// If this is a new node, we need to deploy all the modules.
-		// todo(jun): handle the case where the node is not new, but the agent is restarted.
-		// this hack is to bypass staticcheck.
-		isNewNodeAgent = false
-	}
+	// todo(jun): handle the case where the node is not new, but the agent is restarted.
 
 	var eg errgroup.Group
 	// Create a goroutine to check the response from the connected agent.
