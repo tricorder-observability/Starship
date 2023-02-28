@@ -21,9 +21,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/tricorder/src/api-server/http/dao"
+
 	"github.com/spf13/cobra"
 
-	"github.com/tricorder/src/api-server/dao"
 	modulepb "github.com/tricorder/src/pb/module"
 	"github.com/tricorder/src/utils/file"
 	"github.com/tricorder/src/utils/log"

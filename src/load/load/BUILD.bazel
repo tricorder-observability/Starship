@@ -9,7 +9,7 @@ go_library(
     importpath = "github.com/tricorder/src/load/load",
     visibility = ["//visibility:public"],
     deps = [
-        "//src/api-server/dao",
+        "//src/api-server/http/dao",
         "//src/pb/module",
         "//src/utils/file",
         "//src/utils/log",
