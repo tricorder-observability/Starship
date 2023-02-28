@@ -116,18 +116,28 @@ func (s *Deployer) DeployModule(stream servicepb.ModuleDeployer_DeployModuleServ
 	agentNodeName := in.Agent.NodeName
 	agentID := in.Agent.Id
 	err = s.gLock.ExecWithLock(func() error {
+		// TODO(jun): Consider return a list of nodes, and error out when there is more than 1 records
+		// for this node. This is just being defensive, as ignoring that state, as the code below,
+		// might result into issues that are too difficult to debug.
 		node, err := s.NodeAgent.QueryByName(agentNodeName)
 		if err != nil {
+			// TODO(jun): Need to distinguish between query failure and getting no results.
+			// It seems currently, it should return an error when there is no record for node name.
 			return nil
 		}
+		// TODO(jun): If returning nil here means no record for this node name, then the above if statement
+		// should instead return err not nil.
 		if node != nil && node.State == int(pb.AgentState_ONLINE) {
 			if node.AgentID == agentID {
+				log.Warnf("Node '%s' agent ID '%s' was already 'ONLINE' when it connects", node.NodeName, node.AgentID)
 				return nil
 			}
-			// This node is already online, we need to terminate the previous agent.
+			// There is an agent on this node with ONLINE state. And that agent is different from my ID.
+			// Here we trust K8s, and assume metadata service (not yet implemented, @Daniel is working on this)
+			// was slow to update the state. So we explicitly set the state to TERMINATED.
 			err = s.NodeAgent.UpdateStateByName(node.NodeName, int(pb.AgentState_TERMINATED))
 			if err != nil {
-				return errors.Wrap("while handling Agent grpc request", "update node agent state", err)
+				return errors.Wrap("handling Agent grpc request", "update node agent state", err)
 			}
 			return nil
 		}
@@ -139,9 +149,11 @@ func (s *Deployer) DeployModule(stream servicepb.ModuleDeployer_DeployModuleServ
 			}
 			err = s.NodeAgent.SaveAgent(node)
 			if err != nil {
-				return errors.Wrap("while handling Agent grpc request", "node agent save", err)
+				return errors.Wrap("handling Agent grpc request", "save new online agent", err)
 			}
+			return nil
 		}
+		// TODO(jun): The following code does not seem possible. We should log.Warnf() here to record this state.
 		err = s.NodeAgent.UpdateStateByName(node.NodeName, int(pb.AgentState_ONLINE))
 		if err != nil {
 			return errors.Wrap("while handling Agent grpc request", "update node agent state", err)
@@ -150,12 +162,12 @@ func (s *Deployer) DeployModule(stream servicepb.ModuleDeployer_DeployModuleServ
 	})
 
 	if err != nil {
-		return errors.Wrap("handling agent grpc request", "query node", err)
+		return errors.Wrap("handling agent grpc request", "update node agent state", err)
 	}
 
 	s.agents = append(s.agents, in.Agent)
 
-	// todo(jun): handle the case where the node is not new, but the agent is restarted.
+	// TODO(jun): handle the case where the node is not new, but the agent is restarted.
 
 	var eg errgroup.Group
 	// Create a goroutine to check the response from the connected agent.
