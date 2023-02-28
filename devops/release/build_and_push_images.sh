@@ -26,6 +26,9 @@ echo "Using tag: ${tag}"
 
 REGISTRY=docker.io/tricorderobservability
 
+echo "Logging into docker ..."
+docker login --username tricorderobservability
+
 bazel run -c opt --define=TAG=${tag} --define=REGISTRY=${REGISTRY} //src/api-server/cmd:push_api-server_image
 bazel run -c opt --define=TAG=${tag} --define=REGISTRY=${REGISTRY} //src/agent/cmd:push_agent_image
 
