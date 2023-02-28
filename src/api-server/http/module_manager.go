@@ -105,7 +105,7 @@ func (mgr *ModuleManager) createModule(body CreateModuleReq) CreateModuleResp {
 		ID:                 strings.Replace(uuid.New(), "-", "_", -1),
 		Name:               body.Name,
 		CreateTime:         time.Now().Format("2006-01-02 15:04:05"),
-		DesireState:        int(pb.DeploymentState_CREATED),
+		DesireState:        int(pb.ModuleState_CREATED_),
 		Ebpf:               body.Ebpf.Code,
 		EbpfFmt:            int(body.Ebpf.Fmt),
 		EbpfLang:           int(body.Ebpf.Lang),
@@ -259,7 +259,7 @@ func (mgr *ModuleManager) deployModule(id string) DeployModuleResp {
 
 	log.Infof("Created Grafana dashboard with UID: %s", uid)
 
-	err = mgr.Module.UpdateStatusByID(module.ID, int(pb.DeploymentState_TO_BE_DEPLOYED))
+	err = mgr.Module.UpdateStatusByID(module.ID, int(pb.ModuleState_DEPLOYED))
 	if err != nil {
 		log.Errorf("pre-deploy module: [%s] failed: %s", module.ID, err.Error())
 		return DeployModuleResp{
@@ -300,7 +300,7 @@ func (mgr *ModuleManager) undeployModuleHttp(c *gin.Context) {
 }
 
 func (mgr *ModuleManager) undeployModule(id string) UndeployModuleResp {
-	err := mgr.Module.UpdateStatusByID(id, int(pb.DeploymentState_TO_BE_UNDEPLOYED))
+	err := mgr.Module.UpdateStatusByID(id, int(pb.ModuleState_UNDEPLOYED))
 	if err != nil {
 		return UndeployModuleResp{HTTPResp{
 			Code:    500,

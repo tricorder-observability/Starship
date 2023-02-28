@@ -194,7 +194,7 @@ func (s *Deployer) DeployModule(stream servicepb.ModuleDeployer_DeployModuleServ
 
 	for {
 		s.waitCond.Wait()
-		undeployList, _ := s.Module.ListModuleByStatus(int(servicepb.DeploymentState_TO_BE_DEPLOYED))
+		undeployList, _ := s.Module.ListModuleByStatus(int(servicepb.ModuleState_DEPLOYED))
 		for _, code := range undeployList {
 			codeReq, err := getDeployReqForModule(&code)
 			if err != nil {
@@ -210,7 +210,7 @@ func (s *Deployer) DeployModule(stream servicepb.ModuleDeployer_DeployModuleServ
 
 			// TODO(yzhao): This should set the state to PENDING, or something indicating the request is sent.
 			// Probably should update the IN_PROGRESS state in module_instance table.
-			err = s.Module.UpdateStatusByID(code.ID, int(servicepb.DeploymentState_DEPLOYMENT_SUCCEEDED))
+			err = s.Module.UpdateStatusByID(code.ID, int(servicepb.ModuleState_DEPLOYED))
 			if err != nil {
 				// If this happens, this module's deployment will be retried next time.
 				log.Errorf("Failed to update module (ID=%s) state, error: %v", code.ID, err)

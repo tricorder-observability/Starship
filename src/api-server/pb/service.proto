@@ -174,7 +174,7 @@ message DeployModuleResp {
   Agent agent = 2;
 
   // The actual state of the deployment.
-  DeploymentState state = 3;
+  ModuleInstanceState state = 3;
 
   // A description for the receiver to figure out what's going on.  It could be
   // an explanation of the status, or other error situations.
