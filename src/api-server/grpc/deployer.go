@@ -121,9 +121,13 @@ func (s *Deployer) DeployModule(stream servicepb.ModuleDeployer_DeployModuleServ
 			return nil
 		}
 		if node != nil && node.State == int(pb.AgentState_ONLINE) {
+			if node.AgentID == agentID {
+				return nil
+			}
 			// This node is already online, we need to terminate the previous agent.
-			if node.AgentID != agentID {
-				s.NodeAgent.UpdateStateByName(node.NodeName, int(pb.AgentState_TERMINATED))
+			err = s.NodeAgent.UpdateStateByName(node.NodeName, int(pb.AgentState_TERMINATED))
+			if err != nil {
+				return errors.Wrap("while handling Agent grpc request", "update node agent state", err)
 			}
 			return nil
 		}
