@@ -27,11 +27,6 @@ import (
 	"github.com/tricorder/src/utils/tar"
 )
 
-var (
-	lastInit       bool  = false
-	lastInitResult error = nil
-)
-
 // Locate returns the path of the directory contains all of the Linux Kernel headers.
 func locateHeader(libModuleDir string) (string, error) {
 	// bcc/loader.cc looks for Linux headers in the following order:
@@ -357,10 +352,6 @@ func findOrInstallHeaders(hostRootDir, starShipDir, libModulesDir, installHeader
 
 // Init will find or install linux headers
 func Init() error {
-	if lastInit {
-		return lastInitResult
-	}
-
 	// hostRootDir refers to the path to the mounted volume which points the host's root path /.
 	// starShipDir is the starship header compressed tar dir
 	// libModulesDir is the module dir in container, BCC will search the header in this dir
@@ -371,12 +362,8 @@ func Init() error {
 	libModulesDir := "/lib/modules"
 	installHeadersDir := "/"
 	err := findOrInstallHeaders(hostRootDir, starShipDir, libModulesDir, installHeadersDir)
-
-	lastInit = true
-
 	if err != nil {
-		lastInitResult = fmt.Errorf("failed to find or install linux headers, error: %v", err)
-		return lastInitResult
+		return fmt.Errorf("failed to find or install linux headers, error: %v", err)
 	}
 
 	return nil
