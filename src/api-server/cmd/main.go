@@ -27,7 +27,6 @@ import (
 	"github.com/tricorder/src/api-server/http/dao"
 	"github.com/tricorder/src/api-server/http/docs"
 	"github.com/tricorder/src/api-server/meta"
-	pb "github.com/tricorder/src/api-server/pb"
 	"github.com/tricorder/src/utils/cond"
 	"github.com/tricorder/src/utils/errors"
 	"github.com/tricorder/src/utils/lock"
@@ -135,9 +134,9 @@ func main() {
 			if err != nil {
 				return errors.Wrap("starting gRPC server", "create server fixture", err)
 			}
-			pb.RegisterModuleDeployerServer(f.Server, sg.NewDeployer(sqliteClient, gLock, waitCond))
+			sg.RegisterModuleDeployerServer(f, sqliteClient, gLock, waitCond)
 			if *enableMetadataService {
-				pb.RegisterProcessCollectorServer(f.Server, sg.NewPIDCollector(clientset, pgClient))
+				sg.RegisterProcessCollectorServer(f, clientset, pgClient)
 			}
 			err = f.Serve()
 			if err != nil {
