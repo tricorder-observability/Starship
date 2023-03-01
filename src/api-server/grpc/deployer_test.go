@@ -36,33 +36,49 @@ import (
 	"github.com/tricorder/src/api-server/http/dao"
 	pb "github.com/tricorder/src/api-server/pb"
 	testutil "github.com/tricorder/src/api-server/testing"
-	"github.com/tricorder/src/utils/sqlite"
 )
 
 var moduleID = "9999"
 
 // Tests that the http service can handle request
 func TestService(t *testing.T) {
+	assert := assert.New(t)
+
 	testDir := bazel.CreateTmpDir()
+	sqliteClient, err := dao.InitSqlite(testDir)
+	assert.Nil(err)
+	testutil.PrepareTricorderDBData(moduleID, dao.ModuleDao{Client: sqliteClient})
 
-	testDbFilePath := testDir + "/testdata/"
-	sqliteClient, _ := dao.InitSqlite(testDbFilePath)
-	moduleDao := dao.ModuleDao{
-		Client: sqliteClient,
+	gLock := lock.NewLock()
+	waitCond := cond.NewCond()
+
+	f, err := NewServerFixture(0)
+	if err != nil {
+		log.Fatalf("Failed to create gRPC server fixture on :0")
 	}
-	testutil.PrepareTricorderDBData(moduleID, moduleDao)
-	withServerAndClient(t, sqliteClient, func(c *deployerClient) {
-		in, err := c.stream.Recv()
-		if err == io.EOF {
-			fmt.Printf("receive stream err: %s", err.Error())
-		}
-		if err != nil {
-			fmt.Printf("Failed to read stream from DeplyModule(), error: %v", err)
-		}
 
-		fmt.Printf("Received request to deploy module: %v", in)
-		assert.Equal(t, moduleID, in.ModuleId)
-	})
+	RegisterModuleDeployerServer(f, sqliteClient, gLock, waitCond)
+	go func() {
+		err := f.Serve()
+		if err != nil {
+			log.Fatalf("Failed to start gRPC server, error: %v", err)
+		}
+	}()
+
+	c := newGRPCClient(f.addr.String(), waitCond)
+	defer f.Server.Stop()
+	defer c.conn.Close()
+
+	in, err := c.stream.Recv()
+	if err == io.EOF {
+		fmt.Printf("receive stream err: %s", err.Error())
+	}
+	if err != nil {
+		fmt.Printf("Failed to read stream from DeplyModule(), error: %v", err)
+	}
+
+	fmt.Printf("Received request to deploy module: %v", in)
+	assert.Equal(moduleID, in.ModuleId)
 }
 
 type deployerClient struct {
@@ -101,32 +117,4 @@ func newGRPCClient(addr string, waitCond *cond.Cond) *deployerClient {
 		stream: deployModuleStream,
 		conn:   conn,
 	}
-}
-
-func withServerAndClient(
-	t *testing.T,
-	sqliteClient *sqlite.ORM,
-	actualTest func(client *deployerClient),
-) {
-	gLock := lock.NewLock()
-	waitCond := cond.NewCond()
-
-	f, err := NewServerFixture(0)
-	if err != nil {
-		log.Fatalf("Failed to create gRPC server fixture on :0")
-	}
-
-	RegisterModuleDeployerServer(f, sqliteClient, gLock, waitCond)
-	go func() {
-		err := f.Serve()
-		if err != nil {
-			log.Fatalf("Failed to start gRPC server, error: %v", err)
-		}
-	}()
-
-	c := newGRPCClient(f.addr.String(), waitCond)
-	defer f.Server.Stop()
-	defer c.conn.Close()
-
-	actualTest(c)
 }
