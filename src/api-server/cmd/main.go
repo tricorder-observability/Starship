@@ -29,6 +29,7 @@ import (
 	"github.com/tricorder/src/api-server/meta"
 	"github.com/tricorder/src/utils/cond"
 	"github.com/tricorder/src/utils/errors"
+	grpcutils "github.com/tricorder/src/utils/grpc"
 	"github.com/tricorder/src/utils/lock"
 	"github.com/tricorder/src/utils/log"
 	"github.com/tricorder/src/utils/pg"
@@ -130,7 +131,7 @@ func main() {
 
 	if *enableGRPC {
 		srvErrGroup.Go(func() error {
-			f, err := sg.NewServerFixture(*agentServicePort)
+			f, err := grpcutils.NewServerFixture(*agentServicePort)
 			if err != nil {
 				return errors.Wrap("starting gRPC server", "create server fixture", err)
 			}

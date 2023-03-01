@@ -10,6 +10,7 @@ go_test(
         "//src/api-server/testing",
         "//src/testing/bazel",
         "//src/utils/cond",
+        "//src/utils/grpc",
         "//src/utils/lock",
         "//src/utils/log",
         "@com_github_mattn_go_sqlite3//:go-sqlite3",

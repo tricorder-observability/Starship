@@ -14,6 +14,7 @@ go_library(
         "//src/api-server/meta",
         "//src/utils/cond",
         "//src/utils/errors",
+        "//src/utils/grpc",
         "//src/utils/lock",
         "//src/utils/log",
         "//src/utils/pg",

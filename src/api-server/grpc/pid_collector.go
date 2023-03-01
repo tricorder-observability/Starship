@@ -27,10 +27,10 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/cache"
 
+	pb "github.com/tricorder/src/api-server/pb"
+	grpcutils "github.com/tricorder/src/utils/grpc"
 	"github.com/tricorder/src/utils/grpcerr"
 	"github.com/tricorder/src/utils/log"
-
-	pb "github.com/tricorder/src/api-server/pb"
 	"github.com/tricorder/src/utils/pg"
 	"github.com/tricorder/src/utils/retry"
 )
@@ -68,7 +68,7 @@ func NewPIDCollector(clientset kubernetes.Interface, pgClient *pg.Client) *PIDCo
 }
 
 // RegisterProcessCollectorServer registers PIDCollector server instance with the gRPC fixture.
-func RegisterProcessCollectorServer(f *ServerFixture, clientset kubernetes.Interface, pgClient *pg.Client) {
+func RegisterProcessCollectorServer(f *grpcutils.ServerFixture, clientset kubernetes.Interface, pgClient *pg.Client) {
 	pb.RegisterProcessCollectorServer(f.Server, NewPIDCollector(clientset, pgClient))
 }
 

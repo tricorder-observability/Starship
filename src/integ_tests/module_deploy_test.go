@@ -38,6 +38,7 @@ import (
 	"github.com/tricorder/src/api-server/http/dao"
 	pb "github.com/tricorder/src/api-server/pb"
 	testutil "github.com/tricorder/src/api-server/testing"
+	grpcutils "github.com/tricorder/src/utils/grpc"
 )
 
 var moduleID = "9999"
@@ -59,7 +60,7 @@ func TestService(t *testing.T) {
 		Client: sqliteClient,
 	}
 
-	f, err := apiservergrpc.NewServerFixture(0)
+	f, err := grpcutils.NewServerFixture(0)
 	if err != nil {
 		log.Fatalf("Failed to create gRPC server fixture on :0")
 	}

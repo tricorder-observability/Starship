@@ -34,6 +34,7 @@ import (
 	"github.com/tricorder/src/pb/module/common"
 	ebpfpb "github.com/tricorder/src/pb/module/ebpf"
 	wasmpb "github.com/tricorder/src/pb/module/wasm"
+	grpcutils "github.com/tricorder/src/utils/grpc"
 )
 
 // Manages the deployment of eBPF+WASM modules
@@ -272,6 +273,7 @@ func NewDeployer(orm *sqlite.ORM, gLock *lock.Lock, waitCond *cond.Cond) *Deploy
 }
 
 // RegisterDeployerService registers Deployer server instance with the gRPC fixture.
-func RegisterModuleDeployerServer(f *ServerFixture, sqliteClient *sqlite.ORM, gLock *lock.Lock, waitCond *cond.Cond) {
+func RegisterModuleDeployerServer(f *grpcutils.ServerFixture, sqliteClient *sqlite.ORM, gLock *lock.Lock,
+	waitCond *cond.Cond) {
 	pb.RegisterModuleDeployerServer(f.Server, NewDeployer(sqliteClient, gLock, waitCond))
 }
