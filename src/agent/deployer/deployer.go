@@ -21,7 +21,6 @@ import (
 	"fmt"
 	"io"
 
-	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
 
 	"github.com/tricorder/src/utils/errors"
@@ -59,7 +58,7 @@ type Deployer struct {
 	client   pb.ModuleDeployerClient
 	stream   pb.ModuleDeployer_DeployModuleClient
 
-	// The client to the database instance, which is for the eBPF+WASM module to write data.
+	// The client to the database instance, which is used to write the output of eBPF+WASM module.
 	PGClient *pg.Client
 }
 
@@ -115,36 +114,32 @@ func (s *Deployer) initModuleDeployLink() error {
 // TODO(yzhao): We need to implement a graceful reconnection to ensure data remains available during the time when api
 // server is unavailable, could happen when api server is being restarted.
 func (s *Deployer) StartModuleDeployLoop() error {
-	var eg errgroup.Group
-	eg.Go(func() error {
-		for {
-			in, err := s.stream.Recv()
-			// TODO(yzhao): Need to handle error correctly, the code below ignores EoF error.
-			if err == io.EOF {
-				log.Warnf("Agent closed connection, this should only happens during testing; stopping ...")
-				return nil
-			}
-			if err != nil {
-				log.Fatalf("Failed to read stream from DeplyModule(), error: %v", err)
-			}
-
-			log.Infof("Received request to deploy module. ID=%s", in.ModuleId)
-			log.Debugf("Received request to deploy module: %v", in)
-
-			if in.Deploy == pb.DeployModuleReq_DEPLOY {
-				err = s.deployModule(in)
-			} else if in.Deploy == pb.DeployModuleReq_UNDEPLOY {
-				err = s.undeployModlue(in)
-			}
-			resp := createDeployModuleResp(in.ModuleId, err)
-			err = s.sendResp(resp)
-			// TODO(yzhao): Need to handle error correctly, the code below ignores EoF error.
-			if grpcerr.IsUnavailable(err) {
-				log.Fatalf("Streaming connection with api-server is broken, error: %v", err)
-			}
+	for {
+		in, err := s.stream.Recv()
+		// TODO(yzhao): Need to handle error correctly, the code below ignores EoF error.
+		if err == io.EOF {
+			log.Warnf("Agent closed connection, this should only happens during testing; stopping ...")
+			return nil
 		}
-	})
-	return eg.Wait()
+		if err != nil {
+			log.Fatalf("Failed to read stream from DeplyModule(), error: %v", err)
+		}
+
+		log.Infof("Received request to deploy module. ID=%s", in.ModuleId)
+		log.Debugf("Received request to deploy module: %v", in)
+
+		if in.Deploy == pb.DeployModuleReq_DEPLOY {
+			err = s.deployModule(in)
+		} else if in.Deploy == pb.DeployModuleReq_UNDEPLOY {
+			err = s.undeployModlue(in)
+		}
+		resp := createDeployModuleResp(in.ModuleId, err)
+		err = s.sendResp(resp)
+		// TODO(yzhao): Need to handle error correctly, the code below ignores EoF error.
+		if grpcerr.IsUnavailable(err) {
+			log.Fatalf("Streaming connection with api-server is broken, error: %v", err)
+		}
+	}
 }
 
 // Stop first closes the sending side of the channel, and then close the entire connection.
@@ -156,6 +151,7 @@ func (s *Deployer) Stop() {
 	s.grpcConn.Close()
 }
 
+// deployModule deploys the input module.
 func (s *Deployer) deployModule(in *pb.DeployModuleReq) error {
 	if _, found := s.idDeployMap[in.ModuleId]; found {
 		log.Warnf("Module '%s' was already deployed, skip ...", in.ModuleId)
@@ -175,6 +171,7 @@ func (s *Deployer) deployModule(in *pb.DeployModuleReq) error {
 	return nil
 }
 
+// undeployModlue undeploys the specified module in the input.
 func (s *Deployer) undeployModlue(in *pb.DeployModuleReq) error {
 	d, ok := s.idDeployMap[in.ModuleId]
 	if !ok {
