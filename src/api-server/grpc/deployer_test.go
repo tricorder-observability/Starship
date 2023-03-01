@@ -30,6 +30,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
+	"github.com/tricorder/src/testing/sys"
 	"github.com/tricorder/src/utils/cond"
 	"github.com/tricorder/src/utils/lock"
 	"github.com/tricorder/src/utils/log"
@@ -40,17 +41,17 @@ import (
 	"github.com/tricorder/src/utils/sqlite"
 )
 
-var codeID = "9999"
+var moduleID = "9999"
 
 // Tests that the http service can handle request
 func TestService(t *testing.T) {
 	testDir, _ := os.Getwd()
 	testDbFilePath := testDir + "/testdata/"
 	sqliteClient, _ := dao.InitSqlite(testDbFilePath)
-	codeDao := dao.ModuleDao{
+	moduleDao := dao.ModuleDao{
 		Client: sqliteClient,
 	}
-	testutil.PrepareTricorderDBData(codeID, codeDao)
+	testutil.PrepareTricorderDBData(moduleID, moduleDao)
 	withServerAndClient(t, sqliteClient, func(c *deployerClient) {
 		in, err := c.stream.Recv()
 		if err == io.EOF {
@@ -61,10 +62,9 @@ func TestService(t *testing.T) {
 		}
 
 		fmt.Printf("Received request to deploy module: %v", in)
-		assert.Equal(t, codeID, in.ModuleId)
-		_ = os.RemoveAll(testDbFilePath)
+		assert.Equal(t, moduleID, in.ModuleId)
 	})
-	_ = os.RemoveAll(testDir + "/tricorder.db")
+	sys.MustRemoveAll(testDir)
 }
 
 type grpcServer struct {

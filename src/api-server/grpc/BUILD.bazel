@@ -47,6 +47,7 @@ go_test(
         "//src/api-server/pb",
         "//src/api-server/testing",
         "//src/testing/pg",
+        "//src/testing/sys",
         "//src/utils/cond",
         "//src/utils/lock",
         "//src/utils/log",
