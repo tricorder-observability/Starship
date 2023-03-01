@@ -92,7 +92,7 @@ func (g *ModuleDao) ListModuleByStatus(status int) ([]ModuleGORM, error) {
 	moduleList := make([]ModuleGORM, 0)
 	result := g.Client.Engine.Where(&ModuleGORM{DesireState: status}).Order("create_time desc").Find(&moduleList)
 	if result.Error != nil {
-		return make([]ModuleGORM, 0), fmt.Errorf("query module list by status error:%v", result.Error)
+		return nil, fmt.Errorf("query module list by status error:%v", result.Error)
 	}
 	return moduleList, nil
 }

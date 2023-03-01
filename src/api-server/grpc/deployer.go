@@ -117,13 +117,13 @@ func (s *Deployer) DeployModule(stream servicepb.ModuleDeployer_DeployModuleServ
 	agentID := in.Agent.Id
 	agentPodId := in.Agent.PodId
 	err = s.gLock.ExecWithLock(func() error {
-		nodeList, err := s.NodeAgent.ListByName(agentNodeName)
+		nodeAgentList, err := s.NodeAgent.ListByNodeName(agentNodeName)
 		if err != nil {
 			// TODO(jun): Need to distinguish between query failure and getting no results.
 			// It seems currently, it should return an error when there is no record for node name.
 			return nil
 		}
-		if len(nodeList) == 0 {
+		if len(nodeAgentList) == 0 {
 			// This is the first time this node is connecting to the API server.
 			node := &dao.NodeAgentGORM{
 				NodeName:   agentNodeName,
@@ -138,7 +138,7 @@ func (s *Deployer) DeployModule(stream servicepb.ModuleDeployer_DeployModuleServ
 			return nil
 		}
 
-		for _, node := range nodeList {
+		for _, node := range nodeAgentList {
 			if node.State == int(pb.AgentState_ONLINE) {
 				if node.AgentPodID == agentPodId {
 					log.Warnf("Node '%s' agent ID '%s' was already 'ONLINE' when it connects", node.NodeName, node.AgentID)
@@ -149,13 +149,16 @@ func (s *Deployer) DeployModule(stream servicepb.ModuleDeployer_DeployModuleServ
 				// was slow to update the state. So we explicitly set the state to TERMINATED.
 				err = s.NodeAgent.UpdateStateByID(node.AgentID, int(pb.AgentState_TERMINATED))
 				if err != nil {
-					return errors.Wrap("handling Agent grpc request", "update node agent state", err)
+					return errors.Wrap("handling Agent grpc request", "set node agent state to TERMINATED", err)
 				}
 			} else {
+				// because node.State is not ONLINE, we can assume it is TERMINATED.
+				// So we can update the state to ONLINE if the agent pod ID matches.
+				// if the agent pod ID does not match, we can assume that the agent is restarted.
 				if node.AgentPodID == agentPodId {
 					err = s.NodeAgent.UpdateStateByID(agentID, int(pb.AgentState_ONLINE))
 					if err != nil {
-						return errors.Wrap("while handling Agent grpc request", "update node agent state", err)
+						return errors.Wrap("while handling Agent grpc request", "set node agent state to ONLINE", err)
 					}
 				}
 			}
@@ -180,11 +183,13 @@ func (s *Deployer) DeployModule(stream servicepb.ModuleDeployer_DeployModuleServ
 				serr := s.gLock.ExecWithLock(func() error {
 					err = s.NodeAgent.UpdateStateByID(agentID, int(pb.AgentState_OFFLINE))
 					if err != nil {
-						return errors.Wrap("handling Agent grpc request", "update node agent state", err)
+						return errors.Wrap("handling Agent grpc request", "set node agent state to OFFLINE", err)
 					}
 					return nil
 				})
-				log.Errorf("Failed to set agent state to OFFLINE, error: %v", serr)
+				if serr != nil {
+					log.Errorf("Failed to set agent state to OFFLINE, error: %v", serr)
+				}
 				log.Warnf("Agent closed connection, this should **only** happens during testing; stopping ...")
 				return nil
 			}
@@ -192,11 +197,13 @@ func (s *Deployer) DeployModule(stream servicepb.ModuleDeployer_DeployModuleServ
 				serr := s.gLock.ExecWithLock(func() error {
 					err = s.NodeAgent.UpdateStateByID(agentID, int(pb.AgentState_OFFLINE))
 					if err != nil {
-						return errors.Wrap("handling Agent grpc request", "update node agent state", err)
+						return errors.Wrap("handling Agent grpc request", "set node agent state to OFFLINE", err)
 					}
 					return nil
 				})
-				log.Errorf("Failed to set agent state to OFFLINE, error: %v", serr)
+				if serr != nil {
+					log.Errorf("Failed to set agent state to OFFLINE, error: %v", serr)
+				}
 				// If this happens, agent should re-initiate connection with API Server.
 				// API Server just close the handling function and wait for reconnection.
 				return errors.Wrap("handling DeployModule request", "receive mssage", err)
@@ -230,7 +237,9 @@ func (s *Deployer) DeployModule(stream servicepb.ModuleDeployer_DeployModuleServ
 					}
 					return nil
 				})
-				log.Errorf("Failed to set agent state to OFFLINE, error: %v", serr)
+				if serr != nil {
+					log.Errorf("Failed to set agent state to OFFLINE, error: %v", serr)
+				}
 				return errors.Wrap("handling module deployment", "send message over gRCP streaming channel", err)
 			}
 

@@ -108,16 +108,16 @@ func (g *NodeAgentDao) ListByState(state int) ([]NodeAgentGORM, error) {
 	nodeList := make([]NodeAgentGORM, 0)
 	result := g.Client.Engine.Where(&NodeAgentGORM{State: state}).Order("create_time desc").Find(&nodeList)
 	if result.Error != nil {
-		return make([]NodeAgentGORM, 0), fmt.Errorf("query node agent list by Status error:%v", result.Error)
+		return nil, fmt.Errorf("query node agent list by Status error:%v", result.Error)
 	}
 	return nodeList, nil
 }
 
-func (g *NodeAgentDao) ListByName(nodeName string) ([]NodeAgentGORM, error) {
+func (g *NodeAgentDao) ListByNodeName(nodeName string) ([]NodeAgentGORM, error) {
 	nodeList := make([]NodeAgentGORM, 0)
 	result := g.Client.Engine.Where(&NodeAgentGORM{NodeName: nodeName}).Order("create_time desc").Find(&nodeList)
 	if result.Error != nil {
-		return make([]NodeAgentGORM, 0), fmt.Errorf("query node agent list by Name error:%v", result.Error)
+		return nil, fmt.Errorf("query node agent list by Name error:%v", result.Error)
 	}
 	return nodeList, nil
 }

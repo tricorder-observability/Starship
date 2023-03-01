@@ -21,6 +21,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	pb "github.com/tricorder/src/api-server/pb"
 	bazelutils "github.com/tricorder/src/testing/bazel"
@@ -34,6 +35,7 @@ import (
 // test update code status and check update result
 func TestNodeAgent(t *testing.T) {
 	assert := assert.New(t)
+	require := require.New(t)
 
 	dirPath := bazelutils.CreateTmpDir()
 	defer func() {
@@ -54,11 +56,11 @@ func TestNodeAgent(t *testing.T) {
 
 	// save module
 	err := nodeAgentDao.SaveAgent(node)
-	assert.Nil(err, "save node agent err %v", err)
+	require.Nil(err, "save node agent err %v", err)
 
 	// test queryByID
 	node, err = nodeAgentDao.QueryByID(id)
-	assert.Nil(err, "not query ID=%s data, save node agent err %v", id, err)
+	require.Nil(err, "not query ID=%s data, save node agent err %v", id, err)
 	assert.Equal(node.AgentID, id, "save node error, node.ID !=  "+id)
 	assert.Equal(node.NodeName, "TestNodeAgent", "save agent error, node.Name != TestNodeAgent")
 
@@ -72,7 +74,7 @@ func TestNodeAgent(t *testing.T) {
 	assert.Nil(err, "update node error: %v", err)
 
 	node, err = nodeAgentDao.QueryByID(node.AgentID)
-	assert.Nil(err, "not query ID=%s data, save node agent err %v", id, err)
+	require.Nil(err, "not query ID=%s data, save node agent err %v", id, err)
 	assert.Equal(node.NodeName, newNodeName, "update agent error, node.Name != ", newNodeName)
 	assert.NotEqual(*node.LastUpdateTime, lastUpdateTime, "update node error, LastUpdateTime not update")
 	assert.Equal(*node.CreateTime, createTime, "update node error, can not update CreateTime")
@@ -85,10 +87,10 @@ func TestNodeAgent(t *testing.T) {
 
 	// test update module status
 	err = nodeAgentDao.UpdateStateByID(node.AgentID, int(pb.AgentState_OFFLINE))
-	assert.Nil(err, "change node state error: %v", err)
+	require.Nil(err, "change node state error: %v", err)
 
 	node, err = nodeAgentDao.QueryByID(node.AgentID)
-	assert.Nil(err, "not query ID=%s data, save node agent err %v", id, err)
+	require.Nil(err, "not query ID=%s data, save node agent err %v", id, err)
 	assert.Equal(node.State, int(pb.AgentState_OFFLINE), "change node state error, node.Status != pb.AgentState_OFFLINE ")
 	assert.NotEqual(*node.LastUpdateTime, lastUpdateTime, "change node state error, LastUpdateTime not update")
 	assert.Equal(*node.CreateTime, createTime, "change node state error, can not update CreateTime")
@@ -96,19 +98,19 @@ func TestNodeAgent(t *testing.T) {
 
 	// get module list *
 	list, err := nodeAgentDao.List("*")
-	assert.Nil(err, "query node list error: %v", err)
+	require.Nil(err, "query node list error: %v", err)
 	assert.NotEqual(len(list), 0, "query node list error: not found node data")
 	assert.Equal(list[0].AgentID, node.AgentID, "query node list erro default: not found inserted node")
 
 	// get node list default
 	list, err = nodeAgentDao.List()
-	assert.Nil(err, "query node list default error: %v", err)
+	require.Nil(err, "query node list default error: %v", err)
 	assert.NotEqual(len(list), 0, "query node list erro default: not found node data")
 	assert.Equal(list[0].AgentID, node.AgentID, "query node list erro default: not found inserted node")
 
 	// get module list default
 	list, err = nodeAgentDao.List("agent_id", "node_name")
-	assert.Nil(err, "query node list default error: %v", err)
+	require.Nil(err, "query node list default error: %v", err)
 	assert.NotEqual(len(list), 0, "query node list erro default: not found node data")
 	assert.Equal(list[0].AgentID, node.AgentID, "query node list erro default: not found inserted node")
 	assert.NotEqual(len(list[0].AgentID), 0, "query node list erro default: AgentID is not empty")
@@ -116,15 +118,15 @@ func TestNodeAgent(t *testing.T) {
 
 	// get module list by state
 	list, err = nodeAgentDao.ListByState(int(pb.AgentState_OFFLINE))
-	assert.Nil(err, "query node ListByState error: %v", err)
+	require.Nil(err, "query node ListByState error: %v", err)
 	assert.NotEqual(len(list), 0, "query node ListByState error: not found node data")
 	assert.Equal(list[0].AgentID, node.AgentID, "query node ListByState error: not found inserted node")
 	assert.NotEqual(len(list[0].AgentID), 0, "query node ListByState error: AgentID is not empty")
 	assert.NotEqual(len(list[0].NodeName), 0, "query node ListByState error: NodeName is not empty")
 
 	// get module list by node name
-	list, err = nodeAgentDao.ListByName(newNodeName)
-	assert.Nil(err, "query node ListByName error: %v", err)
+	list, err = nodeAgentDao.ListByNodeName(newNodeName)
+	require.Nil(err, "query node ListByName error: %v", err)
 	assert.NotEqual(len(list), 0, "query node ListByName error: not found node data")
 	assert.Equal(list[0].AgentID, node.AgentID, "query node ListByName error: not found inserted node")
 	assert.NotEqual(len(list[0].AgentID), 0, "query node ListByName error: AgentID is not empty")
