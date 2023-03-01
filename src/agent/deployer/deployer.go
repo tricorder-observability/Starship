@@ -197,10 +197,10 @@ func (s *Deployer) undeployModlue(in *pb.DeployModuleReq) error {
 func createDeployModuleResp(id string, err error) *pb.DeployModuleResp {
 	resp := pb.DeployModuleResp{
 		ModuleId: id,
-		State:    pb.DeploymentState_DEPLOYMENT_SUCCEEDED,
+		State:    pb.ModuleInstanceState_SUCCEEDED,
 	}
 	if err != nil {
-		resp.State = pb.DeploymentState_DEPLOYMENT_FAILED
+		resp.State = pb.ModuleInstanceState_FAILED
 		resp.Desc = err.Error()
 	}
 	return &resp
