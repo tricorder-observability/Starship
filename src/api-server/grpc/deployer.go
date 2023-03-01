@@ -115,37 +115,21 @@ func (s *Deployer) DeployModule(stream servicepb.ModuleDeployer_DeployModuleServ
 	log.Infof("Agent '%s' connected, starting module management loop ...", in.Agent.Id)
 	agentNodeName := in.Agent.NodeName
 	agentID := in.Agent.Id
+	agentPodId := in.Agent.PodId
 	err = s.gLock.ExecWithLock(func() error {
-		// TODO(jun): Consider return a list of nodes, and error out when there is more than 1 records
-		// for this node. This is just being defensive, as ignoring that state, as the code below,
-		// might result into issues that are too difficult to debug.
-		node, err := s.NodeAgent.QueryByName(agentNodeName)
+		nodeList, err := s.NodeAgent.ListByName(agentNodeName)
 		if err != nil {
 			// TODO(jun): Need to distinguish between query failure and getting no results.
 			// It seems currently, it should return an error when there is no record for node name.
 			return nil
 		}
-		// TODO(jun): If returning nil here means no record for this node name, then the above if statement
-		// should instead return err not nil.
-		if node != nil && node.State == int(pb.AgentState_ONLINE) {
-			if node.AgentID == agentID {
-				log.Warnf("Node '%s' agent ID '%s' was already 'ONLINE' when it connects", node.NodeName, node.AgentID)
-				return nil
-			}
-			// There is an agent on this node with ONLINE state. And that agent is different from my ID.
-			// Here we trust K8s, and assume metadata service (not yet implemented, @Daniel is working on this)
-			// was slow to update the state. So we explicitly set the state to TERMINATED.
-			err = s.NodeAgent.UpdateStateByName(node.NodeName, int(pb.AgentState_TERMINATED))
-			if err != nil {
-				return errors.Wrap("handling Agent grpc request", "update node agent state", err)
-			}
-			return nil
-		}
-		if node == nil {
-			node = &dao.NodeAgentGORM{
-				NodeName: agentNodeName,
-				AgentID:  agentID,
-				State:    int(pb.AgentState_ONLINE),
+		if len(nodeList) == 0 {
+			// This is the first time this node is connecting to the API server.
+			node := &dao.NodeAgentGORM{
+				NodeName:   agentNodeName,
+				AgentID:    agentID,
+				AgentPodID: agentPodId,
+				State:      int(pb.AgentState_ONLINE),
 			}
 			err = s.NodeAgent.SaveAgent(node)
 			if err != nil {
@@ -153,10 +137,28 @@ func (s *Deployer) DeployModule(stream servicepb.ModuleDeployer_DeployModuleServ
 			}
 			return nil
 		}
-		// TODO(jun): The following code does not seem possible. We should log.Warnf() here to record this state.
-		err = s.NodeAgent.UpdateStateByName(node.NodeName, int(pb.AgentState_ONLINE))
-		if err != nil {
-			return errors.Wrap("while handling Agent grpc request", "update node agent state", err)
+
+		for _, node := range nodeList {
+			if node.State == int(pb.AgentState_ONLINE) {
+				if node.AgentPodID == agentPodId {
+					log.Warnf("Node '%s' agent ID '%s' was already 'ONLINE' when it connects", node.NodeName, node.AgentID)
+					continue
+				}
+				// There is an agent on this node with ONLINE state. And that agent is different from my ID.
+				// Here we trust K8s, and assume metadata service (not yet implemented, @Daniel is working on this)
+				// was slow to update the state. So we explicitly set the state to TERMINATED.
+				err = s.NodeAgent.UpdateStateByID(node.AgentID, int(pb.AgentState_TERMINATED))
+				if err != nil {
+					return errors.Wrap("handling Agent grpc request", "update node agent state", err)
+				}
+			} else {
+				if node.AgentPodID == agentPodId {
+					err = s.NodeAgent.UpdateStateByID(agentID, int(pb.AgentState_ONLINE))
+					if err != nil {
+						return errors.Wrap("while handling Agent grpc request", "update node agent state", err)
+					}
+				}
+			}
 		}
 		return nil
 	})
