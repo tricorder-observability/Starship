@@ -58,7 +58,7 @@ func TestService(t *testing.T) {
 		log.Fatalf("Failed to create gRPC server fixture on :0")
 	}
 
-	RegisterModuleDeployerServer(f, sqliteClient, gLock, waitCond)
+	apiservergrpc.RegisterModuleDeployerServer(f, sqliteClient, gLock, waitCond)
 	go func() {
 		err := f.Serve()
 		if err != nil {
@@ -66,7 +66,7 @@ func TestService(t *testing.T) {
 		}
 	}()
 
-	c := newGRPCClient(f.addr.String())
+	c := newGRPCClient(f.Addr.String())
 	defer f.Server.Stop()
 	defer c.conn.Close()
 
