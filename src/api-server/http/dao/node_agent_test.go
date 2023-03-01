@@ -65,16 +65,15 @@ func TestNodeAgent(t *testing.T) {
 	createTime := *node.CreateTime
 	lastUpdateTime := *node.LastUpdateTime
 
-	// update ID
-	newID := strings.Replace(uuid.New(), "-", "_", -1)
-	node.AgentID = newID
-	err = nodeAgentDao.UpdateByName(node)
+	// update
+	newNodeName := "NewTestNodeAgent"
+	node.NodeName = newNodeName
+	err = nodeAgentDao.UpdateByID(node)
 	assert.Nil(err, "update node error: %v", err)
 
-	node, err = nodeAgentDao.QueryByName(node.NodeName)
+	node, err = nodeAgentDao.QueryByID(node.AgentID)
 	assert.Nil(err, "not query ID=%s data, save node agent err %v", id, err)
-	assert.Equal(node.AgentID, newID, "update node error, node.ID !=  "+newID)
-	assert.Equal(node.NodeName, "TestNodeAgent", "update agent error, node.Name != TestNodeAgent")
+	assert.Equal(node.NodeName, newNodeName, "update agent error, node.Name != ", newNodeName)
 	assert.NotEqual(*node.LastUpdateTime, lastUpdateTime, "update node error, LastUpdateTime not update")
 	assert.Equal(*node.CreateTime, createTime, "update node error, can not update CreateTime")
 
@@ -85,7 +84,7 @@ func TestNodeAgent(t *testing.T) {
 	assert.Equal(node.State, int(pb.AgentState_ONLINE), "query node state error, node.Status != pb.AgentState_ONLINE ")
 
 	// test update module status
-	err = nodeAgentDao.UpdateStateByName(node.NodeName, int(pb.AgentState_OFFLINE))
+	err = nodeAgentDao.UpdateStateByID(node.AgentID, int(pb.AgentState_OFFLINE))
 	assert.Nil(err, "change node state error: %v", err)
 
 	node, err = nodeAgentDao.QueryByID(node.AgentID)
@@ -93,7 +92,7 @@ func TestNodeAgent(t *testing.T) {
 	assert.Equal(node.State, int(pb.AgentState_OFFLINE), "change node state error, node.Status != pb.AgentState_OFFLINE ")
 	assert.NotEqual(*node.LastUpdateTime, lastUpdateTime, "change node state error, LastUpdateTime not update")
 	assert.Equal(*node.CreateTime, createTime, "change node state error, can not update CreateTime")
-	assert.Equal(node.AgentID, newID, "change node state error, node.ID !=  "+newID)
+	assert.Equal(node.NodeName, newNodeName, "change node state error, node.NodeName !=  "+newNodeName)
 
 	// get module list *
 	list, err := nodeAgentDao.List("*")
@@ -114,4 +113,20 @@ func TestNodeAgent(t *testing.T) {
 	assert.Equal(list[0].AgentID, node.AgentID, "query node list erro default: not found inserted node")
 	assert.NotEqual(len(list[0].AgentID), 0, "query node list erro default: AgentID is not empty")
 	assert.NotEqual(len(list[0].NodeName), 0, "query node list erro default: NodeName is not empty")
+
+	// get module list by state
+	list, err = nodeAgentDao.ListByState(int(pb.AgentState_OFFLINE))
+	assert.Nil(err, "query node ListByState error: %v", err)
+	assert.NotEqual(len(list), 0, "query node ListByState error: not found node data")
+	assert.Equal(list[0].AgentID, node.AgentID, "query node ListByState error: not found inserted node")
+	assert.NotEqual(len(list[0].AgentID), 0, "query node ListByState error: AgentID is not empty")
+	assert.NotEqual(len(list[0].NodeName), 0, "query node ListByState error: NodeName is not empty")
+
+	// get module list by node name
+	list, err = nodeAgentDao.ListByName(newNodeName)
+	assert.Nil(err, "query node ListByName error: %v", err)
+	assert.NotEqual(len(list), 0, "query node ListByName error: not found node data")
+	assert.Equal(list[0].AgentID, node.AgentID, "query node ListByName error: not found inserted node")
+	assert.NotEqual(len(list[0].AgentID), 0, "query node ListByName error: AgentID is not empty")
+	assert.NotEqual(len(list[0].NodeName), 0, "query node ListByName error: NodeName is not empty")
 }
