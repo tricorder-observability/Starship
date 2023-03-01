@@ -1,0 +1,15 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
+
+go_library(
+    name = "load_lib",
+    srcs = ["main.go"],
+    importpath = "github.com/tricorder/src/load",
+    visibility = ["//visibility:private"],
+    deps = ["//src/load/load"],
+)
+
+go_binary(
+    name = "load",
+    embed = [":load_lib"],
+    visibility = ["//visibility:public"],
+)
