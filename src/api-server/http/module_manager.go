@@ -253,7 +253,7 @@ func (mgr *ModuleManager) deployModule(id string) DeployModuleResp {
 				Code:    500,
 				Message: err.Error(),
 			},
-			"",
+			id,
 		}
 	}
 
