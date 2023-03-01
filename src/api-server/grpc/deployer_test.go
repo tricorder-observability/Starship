@@ -20,6 +20,7 @@ import (
 
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/stretchr/testify/assert"
+
 	"github.com/tricorder/src/api-server/http/dao"
 )
 
