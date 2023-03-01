@@ -65,9 +65,14 @@ func TestService(t *testing.T) {
 		}
 	}()
 
-	c := newGRPCClient(f.addr.String(), waitCond)
+	c := newGRPCClient(f.addr.String())
 	defer f.Server.Stop()
 	defer c.conn.Close()
+
+	// This is completely broken, but needed to unblock API Server's internal conditional waiting.
+	// Ideally we should send a request to API Server and let API Server's internal logic triggers conditional variable's
+	// broadcasting.
+	waitCond.Broadcast()
 
 	in, err := c.stream.Recv()
 	if err == io.EOF {
@@ -87,7 +92,7 @@ type deployerClient struct {
 	conn   *grpc.ClientConn
 }
 
-func newGRPCClient(addr string, waitCond *cond.Cond) *deployerClient {
+func newGRPCClient(addr string) *deployerClient {
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
 	conn, err := grpc.DialContext(ctx, addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
@@ -109,8 +114,6 @@ func newGRPCClient(addr string, waitCond *cond.Cond) *deployerClient {
 	if err != nil {
 		log.Fatalf("Could not send stream to DeplyModule RPC at %s, %v", addr, err)
 	}
-
-	waitCond.Broadcast()
 
 	return &deployerClient{
 		client: c,
