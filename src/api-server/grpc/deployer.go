@@ -178,7 +178,7 @@ func (s *Deployer) DeployModule(stream servicepb.ModuleDeployer_DeployModuleServ
 			result, err := stream.Recv()
 			if err == io.EOF {
 				serr := s.gLock.ExecWithLock(func() error {
-					err = s.NodeAgent.UpdateStateByID(agentID, int(pb.AgentState_TERMINATED))
+					err = s.NodeAgent.UpdateStateByID(agentID, int(pb.AgentState_OFFLINE))
 					if err != nil {
 						return errors.Wrap("handling Agent grpc request", "update node agent state", err)
 					}

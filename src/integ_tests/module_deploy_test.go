@@ -23,6 +23,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	_ "github.com/mattn/go-sqlite3"
 	"google.golang.org/grpc"
@@ -53,6 +54,10 @@ func TestService(t *testing.T) {
 	gLock := lock.NewLock()
 	waitCond := cond.NewCond()
 
+	nodeAgentDao := dao.NodeAgentDao{
+		Client: sqliteClient,
+	}
+
 	f, err := apiservergrpc.NewServerFixture(0)
 	if err != nil {
 		log.Fatalf("Failed to create gRPC server fixture on :0")
@@ -67,6 +72,23 @@ func TestService(t *testing.T) {
 	}()
 
 	c := newGRPCClient(f.Addr.String())
+
+	nodes, err := nodeAgentDao.List()
+	require.NoError(t, err)
+	assert.Equal(t, 1, len(nodes))
+	assert.Equal(t, "agent", nodes[0].AgentID)
+	assert.Equal(t, int(pb.AgentState_ONLINE), nodes[0].State)
+
+	c.conn.Close()
+	// wait for 2 seconds to make sure the node agent is marked offline
+	time.Sleep(2 * time.Second)
+
+	nodes, err = nodeAgentDao.List()
+	require.NoError(t, err)
+	assert.Equal(t, 1, len(nodes))
+	assert.Equal(t, "agent", nodes[0].AgentID)
+	assert.Equal(t, int(pb.AgentState_OFFLINE), nodes[0].State)
+
 	defer f.Server.Stop()
 	defer c.conn.Close()
 
