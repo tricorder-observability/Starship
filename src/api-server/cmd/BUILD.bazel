@@ -12,7 +12,6 @@ go_library(
         "//src/api-server/http/dao",
         "//src/api-server/http/docs",
         "//src/api-server/meta",
-        "//src/api-server/pb",
         "//src/utils/cond",
         "//src/utils/errors",
         "//src/utils/lock",

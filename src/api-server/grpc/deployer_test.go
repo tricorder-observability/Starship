@@ -19,18 +19,16 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"net"
-	"os"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/assert"
 
 	_ "github.com/mattn/go-sqlite3"
-	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
+	"github.com/tricorder/src/testing/bazel"
 	"github.com/tricorder/src/utils/cond"
 	"github.com/tricorder/src/utils/lock"
 	"github.com/tricorder/src/utils/log"
@@ -38,90 +36,69 @@ import (
 	"github.com/tricorder/src/api-server/http/dao"
 	pb "github.com/tricorder/src/api-server/pb"
 	testutil "github.com/tricorder/src/api-server/testing"
-	"github.com/tricorder/src/utils/sqlite"
 )
 
-var codeID = "9999"
+var moduleID = "9999"
 
 // Tests that the http service can handle request
 func TestService(t *testing.T) {
-	testDir, _ := os.Getwd()
-	testDbFilePath := testDir + "/testdata/"
-	sqliteClient, _ := dao.InitSqlite(testDbFilePath)
-	codeDao := dao.ModuleDao{
-		Client: sqliteClient,
+	assert := assert.New(t)
+
+	testDir := bazel.CreateTmpDir()
+	sqliteClient, err := dao.InitSqlite(testDir)
+	assert.Nil(err)
+	testutil.PrepareTricorderDBData(moduleID, dao.ModuleDao{Client: sqliteClient})
+
+	gLock := lock.NewLock()
+	waitCond := cond.NewCond()
+
+	f, err := NewServerFixture(0)
+	if err != nil {
+		log.Fatalf("Failed to create gRPC server fixture on :0")
 	}
-	testutil.PrepareTricorderDBData(codeID, codeDao)
-	withServerAndClient(t, sqliteClient, func(server *grpcServer, c *grpcClient) {
-		in, err := c.stream.Recv()
-		if err == io.EOF {
-			fmt.Printf("receive stream err: %s", err.Error())
-		}
-		if err != nil {
-			fmt.Printf("Failed to read stream from DeplyModule(), error: %v", err)
-		}
 
-		fmt.Printf("Received request to deploy module: %v", in)
-		assert.Equal(t, codeID, in.ModuleId)
-		_ = os.RemoveAll(testDbFilePath)
-	})
-	_ = os.RemoveAll(testDir + "/tricorder.db")
-}
-
-func newDeployerServer(t *testing.T, sqliteClient *sqlite.ORM,
-	gLock *lock.Lock, waitCOnd *cond.Cond,
-) (*grpc.Server, net.Addr) {
-	lis, _ := net.Listen("tcp", ":0")
-	grpcServer := grpc.NewServer()
-
-	pb.RegisterModuleDeployerServer(grpcServer, &Deployer{
-		Module: dao.ModuleDao{
-			Client: sqliteClient,
-		},
-		NodeAgent: dao.NodeAgentDao{
-			Client: sqliteClient,
-		},
-		ModuleInstance: dao.ModuleInstanceDao{
-			Client: sqliteClient,
-		},
-		gLock:    gLock,
-		waitCond: waitCOnd,
-	})
-
+	RegisterModuleDeployerServer(f, sqliteClient, gLock, waitCond)
 	go func() {
-		err := grpcServer.Serve(lis)
-		require.NoError(t, err)
+		err := f.Serve()
+		if err != nil {
+			log.Fatalf("Failed to start gRPC server, error: %v", err)
+		}
 	}()
 
-	return grpcServer, lis.Addr()
+	c := newGRPCClient(f.addr.String())
+	defer f.Server.Stop()
+	defer c.conn.Close()
+
+	// This is completely broken, but needed to unblock API Server's internal conditional waiting.
+	// Ideally we should send a request to API Server and let API Server's internal logic triggers conditional variable's
+	// broadcasting.
+	waitCond.Broadcast()
+
+	in, err := c.stream.Recv()
+	if err == io.EOF {
+		fmt.Printf("receive stream err: %s", err.Error())
+	}
+	if err != nil {
+		fmt.Printf("Failed to read stream from DeplyModule(), error: %v", err)
+	}
+
+	fmt.Printf("Received request to deploy module: %v", in)
+	assert.Equal(moduleID, in.ModuleId)
 }
 
-type grpcServer struct {
-	server  *grpc.Server
-	lisAddr net.Addr
-}
-
-type grpcClient struct {
-	c      pb.ModuleDeployerClient
+type deployerClient struct {
+	client pb.ModuleDeployerClient
 	stream pb.ModuleDeployer_DeployModuleClient
 	conn   *grpc.ClientConn
 }
 
-func initializeTestServerGRPCWithOptions(t *testing.T, sqliteClient *sqlite.ORM,
-	gLock *lock.Lock, waitCOnd *cond.Cond,
-) *grpcServer {
-	server, addr := newDeployerServer(t, sqliteClient, gLock, waitCOnd)
-	return &grpcServer{
-		server:  server,
-		lisAddr: addr,
-	}
-}
-
-func newGRPCClient(t *testing.T, addr string, waitCond *cond.Cond) *grpcClient {
+func newGRPCClient(addr string) *deployerClient {
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
 	conn, err := grpc.DialContext(ctx, addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
-	require.NoError(t, err)
+	if err != nil {
+		log.Fatalf("Failed to connect gRPC at '%s', error: %v", addr, err)
+	}
 
 	c := pb.NewModuleDeployerClient(conn)
 	deployModuleStream, err := c.DeployModule(context.Background())
@@ -138,26 +115,9 @@ func newGRPCClient(t *testing.T, addr string, waitCond *cond.Cond) *grpcClient {
 		log.Fatalf("Could not send stream to DeplyModule RPC at %s, %v", addr, err)
 	}
 
-	waitCond.Broadcast()
-
-	return &grpcClient{
-		c:      c,
+	return &deployerClient{
+		client: c,
 		stream: deployModuleStream,
 		conn:   conn,
 	}
-}
-
-func withServerAndClient(
-	t *testing.T,
-	sqliteClient *sqlite.ORM,
-	actualTest func(server *grpcServer, client *grpcClient),
-) {
-	gLock := lock.NewLock()
-	waitCond := cond.NewCond()
-	server := initializeTestServerGRPCWithOptions(t, sqliteClient, gLock, waitCond)
-	c := newGRPCClient(t, server.lisAddr.String(), waitCond)
-	defer server.server.Stop()
-	defer c.conn.Close()
-
-	actualTest(server, c)
 }

@@ -67,6 +67,11 @@ func NewPIDCollector(clientset kubernetes.Interface, pgClient *pg.Client) *PIDCo
 	return c
 }
 
+// RegisterProcessCollectorServer registers PIDCollector server instance with the gRPC fixture.
+func RegisterProcessCollectorServer(f *ServerFixture, clientset kubernetes.Interface, pgClient *pg.Client) {
+	pb.RegisterProcessCollectorServer(f.Server, NewPIDCollector(clientset, pgClient))
+}
+
 // ReportProcess implements the gRPC method ReportProcess of the ProcessCollector service.
 func (s *PIDCollector) ReportProcess(stream pb.ProcessCollector_ReportProcessServer) error {
 	for {

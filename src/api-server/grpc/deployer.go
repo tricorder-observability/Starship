@@ -235,3 +235,8 @@ func NewDeployer(orm *sqlite.ORM, gLock *lock.Lock, waitCond *cond.Cond) *Deploy
 		gLock:    gLock,
 	}
 }
+
+// RegisterDeployerService registers Deployer server instance with the gRPC fixture.
+func RegisterModuleDeployerServer(f *ServerFixture, sqliteClient *sqlite.ORM, gLock *lock.Lock, waitCond *cond.Cond) {
+	pb.RegisterModuleDeployerServer(f.Server, NewDeployer(sqliteClient, gLock, waitCond))
+}
