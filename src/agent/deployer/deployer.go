@@ -23,9 +23,9 @@ import (
 
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 
 	"github.com/tricorder/src/utils/errors"
+	grpcutils "github.com/tricorder/src/utils/grpc"
 	"github.com/tricorder/src/utils/grpcerr"
 	"github.com/tricorder/src/utils/log"
 
@@ -78,9 +78,9 @@ func New(apiServerAddr, nodeName, podId string) *Deployer {
 
 func (d *Deployer) ConnectToAPIServer() error {
 	log.Infof("Connecting to API Server at %s", d.apiServerAddr)
-	grpcConn, err := grpc.Dial(d.apiServerAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	grpcConn, err := grpcutils.DialInsecure(d.apiServerAddr)
 	if err != nil {
-		return errors.Wrap("connecting to API Server", "dial", err)
+		return errors.Wrap("connecting to API Server", "dial insecure", err)
 	}
 	d.grpcConn = grpcConn
 	d.client = pb.NewModuleDeployerClient(grpcConn)
