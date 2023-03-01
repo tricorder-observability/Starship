@@ -122,6 +122,7 @@ func (s *Deployer) StartModuleDeployLoop() error {
 	eg.Go(func() error {
 		for {
 			in, err := s.stream.Recv()
+			// TODO(yzhao): Need to handle error correctly, the code below ignores EoF error.
 			if err == io.EOF {
 				log.Warnf("Agent closed connection, this should only happens during testing; stopping ...")
 				return nil
@@ -134,19 +135,15 @@ func (s *Deployer) StartModuleDeployLoop() error {
 			log.Debugf("Received request to deploy module: %v", in)
 
 			if in.Deploy == pb.DeployModuleReq_DEPLOY {
-				err := s.deployModule(in)
-				resp := createDeployModuleResp(in.ModuleId, err)
-				err = s.sendResp(resp)
-				if grpcerr.IsUnavailable(err) {
-					log.Fatalf("Streaming connection with api-server is broken, error: %v", err)
-				}
+				err = s.deployModule(in)
 			} else if in.Deploy == pb.DeployModuleReq_UNDEPLOY {
-				err := s.undeployModlue(in)
-				resp := createDeployModuleResp(in.ModuleId, err)
-				err = s.sendResp(resp)
-				if grpcerr.IsUnavailable(err) {
-					log.Fatalf("Streaming connection with api-server is broken, error: %v", err)
-				}
+				err = s.undeployModlue(in)
+			}
+			resp := createDeployModuleResp(in.ModuleId, err)
+			err = s.sendResp(resp)
+			// TODO(yzhao): Need to handle error correctly, the code below ignores EoF error.
+			if grpcerr.IsUnavailable(err) {
+				log.Fatalf("Streaming connection with api-server is broken, error: %v", err)
 			}
 		}
 	})

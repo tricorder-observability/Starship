@@ -1,9 +1,10 @@
 package grpc
 
 import (
-	"github.com/tricorder/src/utils/errors"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+
+	"github.com/tricorder/src/utils/errors"
 )
 
 // DialInsecure returns a gRPC connection and error if failed.
