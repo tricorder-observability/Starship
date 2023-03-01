@@ -19,8 +19,6 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"net"
-	"os"
 	"testing"
 	"time"
 
@@ -30,7 +28,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
-	"github.com/tricorder/src/testing/sys"
+	"github.com/tricorder/src/testing/bazel"
 	"github.com/tricorder/src/utils/cond"
 	"github.com/tricorder/src/utils/lock"
 	"github.com/tricorder/src/utils/log"
@@ -45,7 +43,8 @@ var moduleID = "9999"
 
 // Tests that the http service can handle request
 func TestService(t *testing.T) {
-	testDir, _ := os.Getwd()
+	testDir := bazel.CreateTmpDir()
+
 	testDbFilePath := testDir + "/testdata/"
 	sqliteClient, _ := dao.InitSqlite(testDbFilePath)
 	moduleDao := dao.ModuleDao{
@@ -64,12 +63,6 @@ func TestService(t *testing.T) {
 		fmt.Printf("Received request to deploy module: %v", in)
 		assert.Equal(t, moduleID, in.ModuleId)
 	})
-	sys.MustRemoveAll(testDir)
-}
-
-type grpcServer struct {
-	server  *grpc.Server
-	lisAddr net.Addr
 }
 
 type deployerClient struct {
