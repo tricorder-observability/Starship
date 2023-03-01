@@ -5,7 +5,10 @@ go_library(
     testonly = 1,
     srcs = ["sqlite.go"],
     importpath = "github.com/tricorder/src/api-server/testing",
-    visibility = ["//src/api-server:__subpackages__"],
+    visibility = [
+        "//src/api-server:__subpackages__",
+        "//src/integ_tests:__subpackages__",
+    ],
     deps = [
         "//src/api-server/http/dao",
         "//src/api-server/pb",

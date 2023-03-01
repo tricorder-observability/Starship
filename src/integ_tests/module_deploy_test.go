@@ -33,6 +33,7 @@ import (
 	"github.com/tricorder/src/utils/lock"
 	"github.com/tricorder/src/utils/log"
 
+	apiservergrpc "github.com/tricorder/src/api-server/grpc"
 	"github.com/tricorder/src/api-server/http/dao"
 	pb "github.com/tricorder/src/api-server/pb"
 	testutil "github.com/tricorder/src/api-server/testing"
@@ -52,7 +53,7 @@ func TestService(t *testing.T) {
 	gLock := lock.NewLock()
 	waitCond := cond.NewCond()
 
-	f, err := NewServerFixture(0)
+	f, err := apiservergrpc.NewServerFixture(0)
 	if err != nil {
 		log.Fatalf("Failed to create gRPC server fixture on :0")
 	}

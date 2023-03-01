@@ -4,6 +4,7 @@ go_test(
     name = "integ_tests_test",
     srcs = ["module_deploy_test.go"],
     deps = [
+        "//src/api-server/grpc",
         "//src/api-server/http/dao",
         "//src/api-server/pb",
         "//src/api-server/testing",
