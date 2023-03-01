@@ -19,7 +19,7 @@ type ServerFixture struct {
 	Server *grpc.Server
 
 	// The actual address this server listens.
-	addr net.Addr
+	Addr net.Addr
 }
 
 // Returns a new ServerFixture that listens at the specified port of the localhost.
@@ -33,7 +33,7 @@ func NewServerFixture(port int) (*ServerFixture, error) {
 	return &ServerFixture{
 		listener: listener,
 		Server:   grpc.NewServer(),
-		addr:     listener.Addr(),
+		Addr:     listener.Addr(),
 	}, nil
 }
 
