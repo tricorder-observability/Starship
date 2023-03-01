@@ -134,13 +134,6 @@ message DeployModuleReq {
   // A unique ID assigned to the module
   string module_id = 1;
 
-  // A time period for this module to be alive on
-  // the agent,
-  // so that one can deploy and forget if setting
-  // this to a finite number
-  // 0 means infinite lifetime
-  int32 life_time_seconds = 2;
-
   // Describe a complete eBPF+WASM module.
   tricorder.pb.module.Module module =7;
 

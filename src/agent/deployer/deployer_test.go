@@ -67,8 +67,7 @@ func mockDeployReqs() ([]*pb.DeployModuleReq, error) {
 			ModuleId: "mock_empty_ebpf_code-1",
 		},
 		{
-			ModuleId:        "mock_test_deploy_module_req-1",
-			LifeTimeSeconds: 0,
+			ModuleId: "mock_test_deploy_module_req-1",
 			Module: &module.Module{
 				Ebpf: &ebpf.Program{
 					Fmt:            common.Format_TEXT,
