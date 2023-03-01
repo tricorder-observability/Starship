@@ -97,7 +97,7 @@ func TestService(t *testing.T) {
 	require.NoError(err)
 	assert.Equal(1, len(nodes))
 	assert.Equal("agent", nodes[0].AgentID)
-	assert.Equal(int(pb.AgentState_ONLINE), nodes[0].State)
+	assert.Equal(nodes[0].State, int(pb.AgentState_ONLINE))
 
 	c.conn.Close()
 	// wait for 2 seconds to make sure the node agent is marked offline
@@ -107,8 +107,7 @@ func TestService(t *testing.T) {
 	require.NoError(err)
 	assert.Equal(1, len(nodes))
 	assert.Equal("agent", nodes[0].AgentID)
-	assert.Equal(int(pb.AgentState_OFFLINE), nodes[0].State)
-
+	assert.Equal(nodes[0].State, int(pb.AgentState_OFFLINE))
 }
 
 type deployerClient struct {
