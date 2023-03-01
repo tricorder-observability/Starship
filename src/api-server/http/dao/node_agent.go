@@ -36,8 +36,9 @@ import (
 
 // NodeAgentGORM sqlite gorm storage and response object
 type NodeAgentGORM struct {
-	NodeName       string     `gorm:"'node_name' primarykey" json:"node_name,omitempty"`
-	AgentID        string     `gorm:"agent_id" json:"agent_id,omitempty"`
+	AgentID        string     `gorm:"'agent_id' primarykey" json:"agent_id,omitempty"`
+	NodeName       string     `gorm:"node_name" json:"node_name,omitempty"`
+	AgentPodID     string     `gorm:"agent_pod_id" json:"agent_pod_id,omitempty"`
 	State          int        `gorm:"state" json:"state,omitempty"`
 	CreateTime     *time.Time `gorm:"create_time" json:"create_time,omitempty"`
 	LastUpdateTime *time.Time `gorm:"last_update_time" json:"last_update_time,omitempty"`
@@ -60,37 +61,37 @@ func (g *NodeAgentDao) SaveAgent(agent *NodeAgentGORM) error {
 	return result.Error
 }
 
-func (g *NodeAgentDao) UpdateByName(agent *NodeAgentGORM) error {
+func (g *NodeAgentDao) UpdateByID(agent *NodeAgentGORM) error {
 	if len(agent.NodeName) == 0 {
 		return fmt.Errorf("name shuold not be empty")
 	}
 
 	agent.LastUpdateTime = &time.Time{}
 	*agent.LastUpdateTime = time.Now()
-	result := g.Client.Engine.Model(&NodeAgentGORM{}).Where("node_name", agent.NodeName).Updates(agent)
+	result := g.Client.Engine.Model(&NodeAgentGORM{}).Where("agent_id", agent.AgentID).Updates(agent)
 	return result.Error
 }
 
-func (g *NodeAgentDao) UpdateStateByName(nodeName string, statue int) error {
+func (g *NodeAgentDao) UpdateStateByID(agentID string, statue int) error {
 	agent := NodeAgentGORM{}
 
 	agent.LastUpdateTime = &time.Time{}
 	*agent.LastUpdateTime = time.Now()
 	agent.State = statue
 
-	result := g.Client.Engine.Model(&NodeAgentGORM{}).Where("node_name", nodeName).Updates(agent)
+	result := g.Client.Engine.Model(&NodeAgentGORM{}).Where("agent_id", agentID).Updates(agent)
 	return result.Error
 }
 
-func (g *NodeAgentDao) DeleteByName(nodeName string) error {
-	result := g.Client.Engine.Delete(&NodeAgentGORM{NodeName: nodeName})
+func (g *NodeAgentDao) DeleteByID(agentID string) error {
+	result := g.Client.Engine.Delete(&NodeAgentGORM{AgentID: agentID})
 	return result.Error
 }
 
 func (g *NodeAgentDao) List(query ...string) ([]NodeAgentGORM, error) {
 	nodeList := make([]NodeAgentGORM, 0)
 	if len(query) == 0 {
-		query = []string{"node_name", "agent_id", "state", "create_time", "last_update_time"}
+		query = []string{"agent_id", "node_name", "agent_pod_id", "state", "create_time", "last_update_time"}
 	}
 
 	result := g.Client.Engine.
@@ -107,18 +108,18 @@ func (g *NodeAgentDao) ListByState(state int) ([]NodeAgentGORM, error) {
 	nodeList := make([]NodeAgentGORM, 0)
 	result := g.Client.Engine.Where(&NodeAgentGORM{State: state}).Order("create_time desc").Find(&nodeList)
 	if result.Error != nil {
-		return make([]NodeAgentGORM, 0), fmt.Errorf("query node agent list by Status error:%v", result.Error)
+		return nil, fmt.Errorf("query node agent list by Status error:%v", result.Error)
 	}
 	return nodeList, nil
 }
 
-func (g *NodeAgentDao) QueryByName(nodeName string) (*NodeAgentGORM, error) {
-	node := &NodeAgentGORM{}
-	result := g.Client.Engine.Where(&NodeAgentGORM{NodeName: nodeName}).First(node)
+func (g *NodeAgentDao) ListByNodeName(nodeName string) ([]NodeAgentGORM, error) {
+	nodeList := make([]NodeAgentGORM, 0)
+	result := g.Client.Engine.Where(&NodeAgentGORM{NodeName: nodeName}).Order("create_time desc").Find(&nodeList)
 	if result.Error != nil {
-		return nil, fmt.Errorf("query node agent by name error:%v", result.Error)
+		return nil, fmt.Errorf("query node agent list by Name error:%v", result.Error)
 	}
-	return node, nil
+	return nodeList, nil
 }
 
 func (g *NodeAgentDao) QueryByID(agentID string) (*NodeAgentGORM, error) {

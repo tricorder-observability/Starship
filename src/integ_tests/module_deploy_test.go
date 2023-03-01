@@ -23,6 +23,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	_ "github.com/mattn/go-sqlite3"
 	"google.golang.org/grpc"
@@ -44,6 +45,7 @@ var moduleID = "9999"
 // Tests that the http service can handle request
 func TestService(t *testing.T) {
 	assert := assert.New(t)
+	require := require.New(t)
 
 	testDir := bazel.CreateTmpDir()
 	sqliteClient, err := dao.InitSqlite(testDir)
@@ -52,6 +54,10 @@ func TestService(t *testing.T) {
 
 	gLock := lock.NewLock()
 	waitCond := cond.NewCond()
+
+	nodeAgentDao := dao.NodeAgentDao{
+		Client: sqliteClient,
+	}
 
 	f, err := apiservergrpc.NewServerFixture(0)
 	if err != nil {
@@ -67,6 +73,7 @@ func TestService(t *testing.T) {
 	}()
 
 	c := newGRPCClient(f.Addr.String())
+
 	defer f.Server.Stop()
 	defer c.conn.Close()
 
@@ -85,6 +92,22 @@ func TestService(t *testing.T) {
 
 	fmt.Printf("Received request to deploy module: %v", in)
 	assert.Equal(moduleID, in.ModuleId)
+
+	nodes, err := nodeAgentDao.List()
+	require.NoError(err)
+	assert.Equal(1, len(nodes))
+	assert.Equal("agent", nodes[0].AgentID)
+	assert.Equal(nodes[0].State, int(pb.AgentState_ONLINE))
+
+	c.conn.Close()
+	// wait for 2 seconds to make sure the node agent is marked offline
+	time.Sleep(2 * time.Second)
+
+	nodes, err = nodeAgentDao.List()
+	require.NoError(err)
+	assert.Equal(1, len(nodes))
+	assert.Equal("agent", nodes[0].AgentID)
+	assert.Equal(nodes[0].State, int(pb.AgentState_OFFLINE))
 }
 
 type deployerClient struct {
@@ -109,7 +132,7 @@ func newGRPCClient(addr string) *deployerClient {
 
 	resp := pb.DeployModuleResp{
 		ModuleId: "testid",
-		Agent:    &pb.Agent{Id: "agent"},
+		Agent:    &pb.Agent{Id: "agent", NodeName: "node", PodId: "pod"},
 	}
 	err = deployModuleStream.Send(&resp)
 	if err != nil {
