@@ -75,11 +75,6 @@ func main() {
 	}
 	deployer.PGClient = pgClient
 
-	err = retry.ExpBackOffWithLimit(deployer.InitModuleDeployLink)
-	if err != nil {
-		log.Fatalf("Failed to establish stream connection to module deploy service, error: %v", err)
-	}
-
 	collector := proc_info.NewCollector(*hostSysRootPath, *apiServerAddr, cfg.nodeName)
 	if err := collector.StartProcInfoReport(); err != nil {
 		log.Errorf("Failed to ReportProcess, error: %v", err)

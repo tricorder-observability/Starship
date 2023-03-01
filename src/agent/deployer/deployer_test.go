@@ -149,6 +149,7 @@ func newMockGRPCServer(t *testing.T) (*grpc.Server, net.Addr) {
 
 func TestDeployAndRun(t *testing.T) {
 	assert := assert.New(t)
+	require := require.New(t)
 
 	// init kernel headers
 	assert.Nil(linux_headers.Init())
@@ -159,13 +160,10 @@ func TestDeployAndRun(t *testing.T) {
 
 	d.apiServerAddr = addr.String()
 	err := d.ConnectToAPIServer()
-	require.NoError(t, err)
-
-	err = d.InitModuleDeployLink()
-	require.NoError(t, err)
+	require.NoError(err)
 
 	err = d.StartModuleDeployLoop()
-	require.NoError(t, err)
+	require.NoError(err)
 
 	// this module has been deploy and then undeploy
 	assert.Nil(d.idDeployMap["mock_test_deploy_module_req-1"])

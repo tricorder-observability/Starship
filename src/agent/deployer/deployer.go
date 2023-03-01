@@ -76,6 +76,7 @@ func New(apiServerAddr, nodeName, podId string) *Deployer {
 	return d
 }
 
+// ConnectToAPIServer connects this Deployer to API Server and inform its own identity to API Server.
 func (d *Deployer) ConnectToAPIServer() error {
 	log.Infof("Connecting to API Server at %s", d.apiServerAddr)
 	grpcConn, err := grpcutils.DialInsecure(d.apiServerAddr)
@@ -84,12 +85,12 @@ func (d *Deployer) ConnectToAPIServer() error {
 	}
 	d.grpcConn = grpcConn
 	d.client = pb.NewModuleDeployerClient(grpcConn)
-	return nil
+	return d.initModuleDeployLink()
 }
 
-// InitModuleDeployLink connects with the module module deployer's stream gRPC service.
+// initModuleDeployLink connects with the module module deployer's stream gRPC service.
 // And sends the first message to the server to inform the server about its own identity.
-func (s *Deployer) InitModuleDeployLink() error {
+func (s *Deployer) initModuleDeployLink() error {
 	log.Infof("Initializing stream connection with ModuleDeployer at %s", s.apiServerAddr)
 
 	deployModuleStream, err := s.client.DeployModule(context.Background())
@@ -106,11 +107,7 @@ func (s *Deployer) InitModuleDeployLink() error {
 		},
 	}
 
-	err = s.stream.Send(&resp)
-	if err != nil {
-		return err
-	}
-	return nil
+	return s.stream.Send(&resp)
 }
 
 // StartModuleDeployLoop continuously polling server
