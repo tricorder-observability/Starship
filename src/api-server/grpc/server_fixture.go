@@ -24,8 +24,9 @@ type ServerFixture struct {
 
 // Returns a new ServerFixture that listens at the specified port of the localhost.
 func NewServerFixture(port int) (*ServerFixture, error) {
+	const tcp = "tcp"
 	addrStr := fmt.Sprintf(":%d", port)
-	listener, err := net.Listen("tcp", addrStr)
+	listener, err := net.Listen(tcp, addrStr)
 	if err != nil {
 		return nil, errors.Wrap("newing ServerFixture", "listen "+addrStr, err)
 	}

@@ -5,6 +5,7 @@ go_library(
     testonly = 1,
     srcs = [
         "env_var.go",
+        "file.go",
         "stdout.go",
     ],
     importpath = "github.com/tricorder/src/testing/sys",
