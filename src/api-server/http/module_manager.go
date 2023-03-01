@@ -17,6 +17,7 @@ package http
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"strings"
@@ -69,11 +70,20 @@ func (mgr *ModuleManager) createModuleHttp(c *gin.Context) {
 }
 
 func (mgr *ModuleManager) createModule(body CreateModuleReq) CreateModuleResp {
-	m, _ := mgr.Module.QueryByName(body.Name)
-	if m != nil && len(m.Name) > 0 {
+	var m *dao.ModuleGORM
+	var err error
+	err = mgr.gLock.ExecWithLock(func() error {
+		m, _ = mgr.Module.QueryByName(body.Name)
+		if m != nil && len(m.Name) > 0 {
+			return fmt.Errorf("Name '%s' already exists", body.Name)
+		}
+		return nil
+	})
+
+	if err != nil {
 		return CreateModuleResp{HTTPResp{
 			Code:    500,
-			Message: fmt.Sprintf("Name '%s' already exists", body.Name),
+			Message: err.Error(),
 		}}
 	}
 
@@ -120,12 +130,19 @@ func (mgr *ModuleManager) createModule(body CreateModuleReq) CreateModuleResp {
 
 	mod.SchemaName = fmt.Sprintf("%s_%s", "tricorder_module", mod.ID)
 
-	err = mgr.Module.SaveModule(mod)
+	err = mgr.gLock.ExecWithLock(func() error {
+		err = mgr.Module.SaveModule(mod)
+		if err != nil {
+			log.Errorf("save module error: %v", err)
+			return errors.New("Save module error: " + err.Error())
+		}
+		return nil
+	})
+
 	if err != nil {
-		log.Errorf("save module error: %v", err)
 		return CreateModuleResp{HTTPResp{
 			Code:    500,
-			Message: "Save module error",
+			Message: err.Error(),
 		}}
 	}
 
@@ -219,15 +236,24 @@ func (mgr *ModuleManager) deployModuleHttp(c *gin.Context) {
 }
 
 func (mgr *ModuleManager) deployModule(id string) DeployModuleResp {
+	var module *dao.ModuleGORM
+	var err error
 	// Check whether the module exists
-	module, err := mgr.Module.QueryByID(id)
+	err = mgr.gLock.ExecWithLock(func() error {
+		module, err = mgr.Module.QueryByID(id)
+		if err != nil {
+			return errors.New("query module error: " + err.Error())
+		}
+		return nil
+	})
+
 	if err != nil {
 		return DeployModuleResp{
 			HTTPResp{
 				Code:    500,
-				Message: "module does not exist",
+				Message: err.Error(),
 			},
-			id,
+			"",
 		}
 	}
 
@@ -259,13 +285,19 @@ func (mgr *ModuleManager) deployModule(id string) DeployModuleResp {
 
 	log.Infof("Created Grafana dashboard with UID: %s", uid)
 
-	err = mgr.Module.UpdateStatusByID(module.ID, int(pb.ModuleState_DEPLOYED))
+	err = mgr.gLock.ExecWithLock(func() error {
+		err = mgr.Module.UpdateStatusByID(module.ID, int(pb.ModuleState_DEPLOYED))
+		if err != nil {
+			return errors.New("pre-deploy module: " + module.ID + "failed: " + err.Error())
+		}
+		return nil
+	})
+
 	if err != nil {
-		log.Errorf("pre-deploy module: [%s] failed: %s", module.ID, err.Error())
 		return DeployModuleResp{
 			HTTPResp{
 				Code:    500,
-				Message: "update deploy status error",
+				Message: err.Error(),
 			},
 			uid,
 		}
@@ -300,11 +332,17 @@ func (mgr *ModuleManager) undeployModuleHttp(c *gin.Context) {
 }
 
 func (mgr *ModuleManager) undeployModule(id string) UndeployModuleResp {
-	err := mgr.Module.UpdateStatusByID(id, int(pb.ModuleState_UNDEPLOYED))
+	err := mgr.gLock.ExecWithLock(func() error {
+		err := mgr.Module.UpdateStatusByID(id, int(pb.ModuleState_UNDEPLOYED))
+		if err != nil {
+			return errors.New("un-deploy module: " + id + "failed: " + err.Error())
+		}
+		return nil
+	})
 	if err != nil {
 		return UndeployModuleResp{HTTPResp{
 			Code:    500,
-			Message: "undeploy error: " + err.Error(),
+			Message: err.Error(),
 		}}
 	}
 	return UndeployModuleResp{HTTPResp{
