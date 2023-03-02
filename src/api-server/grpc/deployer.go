@@ -220,7 +220,7 @@ func (s *Deployer) DeployModule(stream servicepb.ModuleDeployer_DeployModuleServ
 
 	for {
 		s.waitCond.Wait()
-		undeployList, _ := s.ModuleInstance.ListByNodeName(agentID)
+		undeployList, _ := s.ModuleInstance.ListByAgentID(agentID)
 		for _, moduleInstance := range undeployList {
 			if moduleInstance.State != int(pb.ModuleInstanceState_INIT) {
 				continue
