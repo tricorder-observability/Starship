@@ -35,8 +35,8 @@ go_test(
         "//src/pb/module/ebpf",
         "//src/pb/module/wasm",
         "//src/testing/bazel",
+        "//src/utils/log",
         "@com_github_stretchr_testify//assert",
         "@com_github_stretchr_testify//require",
-        "@org_golang_google_grpc//:go_default_library",
     ],
 )
