@@ -17,12 +17,10 @@ package sqlite
 
 import (
 	"fmt"
-	"os"
-	"strings"
-
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
-
+	"os"
+	"strings"
 	// Import sqlite driver
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -52,23 +50,6 @@ func PrepareSqliteDbFile(dirPath string) (string, error) {
 		sqliteDbFilePath = fmt.Sprintf("%s%s", dirPath, SqliteDBFileName)
 	} else {
 		sqliteDbFilePath = fmt.Sprintf("%s/%s", dirPath, SqliteDBFileName)
-	}
-
-	_, err := os.Open(sqliteDbFilePath)
-	if err != nil {
-		if os.IsNotExist(err) {
-			zap.S().Infof("Creating %s...", sqliteDbFilePath)
-			// Create SQLite file
-			file, err := os.Create(SqliteDBFileName)
-			if err != nil {
-				zap.S().Panicf("can not create sqlite db file: %s.", err.Error())
-			}
-			_ = file.Close()
-			zap.S().Infof("%s created.", sqliteDbFilePath)
-			return sqliteDbFilePath, nil
-		}
-		zap.S().Panic("do not have the create permissions.")
-		return "", err
 	}
 
 	// db file is existed, return directly.
