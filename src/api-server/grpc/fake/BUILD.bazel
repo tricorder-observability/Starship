@@ -2,7 +2,7 @@ load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
     name = "fake",
-    srcs = ["fake.go"],
+    srcs = ["server.go"],
     importpath = "github.com/tricorder/src/api-server/grpc/fake",
     visibility = ["//visibility:public"],
     deps = [
