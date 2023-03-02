@@ -270,6 +270,10 @@ func (mgr *ModuleManager) deployModule(id string) DeployModuleResp {
 		if err != nil {
 			return errors.New("query module error: " + err.Error())
 		}
+		if module.DesireState == int(pb.ModuleState_DEPLOYED) {
+			log.Infof("module %s already deployed", id)
+			return errors.New("module " + id + " already deployed")
+		}
 		return nil
 	})
 
@@ -317,23 +321,27 @@ func (mgr *ModuleManager) deployModule(id string) DeployModuleResp {
 			return errors.New("pre-deploy module: " + module.ID + "failed: " + err.Error())
 		}
 		// list all agents, and insert into module_instance table
-		agents, err := mgr.NodeAgent.List()
+		nodeAgents, err := mgr.NodeAgent.List()
 		if err != nil {
-			return errors.New("list agent error: " + err.Error())
+			log.Fatalf("list agent error: %s", err.Error())
 		}
 
-		for _, agent := range agents {
+		for _, agent := range nodeAgents {
+			if agent.State != int(pb.AgentState_ONLINE) {
+				continue
+			}
+
 			err = mgr.ModuleInstance.SaveModuleInstance(&dao.ModuleInstanceGORM{
 				ID:          fmt.Sprintf("tricorder_%s_%s", module.ID, agent.AgentID),
 				ModuleID:    module.ID,
 				ModuleName:  module.Name,
 				AgentID:     agent.AgentID,
 				NodeName:    agent.NodeName,
-				DesireState: module.DesireState,
+				DesireState: int(pb.ModuleState_DEPLOYED),
 				State:       int(pb.ModuleInstanceState_INIT),
 			})
 			if err != nil {
-				return errors.New("insert module instance error: " + err.Error())
+				log.Fatalf("insert module %s instance to agent %s failed: %s", module.ID, agent.AgentID, err.Error())
 			}
 		}
 		return nil
