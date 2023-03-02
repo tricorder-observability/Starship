@@ -1,0 +1,12 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "fake",
+    srcs = ["server.go"],
+    importpath = "github.com/tricorder/src/api-server/grpc/fake",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//src/api-server/pb",
+        "@org_golang_google_grpc//:go_default_library",
+    ],
+)

@@ -29,14 +29,15 @@ go_test(
     tags = ["bpf"],
     deps = [
         "//src/agent/ebpf/bcc/linux_headers",
+        "//src/api-server/grpc/fake",
         "//src/api-server/pb",
         "//src/pb/module",
         "//src/pb/module/common",
         "//src/pb/module/ebpf",
         "//src/pb/module/wasm",
         "//src/testing/bazel",
+        "//src/utils/log",
         "@com_github_stretchr_testify//assert",
         "@com_github_stretchr_testify//require",
-        "@org_golang_google_grpc//:go_default_library",
     ],
 )

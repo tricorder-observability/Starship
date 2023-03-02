@@ -16,29 +16,21 @@
 package deployer
 
 import (
-	"fmt"
-	"io"
-	"net"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"google.golang.org/grpc"
 
 	"github.com/tricorder/src/agent/ebpf/bcc/linux_headers"
+	"github.com/tricorder/src/api-server/grpc/fake"
 	pb "github.com/tricorder/src/api-server/pb"
 	"github.com/tricorder/src/pb/module"
 	"github.com/tricorder/src/pb/module/common"
 	ebpf "github.com/tricorder/src/pb/module/ebpf"
 	"github.com/tricorder/src/pb/module/wasm"
 	testutils "github.com/tricorder/src/testing/bazel"
+	"github.com/tricorder/src/utils/log"
 )
-
-// TODO(yzhao): Rewrite this test to use real API server and agent.
-
-type GRPCDeployerHandler struct {
-	// mockV2QueryService *querysvc.QueryService
-}
 
 const code string = `
 #include <linux/ptrace.h>
@@ -55,11 +47,11 @@ int syscall__probe_return_read(struct pt_regs* ctx) {
 }
 `
 
-func mockDeployReqs() ([]*pb.DeployModuleReq, error) {
+func mockDeployReqs() []*pb.DeployModuleReq {
 	wasmRelPath := "modules/sample_json/copy_input_to_output.wasm"
 	wasmBinaryCode, err := testutils.ReadTestBinFile(wasmRelPath)
 	if err != nil {
-		return nil, fmt.Errorf("Failed to read wasm file %s, error: %v", wasmRelPath, err)
+		log.Fatalf("Failed to read wasm file %s, error: %v", wasmRelPath, err)
 	}
 	return []*pb.DeployModuleReq{
 		{},
@@ -105,56 +97,16 @@ func mockDeployReqs() ([]*pb.DeployModuleReq, error) {
 			ModuleId: "mock_test_deploy_module_req-1",
 			Deploy:   pb.DeployModuleReq_UNDEPLOY,
 		},
-	}, nil
-}
-
-func (g *GRPCDeployerHandler) DeployModule(stream pb.ModuleDeployer_DeployModuleServer) error {
-	in, err := stream.Recv()
-	if err == io.EOF {
-		return nil
 	}
-	if err != nil {
-		return err
-	}
-	fmt.Printf("Got input from client: %v", in)
-
-	reqs, err := mockDeployReqs()
-	if err != nil {
-		return err
-	}
-	for _, req := range reqs {
-		err = stream.Send(req)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-func newMockGRPCServer(t *testing.T) (*grpc.Server, net.Addr) {
-	lis, _ := net.Listen("tcp", ":0")
-	grpcServer := grpc.NewServer()
-
-	grpcHandler := &GRPCDeployerHandler{}
-	pb.RegisterModuleDeployerServer(grpcServer, grpcHandler)
-
-	go func() {
-		err := grpcServer.Serve(lis)
-		require.NoError(t, err)
-	}()
-
-	return grpcServer, lis.Addr()
 }
 
 func TestDeployAndRun(t *testing.T) {
 	assert := assert.New(t)
 	require := require.New(t)
 
-	// init kernel headers
 	assert.Nil(linux_headers.Init())
 
-	_, addr := newMockGRPCServer(t)
+	_, addr := fake.StartNewServer(mockDeployReqs())
 
 	d := New(addr.String(), "node_name", "pid_id")
 

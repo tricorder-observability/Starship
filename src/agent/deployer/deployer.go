@@ -147,6 +147,7 @@ func (s *Deployer) StartModuleDeployLoop() error {
 	return eg.Wait()
 }
 
+// Stop first closes the sending side of the channel, and then close the entire connection.
 func (s *Deployer) Stop() {
 	err := s.stream.CloseSend()
 	if err != nil {
