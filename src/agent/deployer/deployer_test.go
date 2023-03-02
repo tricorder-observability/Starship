@@ -32,8 +32,6 @@ import (
 	"github.com/tricorder/src/utils/log"
 )
 
-// TODO(yzhao): Rewrite this test to use real API server and agent.
-
 const code string = `
 #include <linux/ptrace.h>
 
@@ -106,7 +104,6 @@ func TestDeployAndRun(t *testing.T) {
 	assert := assert.New(t)
 	require := require.New(t)
 
-	// init kernel headers
 	assert.Nil(linux_headers.Init())
 
 	server := fake.Server{

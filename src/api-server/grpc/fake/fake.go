@@ -13,6 +13,8 @@ import (
 
 // Fake is a fake API Server gRPC server that sends the requests sequentially to the client.
 type Server struct {
+	// Reqs are the list of requests will be sent over the connected gRPC streaming channel
+	// once a client connects with this server.
 	Reqs []*pb.DeployModuleReq
 }
 
