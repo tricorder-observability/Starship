@@ -211,7 +211,7 @@ func (s *Deployer) DeployModule(stream servicepb.ModuleDeployer_DeployModuleServ
 			}
 			// TODO(yzhao): Should cache this result to an internal slice, and repeatively retry updating state.
 			// The current logic will drop this state and causes redeployment of the same module.
-			err = s.Module.UpdateStatusByID(result.ModuleId, int(result.State))
+			err = s.ModuleInstance.UpdateStatusByID(result.ModuleId, int(result.State))
 			if err != nil {
 				log.Errorf("update code status error:%s", err.Error())
 			}
@@ -220,12 +220,19 @@ func (s *Deployer) DeployModule(stream servicepb.ModuleDeployer_DeployModuleServ
 
 	for {
 		s.waitCond.Wait()
-		undeployList, _ := s.Module.ListModuleByStatus(int(servicepb.ModuleState_DEPLOYED))
-		for _, code := range undeployList {
-			codeReq, err := getDeployReqForModule(&code)
+		undeployList, _ := s.ModuleInstance.ListByNodeName(agentID)
+		for _, moduleInstance := range undeployList {
+			if moduleInstance.State != int(pb.ModuleInstanceState_INIT) {
+				continue
+			}
+			module, err := s.Module.QueryByID(moduleInstance.ModuleID)
+			if err != nil {
+				return errors.Wrap("handling DeployModule request", "query module", err)
+			}
+			codeReq, err := getDeployReqForModule(module)
 			if err != nil {
 				log.Fatalf("Failed to create DeployModuleReq for module ID=%s, this should not happen, "+
-					"as module creation should validate module, error: %v", code.ID, err)
+					"as module creation should validate module, error: %v", module.ID, err)
 				return err
 			}
 
@@ -246,10 +253,10 @@ func (s *Deployer) DeployModule(stream servicepb.ModuleDeployer_DeployModuleServ
 
 			// TODO(yzhao): This should set the state to PENDING, or something indicating the request is sent.
 			// Probably should update the IN_PROGRESS state in module_instance table.
-			err = s.Module.UpdateStatusByID(code.ID, int(servicepb.ModuleState_DEPLOYED))
+			err = s.ModuleInstance.UpdateStatusByID(moduleInstance.ID, int(servicepb.ModuleInstanceState_IN_PROGRESS))
 			if err != nil {
 				// If this happens, this module's deployment will be retried next time.
-				log.Errorf("Failed to update module (ID=%s) state, error: %v", code.ID, err)
+				log.Errorf("Failed to update module (ID=%s) state, error: %v", module.ID, err)
 			}
 		}
 	}

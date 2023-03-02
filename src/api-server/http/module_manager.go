@@ -204,13 +204,39 @@ func (mgr *ModuleManager) deleteModuleHttp(c *gin.Context) {
 }
 
 func (mgr *ModuleManager) deleteModule(id string) DeleteModuleResp {
-	err := mgr.Module.DeleteByID(id)
+	err := mgr.gLock.ExecWithLock(func() error {
+		module, err := mgr.Module.QueryByID(id)
+		if err != nil {
+			return errors.New("query module: " + id + "failed: " + err.Error())
+		}
+		if module.DesireState == int(pb.ModuleState_DEPLOYED) {
+			return errors.New("module: " + id + "is deployed, please undeploy first")
+		}
+		err = mgr.Module.DeleteByID(id)
+		if err != nil {
+			return errors.New("delete module: " + id + "failed: " + err.Error())
+		}
+		moduleInstances, err := mgr.ModuleInstance.ListByModuleID(id)
+		if err != nil {
+			return errors.New("list module instance by module id: " + id + "failed: " + err.Error())
+		}
+		// TODO: need to using transaction to impl this
+		for _, moduleInstance := range moduleInstances {
+			err = mgr.ModuleInstance.DeleteByID(moduleInstance.ID)
+			if err != nil {
+				return errors.New("delete module instance: " + moduleInstance.ID + "failed: " + err.Error())
+			}
+		}
+		return nil
+	})
+
 	if err != nil {
 		return DeleteModuleResp{HTTPResp{
 			Code:    500,
-			Message: "delete error: " + err.Error(),
+			Message: err.Error(),
 		}}
 	}
+
 	return DeleteModuleResp{HTTPResp{
 		Code:    200,
 		Message: "Success",
@@ -289,6 +315,26 @@ func (mgr *ModuleManager) deployModule(id string) DeployModuleResp {
 		err = mgr.Module.UpdateStatusByID(module.ID, int(pb.ModuleState_DEPLOYED))
 		if err != nil {
 			return errors.New("pre-deploy module: " + module.ID + "failed: " + err.Error())
+		}
+		// list all agents, and insert into module_instance table
+		agents, err := mgr.NodeAgent.List()
+		if err != nil {
+			return errors.New("list agent error: " + err.Error())
+		}
+
+		for _, agent := range agents {
+			err = mgr.ModuleInstance.SaveModuleInstance(&dao.ModuleInstanceGORM{
+				ID:          fmt.Sprintf("tricorder_%s_%s", module.ID, agent.AgentID),
+				ModuleID:    module.ID,
+				ModuleName:  module.Name,
+				AgentID:     agent.AgentID,
+				NodeName:    agent.NodeName,
+				DesireState: module.DesireState,
+				State:       int(pb.ModuleInstanceState_INIT),
+			})
+			if err != nil {
+				return errors.New("insert module instance error: " + err.Error())
+			}
 		}
 		return nil
 	})
