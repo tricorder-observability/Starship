@@ -90,6 +90,7 @@ func mockDeployReqs() []*pb.DeployModuleReq {
 					},
 				},
 			},
+
 			Deploy: pb.DeployModuleReq_DEPLOY,
 		},
 		{
