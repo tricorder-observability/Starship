@@ -41,7 +41,10 @@ import (
 	grpcutils "github.com/tricorder/src/utils/grpc"
 )
 
-var moduleID = "9999"
+var (
+	moduleID = "9999"
+	agentID  = "1111"
+)
 
 // Tests that the http service can handle request
 func TestService(t *testing.T) {
@@ -51,7 +54,7 @@ func TestService(t *testing.T) {
 	testDir := bazel.CreateTmpDir()
 	sqliteClient, err := dao.InitSqlite(testDir)
 	assert.Nil(err)
-	testutil.PrepareTricorderDBData(moduleID, dao.ModuleDao{Client: sqliteClient})
+	testutil.PrepareTricorderDBData(moduleID, agentID, sqliteClient)
 
 	gLock := lock.NewLock()
 	waitCond := cond.NewCond()
@@ -97,7 +100,7 @@ func TestService(t *testing.T) {
 	nodes, err := nodeAgentDao.List()
 	require.NoError(err)
 	assert.Equal(1, len(nodes))
-	assert.Equal("agent", nodes[0].AgentID)
+	assert.Equal(agentID, nodes[0].AgentID)
 	assert.Equal(nodes[0].State, int(pb.AgentState_ONLINE))
 
 	c.conn.Close()
@@ -107,7 +110,7 @@ func TestService(t *testing.T) {
 	nodes, err = nodeAgentDao.List()
 	require.NoError(err)
 	assert.Equal(1, len(nodes))
-	assert.Equal("agent", nodes[0].AgentID)
+	assert.Equal(agentID, nodes[0].AgentID)
 	assert.Equal(nodes[0].State, int(pb.AgentState_OFFLINE))
 }
 
@@ -132,9 +135,9 @@ func newGRPCClient(addr string) *deployerClient {
 	}
 
 	resp := pb.DeployModuleResp{
-		ModuleId: "testid",
-		Agent:    &pb.Agent{Id: "agent", NodeName: "node", PodId: "pod"},
+		Agent: &pb.Agent{Id: agentID, NodeName: "node", PodId: "pod"},
 	}
+
 	err = deployModuleStream.Send(&resp)
 	if err != nil {
 		log.Fatalf("Could not send stream to DeplyModule RPC at %s, %v", addr, err)

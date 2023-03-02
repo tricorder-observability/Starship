@@ -211,25 +211,54 @@ func (s *Deployer) DeployModule(stream servicepb.ModuleDeployer_DeployModuleServ
 			}
 			// TODO(yzhao): Should cache this result to an internal slice, and repeatively retry updating state.
 			// The current logic will drop this state and causes redeployment of the same module.
-			err = s.Module.UpdateStatusByID(result.ModuleId, int(result.State))
-			if err != nil {
-				log.Errorf("update code status error:%s", err.Error())
-			}
+			_ = s.gLock.ExecWithLock(func() error {
+				err = s.ModuleInstance.UpdateStatusByID(result.ModuleId, int(result.State))
+				if err != nil {
+					log.Errorf("update code status error:%s", err.Error())
+				}
+				return nil
+			})
 		}
 	})
 
 	for {
 		s.waitCond.Wait()
-		undeployList, _ := s.Module.ListModuleByStatus(int(servicepb.ModuleState_DEPLOYED))
-		for _, code := range undeployList {
-			codeReq, err := getDeployReqForModule(&code)
+		var undeployList []dao.ModuleInstanceGORM
+		// TODO(jun): Should not ignore returned error.
+		_ = s.gLock.ExecWithLock(func() error {
+			// TODO(jun): Need to add error handling here.
+			undeployList, _ = s.ModuleInstance.ListByAgentID(agentID)
+			return nil
+		})
+
+		for _, moduleInstance := range undeployList {
+			var module *dao.ModuleGORM
+			if moduleInstance.State != int(pb.ModuleInstanceState_INIT) {
+				continue
+			}
+			err := s.gLock.ExecWithLock(func() error {
+				// TODO(jun): Need to add error handling here.
+				module, err = s.Module.QueryByID(moduleInstance.ModuleID)
+				if err != nil {
+					return errors.Wrap("handling DeployModule request", "query module", err)
+				}
+				return nil
+			})
 			if err != nil {
-				log.Fatalf("Failed to create DeployModuleReq for module ID=%s, this should not happen, "+
-					"as module creation should validate module, error: %v", code.ID, err)
 				return err
 			}
 
-			err = stream.Send(codeReq)
+			moduleReq, err := getDeployReqForModule(module)
+			if moduleInstance.DesireState == int(pb.ModuleState_UNDEPLOYED) {
+				moduleReq.Deploy = pb.DeployModuleReq_UNDEPLOY
+			}
+			if err != nil {
+				log.Fatalf("Failed to create DeployModuleReq for module ID=%s, this should not happen, "+
+					"as module creation should validate module, error: %v", module.ID, err)
+				return err
+			}
+
+			err = stream.Send(moduleReq)
 			if err != nil {
 				serr := s.gLock.ExecWithLock(func() error {
 					err = s.NodeAgent.UpdateStateByID(agentID, int(pb.AgentState_OFFLINE))
@@ -246,11 +275,14 @@ func (s *Deployer) DeployModule(stream servicepb.ModuleDeployer_DeployModuleServ
 
 			// TODO(yzhao): This should set the state to PENDING, or something indicating the request is sent.
 			// Probably should update the IN_PROGRESS state in module_instance table.
-			err = s.Module.UpdateStatusByID(code.ID, int(servicepb.ModuleState_DEPLOYED))
-			if err != nil {
-				// If this happens, this module's deployment will be retried next time.
-				log.Errorf("Failed to update module (ID=%s) state, error: %v", code.ID, err)
-			}
+			_ = s.gLock.ExecWithLock(func() error {
+				err = s.ModuleInstance.UpdateStatusByID(moduleInstance.ID, int(servicepb.ModuleInstanceState_IN_PROGRESS))
+				if err != nil {
+					// If this happens, this module's deployment will be retried next time.
+					log.Errorf("Failed to update module (ID=%s) state, error: %v", module.ID, err)
+				}
+				return nil
+			})
 		}
 	}
 }
