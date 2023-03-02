@@ -11,6 +11,7 @@ go_library(
     importpath = "github.com/tricorder/src/api-server/http/dao",
     visibility = ["//visibility:public"],
     deps = [
+        "//src/utils/errors",
         "//src/utils/log",
         "//src/utils/sqlite",
     ],

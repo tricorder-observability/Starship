@@ -16,7 +16,6 @@
 package dao
 
 import (
-	"os"
 	"strings"
 	"testing"
 
@@ -36,12 +35,7 @@ func TestModuleInstance(t *testing.T) {
 	assert := assert.New(t)
 
 	dirPath := bazelutils.CreateTmpDir()
-	defer func() {
-		assert.Nil(os.RemoveAll(dirPath))
-	}()
-
 	sqliteClient, _ := InitSqlite(dirPath)
-
 	ModuleInstanceDao := ModuleInstanceDao{
 		Client: sqliteClient,
 	}
@@ -161,4 +155,57 @@ func TestModuleInstance(t *testing.T) {
 		"query moduleInstance list by nodeName error: not found moduleInstance data")
 	assert.Equal(list[0].ID, moduleInstance.ID,
 		"query moduleInstance list by nodeName erro default: not found inserted moduleInstance")
+}
+
+// Tests that CheckModuleDesiredState returns expected values.
+func TestCheckModuleDesiredState(t *testing.T) {
+	assert := assert.New(t)
+
+	dirPath := bazelutils.CreateTmpDir()
+	sqliteClient, _ := InitSqlite(dirPath)
+	ModuleInstanceDao := ModuleInstanceDao{
+		Client: sqliteClient,
+	}
+
+	id := strings.Replace(uuid.New(), "-", "_", -1)
+	moduleInstance := &ModuleInstanceGORM{
+		ID:          "0",
+		ModuleID:    id,
+		ModuleName:  "TestModule",
+		AgentID:     id,
+		NodeName:    "TestNodeAgent",
+		DesireState: int(pb.ModuleState_DEPLOYED),
+		State:       int(pb.ModuleInstanceState_INIT),
+	}
+
+	err := ModuleInstanceDao.SaveModuleInstance(moduleInstance)
+	assert.Nil(err, "save module instance err %v", err)
+
+	moduleInstance.ID = "1"
+	moduleInstance.AgentID = "agent-0"
+	moduleInstance.DesireState = int(pb.ModuleState_DEPLOYED)
+	err = ModuleInstanceDao.SaveModuleInstance(moduleInstance)
+	assert.Nil(err, "save module instance err %v", err)
+
+	isDesiredState, err := ModuleInstanceDao.CheckModuleDesiredState(moduleInstance.ModuleID,
+		int(pb.ModuleState_DEPLOYED))
+	assert.Nil(err)
+	assert.True(isDesiredState)
+
+	isDesiredState, err = ModuleInstanceDao.CheckModuleDesiredState("non-existent-module-id",
+		int(pb.ModuleState_DEPLOYED))
+	assert.Nil(err)
+	// Because there is no instances.
+	assert.False(isDesiredState)
+
+	moduleInstance.ID = "2"
+	moduleInstance.AgentID = "agent-0"
+	moduleInstance.DesireState = int(pb.ModuleState_UNDEPLOYED)
+	err = ModuleInstanceDao.SaveModuleInstance(moduleInstance)
+	assert.Nil(err, "save module instance err %v", err)
+
+	isDesiredState, err = ModuleInstanceDao.CheckModuleDesiredState(moduleInstance.ModuleID,
+		int(pb.ModuleState_DEPLOYED))
+	assert.Nil(err)
+	assert.False(isDesiredState)
 }

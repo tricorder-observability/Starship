@@ -31,6 +31,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/tricorder/src/utils/errors"
 	"github.com/tricorder/src/utils/sqlite"
 )
 
@@ -149,6 +150,23 @@ func (g *ModuleInstanceDao) ListByModuleID(moduleID string) ([]ModuleInstanceGOR
 		return make([]ModuleInstanceGORM, 0), fmt.Errorf("query module instance list by nodeName error:%v", result.Error)
 	}
 	return moduleList, nil
+}
+
+// CheckModuleState returns true if all instances of the specified module is desiredState.
+func (g *ModuleInstanceDao) CheckModuleDesiredState(moduleID string, desiredState int) (bool, error) {
+	instances, err := g.ListByModuleID(moduleID)
+	if err != nil {
+		return false, errors.Wrap("checking module state", "list module instance states", err)
+	}
+	if len(instances) == 0 {
+		return false, nil
+	}
+	for _, inst := range instances {
+		if inst.DesireState != desiredState {
+			return false, nil
+		}
+	}
+	return true, nil
 }
 
 func (g *ModuleInstanceDao) ListByAgentID(agentID string) ([]ModuleInstanceGORM, error) {
