@@ -180,9 +180,6 @@ func (s *Deployer) undeployModlue(in *pb.DeployModuleReq) error {
 	if !ok {
 		return fmt.Errorf("while undeploying module ID '%s', could not find deployment record", in.ModuleId)
 	}
-
-	log.Infof("Prepare undeploy module [ID: %s], [Name: %s]", in.ModuleId, d.Name())
-
 	d.Undeploy()
 	delete(s.idDeployMap, in.ModuleId)
 	return nil
