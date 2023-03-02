@@ -224,6 +224,7 @@ func (s *Deployer) DeployModule(stream servicepb.ModuleDeployer_DeployModuleServ
 	for {
 		s.waitCond.Wait()
 		var undeployList []dao.ModuleInstanceGORM
+		// TODO(jun): Should not ignore returned error.
 		_ = s.gLock.ExecWithLock(func() error {
 			// TODO(jun): Need to add error handling here.
 			undeployList, _ = s.ModuleInstance.ListByAgentID(agentID)
