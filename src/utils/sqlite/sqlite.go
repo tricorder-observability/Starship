@@ -17,10 +17,12 @@ package sqlite
 
 import (
 	"fmt"
-	"github.com/pkg/errors"
-	"go.uber.org/zap"
 	"os"
 	"strings"
+
+	"github.com/pkg/errors"
+	"go.uber.org/zap"
+
 	// Import sqlite driver
 	_ "github.com/mattn/go-sqlite3"
 )
