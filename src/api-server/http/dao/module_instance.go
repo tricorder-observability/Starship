@@ -186,3 +186,5 @@ func (g *ModuleInstanceDao) QueryByID(ID string) (*ModuleInstanceGORM, error) {
 	}
 	return module, nil
 }
+
+// TODO(jun/yzhao): Add Upsert()
