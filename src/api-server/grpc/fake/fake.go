@@ -27,7 +27,7 @@ func (srv *Server) DeployModule(stream pb.ModuleDeployer_DeployModuleServer) err
 	}
 	fmt.Printf("Got input from client: %v", in)
 
-	for _, req := range g.Reqs {
+	for _, req := range srv.Reqs {
 		err = stream.Send(req)
 		if err != nil {
 			return err
