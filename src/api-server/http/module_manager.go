@@ -229,7 +229,6 @@ func (mgr *ModuleManager) deleteModule(id string) DeleteModuleResp {
 		}
 		return nil
 	})
-
 	if err != nil {
 		return DeleteModuleResp{HTTPResp{
 			Code:    500,
@@ -273,6 +272,13 @@ func (mgr *ModuleManager) deployModule(id string) DeployModuleResp {
 		if module.DesireState == int(pb.ModuleState_DEPLOYED) {
 			log.Infof("module %s already deployed", id)
 			return errors.New("module " + id + " already deployed")
+		}
+		isProgress, err := mgr.ModuleInstance.CheckModuleInProgress(id)
+		if err != nil {
+			return errors.New("check module " + id + " in progress state error: " + err.Error())
+		}
+		if isProgress {
+			return errors.New("module " + id + " is in progress state")
 		}
 		return nil
 	})
@@ -387,9 +393,31 @@ func (mgr *ModuleManager) undeployModuleHttp(c *gin.Context) {
 
 func (mgr *ModuleManager) undeployModule(id string) UndeployModuleResp {
 	err := mgr.gLock.ExecWithLock(func() error {
-		err := mgr.Module.UpdateStatusByID(id, int(pb.ModuleState_UNDEPLOYED))
+		isProgress, err := mgr.ModuleInstance.CheckModuleInProgress(id)
+		if err != nil {
+			return errors.New("check module " + id + " in progress state error: " + err.Error())
+		}
+		if isProgress {
+			return errors.New("module " + id + " is in progress state")
+		}
+		err = mgr.Module.UpdateStatusByID(id, int(pb.ModuleState_UNDEPLOYED))
 		if err != nil {
 			return errors.New("un-deploy module: " + id + "failed: " + err.Error())
+		}
+		moduleInstances, err := mgr.ModuleInstance.ListByModuleID(id)
+		if err != nil {
+			return errors.New("list module instance module id " + id + " error: " + err.Error())
+		}
+		for _, moduleInstance := range moduleInstances {
+			err = mgr.ModuleInstance.UpdateDesireStateByID(moduleInstance.ID, int(pb.ModuleState_UNDEPLOYED))
+			if err != nil {
+				return errors.New("update module instance module id " + id + " desire state error: " + err.Error())
+			}
+
+			err = mgr.ModuleInstance.UpdateStatusByID(moduleInstance.ID, int(pb.ModuleInstanceState_INIT))
+			if err != nil {
+				return errors.New("update module instance module id " + id + " state error: " + err.Error())
+			}
 		}
 		return nil
 	})
@@ -399,6 +427,7 @@ func (mgr *ModuleManager) undeployModule(id string) UndeployModuleResp {
 			Message: err.Error(),
 		}}
 	}
+	mgr.waitCond.Broadcast()
 	return UndeployModuleResp{HTTPResp{
 		Code:    200,
 		Message: "un-deploy success",

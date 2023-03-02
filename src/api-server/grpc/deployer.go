@@ -229,14 +229,17 @@ func (s *Deployer) DeployModule(stream servicepb.ModuleDeployer_DeployModuleServ
 			if err != nil {
 				return errors.Wrap("handling DeployModule request", "query module", err)
 			}
-			codeReq, err := getDeployReqForModule(module)
+			moduleReq, err := getDeployReqForModule(module)
+			if moduleInstance.DesireState == int(pb.ModuleState_UNDEPLOYED) {
+				moduleReq.Deploy = pb.DeployModuleReq_UNDEPLOY
+			}
 			if err != nil {
 				log.Fatalf("Failed to create DeployModuleReq for module ID=%s, this should not happen, "+
 					"as module creation should validate module, error: %v", module.ID, err)
 				return err
 			}
 
-			err = stream.Send(codeReq)
+			err = stream.Send(moduleReq)
 			if err != nil {
 				serr := s.gLock.ExecWithLock(func() error {
 					err = s.NodeAgent.UpdateStateByID(agentID, int(pb.AgentState_OFFLINE))

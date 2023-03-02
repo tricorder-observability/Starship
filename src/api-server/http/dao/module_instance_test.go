@@ -209,3 +209,56 @@ func TestCheckModuleDesiredState(t *testing.T) {
 	assert.Nil(err)
 	assert.False(isDesiredState)
 }
+
+// Tests that CheckModuleInProgress returns expected values.
+func TestCheckModuleInProgress(t *testing.T) {
+	assert := assert.New(t)
+
+	dirPath := bazelutils.CreateTmpDir()
+	sqliteClient, _ := InitSqlite(dirPath)
+	ModuleInstanceDao := ModuleInstanceDao{
+		Client: sqliteClient,
+	}
+
+	id := strings.Replace(uuid.New(), "-", "_", -1)
+	moduleInstance := &ModuleInstanceGORM{
+		ID:          "0",
+		ModuleID:    id,
+		ModuleName:  "TestModule",
+		AgentID:     id,
+		NodeName:    "TestNodeAgent",
+		DesireState: int(pb.ModuleState_DEPLOYED),
+		State:       int(pb.ModuleInstanceState_INIT),
+	}
+
+	err := ModuleInstanceDao.SaveModuleInstance(moduleInstance)
+	assert.Nil(err, "save module instance err %v", err)
+
+	moduleInstance.ID = "1"
+	moduleInstance.AgentID = "agent-0"
+	moduleInstance.DesireState = int(pb.ModuleState_DEPLOYED)
+	moduleInstance.State = int(pb.ModuleInstanceState_IN_PROGRESS)
+	err = ModuleInstanceDao.SaveModuleInstance(moduleInstance)
+	assert.Nil(err, "save module instance err %v", err)
+
+	isInProgress, err := ModuleInstanceDao.CheckModuleInProgress(moduleInstance.ModuleID)
+	assert.Nil(err)
+	assert.True(isInProgress)
+
+	isInProgress, err = ModuleInstanceDao.CheckModuleInProgress("non-existent-module-id")
+	assert.Nil(err)
+	// Because there is no instances.
+	assert.False(isInProgress)
+
+	moduleInstance.ID = "2"
+	moduleInstance.ModuleID = "22"
+	moduleInstance.AgentID = "agent-0"
+	moduleInstance.DesireState = int(pb.ModuleState_UNDEPLOYED)
+	moduleInstance.State = int(pb.ModuleInstanceState_SUCCEEDED)
+	err = ModuleInstanceDao.SaveModuleInstance(moduleInstance)
+	assert.Nil(err, "save module instance err %v", err)
+
+	isInProgress, err = ModuleInstanceDao.CheckModuleInProgress(moduleInstance.ModuleID)
+	assert.Nil(err)
+	assert.False(isInProgress)
+}

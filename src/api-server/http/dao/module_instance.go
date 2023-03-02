@@ -31,6 +31,7 @@ import (
 	"fmt"
 	"time"
 
+	pb "github.com/tricorder/src/api-server/pb"
 	"github.com/tricorder/src/utils/errors"
 	"github.com/tricorder/src/utils/sqlite"
 )
@@ -102,6 +103,17 @@ func (g *ModuleInstanceDao) UpdateStatusByID(ID string, statue int) error {
 	return result.Error
 }
 
+func (g *ModuleInstanceDao) UpdateDesireStateByID(ID string, desireState int) error {
+	module := ModuleInstanceGORM{}
+
+	module.LastUpdateTime = &time.Time{}
+	*module.LastUpdateTime = time.Now()
+	module.DesireState = desireState
+
+	result := g.Client.Engine.Model(&ModuleInstanceGORM{}).Where("id", ID).Updates(module)
+	return result.Error
+}
+
 func (g *ModuleInstanceDao) DeleteByID(ID string) error {
 	result := g.Client.Engine.Delete(&ModuleInstanceGORM{ID: ID})
 	return result.Error
@@ -167,6 +179,22 @@ func (g *ModuleInstanceDao) CheckModuleDesiredState(moduleID string, desiredStat
 		}
 	}
 	return true, nil
+}
+
+func (g *ModuleInstanceDao) CheckModuleInProgress(moduleID string) (bool, error) {
+	instances, err := g.ListByModuleID(moduleID)
+	if err != nil {
+		return false, errors.Wrap("checking module state", "list module instance states", err)
+	}
+	if len(instances) == 0 {
+		return false, nil
+	}
+	for _, inst := range instances {
+		if inst.State == int(pb.ModuleInstanceState_IN_PROGRESS) {
+			return true, nil
+		}
+	}
+	return false, nil
 }
 
 func (g *ModuleInstanceDao) ListByAgentID(agentID string) ([]ModuleInstanceGORM, error) {
