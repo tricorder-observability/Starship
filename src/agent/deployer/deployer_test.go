@@ -22,6 +22,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/tricorder/src/agent/ebpf/bcc/linux_headers"
+	"github.com/tricorder/src/api-server/grpc/fake"
 	pb "github.com/tricorder/src/api-server/pb"
 	"github.com/tricorder/src/pb/module"
 	"github.com/tricorder/src/pb/module/common"
@@ -108,7 +109,10 @@ func TestDeployAndRun(t *testing.T) {
 	// init kernel headers
 	assert.Nil(linux_headers.Init())
 
-	_, addr := newMockGRPCServer(t)
+	server := fake.Server{
+		Reqs: mockDeployReqs(),
+	}
+	_, addr := server.Start()
 
 	d := New(addr.String(), "node_name", "pid_id")
 

@@ -29,6 +29,7 @@ go_test(
     tags = ["bpf"],
     deps = [
         "//src/agent/ebpf/bcc/linux_headers",
+        "//src/api-server/grpc/fake",
         "//src/api-server/pb",
         "//src/pb/module",
         "//src/pb/module/common",
