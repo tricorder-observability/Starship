@@ -19,6 +19,7 @@ import (
 	"time"
 
 	"github.com/tricorder/src/utils/log"
+	"github.com/tricorder/src/utils/sqlite"
 
 	pb "github.com/tricorder/src/api-server/pb"
 
@@ -39,13 +40,21 @@ int sample_json(struct bpf_perf_event_data *ctx) {
 `
 
 // PrepareTricorderDBData writes test data into a testing database
-func PrepareTricorderDBData(moduleID string, moduleDao dao.ModuleDao) {
+func PrepareTricorderDBData(moduleID string, agentID string, sqliteClient *sqlite.ORM) {
+	moduleDao := dao.ModuleDao{
+		Client: sqliteClient,
+	}
+
+	moduleInstanceDao := dao.ModuleInstanceDao{
+		Client: sqliteClient,
+	}
+
 	module := &dao.ModuleGORM{
 		ID:                 moduleID,
 		Ebpf:               ebpfJson,
 		Wasm:               []byte("moduleString"),
 		CreateTime:         time.Date(2022, 12, 31, 14, 30, 0, 0, time.Local).Format("2006-01-02 15:04:05"),
-		DesireState:        int(pb.DeploymentState_TO_BE_DEPLOYED),
+		DesireState:        int(pb.ModuleState_DEPLOYED),
 		Name:               "test-module-foo",
 		EbpfFmt:            0,
 		EbpfLang:           0,
@@ -57,8 +66,22 @@ func PrepareTricorderDBData(moduleID string, moduleDao dao.ModuleDao) {
 		WasmFmt:    0,
 		WasmLang:   0,
 	}
+
 	err := moduleDao.SaveModule(module)
 	if err != nil {
 		log.Fatalf("While writing data to database for testing, failed to save module data, error: %v", err)
+	}
+
+	moduleInstance := &dao.ModuleInstanceGORM{
+		ID:          "test-module-instance-foo",
+		ModuleID:    moduleID,
+		ModuleName:  module.Name,
+		AgentID:     agentID,
+		DesireState: module.DesireState,
+		State:       int(pb.ModuleInstanceState_INIT),
+	}
+	err = moduleInstanceDao.SaveModuleInstance(moduleInstance)
+	if err != nil {
+		log.Fatalf("While writing data to database for testing, failed to save module instance data, error: %v", err)
 	}
 }
