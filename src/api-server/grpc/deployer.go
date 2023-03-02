@@ -211,24 +211,42 @@ func (s *Deployer) DeployModule(stream servicepb.ModuleDeployer_DeployModuleServ
 			}
 			// TODO(yzhao): Should cache this result to an internal slice, and repeatively retry updating state.
 			// The current logic will drop this state and causes redeployment of the same module.
-			err = s.ModuleInstance.UpdateStatusByID(result.ModuleId, int(result.State))
-			if err != nil {
-				log.Errorf("update code status error:%s", err.Error())
-			}
+			_ = s.gLock.ExecWithLock(func() error {
+				err = s.ModuleInstance.UpdateStatusByID(result.ModuleId, int(result.State))
+				if err != nil {
+					log.Errorf("update code status error:%s", err.Error())
+				}
+				return nil
+			})
 		}
 	})
 
 	for {
 		s.waitCond.Wait()
-		undeployList, _ := s.ModuleInstance.ListByAgentID(agentID)
+		var undeployList []dao.ModuleInstanceGORM
+		_ = s.gLock.ExecWithLock(func() error {
+			// TODO(jun): Need to add error handling here.
+			undeployList, _ = s.ModuleInstance.ListByAgentID(agentID)
+			return nil
+		})
+
 		for _, moduleInstance := range undeployList {
+			var module *dao.ModuleGORM
 			if moduleInstance.State != int(pb.ModuleInstanceState_INIT) {
 				continue
 			}
-			module, err := s.Module.QueryByID(moduleInstance.ModuleID)
+			err := s.gLock.ExecWithLock(func() error {
+				// TODO(jun): Need to add error handling here.
+				module, err = s.Module.QueryByID(moduleInstance.ModuleID)
+				if err != nil {
+					return errors.Wrap("handling DeployModule request", "query module", err)
+				}
+				return nil
+			})
 			if err != nil {
-				return errors.Wrap("handling DeployModule request", "query module", err)
+				return err
 			}
+
 			moduleReq, err := getDeployReqForModule(module)
 			if moduleInstance.DesireState == int(pb.ModuleState_UNDEPLOYED) {
 				moduleReq.Deploy = pb.DeployModuleReq_UNDEPLOY
@@ -256,11 +274,14 @@ func (s *Deployer) DeployModule(stream servicepb.ModuleDeployer_DeployModuleServ
 
 			// TODO(yzhao): This should set the state to PENDING, or something indicating the request is sent.
 			// Probably should update the IN_PROGRESS state in module_instance table.
-			err = s.ModuleInstance.UpdateStatusByID(moduleInstance.ID, int(servicepb.ModuleInstanceState_IN_PROGRESS))
-			if err != nil {
-				// If this happens, this module's deployment will be retried next time.
-				log.Errorf("Failed to update module (ID=%s) state, error: %v", module.ID, err)
-			}
+			_ = s.gLock.ExecWithLock(func() error {
+				err = s.ModuleInstance.UpdateStatusByID(moduleInstance.ID, int(servicepb.ModuleInstanceState_IN_PROGRESS))
+				if err != nil {
+					// If this happens, this module's deployment will be retried next time.
+					log.Errorf("Failed to update module (ID=%s) state, error: %v", module.ID, err)
+				}
+				return nil
+			})
 		}
 	}
 }

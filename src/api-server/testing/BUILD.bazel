@@ -13,5 +13,6 @@ go_library(
         "//src/api-server/http/dao",
         "//src/api-server/pb",
         "//src/utils/log",
+        "//src/utils/sqlite",
     ],
 )

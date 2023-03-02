@@ -41,8 +41,10 @@ import (
 	grpcutils "github.com/tricorder/src/utils/grpc"
 )
 
-var moduleID = "9999"
-var agentID = "1111"
+var (
+	moduleID = "9999"
+	agentID  = "1111"
+)
 
 // Tests that the http service can handle request
 func TestService(t *testing.T) {
@@ -82,7 +84,6 @@ func TestService(t *testing.T) {
 	// This is completely broken, but needed to unblock API Server's internal conditional waiting.
 	// Ideally we should send a request to API Server and let API Server's internal logic triggers conditional variable's
 	// broadcasting.
-	t.Logf("1111")
 	waitCond.Broadcast()
 
 	in, err := c.stream.Recv()
