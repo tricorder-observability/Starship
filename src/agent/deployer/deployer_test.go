@@ -106,10 +106,7 @@ func TestDeployAndRun(t *testing.T) {
 
 	assert.Nil(linux_headers.Init())
 
-	server := fake.Server{
-		Reqs: mockDeployReqs(),
-	}
-	_, addr := server.Start()
+	_, addr := fake.StartNewServer(mockDeployReqs())
 
 	d := New(addr.String(), "node_name", "pid_id")
 

@@ -58,3 +58,11 @@ func (srv *Server) Start() (*grpc.Server, net.Addr) {
 
 	return grpcServer, lis.Addr()
 }
+
+// StartNewServer creates a Server and start the server.
+func StartNewServer(reqs []*pb.DeployModuleReq) (*grpc.Server, net.Addr) {
+	server := Server{
+		Reqs: reqs,
+	}
+	return server.Start()
+}
