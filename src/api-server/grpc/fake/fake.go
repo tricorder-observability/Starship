@@ -6,9 +6,9 @@ import (
 	"log"
 	"net"
 
-	"github.com/stretchr/testify/require"
-	pb "github.com/tricorder/src/api-server/pb"
 	"google.golang.org/grpc"
+
+	pb "github.com/tricorder/src/api-server/pb"
 )
 
 // Fake is a fake API Server gRPC server that sends the requests sequentially to the client.
@@ -49,7 +49,9 @@ func (srv *Server) Start() (*grpc.Server, net.Addr) {
 
 	go func() {
 		err := grpcServer.Serve(lis)
-		require.NoError(t, err)
+		if err != nil {
+			log.Fatalf("Failed to start serving gRPC service")
+		}
 	}()
 
 	return grpcServer, lis.Addr()

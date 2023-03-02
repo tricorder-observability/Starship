@@ -7,7 +7,6 @@ go_library(
     visibility = ["//visibility:public"],
     deps = [
         "//src/api-server/pb",
-        "@com_github_stretchr_testify//require",
         "@org_golang_google_grpc//:go_default_library",
     ],
 )
