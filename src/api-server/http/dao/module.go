@@ -25,22 +25,22 @@ import (
 
 // ModuleGORM sqlite gorm storage and response object
 type ModuleGORM struct {
-	ID                 string `gorm:"'id' primarykey" json:"id,omitempty"`
-	Name               string `gorm:"name" json:"name,omitempty"`
-	DesireState        int    `gorm:"desire_state" json:"desire_state,omitempty"`
-	CreateTime         string `gorm:"create_time" json:"create_time,omitempty"`
-	Ebpf               string `gorm:"ebpf" json:"ebpf,omitempty"`
-	EbpfFmt            int    `gorm:"ebpf_fmt" json:"ebpf_fmt,omitempty"`
-	EbpfLang           int    `gorm:"ebpf_lang" json:"ebpf_lang,omitempty"`
-	EbpfPerfBufferName string `gorm:"ebpf_perf_name" json:"ebpf_perf_name,omitempty"`
-	EbpfProbes         string `gorm:"ebpf_probes" json:"ebpf_probes,omitempty"`
+	ID                 string `gorm:"column:id;primaryKey" json:"id,omitempty"`
+	Name               string `gorm:"column:name" json:"name,omitempty"`
+	DesireState        int    `gorm:"column:desire_state" json:"desire_state,omitempty"`
+	CreateTime         string `gorm:"column:create_time" json:"create_time,omitempty"`
+	Ebpf               string `gorm:"column:ebpf" json:"ebpf,omitempty"`
+	EbpfFmt            int    `gorm:"column:ebpf_fmt" json:"ebpf_fmt,omitempty"`
+	EbpfLang           int    `gorm:"column:ebpf_lang" json:"ebpf_lang,omitempty"`
+	EbpfPerfBufferName string `gorm:"column:ebpf_perf_name" json:"ebpf_perf_name,omitempty"`
+	EbpfProbes         string `gorm:"column:ebpf_probes" json:"ebpf_probes,omitempty"`
 	// wasm store the whole wasm file content
-	Wasm       []byte `gorm:"wasm" json:"wasm,omitempty"`
-	SchemaName string `gorm:"schema_name" json:"schema_name,omitempty"`
-	SchemaAttr string `gorm:"schema_attr" json:"schema_attr,omitempty"`
-	Fn         string `gorm:"fn" json:"fn,omitempty"`
-	WasmFmt    int    `gorm:"wasm_fmt" json:"wasm_fmt,omitempty"`
-	WasmLang   int    `gorm:"wasm_lang" json:"wasm_lang,omitempty"`
+	Wasm       []byte `gorm:"column:wasm" json:"wasm,omitempty"`
+	SchemaName string `gorm:"column:schema_name" json:"schema_name,omitempty"`
+	SchemaAttr string `gorm:"column:schema_attr" json:"schema_attr,omitempty"`
+	Fn         string `gorm:"column:fn" json:"fn,omitempty"`
+	WasmFmt    int    `gorm:"column:wasm_fmt" json:"wasm_fmt,omitempty"`
+	WasmLang   int    `gorm:"column:wasm_lang" json:"wasm_lang,omitempty"`
 }
 
 func (ModuleGORM) TableName() string {

@@ -55,15 +55,15 @@ const (
 
 // ModuleInstanceGORM sqlite gorm storage and response object
 type ModuleInstanceGORM struct {
-	ID             string     `gorm:"'id' primarykey" json:"id,omitempty"`
-	ModuleID       string     `gorm:"module_id" json:"module_id,omitempty"`
-	ModuleName     string     `gorm:"module_name" json:"module_name,omitempty"`
-	NodeName       string     `gorm:"node_name" json:"node_name,omitempty"`
-	AgentID        string     `gorm:"agent_id" json:"agent_id,omitempty"`
-	State          int        `gorm:"state" json:"state,omitempty"`
-	DesireState    int        `gorm:"desire_state" json:"desire_state,omitempty"`
-	CreateTime     *time.Time `gorm:"create_time" json:"create_time,omitempty"`
-	LastUpdateTime *time.Time `gorm:"last_update_time" json:"last_update_time,omitempty"`
+	ID             string     `gorm:"column:id;primaryKey" json:"id,omitempty"`
+	ModuleID       string     `gorm:"column:module_id" json:"module_id,omitempty"`
+	ModuleName     string     `gorm:"column:module_name" json:"module_name,omitempty"`
+	NodeName       string     `gorm:"column:node_name" json:"node_name,omitempty"`
+	AgentID        string     `gorm:"column:agent_id" json:"agent_id,omitempty"`
+	State          int        `gorm:"column:state" json:"state,omitempty"`
+	DesireState    int        `gorm:"column:desire_state" json:"desire_state,omitempty"`
+	CreateTime     *time.Time `gorm:"column:create_time" json:"create_time,omitempty"`
+	LastUpdateTime *time.Time `gorm:"column:last_update_time" json:"last_update_time,omitempty"`
 }
 
 func (ModuleInstanceGORM) TableName() string {

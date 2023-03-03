@@ -61,10 +61,15 @@ func TestNodeAgent(t *testing.T) {
 	node.NodeName = "TestNodeAgent2"
 	err = nodeAgentDao.SaveAgent(node)
 	require.Nil(err, "save node agent upsert err %v", err)
+	nodeRes, err := nodeAgentDao.QueryByID(node.AgentID)
+	assert.Nil(err, "not query ID=%s data, save upsert node agent err %v", id, err)
+	assert.Equal(nodeRes.NodeName, "TestNodeAgent2", "save upsert node agent err %v", err)
 
 	node.NodeName = "TestNodeAgent"
 	err = nodeAgentDao.SaveAgent(node)
 	require.Nil(err, "save node agent upsert err %v", err)
+	nodeRes, err = nodeAgentDao.QueryByID(id)
+	assert.Equal(nodeRes.NodeName, "TestNodeAgent", "save upsert node agent err %v", err)
 
 	// test queryByID
 	node, err = nodeAgentDao.QueryByID(id)
