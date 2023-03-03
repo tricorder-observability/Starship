@@ -38,6 +38,7 @@ import (
 
 // NodeAgentGORM sqlite gorm storage and response object
 type NodeAgentGORM struct {
+	// tag schema https://gorm.io/docs/models.html#Fields-Tags
 	AgentID        string     `gorm:"column:agent_id;primaryKey" json:"agent_id,omitempty"`
 	NodeName       string     `gorm:"column:node_name" json:"node_name,omitempty"`
 	AgentPodID     string     `gorm:"column:agent_pod_id" json:"agent_pod_id,omitempty"`

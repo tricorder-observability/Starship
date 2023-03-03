@@ -55,6 +55,7 @@ const (
 
 // ModuleInstanceGORM sqlite gorm storage and response object
 type ModuleInstanceGORM struct {
+	// tag schema https://gorm.io/docs/models.html#Fields-Tags
 	ID             string     `gorm:"column:id;primaryKey" json:"id,omitempty"`
 	ModuleID       string     `gorm:"column:module_id" json:"module_id,omitempty"`
 	ModuleName     string     `gorm:"column:module_name" json:"module_name,omitempty"`

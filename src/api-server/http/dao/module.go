@@ -25,6 +25,7 @@ import (
 
 // ModuleGORM sqlite gorm storage and response object
 type ModuleGORM struct {
+	// tag schema https://gorm.io/docs/models.html#Fields-Tags
 	ID                 string `gorm:"column:id;primaryKey" json:"id,omitempty"`
 	Name               string `gorm:"column:name" json:"name,omitempty"`
 	DesireState        int    `gorm:"column:desire_state" json:"desire_state,omitempty"`
