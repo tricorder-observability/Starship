@@ -31,6 +31,8 @@ import (
 	"fmt"
 	"time"
 
+	"gorm.io/gorm/clause"
+
 	"github.com/tricorder/src/utils/sqlite"
 )
 
@@ -57,7 +59,9 @@ func (g *NodeAgentDao) SaveAgent(agent *NodeAgentGORM) error {
 	*agent.CreateTime = time.Now()
 	agent.LastUpdateTime = &time.Time{}
 	*agent.LastUpdateTime = time.Now()
-	result := g.Client.Engine.Create(agent)
+	result := g.Client.Engine.Clauses(clause.OnConflict{
+		UpdateAll: true,
+	}).Create(agent)
 	return result.Error
 }
 

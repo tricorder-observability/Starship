@@ -15,6 +15,7 @@ go_library(
         "//src/utils/errors",
         "//src/utils/log",
         "//src/utils/sqlite",
+        "@io_gorm_gorm//clause",
     ],
 )
 

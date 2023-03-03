@@ -63,6 +63,14 @@ func TestModule(t *testing.T) {
 	err := moduleDao.SaveModule(module)
 	assert.Nil(err, "save module err %v", err)
 
+	module.Name = "TestModule2"
+	err = moduleDao.SaveModule(module)
+	assert.Nil(err, "save module upsert err %v", err)
+
+	module.Name = "TestModule"
+	err = moduleDao.SaveModule(module)
+	assert.Nil(err, "save module upsert err %v", err)
+
 	// test queryByID
 	module, err = moduleDao.QueryByID(id)
 	assert.Nil(err, "not query ID=%s data, save module err %v", id, err)

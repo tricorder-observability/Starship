@@ -31,6 +31,8 @@ import (
 	"fmt"
 	"time"
 
+	"gorm.io/gorm/clause"
+
 	pb "github.com/tricorder/src/api-server/pb"
 	"github.com/tricorder/src/utils/errors"
 	"github.com/tricorder/src/utils/sqlite"
@@ -77,7 +79,9 @@ func (g *ModuleInstanceDao) SaveModuleInstance(module *ModuleInstanceGORM) error
 	*module.CreateTime = time.Now()
 	module.LastUpdateTime = &time.Time{}
 	*module.LastUpdateTime = time.Now()
-	result := g.Client.Engine.Create(module)
+	result := g.Client.Engine.Clauses(clause.OnConflict{
+		UpdateAll: true,
+	}).Create(module)
 	return result.Error
 }
 

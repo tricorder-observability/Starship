@@ -54,6 +54,14 @@ func TestModuleInstance(t *testing.T) {
 	err := ModuleInstanceDao.SaveModuleInstance(moduleInstance)
 	assert.Nil(err, "save module instance err %v", err)
 
+	moduleInstance.NodeName = "TestNodeAgent2"
+	err = ModuleInstanceDao.SaveModuleInstance(moduleInstance)
+	assert.Nil(err, "save module instance upsert err %v", err)
+
+	moduleInstance.NodeName = "TestNodeAgent"
+	err = ModuleInstanceDao.SaveModuleInstance(moduleInstance)
+	assert.Nil(err, "save module instance upsert err %v", err)
+
 	// test queryByID
 	moduleInstance, err = ModuleInstanceDao.QueryByID(id)
 	assert.Nil(err, "not query ID=%s data, save module instance err %v", id, err)
