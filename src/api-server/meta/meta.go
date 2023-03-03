@@ -20,6 +20,8 @@ import (
 
 	"k8s.io/client-go/kubernetes"
 
+	"github.com/tricorder/src/api-server/http/dao"
+	"github.com/tricorder/src/utils/cond"
 	"github.com/tricorder/src/utils/pg"
 )
 
@@ -53,6 +55,8 @@ func initResourceTables(pgClient *pg.Client) error {
 	return nil
 }
 
-func StartWatchingResources(clientset kubernetes.Interface, pgClient *pg.Client) error {
-	return NewResourceWatcher(clientset, pgClient).StartWatching()
+func StartWatchingResources(clientset kubernetes.Interface, pgClient *pg.Client,
+	nodeAgent *dao.NodeAgentDao, waitCond *cond.Cond,
+) error {
+	return NewResourceWatcher(clientset, pgClient, nodeAgent, waitCond).StartWatching()
 }

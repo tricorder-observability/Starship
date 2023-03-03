@@ -170,7 +170,7 @@ func main() {
 
 	if *enableMetadataService {
 		srvErrGroup.Go(func() error {
-			err := meta.StartWatchingResources(clientset, pgClient)
+			err := meta.StartWatchingResources(clientset, pgClient, &nodeAgentDao, waitCond)
 			if err != nil {
 				log.Fatalf("Could not start metadata service, error: %v", err)
 			}

@@ -35,6 +35,10 @@ import (
 	"k8s.io/client-go/kubernetes/fake"
 	ctrl "sigs.k8s.io/controller-runtime"
 
+	"github.com/tricorder/src/api-server/http/dao"
+	"github.com/tricorder/src/testing/bazel"
+	"github.com/tricorder/src/utils/cond"
+
 	"github.com/tricorder/src/testing/pg"
 )
 
@@ -91,7 +95,15 @@ func TestCompareResourcesBetweenK8sAndDB(t *testing.T) {
 		assert.Nil(cleaner())
 	}()
 
-	watcher := NewResourceWatcher(clientset, pgClient)
+	testDir := bazel.CreateTmpDir()
+	sqliteClient, err := dao.InitSqlite(testDir)
+	assert.Nil(err)
+	waitCond := cond.NewCond()
+
+	nodeAgentDao := dao.NodeAgentDao{
+		Client: sqliteClient,
+	}
+	watcher := NewResourceWatcher(clientset, pgClient, &nodeAgentDao, waitCond)
 	go func() {
 		err = watcher.StartWatching()
 		assert.Nil(err)
