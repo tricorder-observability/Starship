@@ -3,20 +3,5 @@ load("@io_bazel_rules_go//go:def.bzl", "go_test")
 go_test(
     name = "integ_tests_test",
     srcs = ["module_deploy_test.go"],
-    deps = [
-        "//src/api-server/grpc",
-        "//src/api-server/http/dao",
-        "//src/api-server/pb",
-        "//src/api-server/testing",
-        "//src/testing/bazel",
-        "//src/utils/cond",
-        "//src/utils/grpc",
-        "//src/utils/lock",
-        "//src/utils/log",
-        "@com_github_mattn_go_sqlite3//:go-sqlite3",
-        "@com_github_stretchr_testify//assert",
-        "@com_github_stretchr_testify//require",
-        "@org_golang_google_grpc//:go_default_library",
-        "@org_golang_google_grpc//credentials/insecure",
-    ],
+    deps = ["@com_github_stretchr_testify//assert"],
 )
