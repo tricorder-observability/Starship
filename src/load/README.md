@@ -24,5 +24,5 @@ starship-load load \
     -b modules/ddos_event/ddos_event.bcc \
     -w modules/ddos_event/write_events_to_output.wasm \
     -m modules/ddos_event/module.json \
-    -o src/api-server/cmd/src/api-server/http/
+    -o src/api-server/http
 ```
