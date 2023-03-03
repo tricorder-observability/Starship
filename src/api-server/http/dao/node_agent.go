@@ -38,12 +38,13 @@ import (
 
 // NodeAgentGORM sqlite gorm storage and response object
 type NodeAgentGORM struct {
-	AgentID        string     `gorm:"'agent_id' primarykey" json:"agent_id,omitempty"`
-	NodeName       string     `gorm:"node_name" json:"node_name,omitempty"`
-	AgentPodID     string     `gorm:"agent_pod_id" json:"agent_pod_id,omitempty"`
-	State          int        `gorm:"state" json:"state,omitempty"`
-	CreateTime     *time.Time `gorm:"create_time" json:"create_time,omitempty"`
-	LastUpdateTime *time.Time `gorm:"last_update_time" json:"last_update_time,omitempty"`
+	// tag schema https://gorm.io/docs/models.html#Fields-Tags
+	AgentID        string     `gorm:"column:agent_id;primaryKey" json:"agent_id,omitempty"`
+	NodeName       string     `gorm:"column:node_name" json:"node_name,omitempty"`
+	AgentPodID     string     `gorm:"column:agent_pod_id" json:"agent_pod_id,omitempty"`
+	State          int        `gorm:"column:state" json:"state,omitempty"`
+	CreateTime     *time.Time `gorm:"column:create_time" json:"create_time,omitempty"`
+	LastUpdateTime *time.Time `gorm:"column:last_update_time" json:"last_update_time,omitempty"`
 }
 
 func (NodeAgentGORM) TableName() string {
