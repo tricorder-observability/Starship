@@ -18,6 +18,8 @@ package dao
 import (
 	"fmt"
 
+	"gorm.io/gorm/clause"
+
 	"github.com/tricorder/src/utils/sqlite"
 )
 
@@ -50,7 +52,9 @@ type ModuleDao struct {
 }
 
 func (g *ModuleDao) SaveModule(mod *ModuleGORM) error {
-	result := g.Client.Engine.Create(mod)
+	result := g.Client.Engine.Clauses(clause.OnConflict{
+		UpdateAll: true,
+	}).Create(mod)
 	return result.Error
 }
 
