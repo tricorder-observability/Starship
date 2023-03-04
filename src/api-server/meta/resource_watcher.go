@@ -184,6 +184,8 @@ func (w *ResourceWatcher) pod() error {
 					if err = w.nodeAgent.UpdateStateByID(na.AgentID, int(pb.AgentState_TERMINATED)); err != nil {
 						log.Errorf("while deleting pod, failed to nodeAgent UpdateStateByID %s, error %s", na.AgentID, err)
 					} else {
+						// TODO(yzhao): We seem needing a more structured way of communicating needed actions between API Server's
+						// HTTP and gRPC components. See https://github.com/tricorder-observability/starship/issues/150.
 						w.waitCond.Broadcast()
 					}
 				}

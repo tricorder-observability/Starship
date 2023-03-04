@@ -100,6 +100,8 @@ func TestCompareResourcesBetweenK8sAndDB(t *testing.T) {
 	assert.Nil(err)
 	waitCond := cond.NewCond()
 
+	// TODO(yzhao): Tests node_agent table gets updated.
+	// This was added for detecting terminated agent pod.
 	nodeAgentDao := dao.NodeAgentDao{
 		Client: sqliteClient,
 	}
