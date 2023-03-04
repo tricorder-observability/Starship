@@ -84,7 +84,7 @@ func (w *ResourceWatcher) node() error {
 		return err
 	}
 	for _, obj := range list.Items {
-		upsert(w.pgClient, "nodes", &obj, obj.UID)
+		upsert(w.pgClient, NodeTable, &obj, obj.UID)
 	}
 
 	factory := informers.NewSharedInformerFactory(w.clientset, 12*time.Hour)
@@ -93,19 +93,19 @@ func (w *ResourceWatcher) node() error {
 		AddFunc: func(obj interface{}) {
 			node, ok := obj.(*corev1.Node)
 			if ok {
-				upsert(w.pgClient, "nodes", node, node.UID)
+				upsert(w.pgClient, NodeTable, node, node.UID)
 			}
 		},
 		UpdateFunc: func(oldObj, newObj interface{}) {
 			node, ok := newObj.(*corev1.Node)
 			if ok {
-				upsert(w.pgClient, "nodes", node, node.UID)
+				upsert(w.pgClient, NodeTable, node, node.UID)
 			}
 		},
 		DeleteFunc: func(obj interface{}) {
 			node, ok := obj.(*corev1.Node)
 			if ok {
-				deleteByID(w.pgClient, "nodes", node.UID)
+				deleteByID(w.pgClient, NodeTable, node.UID)
 			}
 		},
 	})
@@ -121,7 +121,7 @@ func (w *ResourceWatcher) namespace() error {
 		return err
 	}
 	for _, obj := range list.Items {
-		upsert(w.pgClient, "namespaces", &obj, obj.UID)
+		upsert(w.pgClient, NameSpaceTable, &obj, obj.UID)
 	}
 
 	factory := informers.NewSharedInformerFactory(w.clientset, 12*time.Hour)
@@ -130,19 +130,19 @@ func (w *ResourceWatcher) namespace() error {
 		AddFunc: func(obj interface{}) {
 			ns, ok := obj.(*corev1.Namespace)
 			if ok {
-				upsert(w.pgClient, "namespaces", ns, ns.UID)
+				upsert(w.pgClient, NameSpaceTable, ns, ns.UID)
 			}
 		},
 		UpdateFunc: func(oldObj, newObj interface{}) {
 			ns, ok := newObj.(*corev1.Namespace)
 			if ok {
-				upsert(w.pgClient, "namespaces", ns, ns.UID)
+				upsert(w.pgClient, NameSpaceTable, ns, ns.UID)
 			}
 		},
 		DeleteFunc: func(obj interface{}) {
 			ns, ok := obj.(*corev1.Namespace)
 			if ok {
-				deleteByID(w.pgClient, "namespaces", ns.UID)
+				deleteByID(w.pgClient, NameSpaceTable, ns.UID)
 			}
 		},
 	})
@@ -158,7 +158,7 @@ func (w *ResourceWatcher) pod() error {
 		return err
 	}
 	for _, obj := range list.Items {
-		upsert(w.pgClient, "pods", &obj, obj.UID)
+		upsert(w.pgClient, PodTable, &obj, obj.UID)
 	}
 
 	factory := informers.NewSharedInformerFactory(w.clientset, 12*time.Hour)
@@ -167,19 +167,19 @@ func (w *ResourceWatcher) pod() error {
 		AddFunc: func(obj interface{}) {
 			pod, ok := obj.(*corev1.Pod)
 			if ok {
-				upsert(w.pgClient, "pods", pod, pod.UID)
+				upsert(w.pgClient, PodTable, pod, pod.UID)
 			}
 		},
 		UpdateFunc: func(oldObj, newObj interface{}) {
 			pod, ok := newObj.(*corev1.Pod)
 			if ok {
-				upsert(w.pgClient, "pods", pod, pod.UID)
+				upsert(w.pgClient, PodTable, pod, pod.UID)
 			}
 		},
 		DeleteFunc: func(obj interface{}) {
 			pod, ok := obj.(*corev1.Pod)
 			if ok {
-				deleteByID(w.pgClient, "pods", pod.UID)
+				deleteByID(w.pgClient, PodTable, pod.UID)
 				if na, err := w.nodeAgent.QueryByPodID(string(pod.UID)); err == nil {
 					if err = w.nodeAgent.UpdateStateByID(na.AgentID, int(pb.AgentState_TERMINATED)); err != nil {
 						log.Errorf("while deleting pod, failed to nodeAgent UpdateStateByID %s, error %s", na.AgentID, err)
@@ -204,7 +204,7 @@ func (w *ResourceWatcher) endpoints() error {
 		return err
 	}
 	for _, obj := range list.Items {
-		upsert(w.pgClient, "endpoints", &obj, obj.UID)
+		upsert(w.pgClient, EndPointTable, &obj, obj.UID)
 	}
 
 	factory := informers.NewSharedInformerFactory(w.clientset, 12*time.Hour)
@@ -213,19 +213,19 @@ func (w *ResourceWatcher) endpoints() error {
 		AddFunc: func(obj interface{}) {
 			ep, ok := obj.(*corev1.Endpoints)
 			if ok {
-				upsert(w.pgClient, "endpoints", ep, ep.UID)
+				upsert(w.pgClient, EndPointTable, ep, ep.UID)
 			}
 		},
 		UpdateFunc: func(oldObj, newObj interface{}) {
 			ep, ok := newObj.(*corev1.Endpoints)
 			if ok {
-				upsert(w.pgClient, "endpoints", ep, ep.UID)
+				upsert(w.pgClient, EndPointTable, ep, ep.UID)
 			}
 		},
 		DeleteFunc: func(obj interface{}) {
 			ep, ok := obj.(*corev1.Endpoints)
 			if ok {
-				deleteByID(w.pgClient, "endpoints", ep.UID)
+				deleteByID(w.pgClient, EndPointTable, ep.UID)
 			}
 		},
 	})
@@ -241,7 +241,7 @@ func (w *ResourceWatcher) service() error {
 		return err
 	}
 	for _, obj := range list.Items {
-		upsert(w.pgClient, "services", &obj, obj.UID)
+		upsert(w.pgClient, ServiceTable, &obj, obj.UID)
 	}
 
 	factory := informers.NewSharedInformerFactory(w.clientset, 12*time.Hour)
@@ -250,19 +250,19 @@ func (w *ResourceWatcher) service() error {
 		AddFunc: func(obj interface{}) {
 			svc, ok := obj.(*corev1.Service)
 			if ok {
-				upsert(w.pgClient, "services", svc, svc.UID)
+				upsert(w.pgClient, ServiceTable, svc, svc.UID)
 			}
 		},
 		UpdateFunc: func(oldObj, newObj interface{}) {
 			svc, ok := newObj.(*corev1.Service)
 			if ok {
-				upsert(w.pgClient, "services", svc, svc.UID)
+				upsert(w.pgClient, ServiceTable, svc, svc.UID)
 			}
 		},
 		DeleteFunc: func(obj interface{}) {
 			svc, ok := obj.(*corev1.Service)
 			if ok {
-				deleteByID(w.pgClient, "services", svc.UID)
+				deleteByID(w.pgClient, ServiceTable, svc.UID)
 			}
 		},
 	})
@@ -278,7 +278,7 @@ func (w *ResourceWatcher) replicaSet() error {
 		return err
 	}
 	for _, obj := range list.Items {
-		upsert(w.pgClient, "replicasets", &obj, obj.UID)
+		upsert(w.pgClient, ReplicSetTable, &obj, obj.UID)
 	}
 
 	factory := informers.NewSharedInformerFactory(w.clientset, 12*time.Hour)
@@ -287,19 +287,19 @@ func (w *ResourceWatcher) replicaSet() error {
 		AddFunc: func(obj interface{}) {
 			rs, ok := obj.(*appsv1.ReplicaSet)
 			if ok {
-				upsert(w.pgClient, "replicasets", rs, rs.UID)
+				upsert(w.pgClient, ReplicSetTable, rs, rs.UID)
 			}
 		},
 		UpdateFunc: func(oldObj, newObj interface{}) {
 			rs, ok := newObj.(*appsv1.ReplicaSet)
 			if ok {
-				upsert(w.pgClient, "replicasets", rs, rs.UID)
+				upsert(w.pgClient, ReplicSetTable, rs, rs.UID)
 			}
 		},
 		DeleteFunc: func(obj interface{}) {
 			rs, ok := obj.(*appsv1.ReplicaSet)
 			if ok {
-				deleteByID(w.pgClient, "replicasets", rs.UID)
+				deleteByID(w.pgClient, ReplicSetTable, rs.UID)
 			}
 		},
 	})
@@ -315,7 +315,7 @@ func (w *ResourceWatcher) deployment() error {
 		return err
 	}
 	for _, obj := range list.Items {
-		upsert(w.pgClient, "deployments", &obj, obj.UID)
+		upsert(w.pgClient, DeploymentTable, &obj, obj.UID)
 	}
 
 	factory := informers.NewSharedInformerFactory(w.clientset, 12*time.Hour)
@@ -324,19 +324,19 @@ func (w *ResourceWatcher) deployment() error {
 		AddFunc: func(obj interface{}) {
 			deployment, ok := obj.(*appsv1.Deployment)
 			if ok {
-				upsert(w.pgClient, "deployments", deployment, deployment.UID)
+				upsert(w.pgClient, DeploymentTable, deployment, deployment.UID)
 			}
 		},
 		UpdateFunc: func(oldObj, newObj interface{}) {
 			deployment, ok := newObj.(*appsv1.Deployment)
 			if ok {
-				upsert(w.pgClient, "deployments", deployment, deployment.UID)
+				upsert(w.pgClient, DeploymentTable, deployment, deployment.UID)
 			}
 		},
 		DeleteFunc: func(obj interface{}) {
 			deployment, ok := obj.(*appsv1.Deployment)
 			if ok {
-				deleteByID(w.pgClient, "deployments", deployment.UID)
+				deleteByID(w.pgClient, DeploymentTable, deployment.UID)
 			}
 		},
 	})
