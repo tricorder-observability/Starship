@@ -10,6 +10,9 @@ go_library(
     importpath = "github.com/tricorder/src/api-server/meta",
     visibility = ["//visibility:public"],
     deps = [
+        "//src/api-server/http/dao",
+        "//src/api-server/pb",
+        "//src/utils/cond",
         "//src/utils/log",
         "//src/utils/pg",
         "//src/utils/retry",
@@ -30,7 +33,10 @@ go_test(
     srcs = ["meta_test.go"],
     embed = [":meta"],
     deps = [
+        "//src/api-server/http/dao",
+        "//src/testing/bazel",
         "//src/testing/pg",
+        "//src/utils/cond",
         "@com_github_stretchr_testify//assert",
         "@com_github_stretchr_testify//require",
         "@io_k8s_api//apps/v1:apps",

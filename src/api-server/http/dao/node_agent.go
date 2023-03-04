@@ -135,3 +135,12 @@ func (g *NodeAgentDao) QueryByID(agentID string) (*NodeAgentGORM, error) {
 	}
 	return node, nil
 }
+
+func (g *NodeAgentDao) QueryByPodID(agentPodID string) (*NodeAgentGORM, error) {
+	node := &NodeAgentGORM{}
+	result := g.Client.Engine.Where(&NodeAgentGORM{AgentPodID: agentPodID}).First(node)
+	if result.Error != nil {
+		return nil, fmt.Errorf("query node agent by pod id error:%v", result.Error)
+	}
+	return node, nil
+}

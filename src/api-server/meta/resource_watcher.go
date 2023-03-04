@@ -27,6 +27,9 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/cache"
 
+	"github.com/tricorder/src/api-server/http/dao"
+	pb "github.com/tricorder/src/api-server/pb"
+	"github.com/tricorder/src/utils/cond"
 	"github.com/tricorder/src/utils/log"
 
 	"github.com/tricorder/src/utils/pg"
@@ -39,12 +42,18 @@ type ResourceWatcher struct {
 	eg        errgroup.Group
 	clientset kubernetes.Interface
 	pgClient  *pg.Client
+	nodeAgent *dao.NodeAgentDao
+	waitCond  *cond.Cond
 }
 
-func NewResourceWatcher(clientset kubernetes.Interface, pgClient *pg.Client) *ResourceWatcher {
+func NewResourceWatcher(clientset kubernetes.Interface, pgClient *pg.Client,
+	nodeAgent *dao.NodeAgentDao, waitCond *cond.Cond,
+) *ResourceWatcher {
 	watcher := new(ResourceWatcher)
 	watcher.clientset = clientset
 	watcher.pgClient = pgClient
+	watcher.nodeAgent = nodeAgent
+	watcher.waitCond = waitCond
 	err := retry.ExpBackOffWithLimit(func() error {
 		return initResourceTables(pgClient)
 	})
@@ -171,6 +180,13 @@ func (w *ResourceWatcher) pod() error {
 			pod, ok := obj.(*corev1.Pod)
 			if ok {
 				deleteByID(w.pgClient, "pods", pod.UID)
+				if na, err := w.nodeAgent.QueryByPodID(string(pod.UID)); err == nil {
+					if err = w.nodeAgent.UpdateStateByID(na.AgentID, int(pb.AgentState_TERMINATED)); err != nil {
+						log.Errorf("while deleting pod, failed to nodeAgent UpdateStateByID %s, error %s", na.AgentID, err)
+					} else {
+						w.waitCond.Broadcast()
+					}
+				}
 			}
 		},
 	})
