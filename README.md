@@ -163,7 +163,7 @@ The development environment is based on Ubuntu.
 The easiest way to get started with building Starship is to use the dev image:
 
 ```
-git clone git@github.com:<fork>/starship.git
+git clone git@github.com:<fork>/Starship.git
 cd starship
 devops/dev_image/run.sh
 # Inside the container
