@@ -45,6 +45,7 @@ type Config struct {
 	ModuleInstance  dao.ModuleInstanceDao
 	GLock           *lock.Lock
 	WaitCond        *cond.Cond
+	Standalone      bool
 }
 
 func StartHTTPService(cfg Config, pgClient *pg.Client) {
@@ -55,7 +56,12 @@ func StartHTTPService(cfg Config, pgClient *pg.Client) {
 	grafanaManager := NewGrafanaManagement()
 	err := grafanaManager.InitGrafanaAPIToken()
 	if err != nil {
-		log.Fatalf("Failed to initialize Grafana API token, error: %v", err)
+		msg := fmt.Sprintf("Failed to initialize Grafana API token, error: %v", err)
+		if cfg.Standalone {
+			log.Warnf(msg)
+		} else {
+			log.Fatalf(msg)
+		}
 	}
 
 	cm := ModuleManager{

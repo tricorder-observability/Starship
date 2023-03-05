@@ -37,6 +37,8 @@ import (
 )
 
 var (
+	standalone = flag.Bool("standalone", false, "If true, API Server can be started without dependent services")
+
 	// Management Web UI requires to connect to Postgres, Grafana, this allows us to disable this service in tests.
 	enableMgmtUI = flag.Bool("enable_mgmt_ui", true, "If true, start management Web UI")
 	// This allows us to disable this service in tests.
@@ -161,6 +163,7 @@ func main() {
 				ModuleInstance:  moduleInstanceDao,
 				WaitCond:        waitCond,
 				GLock:           gLock,
+				Standalone:      *standalone,
 			}
 
 			http.StartHTTPService(config, pgClient)
