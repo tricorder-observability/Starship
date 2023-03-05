@@ -15,9 +15,9 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/api/addModule": {
+        "/api/createModule": {
             "post": {
-                "description": "Create Module",
+                "description": "Store module data into SQLite database",
                 "consumes": [
                     "application/json"
                 ],
@@ -51,7 +51,7 @@ const docTemplate = `{
         },
         "/api/deleteModule": {
             "get": {
-                "description": "Delete Module by id",
+                "description": "Delete module by id",
                 "consumes": [
                     "application/json"
                 ],
@@ -83,7 +83,7 @@ const docTemplate = `{
         },
         "/api/deployModule": {
             "post": {
-                "description": "Create Module",
+                "description": "Deploy the specified module onto every agent in the cluster",
                 "consumes": [
                     "application/json"
                 ],
@@ -146,7 +146,7 @@ const docTemplate = `{
         },
         "/api/undeployModule": {
             "post": {
-                "description": "Undeploy Module By ID",
+                "description": "Undeploy the specified module from all agents in the cluster",
                 "consumes": [
                     "application/json"
                 ],
@@ -252,6 +252,9 @@ const docTemplate = `{
                 "create_time": {
                     "type": "string"
                 },
+                "desire_state": {
+                    "type": "integer"
+                },
                 "ebpf": {
                     "type": "string"
                 },
@@ -271,6 +274,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "id": {
+                    "description": "tag schema https://gorm.io/docs/models.html#Fields-Tags",
                     "type": "string"
                 },
                 "name": {
@@ -281,9 +285,6 @@ const docTemplate = `{
                 },
                 "schema_name": {
                     "type": "string"
-                },
-                "status": {
-                    "type": "integer"
                 },
                 "wasm": {
                     "description": "wasm store the whole wasm file content",
@@ -388,13 +389,12 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "code": {
+                    "description": "Semantic and usage follow HTTP statues code convention.\nhttps://developer.mozilla.org/en-US/docs/Web/HTTP/Status",
                     "type": "integer"
                 },
                 "message": {
+                    "description": "A human readable message explain the details of the status.",
                     "type": "string"
-                },
-                "success": {
-                    "type": "boolean"
                 }
             }
         },
@@ -402,13 +402,12 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "code": {
+                    "description": "Semantic and usage follow HTTP statues code convention.\nhttps://developer.mozilla.org/en-US/docs/Web/HTTP/Status",
                     "type": "integer"
                 },
                 "message": {
+                    "description": "A human readable message explain the details of the status.",
                     "type": "string"
-                },
-                "success": {
-                    "type": "boolean"
                 },
                 "uid": {
                     "type": "string"
@@ -419,13 +418,12 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "code": {
+                    "description": "Semantic and usage follow HTTP statues code convention.\nhttps://developer.mozilla.org/en-US/docs/Web/HTTP/Status",
                     "type": "integer"
                 },
                 "message": {
+                    "description": "A human readable message explain the details of the status.",
                     "type": "string"
-                },
-                "success": {
-                    "type": "boolean"
                 }
             }
         },
@@ -433,6 +431,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "code": {
+                    "description": "Semantic and usage follow HTTP statues code convention.\nhttps://developer.mozilla.org/en-US/docs/Web/HTTP/Status",
                     "type": "integer"
                 },
                 "data": {
@@ -442,10 +441,8 @@ const docTemplate = `{
                     }
                 },
                 "message": {
+                    "description": "A human readable message explain the details of the status.",
                     "type": "string"
-                },
-                "success": {
-                    "type": "boolean"
                 }
             }
         },

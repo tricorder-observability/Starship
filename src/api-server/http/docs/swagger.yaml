@@ -53,6 +53,8 @@ definitions:
     properties:
       create_time:
         type: string
+      desire_state:
+        type: integer
       ebpf:
         type: string
       ebpf_fmt:
@@ -66,6 +68,7 @@ definitions:
       fn:
         type: string
       id:
+        description: tag schema https://gorm.io/docs/models.html#Fields-Tags
         type: string
       name:
         type: string
@@ -73,8 +76,6 @@ definitions:
         type: string
       schema_name:
         type: string
-      status:
-        type: integer
       wasm:
         description: wasm store the whole wasm file content
         items:
@@ -147,44 +148,52 @@ definitions:
   http.CreateModuleResp:
     properties:
       code:
+        description: |-
+          Semantic and usage follow HTTP statues code convention.
+          https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
         type: integer
       message:
+        description: A human readable message explain the details of the status.
         type: string
-      success:
-        type: boolean
     type: object
   http.DeployModuleResp:
     properties:
       code:
+        description: |-
+          Semantic and usage follow HTTP statues code convention.
+          https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
         type: integer
       message:
+        description: A human readable message explain the details of the status.
         type: string
-      success:
-        type: boolean
       uid:
         type: string
     type: object
   http.HTTPResp:
     properties:
       code:
+        description: |-
+          Semantic and usage follow HTTP statues code convention.
+          https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
         type: integer
       message:
+        description: A human readable message explain the details of the status.
         type: string
-      success:
-        type: boolean
     type: object
   http.ListModuleResp:
     properties:
       code:
+        description: |-
+          Semantic and usage follow HTTP statues code convention.
+          https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
         type: integer
       data:
         items:
           $ref: '#/definitions/dao.ModuleGORM'
         type: array
       message:
+        description: A human readable message explain the details of the status.
         type: string
-      success:
-        type: boolean
     type: object
   wasm.Program:
     properties:
@@ -204,11 +213,11 @@ definitions:
 info:
   contact: {}
 paths:
-  /api/addModule:
+  /api/createModule:
     post:
       consumes:
       - application/json
-      description: Create Module
+      description: Store module data into SQLite database
       parameters:
       - description: Create module
         in: body
@@ -230,7 +239,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: Delete Module by id
+      description: Delete module by id
       parameters:
       - description: delete module id
         in: query
@@ -251,7 +260,7 @@ paths:
     post:
       consumes:
       - application/json
-      description: Create Module
+      description: Deploy the specified module onto every agent in the cluster
       parameters:
       - description: deploy module id
         in: query
@@ -292,7 +301,7 @@ paths:
     post:
       consumes:
       - application/json
-      description: Undeploy Module By ID
+      description: Undeploy the specified module from all agents in the cluster
       parameters:
       - description: undeploy module id
         in: query

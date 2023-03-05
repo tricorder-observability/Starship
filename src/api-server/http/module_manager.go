@@ -57,7 +57,7 @@ type ModuleManager struct {
 // @Produce      json
 // @Param			   module	body	CreateModuleReq	true	"Create module"
 // @Success      200  {object}  CreateModuleResp
-// @Router       /api/addModule [post]
+// @Router       /api/createModule [post]
 func (mgr *ModuleManager) createModuleHttp(c *gin.Context) {
 	var body CreateModuleReq
 	err := c.ShouldBind(&body)
