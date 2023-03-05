@@ -152,8 +152,8 @@ object files are supported as well.
 
 ## Contributing
 
+### Overview
 - Fork the repo
-- `tools/cleanup.sh`: Run this script before creating Pull Request
 - Createing Pull Request
 - Wait for review
 
@@ -193,3 +193,8 @@ variable (or put this into your shell's rc file):
 source devops/dev_image/env.inc
 ```
 Afterwards, run `bazel build src/...` to build all targets in the Starship repo.
+
+### Creating Pull Requests
+
+After making changes, run `tools/cleanup.sh` to cleanup the codebase, and then push
+the changes to the forked repo, and create `Pull Request` on github Web UI.
