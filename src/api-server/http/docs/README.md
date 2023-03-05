@@ -16,3 +16,4 @@ bazel run src/api-server/cmd:api-server
 ```
 and then visit the URL:
 `http://<host-ip>/swagger/index.html`
+Use host IP instead of hostname, as using hostname results into unknown failures.
