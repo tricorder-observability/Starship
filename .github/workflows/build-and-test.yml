@@ -1,9 +1,13 @@
-# https://github.com/bazelbuild/setup-bazelisk
 name: Bazel build and test
+
 on:
   pull_request:
     branches:
       - main
+  push:
+    branches:
+      - main
+
 permissions:
   contents: read
 
