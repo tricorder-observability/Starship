@@ -1,7 +1,10 @@
+name: Check License Header
+
 on:
   pull_request:
     branches:
       - main
+
 jobs:
   license-header:
     name: License header

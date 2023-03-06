@@ -1,4 +1,4 @@
-name: Release DEV images
+name: Release Images
 
 on:
   push:
@@ -15,7 +15,7 @@ env:
   DOCKER_HUB_REGISTRY: docker.io/tricorderobservability
 
 jobs:
-  build-apiserver-and-push-images:
+  build-and-push-apiserver-image:
     runs-on: ubuntu-latest
     container:
       image: docker.io/tricorderobservability/ci_image:202302140538
@@ -25,28 +25,36 @@ jobs:
     env:
       TAG: ${{ github.sha }}
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout Code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
       - name: Login to GitHub Package Registry
         uses: docker/login-action@v2.1.0
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Login to Docker Hub
         uses: docker/login-action@v2.1.0
         with:
           registry: docker.io
           username: ${{ secrets.DOCKER_HUB_USER_NAME }}
           password: ${{ secrets.DOCKER_HUB_USER_PASSWORD }}
+
       - uses: bazelbuild/setup-bazelisk@v2
+
       - name: Build and push starship api-server image to Github Packages
         run: bazel run --define=TAG=${TAG} --define=REGISTRY=${REGISTRY} //src/api-server/cmd:push_api-server_image
         working-directory: .
+
       - name: Build and push starship api-server image to Docker hub
         run: bazel run --define=TAG=${TAG} --define=REGISTRY=${DOCKER_HUB_REGISTRY} //src/api-server/cmd:push_api-server_image
         working-directory: .
 
-  build-agent-and-push-images:
+  build-and-push-agent-image:
     runs-on: ubuntu-latest
     container:
       image: docker.io/tricorderobservability/ci_image:202302140538
@@ -77,7 +85,7 @@ jobs:
         run: bazel run --define=TAG=${TAG} --define=REGISTRY=${DOCKER_HUB_REGISTRY} //src/agent/cmd:push_agent_image
         working-directory: .
 
-  build-ui-and-push-images:
+  build-and-push-ui-image:
     runs-on: ubuntu-latest
     timeout-minutes: 90
     permissions:
@@ -120,6 +128,6 @@ jobs:
           context: ./ui
           tags: ${{ env.REGISTRY }}/mgmt-ui:${{ env.TAG }}
       - name: Docker tag
-        run: docker tag ${{ env.REGISTRY }}/mgmt-ui:${{ env.TAG }} ${{ env.DOCKER_HUB_REGISTRY }}/mgmt-ui:${{ env.TAG }} 
+        run: docker tag ${{ env.REGISTRY }}/mgmt-ui:${{ env.TAG }} ${{ env.DOCKER_HUB_REGISTRY }}/mgmt-ui:${{ env.TAG }}
       - name: Push mgmt-ui image to Docker hub
-        run: docker push ${{ env.DOCKER_HUB_REGISTRY }}/mgmt-ui:${{ env.TAG }} 
+        run: docker push ${{ env.DOCKER_HUB_REGISTRY }}/mgmt-ui:${{ env.TAG }}

@@ -1,13 +1,13 @@
----
-# Keep in sync with tricorder-observability/helm-charts
+name: Super Linter
 # Individual linter configurations template:
 # https://github.com/github/super-linter#template-rules-files
 # Configs are under .github/linters
-name: Lint Code Base
+
 on:
   pull_request:
     branches:
       - main
+
 jobs:
   build:
     name: Lint Code Base
@@ -17,6 +17,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
+
       - name: Write github env
         # Linters are disabled in this env file
         #
@@ -25,6 +26,7 @@ jobs:
         # linter has to work with the whole code base. See:
         # https://github.com/github/super-linter/issues/3596
         run: cat .github/super-linter.env >> "$GITHUB_ENV"
+
       - name: Lint Code Base
         # https://github.com/github/super-linter#slim-image
         # Linters missing from slim image are not useful for Tricorder codebase
