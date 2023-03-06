@@ -37,6 +37,8 @@ jobs:
           create-kind-cluster: "false"
       - name: Release tricorder charts
         uses: helm/chart-releaser-action@v1.4.1
+        with:
+          charts_dir: helm-charts/charts
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
       - name: Copy README.md To Branches Action
