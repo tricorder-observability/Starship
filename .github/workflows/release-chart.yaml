@@ -40,7 +40,7 @@ jobs:
         with:
           charts_dir: helm-charts/charts
         env:
-          CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+          CR_TOKEN: "${{ secrets.ACTIONS_TOKEN }}"
       - name: Copy README.md To Branches Action
         uses: planetoftheweb/copy-to-branches@v1.2
         env:
