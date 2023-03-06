@@ -96,6 +96,7 @@ func TestParseVersion(t *testing.T) {
 func TestVersionCode(t *testing.T) {
 	assert := assert.New(t)
 	assert.Equal(uint32(266753), Version{4, 18, 1}.code())
+	assert.Equal(uint32(266753), Version{4, 18, 1}.code2())
 }
 
 // Tests that WriteVersion() writes the correct content to the file.
