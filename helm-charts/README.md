@@ -280,7 +280,7 @@ kubectl delete namespace tricorder
 
 ### Send OpenTelemetry data to Starship
 
-[Send OpenTelemetry data to Starship](./docs/send-otlp-data-to-starship.md).
+[Send OpenTelemetry data to Starship](./docs/STARSHIP_OTLP.md).
 
 ### Override default values
 
