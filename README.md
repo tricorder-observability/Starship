@@ -24,8 +24,8 @@ community.
 ![GitHub issues](https://img.shields.io/github/issues/tricorder-observability/starship)
 ![GitHub pull requests](https://img.shields.io/github/issues-pr/tricorder-observability/starship)
 
-[![Twitter URL](https://img.shields.io/twitter/url/https/twitter.com/bukotsunikki.svg?style=plastic&label=Follow%20%40tricorder_o11y)](https://twitter.com/tricorder_o11y)
-[![Slack Badge](https://img.shields.io/badge/Slack-4A154B?logo=slack&logoColor=fff&style=plastic&label=Join%20Tricorder)](https://join.slack.com/t/tricorderobse-mfl6648/shared_invite/zt-1oxqtq793-rRA03FN1YuyCiQrN_TrZoQ)
+![Twitter Follow](https://img.shields.io/twitter/follow/tricorder_o11y?style=social)
+[![Slack Badge](https://img.shields.io/badge/Slack-4A154B?logo=slack&style=social&label=Join%20Tricorder)](https://join.slack.com/t/tricorderobse-mfl6648/shared_invite/zt-1oxqtq793-rRA03FN1YuyCiQrN_TrZoQ)
 
 ## Get Started
 
