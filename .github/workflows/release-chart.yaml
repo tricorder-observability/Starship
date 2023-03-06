@@ -46,4 +46,4 @@ jobs:
         with:
           charts_dir: helm-charts/charts
         env:
-          CR_TOKEN: "${{ secrets.ACTIONS_TOKEN }}"
+          CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
