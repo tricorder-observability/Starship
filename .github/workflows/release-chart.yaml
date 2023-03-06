@@ -32,7 +32,7 @@ jobs:
         with:
           version: v3.4.1
       - name: Setup
-        uses: .github/actions/setup
+        uses: ./.github/actions/setup
         with:
           create-kind-cluster: "false"
       - name: Release tricorder charts

@@ -14,7 +14,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Setup
-        uses: .github/actions/setup
+        uses: ./.github/actions/setup
         with:
           create-kind-cluster: "false"
       - name: Run chart-testing (lint)
