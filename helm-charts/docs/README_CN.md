@@ -1,8 +1,6 @@
 # [星舰（Starship）](https://github.com/tricorder-observability/starship) 安装文档
 
-[![Release Charts](https://github.com/tricorder-observability/helm-charts/actions/workflows/release-chart.yaml/badge.svg)](https://github.com/tricorder-observability/helm-charts/actions/workflows/release-chart.yaml)
-[![Lint Charts](https://github.com/tricorder-observability/helm-charts/actions/workflows/lint-chart.yaml/badge.svg?event=pull_request)](https://github.com/tricorder-observability/helm-charts/actions/workflows/lint-chart.yaml)
-[![Lint Code Base](https://github.com/tricorder-observability/helm-charts/actions/workflows/super-linter.yaml/badge.svg?event=pull_request)](https://github.com/tricorder-observability/helm-charts/actions/workflows/super-linter.yaml)
+[![Release Helm Charts](https://github.com/tricorder-observability/Starship/actions/workflows/release-chart.yaml/badge.svg)](https://github.com/tricorder-observability/Starship/actions/workflows/release-chart.yaml)
 
 ![image](https://user-images.githubusercontent.com/112656580/219543149-2e2bbebc-1891-4dcb-ba66-0f8b7f1bcd68.png)
 ![image](https://user-images.githubusercontent.com/112656580/219542981-5a4e5fb1-0603-4c0b-91e2-c94c36a92c0b.png)
