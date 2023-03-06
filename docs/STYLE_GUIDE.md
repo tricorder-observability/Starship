@@ -3,6 +3,17 @@
 This doc describes rules that are not enforceable in linter, and require
 conscious effort to uphold during writing and reviewing code.
 
+## Directory and file naming
+
+```
+# Use - for directories
+api-server
+helm-charts
+
+# Use _ for files
+STYLE_GUIDE.md
+```
+
 ## Common styles
 
 ### Date and time
