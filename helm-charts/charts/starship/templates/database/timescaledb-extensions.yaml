@@ -1,0 +1,25 @@
+{{- $tsdb := index .Values "timescaledb-single" -}}
+{{ if $tsdb.enabled -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: custom-init-scripts
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade,post-delete
+    "helm.sh/hook-weight": "0"
+    "helm.sh/resource-policy": keep
+  labels:
+    app: starship
+    chart: {{ template "tricorder.chart" . }}
+    release: {{ .Release.Name }}
+data:
+  extensions.sql: |
+    create extension if not exists timescaledb_toolkit;
+    create extension if not exists pg_stat_statements;
+    create extension if not exists pg_stat_monitor;
+    create extension if not exists pg_stat_kcache;
+    create extension if not exists pageinspect;
+    create extension if not exists pg_buffercache;
+    create extension if not exists pg_freespacemap;
+{{- end -}}

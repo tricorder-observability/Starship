@@ -1,0 +1,433 @@
+# Default values for tricorder.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+# Starship api-server, agent, mgmt-ui registry.
+images:
+  registry: "docker.io/tricorderobservability"
+  tag: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: "starship"
+
+tolerations: []
+
+affinity: {}
+
+podAnnotations: {}
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: chart-example.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+replicaCount: 1
+service:
+  type: ClusterIP
+  port: 80
+
+apiServer:
+  service:
+    type: LoadBalancer
+
+  image:
+    pullPolicy: IfNotPresent
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: ""
+
+  persistentVolumes:
+    data:
+      enabled: true
+      ## database data Persistent Volume Storage Class
+      ## If defined, storageClassName: <storageClass>
+      ## If set to "-", storageClassName: "", which disables dynamic provisioning
+      ## If undefined (the default) or set to null, no storageClassName spec is
+      ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
+      ##   GKE, AWS & OpenStack)
+      storageClass:
+      size: 200Mi
+      subPath: "tricorder.db"
+      mountPath: "/tricorder/"
+      accessModes:
+        - ReadWriteOnce
+  command:
+    extraArgs:
+      - --module_db_dir_path=/tricorder/
+      # PG username and password setting is on the below 'timescale.database.username' && 'timescale.database.password'
+      # Database name setting is in templates/tricorder-data-int/post-init-configmap.yaml
+      - --pg_url=postgresql://postgres:tricorder@timescaledb:5432/tricorder
+
+  ports:
+    serverhttp:
+      enabled: true
+      containerPort: 8080
+      servicePort: 8080
+      protocol: TCP
+    grpc:
+      enabled: true
+      containerPort: 50051
+      servicePort: 50051
+      protocol: TCP
+
+  resources:
+    limits:
+      cpu: 400m
+      memory: 500Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+agent:
+  image:
+    pullPolicy: IfNotPresent
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: ""
+
+ui:
+  image:
+    pullPolicy: IfNotPresent
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: ""
+
+  ports:
+    uihttp:
+      enabled: true
+      containerPort: 80
+      servicePort: 80
+      protocol: TCP
+  resources:
+    limits:
+      cpu: 100m
+      memory: 128Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+timescaledb-single:
+  enabled: true
+  # This file and its contents are licensed under the Apache License 2.0.
+  # Please see the included NOTICE for copyright information and LICENSE for a copy of the license.
+
+  replicaCount: 1
+
+  # To prevent very long names, we override the name, otherwise it would default to
+  # timescaledb-single (the name of the chart)
+  fullnameOverride: timescaledb
+  #clusterName: "{{ .Release.Name }}-tsdb"
+
+  image:
+    # Image was built from
+    # https://github.com/timescale/timescaledb-docker-ha
+    repository: timescale/timescaledb-ha
+    # TODO(jian): bump helm chart, https://github.com/timescale/helm-charts/issues/405#issuecomment-1340996682
+    # TODO(jian): remove `image` section. Beacause of current official version is broken, and has to manually override with a custom-built version.
+    # when official release go passed this broken version, we can then remove the whole image section
+    tag: pg14.6-ts2.8.1-patroni-static-primary-p3
+  # By default those secrets are randomly generated.
+  # To prevent misconfiguration, modifications from helm upgrade won't be applied to those secrets.
+  # As a result changing secrets cannot be done via helm and need manual intervention.
+  secrets:
+    # This map should contain environment variables that influence Patroni,
+    # for example PATRONI_SUPERUSER_PASSWORD or PATRONI_REPLICATION_PASSWORD
+    # https://patroni.readthedocs.io/en/latest/ENVIRONMENT.html#postgresql
+    credentials:
+      PATRONI_SUPERUSER_PASSWORD: "tricorder"
+      PATRONI_REPLICATION_PASSWORD: "tricorder"
+      PATRONI_admin_PASSWORD: "tricorder"
+
+  # Extra custom environment variables.
+  # These should be an EnvVar, as this allows you to inject secrets into the environment
+  # https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.16/#envvar-v1-core
+  # ref from `tobs` helm chart: https://github.com/timescale/tobs/blob/main/chart/values.yaml#L21
+  env:
+    - name: TSTUNE_PROFILE
+      value: promscale
+
+  # This configuration will be passed on to Patroni directly, there are a few things that are
+  # injected/changed, these are:
+  #   - archive_command will be set to /bin/true if backup is disabled
+  #   - any context sensitive parameter (scope, namespace, name) will be overridden by the Kubernetes context
+  # https://patroni.readthedocs.io/en/latest/SETTINGS.html#settings
+  # refs: https://docs.timescale.com/promscale/latest/recommendations/config-recomm/#database-configuration
+  # refs https://github.com/timescale/tobs/blob/main/chart/values.yaml#L39
+  patroni:
+    bootstrap:
+      dcs:
+        postgresql:
+          parameters:
+            max_connections: 500
+            checkpoint_timeout: 15min
+            bgwriter_delay: 10ms
+            bgwriter_lru_maxpages: 100000
+            synchronous_commit: "off"
+            shared_preload_libraries: timescaledb,pg_stat_statements,pg_stat_monitor,pg_stat_kcache
+            # TODO: stats_temp_directory was deprectated on PG15, we should remove it when the DB upgrades.
+            stats_temp_directory: /tmp/pg_stat_temp
+
+  postInit:
+    # Post innitialization script for timescaledb, see its definition in
+    # templates/tricorder-database-init/post-init-configmap.yaml
+    # Post initialization setup details:
+    # https://github.com/timescale/helm-charts/blob/main/charts/timescaledb-single/docs/admin-guide.md#post-init-scripts
+    # A list of sources, that contain post init scripts.
+    # These scripts are all projected to the same directory and will be executed
+    # in sorted order only once: After a cluster initialization
+    # Some examples:
+    # timescale-post-init configmap defined in ./templates/database/post-init-confgimap.yaml
+    - configMap:
+        name: timescale-post-init
+
+  persistentVolumes:
+    # For sanity reasons, the actual PGDATA and wal directory will be subdirectories of the Volume mounts,
+    # this allows Patroni/a human/an automated operator to move directories during bootstrap, which cannot
+    # be done if we did not use subdirectories
+    # https://www.postgresql.org/docs/current/creating-cluster.html#CREATING-CLUSTER-MOUNT-POINTS
+    data:
+      size: 150Gi
+    wal:
+      size: 20Gi
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 2Gi
+  # refs: https://github.com/timescale/tobs/blob/main/chart/values.yaml#L62
+  sharedMemory:
+    useMount: true
+
+  # TODO(jian): investigate pgBouncer configurations:https://github.com/timescale/helm-charts/blob/b9cbc2de4e273645e3e3223315d4296fa982c20b/charts/timescaledb-single/values.yaml#L454
+
+  # Prometheus exporter for PostgreSQL server metrics.
+  # https://github.com/prometheus-community/postgres_exporter
+  prometheus:
+    enabled: true
+  podMonitor:
+    # Specifies whether PodMonitor for Prometheus operator should be created
+    enabled: true
+
+promscale:
+  enabled: true
+  replicaCount: 3
+  extraArgs:
+    - "--metrics.high-availability=true"
+  extraEnv:
+    - name: "TOBS_TELEMETRY_INSTALLED_BY"
+      value: "helm"
+    - name: "TOBS_TELEMETRY_VERSION"
+      value: "14.6.0"
+    - name: "TOBS_TELEMETRY_TRACING_ENABLED"
+      value: "true"
+    - name: "TOBS_TELEMETRY_TIMESCALEDB_ENABLED"
+      value: "true"
+  #connectionSecretName: "tricorder-promscale-connection"
+  connection:
+    # Database connection settings. If `uri` is not
+    # set then the specific user, pass, host, port and
+    # sslMode properties are used.
+    uri: ""
+    # user used to connect to TimescaleDB
+    user: "postgres"
+    password: "tricorder"
+    # in the same namespace
+    host: "timescaledb"
+    port: 5432
+    sslMode: require
+    # database name in which to store the metrics
+    # must be created before start
+    dbName: postgres
+  resources:
+    requests:
+      cpu: 50m
+      memory: 500Mi
+    limits:
+      cpu: "1"
+      memory: 1Gi
+  # promscale configuration options. Values presented in this section are defaults. For full list of settings
+  # and their default values go to https://github.com/timescale/promscale/blob/master/docs/configuration.md
+  # Note that configuration options set here can be overriden by extraEnv as well as extraArgs.
+  # Arguments passed in extraArgs take precedence over any other option.
+  config:
+    startup.dataset.config: |
+      metrics:
+        compress_data: true
+        default_retention_period: 7d
+      traces:
+        default_retention_period: 7d
+
+grafana:
+  enabled: true
+  # This must be same as starship/src/api-server/cmd/main.go's
+  # grafana_password flag value.
+  #
+  # TODO(jian): Create a variable as grafana_password, and use that here,
+  # and set api-server's grafana_password flag value explicitly.
+  adminPassword: tricorder
+  image:
+    # source repo: https://github.com/tricorder-observability/grafana
+    repository: docker.io/tricorderobservability/grafana
+    # Overrides the Grafana image tag whose default is the chart appVersion
+    # TODO(yzhao): Change this to inherit the tag of starship
+    tag: v0.0.9
+    pullPolicy: IfNotPresent
+  resources:
+    requests:
+      cpu: 10m
+      memory: 128Mi
+    limits:
+      cpu: "1"
+      memory: 2Gi
+  sidecar:
+    datasources:
+      enabled: true
+      label: tricorder_datasource
+      labelValue: "true"
+      defaultDatasourceEnabled: false
+
+    dashboards:
+      multicluster:
+        global:
+          enabled: false
+      enabled: true
+      # These files are put into config maps by
+      # charts/starship/templates/grafana/grafana-dashboards-conf.yaml
+      files:
+        - dashboards/apm-dependencies.json
+        - dashboards/apm-home.json
+        - dashboards/apm-service-dependencies-downstream.json
+        - dashboards/apm-service-dependencies-upstream.json
+        - dashboards/apm-service-overview.json
+        - dashboards/promscale.json
+        - dashboards/postgres-overview.json
+        - dashboards/postgres-details.json
+        - dashboards/demo-ebpf-http.json
+        - dashboards/metadata-process.json
+  persistence:
+    type: pvc
+    enabled: true
+    size: 1Gi
+    accessModes:
+      - ReadWriteOnce
+  prometheus:
+    datasource:
+      enabled: true
+      # By default url of data source is set to ts-prom connector instance
+      # deployed with this chart. If a connector isn't used this should be
+      # set to the prometheus-server.
+      url: "http://{{ .Release.Name }}-promscale.{{ .Release.Namespace }}.svc:9201"
+  timescale:
+    datasource:
+      enabled: true
+      user: postgres
+      # leaving password empty will cause helm to generate a random password
+      pass: "tricorder"
+      dbName: postgres
+      sslMode: require
+      # By default the url/host is set to the db instance deployed
+      # with this chart
+      host: "timescaledb.{{ .Release.Namespace }}.svc"
+      port: 5432
+  jaeger:
+    datasource:
+      enabled: true
+    # Endpoint for integrating jaeger datasource in grafana. This should point to HTTP endpoint, not gRPC.
+    tricorderTracesQueryEndPoint: "{{ .Release.Name }}-promscale.{{ .Release.Namespace }}.svc:9201"
+
+  additionalDataSources:
+    - name: timescale-tricorder
+      uid: timescaledb_tricorder
+      access: proxy
+      editable: false
+      type: postgres
+      url: timescaledb:5432
+      database: tricorder
+      user: postgres
+      jsonData:
+        postgresVersion: 1400
+        timescaledb: true
+      secureJsonData:
+        password: tricorder
+      version: 1
+  serviceMonitor:
+    enabled: true
+    labels:
+      release: prometheus
+
+kube-prometheus-stack:
+  enabled: true
+  alertmanager:
+    enabled: false
+  grafana:
+    enabled: false
+    forceDeployDashboards: true
+
+  prometheus:
+    enabled: true
+    prometheusSpec:
+      scrapeInterval: "1m"
+      evaluationInterval: "1m"
+      replicas: 1
+      retention: 1h
+      retentionSize: 128MB
+      replicaExternalLabelName: "__replica__"
+      # Promscale requires a cluster label to be present for high availability mode.
+      prometheusExternalLabelName: "cluster"
+
+      remoteWrite:
+        - url: "http://{{ .Release.Name }}-promscale.{{ .Release.Namespace }}.svc:9201/write"
+          remoteTimeout: 100s
+          queueConfig:
+            capacity: 100000
+            maxSamplesPerSend: 10000
+            batchSendDeadline: 30s
+            minShards: 20
+            maxShards: 20
+            minBackoff: 100ms
+            maxBackoff: 10s
+      # Prometheus pod storage spec
+      storageSpec:
+        # Using PersistentVolumeClaim
+        # disable mount sub path, use the root directory of pvc
+        disableMountSubPath: true
+        volumeClaimTemplate:
+          spec:
+            accessModes:
+              - ReadWriteOnce
+            resources:
+              requests:
+                storage: 5Gi
+      resources:
+        requests:
+          cpu: 100m
+          memory: 512Mi
+        limits:
+          cpu: "1"
+          memory: 2048Mi

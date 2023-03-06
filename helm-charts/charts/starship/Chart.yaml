@@ -1,0 +1,36 @@
+apiVersion: v2
+name: starship
+description: >
+  "Helm Charts for Starship, Tricorder Observability's next-generatoin "
+  "Observability Platform built on eBPF+WASM"
+
+sources:
+  - https://github.com/tricorder-observability/helm-charts
+
+maintainers:
+  - name: JaredTan95
+  - name: yaxiong-zhao
+
+# Chart version, updating this version requires a release.
+version: 0.0.43
+
+# starship image tag
+appVersion: 070f320e3bdd528e533844d782b5520a960077b6
+
+dependencies:
+  - name: timescaledb-single
+    version: 0.27.5
+    repository: "https://charts.timescale.com"
+    condition: timescaledb-single.enabled
+  - name: promscale
+    version: 14.6.1
+    repository: "https://charts.timescale.com"
+    condition: promscale.enabled
+  - name: kube-prometheus-stack
+    version: 43.2.1
+    repository: "https://prometheus-community.github.io/helm-charts"
+    condition: kube-prometheus-stack.enabled
+  - name: grafana
+    version: "6.51.1"
+    repository: "https://grafana.github.io/helm-charts"
+    condition: grafana.enabled

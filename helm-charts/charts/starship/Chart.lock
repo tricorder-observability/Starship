@@ -1,0 +1,15 @@
+dependencies:
+- name: timescaledb-single
+  repository: https://charts.timescale.com
+  version: 0.27.5
+- name: promscale
+  repository: https://charts.timescale.com
+  version: 14.6.1
+- name: kube-prometheus-stack
+  repository: https://prometheus-community.github.io/helm-charts
+  version: 43.2.1
+- name: grafana
+  repository: https://grafana.github.io/helm-charts
+  version: 6.51.1
+digest: sha256:aa5c4016ba61b8f14b1eb9fd755fa87292b8e9f807ffa0605516e0a97785986e
+generated: "2023-03-01T09:20:21.488612946Z"

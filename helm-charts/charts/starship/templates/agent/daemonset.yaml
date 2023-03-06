@@ -1,0 +1,69 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: tricorder
+  namespace: {{ .Release.Namespace }}
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: tricorder
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: tricorder
+    spec:
+      # Required to get consistent and universal PIDs on the host environment
+      hostPID: true
+      # Required to get consistent and universal networking metadata on the
+      # host environment
+      hostNetwork: true
+      # Required when hostNetwork is true
+      dnsPolicy: ClusterFirstWithHostNet
+      volumes:
+      - name: host-root
+        hostPath:
+          # Required by BCC (usage unclear, need more investigation)
+          path: /
+          type: Directory
+      - name: host-sys
+        hostPath:
+          # Required by BCC to write probe entries in debugfs
+          # /sys/kernel/tracing/{kprobe,uprobe,...}_events
+          path: /sys
+          type: Directory
+      containers:
+      - name: agent
+        env:
+          # Inject outer-scope hostname into container, so the agent can use
+          # this to filter out updates not relevant to this node from
+          # the K8s API server.
+          - name: NODE_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
+          - name: POD_ID
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.uid
+        # keep default function here, because .Chart.AppVersion cannot be invoked as function.
+        # https://helm.sh/docs/chart_template_guide/functions_and_pipelines/#using-the-default-function
+        # If .Values.agent.image.tag is empty, .Values.tag will be used. But if .Values.tag is empty, .Chart.AppVersion will be used as final tag.
+        image: "{{ .Values.images.registry }}/agent:{{ .Values.agent.image.tag | default .Values.images.tag | default .Chart.AppVersion }}"
+        args:
+          - --module_deployer_address=api-server:50051
+          - --pg_url=postgresql://postgres:tricorder@timescaledb:5432/tricorder
+          # Corresponds to the sys volume mount below
+          - --host_sys_root_path=/host/sys
+        imagePullPolicy: Always
+        securityContext:
+          # Required to deploy eBPF programs.
+          privileged: true
+        # TODO(yzhao): Add resources
+        # resources:
+        volumeMounts:
+        - name: host-root
+          mountPath: /host
+          readOnly: true
+        - name: host-sys
+          mountPath: /sys
+          readOnly: true

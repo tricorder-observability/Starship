@@ -1,0 +1,18 @@
+{{ if .Values.grafana.enabled -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-grafana-dashboards
+  namespace: {{ .Release.Namespace }}
+  labels:
+   grafana_dashboard: "1"
+   app: {{ template "tricorder.fullname" . }}
+   chart: {{ template "tricorder.chart" . }}
+   release: {{ .Release.Name }}
+data:
+# Imports all of the definition files of all dashboards
+{{ range $dash := .Values.grafana.sidecar.dashboards.files }}
+  {{ base $dash -}}: |-
+{{ $.Files.Get $dash | indent 4 }}
+{{- end }}
+{{- end -}}
