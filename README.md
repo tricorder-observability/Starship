@@ -16,7 +16,7 @@ community.
 
 [![Bazel build and test](https://github.com/tricorder-observability/starship/actions/workflows/build-and-test.yml/badge.svg?event=pull_request)](https://github.com/tricorder-observability/starship/actions/workflows/build-and-test.yml)
 [![Lint Code Base](https://github.com/tricorder-observability/starship/actions/workflows/super-linter.yaml/badge.svg?event=pull_request)](https://github.com/tricorder-observability/starship/actions/workflows/super-linter.yaml)
-[![Additional lint](https://github.com/tricorder-observability/starship/actions/workflows/additional_lint.yml/badge.svg?event=pull_request)](https://github.com/tricorder-observability/starship/actions/workflows/additional_lint.yml)
+[![Additional lint](https://github.com/tricorder-observability/Starship/actions/workflows/additional-lint.yml/badge.svg?event=pull_request)](https://github.com/tricorder-observability/Starship/actions/workflows/additional-lint.yml)
 
 [![Lint Helm Charts](https://github.com/tricorder-observability/Starship/actions/workflows/lint-chart.yaml/badge.svg?event=pull_request)](https://github.com/tricorder-observability/Starship/actions/workflows/lint-chart.yaml)
 
