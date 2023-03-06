@@ -47,5 +47,4 @@ jobs:
           key: main
           branches: gh-pages
           # TODO(yzhao): Also copy README_CN.md
-          files: helm-charts/README.md
-          files: README.md
+          files: README.md helm-charts/README.md
