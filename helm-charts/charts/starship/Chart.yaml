@@ -5,14 +5,13 @@ description: >
   "Observability Platform built on eBPF+WASM"
 
 sources:
-  - https://github.com/tricorder-observability/helm-charts
+  - https://github.com/tricorder-observability/Starship/helm-charts
 
 maintainers:
-  - name: JaredTan95
   - name: yaxiong-zhao
 
 # Chart version, updating this version requires a release.
-version: 0.0.43
+version: 0.0.44
 
 # starship image tag
 appVersion: 070f320e3bdd528e533844d782b5520a960077b6
