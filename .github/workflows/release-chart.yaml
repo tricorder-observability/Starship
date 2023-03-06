@@ -1,0 +1,48 @@
+name: Release Charts
+
+on:
+  # Requires manual trigger
+  # See https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_dispatch
+  workflow_dispatch:
+
+  # TODO(yaxiong/jian): We want to change to auto-trigger on new tags.
+  # The following condition does not work, which just triggers on any new
+  # commits to main branch.
+  # Triggered on pushes to main branch with helm-charts-v* tag, i.e., a release.
+  # push:
+  #   branches: ["main"]
+  #   tags: ["release-v*"]
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Configure Git
+        run: |
+          git config user.name "$GITHUB_ACTOR"
+          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+      - name: Install Helm
+        uses: azure/setup-helm@v3.1
+        with:
+          version: v3.4.1
+      - name: Setup
+        uses: ./.github/actions/setup
+        with:
+          create-kind-cluster: "false"
+      - name: Release tricorder charts
+        uses: helm/chart-releaser-action@v1.4.1
+        env:
+          CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+      - name: Copy README.md To Branches Action
+        uses: planetoftheweb/copy-to-branches@v1.2
+        env:
+          key: main
+          branches: gh-pages
+          # TODO(yzhao): Also copy README_CN.md
+          files: helm-charts/README.md
