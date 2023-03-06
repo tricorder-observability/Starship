@@ -18,7 +18,7 @@ community.
 [![Lint Code Base](https://github.com/tricorder-observability/starship/actions/workflows/super-linter.yaml/badge.svg?event=pull_request)](https://github.com/tricorder-observability/starship/actions/workflows/super-linter.yaml)
 [![Additional lint](https://github.com/tricorder-observability/Starship/actions/workflows/additional-lint.yml/badge.svg?event=pull_request)](https://github.com/tricorder-observability/Starship/actions/workflows/additional-lint.yml)
 
-[![Lint Helm Charts](https://github.com/tricorder-observability/Starship/actions/workflows/lint-chart.yaml/badge.svg?event=pull_request)](https://github.com/tricorder-observability/Starship/actions/workflows/lint-chart.yaml)
+[![Release Helm Charts](https://github.com/tricorder-observability/Starship/actions/workflows/release-chart.yaml/badge.svg?branch=main)](https://github.com/tricorder-observability/Starship/actions/workflows/release-chart.yaml)
 
 ![GitHub issues](https://img.shields.io/github/issues/tricorder-observability/starship)
 ![GitHub pull requests](https://img.shields.io/github/issues-pr/tricorder-observability/starship)
