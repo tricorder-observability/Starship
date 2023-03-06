@@ -14,10 +14,7 @@ Starship is developed by [Tricorder Observability](https://tricorder.dev/),
 proudly supported by [MiraclePlus](https://www.miracleplus.com/) and the Open Source
 community.
 
-[![Bazel build and test](https://github.com/tricorder-observability/starship/actions/workflows/build-and-test.yml/badge.svg?event=pull_request)](https://github.com/tricorder-observability/starship/actions/workflows/build-and-test.yml)
-[![Lint Code Base](https://github.com/tricorder-observability/starship/actions/workflows/super-linter.yaml/badge.svg?event=pull_request)](https://github.com/tricorder-observability/starship/actions/workflows/super-linter.yaml)
-[![Additional lint](https://github.com/tricorder-observability/Starship/actions/workflows/additional-lint.yml/badge.svg?event=pull_request)](https://github.com/tricorder-observability/Starship/actions/workflows/additional-lint.yml)
-
+[![Bazel build and test](https://github.com/tricorder-observability/Starship/actions/workflows/build-and-test.yml/badge.svg?branch=main&event=push)](https://github.com/tricorder-observability/Starship/actions/workflows/build-and-test.yml)
 [![Release Images](https://github.com/tricorder-observability/Starship/actions/workflows/release-dev-images.yaml/badge.svg?branch=main&event=push)](https://github.com/tricorder-observability/Starship/actions/workflows/release-dev-images.yaml)
 [![Release Helm Charts](https://github.com/tricorder-observability/Starship/actions/workflows/release-chart.yaml/badge.svg?branch=main)](https://github.com/tricorder-observability/Starship/actions/workflows/release-chart.yaml)
 
