@@ -48,7 +48,7 @@ charts需要为数据库pod创建持久卷PerstientVolume，这需要EBS CSI。
   ```shell
   kubectl get storageclass | grep default
   ```
-  
+
 - 如果你的集群中没有默认的 StorageClass，你可以通过下面的命令来创建默认的 StorageClass。
 
   ```shell
@@ -253,7 +253,7 @@ kubectl delete namespace tricorder
 
 ### 采集 OpenTelemetry 数据
 
-[将 OTel 数据发送到星舰可观测性平台](./send-otlp-data-to-starship.md).
+[将 OTel 数据发送到星舰可观测性平台](./STARSHIP_OTLP.md).
 
 ### 覆盖默认配置
 
