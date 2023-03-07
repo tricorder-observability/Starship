@@ -29,3 +29,31 @@ go_test(
         "@com_github_stretchr_testify//require",
     ],
 )
+
+go_library(
+    name = "proc-info",
+    srcs = ["collector.go"],
+    importpath = "github.com/tricorder/src/agent/proc-info",
+    deps = [
+        "//src/api-server/pb",
+        "//src/utils/file",
+        "//src/utils/log",
+        "//src/utils/retry",
+        "@com_github_shirou_gopsutil//process",
+        "@org_golang_google_grpc//:go_default_library",
+        "@org_golang_google_grpc//credentials/insecure",
+    ],
+)
+
+go_test(
+    name = "proc-info_test",
+    srcs = ["pid_collector_test.go"],
+    embed = [":proc-info"],
+    deps = [
+        "//src/api-server/pb",
+        "//src/testing/bazel",
+        "//src/utils/file",
+        "@com_github_stretchr_testify//assert",
+        "@com_github_stretchr_testify//require",
+    ],
+)

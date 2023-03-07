@@ -25,7 +25,7 @@ import (
 
 	"github.com/iovisor/gobpf/bcc"
 
-	"github.com/tricorder/src/agent/ebpf/bcc/linux_headers"
+	linux_headers "github.com/tricorder/src/agent/ebpf/bcc/linux-headers"
 	ebpfpb "github.com/tricorder/src/pb/module/ebpf"
 	testutils "github.com/tricorder/src/testing/bazel"
 )

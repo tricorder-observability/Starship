@@ -23,7 +23,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/tricorder/src/agent/ebpf/bcc/linux_headers"
+	linux_headers "github.com/tricorder/src/agent/ebpf/bcc/linux-headers"
 	tsdb "github.com/tricorder/src/testing/timescaledb"
 
 	modulepb "github.com/tricorder/src/pb/module"

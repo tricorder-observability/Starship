@@ -21,11 +21,11 @@ import (
 	"github.com/tricorder/src/utils/log"
 
 	"github.com/tricorder/src/agent/deployer"
-	"github.com/tricorder/src/agent/proc_info"
+	proc_info "github.com/tricorder/src/agent/proc-info"
 	"github.com/tricorder/src/utils/pg"
 	"github.com/tricorder/src/utils/retry"
 
-	"github.com/tricorder/src/agent/ebpf/bcc/linux_headers"
+	linux_headers "github.com/tricorder/src/agent/ebpf/bcc/linux-headers"
 	"github.com/tricorder/src/agent/ebpf/bcc/utils"
 )
 

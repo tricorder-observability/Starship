@@ -34,7 +34,7 @@ go_test(
     # To run this test, you'll need `bazel test --config=bpf`.
     tags = ["bpf"],
     deps = [
-        "//src/agent/ebpf/bcc/linux_headers",
+        "//src/agent/ebpf/bcc/linux-headers",
         "//src/pb/module/common",
         "//src/pb/module/ebpf",
         "//src/testing/bazel",

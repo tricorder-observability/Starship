@@ -21,7 +21,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/tricorder/src/agent/ebpf/bcc/linux_headers"
+	linux_headers "github.com/tricorder/src/agent/ebpf/bcc/linux-headers"
 	"github.com/tricorder/src/api-server/grpc/fake"
 	pb "github.com/tricorder/src/api-server/pb"
 	"github.com/tricorder/src/pb/module"

@@ -5,3 +5,9 @@ go_test(
     srcs = ["module_deploy_test.go"],
     deps = ["@com_github_stretchr_testify//assert"],
 )
+
+go_test(
+    name = "integ-tests_test",
+    srcs = ["module_deploy_test.go"],
+    deps = ["@com_github_stretchr_testify//assert"],
+)

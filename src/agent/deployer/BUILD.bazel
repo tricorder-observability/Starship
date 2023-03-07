@@ -27,7 +27,7 @@ go_test(
     embed = [":deployer"],
     tags = ["bpf"],
     deps = [
-        "//src/agent/ebpf/bcc/linux_headers",
+        "//src/agent/ebpf/bcc/linux-headers",
         "//src/api-server/grpc/fake",
         "//src/api-server/pb",
         "//src/pb/module",

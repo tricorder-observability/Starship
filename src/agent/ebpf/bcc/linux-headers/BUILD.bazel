@@ -1,12 +1,12 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
 
 go_library(
-    name = "linux_headers",
+    name = "linux-headers",
     srcs = [
         "locate.go",
         "version.go",
     ],
-    importpath = "github.com/tricorder/src/agent/ebpf/bcc/linux_headers",
+    importpath = "github.com/tricorder/src/agent/ebpf/bcc/linux-headers",
     visibility = ["//visibility:public"],
     deps = [
         "//src/utils/common",
@@ -17,19 +17,12 @@ go_library(
 )
 
 go_test(
-    name = "linux_headers_test",
+    name = "linux-headers_test",
     srcs = [
         "locate_test.go",
         "version_test.go",
     ],
-    data = [
-        "//devops/linux_headers/output:linux_headers_tar_gzs",
-        "//devops/linux_headers/output:timeconst_headers",
-        "//src/agent/ebpf/bcc/linux_headers/testdata:kernel_configs",
-        "//src/utils/tar/testdata:test_tar_gz",
-        "//src/utils/tar/testdata:wrong_file_format_tar_gz",
-    ],
-    embed = [":linux_headers"],
+    embed = [":linux-headers"],
     deps = [
         "//src/testing/bazel",
         "//src/utils/file",

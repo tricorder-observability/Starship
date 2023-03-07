@@ -11,9 +11,9 @@ go_library(
     visibility = ["//visibility:private"],
     deps = [
         "//src/agent/deployer",
-        "//src/agent/ebpf/bcc/linux_headers",
+        "//src/agent/ebpf/bcc/linux-headers",
         "//src/agent/ebpf/bcc/utils",
-        "//src/agent/proc_info",
+        "//src/agent/proc-info",
         "//src/utils/errors",
         "//src/utils/log",
         "//src/utils/pg",

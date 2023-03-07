@@ -46,8 +46,13 @@ print_divider
 
 echo
 print_divider
-echo "Running check-markdown-naming ..."
+echo "Running check_markdown_naming ..."
 .github/scripts/check_markdown_naming.sh
+
+echo
+print_divider
+echo "Running check_dir_naming ..."
+.github/scripts/check_dir_naming.sh
 
 echo
 print_divider
