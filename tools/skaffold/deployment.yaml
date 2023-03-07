@@ -61,7 +61,9 @@ spec:
       containers:
         - name: api-server
           image: public.ecr.aws/tricorder/api-server
-          args: ["--pg_url=postgresql://postgres:password@postgres-service:5432"]
+          args:
+            - --pg_url=postgresql://postgres:password@postgres-service:5432
+            - --standalone=true
           # Need to be this to allow minikube to not pull from remote registry.
           # Minikube can pre-load images to docker's local registry, this allows
           # minikube+skaffold to use local images.
@@ -139,7 +141,7 @@ spec:
           type: Directory
       - name: host-root
         hostPath:
-          # mount / 
+          # mount /
           path: /
           type: Directory
       containers:
@@ -172,10 +174,14 @@ spec:
             mountPath: /host
             readOnly: true
           env:
-          # Inject outer-scope hostname into container, so the agent can use
-          # this to filter out updates not relevant to this node from
-          # the K8s API server.
+          # Inject outer-scope hostname, pod ID into container, so the agent can
+          # use this to filter out updates not relevant to this node from the
+          # K8s API server.
           - name: NODE_NAME
             valueFrom:
               fieldRef:
                 fieldPath: spec.nodeName
+          - name: POD_ID
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.uid
