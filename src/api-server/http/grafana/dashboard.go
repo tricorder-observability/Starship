@@ -22,6 +22,8 @@ import (
 	"io"
 	"net/http"
 	"strings"
+
+	"github.com/tricorder/src/utils/errors"
 )
 
 // TODO(zhihui): Add tests with a running Grafana instance in docker container
@@ -145,30 +147,26 @@ func (g *Dashboard) AddDashboardPanel(
 	return nil, err
 }
 
-func (g *Dashboard) GetDashboardDetail(uid string) (*DashboardDetailResult, error) {
+// Returns a JSON string that describes the specified dashboard.
+func (g *Dashboard) GetDetailAsJSON(uid string) (string, error) {
 	req, err := http.NewRequest("GET", GetDashboardURI+uid, strings.NewReader(""))
 	if err != nil {
-		return nil, err
+		return "", errors.Wrap("getting dashboard detail", "create HTTP request", err)
 	}
 	req.Header.Set("Content-Type", "application/json; charset=UTF-8")
 	req.Header.Set("Authorization", "Basic "+base64.StdEncoding.EncodeToString([]byte(BasicAuth)))
 
 	resp, err := g.client.Do(req)
 	if err != nil {
-		return nil, err
+		return "", errors.Wrap("getting dashboard detail", "send HTTP request", err)
 	}
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
-	if err == nil {
-		var out DashboardDetailResult
-		err = json.Unmarshal(body, &out)
-		if err != nil {
-			return nil, err
-		}
-		return &out, nil
+	if err != nil {
+		return "", errors.Wrap("getting dashboard detail", "read HTTP response body", err)
 	}
-	return nil, err
+	return string(body), nil
 }
 
 type DashboardResult struct {
@@ -233,10 +231,4 @@ type BodyData struct {
 
 type DashboardDetailResult struct {
 	Dashboard interface{} `json:"dashboard"`
-}
-
-type DashboardDetail struct {
-	Version string `json:"version"`
-	ID      int    `json:"id"`
-	UID     string `json:"uid"`
 }

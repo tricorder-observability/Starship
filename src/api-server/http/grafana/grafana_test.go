@@ -48,27 +48,21 @@ func TestAuthToken(t *testing.T) {
 	token, err := authToken.GetToken("/api/dashboards/db")
 	assert.Nil(err)
 
-	log.Println("create grafana token success: ", token)
-	assert.Nil(createDashboard(token.Key))
+	dashboard := NewDashboard()
+	assert.NotNil(dashboard)
+
+	result, err := dashboard.CreateDashboard(token.Key, "APIServer1", "uid")
+	assert.Nil(err)
+
+	assert.Equal("success", result.Status)
+
+	json, err := dashboard.GetDetailAsJSON(result.UID)
+	assert.Nil(err)
+	assert.Contains(json, `"title":"APIServer1"`)
 
 	datasourceToken, err := authToken.GetToken("/api/datasources")
 	require.Nil(err)
 	assert.Nil(createDatasource(datasourceToken.Key))
-}
-
-func createDashboard(token string) error {
-	dashboard := NewDashboard()
-	if dashboard == nil {
-		return fmt.Errorf("failed to create dashboard")
-	}
-	result, err := dashboard.CreateDashboard(token, "APIServer1", "uid")
-	if err != nil {
-		return fmt.Errorf("create grafana dashboard error:%v", err)
-	}
-	if result.Status != "success" {
-		return fmt.Errorf("create grafana dashboard error:%s: %s", result.Status, result.Message)
-	}
-	return nil
 }
 
 func createDatasource(token string) error {

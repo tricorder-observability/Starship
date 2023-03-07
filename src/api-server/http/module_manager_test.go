@@ -38,7 +38,7 @@ import (
 	"github.com/tricorder/src/utils/lock"
 )
 
-var cm = ModuleManager{DatasourceUID: "test"}
+var mgr = ModuleManager{DatasourceUID: "test"}
 
 func SetUpRouter() *gin.Engine {
 	router := gin.Default()
@@ -47,22 +47,22 @@ func SetUpRouter() *gin.Engine {
 	// test.
 
 	sqliteClient, _ := dao.InitSqlite(testDbFilePath)
-	cm.Module = dao.ModuleDao{
+	mgr.Module = dao.ModuleDao{
 		Client: sqliteClient,
 	}
 
-	cm.ModuleInstance = dao.ModuleInstanceDao{
+	mgr.ModuleInstance = dao.ModuleInstanceDao{
 		Client: sqliteClient,
 	}
 
-	cm.NodeAgent = dao.NodeAgentDao{
+	mgr.NodeAgent = dao.NodeAgentDao{
 		Client: sqliteClient,
 	}
 
-	cm.waitCond = cond.NewCond()
-	cm.gLock = lock.NewLock()
+	mgr.waitCond = cond.NewCond()
+	mgr.gLock = lock.NewLock()
 
-	cm.GrafanaClient = NewGrafanaManagement()
+	mgr.GrafanaClient = NewGrafanaManagement()
 
 	return router
 }
@@ -84,9 +84,9 @@ func TestModuleManager(t *testing.T) {
 	require.Nil(err)
 	defer func() { assert.Nil(pgClientCleanerFn()) }()
 
-	cm.PGClient = pgClient
+	mgr.PGClient = pgClient
 
-	r.GET("/api/listModule", cm.listModuleHttp)
+	r.GET("/api/listModule", mgr.listModuleHttp)
 	req, _ := http.NewRequest("GET", "/api/listModule?fields=id,name,desire_state", nil)
 
 	w := httptest.NewRecorder()
@@ -98,7 +98,35 @@ func TestModuleManager(t *testing.T) {
 	wasmUid := "test_wasm_uid"
 	modulID := AddModule(t, wasmUid, r)
 
-	deployModule(t, modulID, r)
+	r.GET("/api/deployModule", mgr.deployModuleHttp)
+	req, err = http.NewRequest("GET", fmt.Sprintf("/api/deployModule?id=%s", modulID), nil)
+	assert.Nil(err)
+
+	w = httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+	resultStr = w.Body.String()
+
+	assert.Contains(resultStr, "prepare to deploy")
+
+	var deployResult DeployModuleResp
+	err = json.Unmarshal([]byte(resultStr), &deployResult)
+	assert.Nil(err)
+
+	// check module's status
+	moduleResult, err := mgr.Module.QueryByID(modulID)
+	assert.Nil(err)
+	assert.Equal(int(pb.ModuleState_DEPLOYED), moduleResult.DesireState)
+
+	// check grafana dashboard create result
+	ds := grafana.NewDashboard()
+	json, err := ds.GetDetailAsJSON(deployResult.UID)
+	assert.Nil(err)
+	assert.Contains(json, deployResult.UID)
+
+	// check create postgres schema result
+	const moduleDataTableNamePrefix = "tricorder_module_"
+	err = mgr.PGClient.CheckTableExist(moduleDataTableNamePrefix + moduleResult.ID)
+	assert.Nil(err)
 
 	unDeployModule(t, modulID, r)
 
@@ -134,8 +162,11 @@ func AddModule(t *testing.T, wasmUid string, r *gin.Engine) string {
 			]
 		}
 	}`, moduleName)
+
+	assert := assert.New(t)
+
 	jsonData := []byte(moduleBody)
-	r.POST("/api/addModule", cm.createModuleHttp)
+	r.POST("/api/addModule", mgr.createModuleHttp)
 	req, _ := http.NewRequest("POST", "/api/addModule", bytes.NewBuffer(jsonData))
 	req.Header.Set("Content-Type", "application/json; charset=utf-8")
 	w := httptest.NewRecorder()
@@ -143,16 +174,14 @@ func AddModule(t *testing.T, wasmUid string, r *gin.Engine) string {
 	resultStr := w.Body.String()
 	fmt.Printf("add module: %s", resultStr)
 	// check http result
-	assert.Equal(t, true, strings.Contains(resultStr, "success"))
+	assert.Contains(resultStr, "success")
 
 	// check db result
-	moduleResult, err := cm.Module.QueryByName(moduleName)
-	if err != nil {
-		t.Errorf("query module by name error:%v", err)
-	}
+	moduleResult, err := mgr.Module.QueryByName(moduleName)
+	assert.Nil(err)
 	// check whether the name in the database is moduleName
-	assert.Equal(t, true, moduleName == moduleResult.Name)
-	assert.Equal(t, true, int(pb.ModuleState_CREATED_) == moduleResult.DesireState)
+	assert.Equal(moduleName, moduleResult.Name)
+	assert.Equal(int(pb.ModuleState_CREATED_), moduleResult.DesireState)
 	return moduleResult.ID
 }
 
@@ -186,7 +215,7 @@ func TestCreateModuleEmptyDataFields(t *testing.T) {
 
 	jsonData := []byte(moduleBody)
 	r := SetUpRouter()
-	r.POST("/api/createModule", cm.createModuleHttp)
+	r.POST("/api/createModule", mgr.createModuleHttp)
 	req, _ := http.NewRequest("POST", "/api/createModule", bytes.NewBuffer(jsonData))
 	req.Header.Set("Content-Type", "application/json; charset=utf-8")
 
@@ -197,7 +226,7 @@ func TestCreateModuleEmptyDataFields(t *testing.T) {
 }
 
 func deleteModule(t *testing.T, modulID string, r *gin.Engine) {
-	r.GET("/api/deleteModule", cm.deleteModuleHttp)
+	r.GET("/api/deleteModule", mgr.deleteModuleHttp)
 	req, _ := http.NewRequest("GET", fmt.Sprintf("/api/deleteModule?id=%s", modulID), nil)
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, req)
@@ -205,14 +234,14 @@ func deleteModule(t *testing.T, modulID string, r *gin.Engine) {
 	fmt.Printf("delete module: %s", resultStr)
 	assert.Equal(t, true, strings.Contains(resultStr, "Success"))
 
-	resultModule, _ := cm.Module.QueryByID(modulID)
+	resultModule, _ := mgr.Module.QueryByID(modulID)
 	if resultModule != nil {
 		t.Errorf("delete module by id error:%v", resultModule)
 	}
 }
 
 func unDeployModule(t *testing.T, modulID string, r *gin.Engine) {
-	r.GET("/api/undeployModule", cm.undeployModuleHttp)
+	r.GET("/api/undeployModule", mgr.undeployModuleHttp)
 	req, _ := http.NewRequest("GET", fmt.Sprintf("/api/undeployModule?id=%s", modulID), nil)
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, req)
@@ -221,48 +250,9 @@ func unDeployModule(t *testing.T, modulID string, r *gin.Engine) {
 	assert.Equal(t, true, strings.Contains(resultStr, "un-deploy success"))
 
 	// check code's status
-	resultModule, err := cm.Module.QueryByID(modulID)
+	resultModule, err := mgr.Module.QueryByID(modulID)
 	if err != nil {
 		t.Errorf("query module by id error:%v", err)
 	}
 	assert.Equal(t, int(pb.ModuleState_UNDEPLOYED), resultModule.DesireState)
-}
-
-func deployModule(t *testing.T, modulID string, r *gin.Engine) {
-	r.GET("/api/deployModule", cm.deployModuleHttp)
-	req, _ := http.NewRequest("GET", fmt.Sprintf("/api/deployModule?id=%s", modulID), nil)
-	w := httptest.NewRecorder()
-	r.ServeHTTP(w, req)
-	resultStr := w.Body.String()
-
-	assert.Equal(t, true, strings.Contains(resultStr, "prepare to deploy"))
-
-	var deployResult DeployModuleResp
-	err := json.Unmarshal([]byte(resultStr), &deployResult)
-	if err != nil {
-		t.Errorf("deploy module error:%v", err)
-	}
-
-	// check module's status
-	moduleResult, err := cm.Module.QueryByID(modulID)
-	if err != nil {
-		t.Errorf("query module by id error:%v", err)
-	}
-	assert.Equal(t, int(pb.ModuleState_DEPLOYED), moduleResult.DesireState)
-
-	// check grafana dashboard create result
-	ds := grafana.NewDashboard()
-	detailResult, err := ds.GetDashboardDetail(deployResult.UID)
-	if err != nil {
-		t.Errorf("get grafana dashboard detail error:%v", err)
-	}
-	temp := fmt.Sprint(detailResult)
-	assert.Equal(t, true, strings.Contains(temp, deployResult.UID))
-
-	// check create postgres schema result
-	const moduleDataTableNamePrefix = "tricorder_module_"
-	err = cm.PGClient.CheckTableExist(moduleDataTableNamePrefix + moduleResult.ID)
-	if err != nil {
-		t.Errorf("check postgress table exist error:%v", err)
-	}
 }
