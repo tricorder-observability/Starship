@@ -46,5 +46,10 @@ print_divider
 
 echo
 print_divider
+echo "Running check-markdown-naming ..."
+.github/scripts/check_markdown_naming.sh
+
+echo
+print_divider
 echo "Running check_license ..."
 make -C devops/license/ addlicense
