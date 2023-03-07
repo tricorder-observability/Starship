@@ -15,7 +15,7 @@ proudly supported by [MiraclePlus](https://www.miracleplus.com/) and the Open So
 community.
 
 [![Bazel build and test](https://github.com/tricorder-observability/Starship/actions/workflows/build-and-test.yml/badge.svg?branch=main&event=push)](https://github.com/tricorder-observability/Starship/actions/workflows/build-and-test.yml)
-[![Release Images](https://github.com/tricorder-observability/Starship/actions/workflows/release-dev-images.yaml/badge.svg?branch=main&event=push)](https://github.com/tricorder-observability/Starship/actions/workflows/release-dev-images.yaml)
+[![Release Images](https://github.com/tricorder-observability/Starship/actions/workflows/release-images.yaml/badge.svg)](https://github.com/tricorder-observability/Starship/actions/workflows/release-images.yaml)
 [![Release Helm Charts](https://github.com/tricorder-observability/Starship/actions/workflows/release-chart.yaml/badge.svg?branch=main)](https://github.com/tricorder-observability/Starship/actions/workflows/release-chart.yaml)
 
 ![GitHub issues](https://img.shields.io/github/issues/tricorder-observability/starship)
@@ -26,7 +26,7 @@ community.
 
 ## Get Started
 
-☸️  [Helm-charts](https://github.com/tricorder-observability/helm-charts),
+☸️ [Helm-charts](https://tricorder-observability.github.io/Starship),
 install Starship on your Kubernetes cluster with helm.
 
 We recommend [Minikube](https://minikube.sigs.k8s.io/docs/start/) **v1.29.0** or newer.
@@ -45,13 +45,18 @@ minikube start --cpus=8 --memory=8192
 # consistently, and you might run into unexpected issues with a different
 # namespace.
 kubectl create namespace tricorder
+
+# Add Starship's helm-charts and install Starship
+helm repo add tricorder-starship https://tricorder-observability.github.io/Starship
+helm install my-starship tricorder-starship/starship
 ```
 
-Then follow the [helm-charts installation](
-https://github.com/tricorder-observability/helm-charts#install).
 You should see the following pods running on your cluster.
+![image](https://user-images.githubusercontent.com/1126565
 
-![image](https://user-images.githubusercontent.com/112656580/220381364-65bebd35-bf6d-4780-981b-be94c5464607.png)
+More details can be found at [helm-charts installation](
+https://github.com/tricorder-observability/Starship/tree/main/helm-charts).
+80/220381364-65bebd35-bf6d-4780-981b-be94c5464607.png)
 
 Then follow the [CLI build and install](
 https://github.com/tricorder-observability/starship/blob/main/src/cli/README.md#build-and-install)
