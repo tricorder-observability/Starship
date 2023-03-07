@@ -11,9 +11,14 @@ swag init -g src/api-server/http/http.go -o src/api-server/http/docs
 ```
 
 To view API Server's Swagger APIs spec, start API Server with:
+
 ```
-bazel run src/api-server/cmd:api-server -- --standalone --enable_metadata_service=false
+bazel run src/api-server/cmd:api-server -- \
+    --standalone \
+    --enable_metadata_service=false \
+    --test_only_host=<hostname> \
+    --mgmt_ui_port=<port>
 ```
+
 and then visit the URL:
-`http://<host-ip>/swagger/index.html`
-Use host IP instead of hostname, as using hostname results into unknown failures.
+`http://<hostname>:<port>/swagger/index.html`

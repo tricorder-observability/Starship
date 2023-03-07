@@ -17,6 +17,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 
 	"golang.org/x/sync/errgroup"
 	"k8s.io/client-go/kubernetes"
@@ -37,6 +38,9 @@ import (
 )
 
 var (
+	testOnlyHost = flag.String("test_only_host", "localhost",
+		"The host address used for displaying swagger, this allows Swagger UI to connect to the running server.")
+
 	standalone = flag.Bool("standalone", false, "If true, API Server can be started without dependent services")
 
 	// Management Web UI requires to connect to Postgres, Grafana, this allows us to disable this service in tests.
@@ -81,15 +85,19 @@ var (
 	)
 )
 
-func main() {
-	flag.Parse()
-
+func setupSwaggerInfo() {
 	docs.SwaggerInfo.Title = "API Server"
 	docs.SwaggerInfo.Description = "API Server http api document."
 	docs.SwaggerInfo.Version = "1.0"
-	docs.SwaggerInfo.Host = "api-server"
-	docs.SwaggerInfo.BasePath = "/api"
+	docs.SwaggerInfo.Host = fmt.Sprintf("%s:%d", *testOnlyHost, *mgmtUIPort)
+	docs.SwaggerInfo.BasePath = "/"
 	docs.SwaggerInfo.Schemes = []string{"http"}
+}
+
+func main() {
+	flag.Parse()
+
+	setupSwaggerInfo()
 
 	log.Infof("Creating Postgresql client at %s", *modulePGURL)
 	pgClient := pg.NewClient(*modulePGURL)
