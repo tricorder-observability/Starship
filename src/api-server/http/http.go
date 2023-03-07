@@ -64,7 +64,7 @@ func StartHTTPService(cfg Config, pgClient *pg.Client) {
 		}
 	}
 
-	cm := ModuleManager{
+	mgr := ModuleManager{
 		DatasourceUID:  cfg.DatasourceUID,
 		GrafanaClient:  grafanaManager,
 		Module:         cfg.Module,
@@ -79,11 +79,11 @@ func StartHTTPService(cfg Config, pgClient *pg.Client) {
 	router.Use(Cors()).Use(GlobalExceptionWare)
 
 	apiRoot := router.Group(api.ROOT)
-	apiRoot.POST(api.CREATE_MODULE, cm.createModuleHttp)
-	apiRoot.GET(api.DELETE_MODULE, cm.deleteModuleHttp)
-	apiRoot.GET(api.LIST_MODULE, cm.listModuleHttp)
-	apiRoot.POST(api.DEPLOY_MODULE, cm.deployModuleHttp)
-	apiRoot.POST(api.UNDEPLOY_MODULE, cm.undeployModuleHttp)
+	apiRoot.POST(api.CREATE_MODULE, mgr.createModuleHttp)
+	apiRoot.GET(api.DELETE_MODULE, mgr.deleteModuleHttp)
+	apiRoot.GET(api.LIST_MODULE, mgr.listModuleHttp)
+	apiRoot.POST(api.DEPLOY_MODULE, mgr.deployModuleHttp)
+	apiRoot.POST(api.UNDEPLOY_MODULE, mgr.undeployModuleHttp)
 
 	router.GET("/swagger/*any", ginswag.WrapHandler(swagfiles.Handler))
 
