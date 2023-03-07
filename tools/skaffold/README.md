@@ -2,6 +2,7 @@
 
 Run skaffold in `skaffold-tricorder` namespace:
 ```
+minikube start --profile=${USER}
 skaffold run -f tools/skaffold/skaffold.yaml -n skaffold-tricorder
 ```
 
@@ -31,6 +32,4 @@ psql-# \dt+
 
 ## TODO
 
-TODO(yaxiong): [Merging docker compose and skaffold](
-https://testingclouds.wordpress.com/2021/03/09/migrating-from-docker-compose-to-skaffold/).
-Or make skaffold work with local minikube/kind cluster, and use local images.
+TODO(yzhao): [Making skaffold work with helm](https://github.com/tricorder-observability/helm-charts/issues/56)
