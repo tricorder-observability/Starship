@@ -36,7 +36,7 @@ var deployCmd = &cobra.Command{
 		"For example:\n" +
 		"    starship-cli module deploy --id=ce8a4fbe_45db_49bb_9568_6688dd84480b",
 	Run: func(cmd *cobra.Command, args []string) {
-		url := api.GetURL(apiAddress, api.DEPLOY_MODULE_PATH)
+		url := api.GetURL(apiServerAddress, api.DEPLOY_MODULE_PATH)
 		resp, err := deployModule(url, moduleId)
 		if err != nil {
 			log.Fatalf("Failed to deploy module, id='%s', error: %v", moduleId, err)

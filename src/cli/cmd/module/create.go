@@ -55,7 +55,7 @@ $ starship-cli module create -b path/to/bcc_file -m path/to/module_json_file -w 
 		moduleReq.Ebpf.Code = bccStr
 		// override wasm code contet by wasm file
 		moduleReq.Wasm.Code = wasmBytes
-		url := api.GetURL(apiAddress, api.CREATE_MODULE_PATH)
+		url := api.GetURL(apiServerAddress, api.CREATE_MODULE_PATH)
 		resp, err := createModule(url, moduleReq)
 		if err != nil {
 			log.Error(err)

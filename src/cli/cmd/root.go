@@ -33,7 +33,7 @@ var rootCmd = &cobra.Command{
 	Long:  `CLI to manage starship observe modules.`,
 }
 
-var apiAddress string
+var apiServerAddress string
 
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
@@ -45,9 +45,11 @@ func Execute() {
 }
 
 func init() {
+	const apiServerFlagName = "api-server"
 	rootCmd.AddCommand(module.ModuleCmd)
-	rootCmd.PersistentFlags().StringVar(&apiAddress, "api-address", "localhost:8080", "address of starship api server.")
-	err := viper.BindPFlag("api-address", rootCmd.PersistentFlags().Lookup("api-address"))
+	rootCmd.PersistentFlags().StringVar(&apiServerAddress, apiServerFlagName,
+		"localhost:8080", "address of starship api server.")
+	err := viper.BindPFlag(apiServerFlagName, rootCmd.PersistentFlags().Lookup(apiServerFlagName))
 	if err != nil {
 		log.Errorf("could not bind flag: %v", err)
 	}

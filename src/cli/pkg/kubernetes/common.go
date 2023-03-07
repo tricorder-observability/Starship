@@ -79,6 +79,6 @@ func GetStarshipAPIAddress() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	apiAddress := fmt.Sprintf("%s:%d", ip, port)
-	return apiAddress, nil
+	apiServerAddress := fmt.Sprintf("%s:%d", ip, port)
+	return apiServerAddress, nil
 }

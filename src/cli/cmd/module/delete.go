@@ -36,7 +36,7 @@ var deleteCmd = &cobra.Command{
 $ starship-cli module delete --id 2a339411_7dd8_46ba_9581_e9d41286b564
 `,
 	Run: func(cmd *cobra.Command, args []string) {
-		url := api.GetURL(apiAddress, api.DELETE_MODULE_PATH)
+		url := api.GetURL(apiServerAddress, api.DELETE_MODULE_PATH)
 		resp, err := deleteModule(url, moduleId)
 		if err != nil {
 			log.Error(err)

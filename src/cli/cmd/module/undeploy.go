@@ -36,7 +36,7 @@ var undeployCmd = &cobra.Command{
 $ starship-cli module undeploy --id ce8a4fbe_45db_49bb_9568_6688dd84480b
 `,
 	Run: func(cmd *cobra.Command, args []string) {
-		url := api.GetURL(apiAddress, api.UNDEPLOY_MODULE_PATH)
+		url := api.GetURL(apiServerAddress, api.UNDEPLOY_MODULE_PATH)
 		resp, err := undeployModule(url, moduleId)
 		if err != nil {
 			log.Error(err)
