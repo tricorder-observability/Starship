@@ -80,6 +80,8 @@ jobs:
         with:
           cmd: run build # will run `yarn run build` command
           dir: "ui"
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
       - name: Build and push
         uses: docker/build-push-action@v4
         with:
