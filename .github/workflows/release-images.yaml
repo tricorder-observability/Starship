@@ -1,12 +1,12 @@
-name: Release Images
+name: Build and release images
 
 on:
-  push:
-    branches:
-      - main
+  # Run this workflow when a tag like v0.0.45 is created.
+  tags:
+      - 'v[0-9]+\.[0-9]+\.[0-9]+'
 
-# no dependencies between jobs, so we can save time by building in concurrency
-# refs: https://docs.github.com/en/actions/using-jobs/using-concurrency
+# Only allow running one release action, see more details at:
+# https://docs.github.com/en/actions/using-jobs/using-concurrency
 concurrency:
   group: starship-${{ github.ref }}
   cancel-in-progress: true
@@ -24,7 +24,8 @@ jobs:
     permissions:
       packages: write
     env:
-      TAG: ${{ github.sha }}
+      # https://docs.github.com/en/actions/learn-github-actions/contexts#github-context
+      TAG: ${{ github.ref_name }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
