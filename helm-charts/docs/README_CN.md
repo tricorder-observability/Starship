@@ -1,8 +1,6 @@
 # [星舰（Starship）](https://github.com/tricorder-observability/starship) 安装文档
 
-[![Release Charts](https://github.com/tricorder-observability/helm-charts/actions/workflows/release-chart.yaml/badge.svg)](https://github.com/tricorder-observability/helm-charts/actions/workflows/release-chart.yaml)
-[![Lint Charts](https://github.com/tricorder-observability/helm-charts/actions/workflows/lint-chart.yaml/badge.svg?event=pull_request)](https://github.com/tricorder-observability/helm-charts/actions/workflows/lint-chart.yaml)
-[![Lint Code Base](https://github.com/tricorder-observability/helm-charts/actions/workflows/super-linter.yaml/badge.svg?event=pull_request)](https://github.com/tricorder-observability/helm-charts/actions/workflows/super-linter.yaml)
+[![Release Helm Charts](https://github.com/tricorder-observability/Starship/actions/workflows/release-chart.yaml/badge.svg)](https://github.com/tricorder-observability/Starship/actions/workflows/release-chart.yaml)
 
 ![image](https://user-images.githubusercontent.com/112656580/219543149-2e2bbebc-1891-4dcb-ba66-0f8b7f1bcd68.png)
 ![image](https://user-images.githubusercontent.com/112656580/219542981-5a4e5fb1-0603-4c0b-91e2-c94c36a92c0b.png)
@@ -50,7 +48,7 @@ charts需要为数据库pod创建持久卷PerstientVolume，这需要EBS CSI。
   ```shell
   kubectl get storageclass | grep default
   ```
-  
+
 - 如果你的集群中没有默认的 StorageClass，你可以通过下面的命令来创建默认的 StorageClass。
 
   ```shell
@@ -255,7 +253,7 @@ kubectl delete namespace tricorder
 
 ### 采集 OpenTelemetry 数据
 
-[将 OTel 数据发送到星舰可观测性平台](./send-otlp-data-to-starship.md).
+[将 OTel 数据发送到星舰可观测性平台](./STARSHIP_OTLP.md).
 
 ### 覆盖默认配置
 

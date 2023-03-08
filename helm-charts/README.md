@@ -1,12 +1,8 @@
 # [Starship](https://github.com/tricorder-observability/starship) Helm charts
 
-[![Release Charts](https://github.com/tricorder-observability/helm-charts/actions/workflows/release-chart.yaml/badge.svg)](https://github.com/tricorder-observability/helm-charts/actions/workflows/release-chart.yaml)
-[![Lint Charts](https://github.com/tricorder-observability/helm-charts/actions/workflows/lint-chart.yaml/badge.svg?event=pull_request)](https://github.com/tricorder-observability/helm-charts/actions/workflows/lint-chart.yaml)
+[![Release Helm Charts](https://github.com/tricorder-observability/Starship/actions/workflows/release-chart.yaml/badge.svg)](https://github.com/tricorder-observability/Starship/actions/workflows/release-chart.yaml)
 
 [中文](./docs/README_CN.md)
-
-![image](https://user-images.githubusercontent.com/112656580/219543149-2e2bbebc-1891-4dcb-ba66-0f8b7f1bcd68.png)
-![image](https://user-images.githubusercontent.com/112656580/219542981-5a4e5fb1-0603-4c0b-91e2-c94c36a92c0b.png)
 
 Helm charts for deploying
 [Starship](https://github.com/tricorder-observability/starship)，
@@ -281,7 +277,7 @@ kubectl delete namespace tricorder
 
 ### Send OpenTelemetry data to Starship
 
-[Send OpenTelemetry data to Starship](./docs/send-otlp-data-to-starship.md).
+[Send OpenTelemetry data to Starship](./docs/STARSHIP_OTLP.md).
 
 ### Override default values
 
