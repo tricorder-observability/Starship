@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+
 # no dependencies between jobs, so we can save time by building in concurrency
 # refs: https://docs.github.com/en/actions/using-jobs/using-concurrency
 concurrency:
@@ -15,7 +16,7 @@ env:
   DOCKER_HUB_REGISTRY: docker.io/tricorderobservability
 
 jobs:
-  build-and-push-apiserver-image:
+  build-and-push-backend-images:
     runs-on: ubuntu-latest
     container:
       image: docker.io/tricorderobservability/ci_image:202302140538
@@ -54,33 +55,10 @@ jobs:
         run: bazel run --define=TAG=${TAG} --define=REGISTRY=${DOCKER_HUB_REGISTRY} //src/api-server/cmd:push_api-server_image
         working-directory: .
 
-  build-and-push-agent-image:
-    runs-on: ubuntu-latest
-    container:
-      image: docker.io/tricorderobservability/ci_image:202302140538
-    timeout-minutes: 90
-    permissions:
-      packages: write
-    env:
-      TAG: ${{ github.sha }}
-    steps:
-      - uses: actions/checkout@v3
-      - name: Login to GitHub Package Registry
-        uses: docker/login-action@v2.1.0
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Login to Docker Hub
-        uses: docker/login-action@v2.1.0
-        with:
-          registry: docker.io
-          username: ${{ secrets.DOCKER_HUB_USER_NAME }}
-          password: ${{ secrets.DOCKER_HUB_USER_PASSWORD }}
-      - uses: bazelbuild/setup-bazelisk@v2
       - name: Build and push starship agent image
         run: bazel run --define=TAG=${TAG} --sandbox_debug --define=REGISTRY=${REGISTRY} //src/agent/cmd:push_agent_image
         working-directory: .
+
       - name: Build and push starship agent image to Docker hub
         run: bazel run --define=TAG=${TAG} --define=REGISTRY=${DOCKER_HUB_REGISTRY} //src/agent/cmd:push_agent_image
         working-directory: .
