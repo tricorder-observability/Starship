@@ -37,6 +37,8 @@ jobs:
           create-kind-cluster: "false"
       - name: Release tricorder charts
         uses: helm/chart-releaser-action@v1.4.1
+        args:
+          - "--release-name-template='{{ .Version }}'"
         with:
           charts_dir: helm-charts/charts
         env:
@@ -56,4 +58,3 @@ jobs:
           key: main
           branches: gh-pages
           files: README.md helm-charts/README.md helm-charts/docs
-
