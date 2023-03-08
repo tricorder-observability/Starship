@@ -75,15 +75,15 @@ jobs:
           echo ${{ steps.q.outputs.all }}
       - name: Bazel build affected rules
         if: steps.q.outputs.any_affected == 'true'
-        run: .github/scripts/bazel.sh build --config=github-actions ${{ steps.q.outputs.all }}
+        run: .github/scripts/bazel.sh build ${{ steps.q.outputs.all }}
         shell: bash
       - name: Bazel test affected rules
         if: steps.q.outputs.any_affected == 'true'
-        run: .github/scripts/bazel_test.sh test --config=github-actions --flaky_test_attempts=3 ${{ steps.q.outputs.all }}
+        run: .github/scripts/bazel_test.sh ${{ steps.q.outputs.all }}
         shell: bash
       - name: Bazel test affected BPF rules
         if: steps.q.outputs.any_affected == 'true'
-        run: .github/scripts/bazel_test.sh test --config=github-actions --flaky_test_attempts=3 --config=bpf --cache_test_results=no ${{ steps.q.outputs.all }}
+        run: .github/scripts/bazel_test.sh --config=bpf --cache_test_results=no ${{ steps.q.outputs.all }}
         shell: bash
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v3
