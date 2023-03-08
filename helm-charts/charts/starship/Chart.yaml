@@ -11,7 +11,7 @@ maintainers:
   - name: yaxiong-zhao
 
 # Chart version, updating this version requires a release.
-version: 0.0.45
+version: v0.0.45
 
 # starship image tag
 appVersion: 070f320e3bdd528e533844d782b5520a960077b6
