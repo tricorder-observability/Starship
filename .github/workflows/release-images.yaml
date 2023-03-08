@@ -1,8 +1,9 @@
 name: Build and release images
 
 on:
-  # Run this workflow when a tag like v0.0.45 is created.
-  tags:
+  push:
+    # Run this workflow when a tag like v0.0.45 is created.
+    tags:
       - 'v[0-9]+\.[0-9]+\.[0-9]+'
 
 # Only allow running one release action, see more details at:
