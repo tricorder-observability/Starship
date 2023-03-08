@@ -3,7 +3,7 @@ name: Task
 about: Small and independent assignment that could be assigned to new team member
 title: ''
 labels: community, help wanted, needs-triage
-assignees: yaxiong-zhao
+assignees: ''
 
 ---
 

@@ -2,8 +2,8 @@
 name: Question
 about: Ask a question about Starship, its technical details, usage, roadmap, and others
 title: "[Q] "
-labels: needs-triage, question
-assignees: yaxiong-zhao
+labels: community, needs-triage, question
+assignees: ''
 
 ---
 
