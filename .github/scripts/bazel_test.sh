@@ -8,7 +8,7 @@
 # Also ignore the 4 return code, which means no test targets but test requested.
 # We do not want to create complex bazel query, instead just ignore such
 # failure.
-bazel test --config=github-actions --flaky_test_attempts=3 "$@"
+bazel test --config=github-actions --flaky_test_attempts=3 --cache_test_results=no "$@"
 exit_code="$?"
 if [[ "${exit_code}" == "4" ]]; then
   exit 0

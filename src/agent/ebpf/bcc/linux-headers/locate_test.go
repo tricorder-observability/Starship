@@ -203,6 +203,9 @@ func TestFindKernelConfig(t *testing.T) {
 	assert.Nil(err)
 }
 
+const testdataConfig = "src/agent/ebpf/bcc/linux-headers/testdata/config"
+const testdataConfigGZ = "src/agent/ebpf/bcc/linux-headers/testdata/config.gz"
+
 // Tests that genAutoConf() generates the correct autoconf file.
 func TestGenAutoConf(t *testing.T) {
 	assert := assert.New(t)
@@ -214,14 +217,14 @@ func TestGenAutoConf(t *testing.T) {
 	assert.ErrorContains(err, "could not reader ", path.Join("non-existent-dir", "include/generated/autoconf.h"))
 
 	// package header is 'non-existent-dir', return error
-	configPath := testuitls.TestFilePath("src/agent/ebpf/bcc/linux_headers/testdata/config")
+	configPath := testuitls.TestFilePath(testdataConfig)
 	resHZ, err = genAutoConf("non-existent-dir", configPath)
 	assert.Equal(0, resHZ)
 	assert.ErrorContains(err, "empty package header dir ", "non-existent-dir")
 
 	// config file is correct, generate the correct autoconf file
 	tmpDir = testuitls.CreateTmpDir()
-	configPath = testuitls.TestFilePath("src/agent/ebpf/bcc/linux_headers/testdata/config")
+	configPath = testuitls.TestFilePath(testdataConfig)
 	resHZ, err = genAutoConf(tmpDir, configPath)
 	assert.Nil(err)
 	assert.Equal(250, resHZ)
@@ -238,7 +241,7 @@ func TestGenAutoConf(t *testing.T) {
 
 	// config.gz file is correct, generate the correct autoconf file
 	tmpDir = testuitls.CreateTmpDir()
-	configPath = testuitls.TestFilePath("src/agent/ebpf/bcc/linux_headers/testdata/config.gz")
+	configPath = testuitls.TestFilePath(testdataConfigGZ)
 	resHZ, err = genAutoConf(tmpDir, configPath)
 	assert.Nil(err)
 	assert.Equal(250, resHZ)
@@ -295,7 +298,7 @@ func TestApplyConfigPatches(t *testing.T) {
 	assert.ErrorContains(err, "no kernel config found")
 
 	configPath := path.Join(tmpHostRootDir, "proc/config")
-	testConfigPath := testuitls.TestFilePath("src/agent/ebpf/bcc/linux_headers/testdata/config")
+	testConfigPath := testuitls.TestFilePath(testdataConfig)
 	assert.Nil(file.Create(configPath))
 	assert.Nil(file.Copy(testConfigPath, configPath))
 
@@ -332,7 +335,7 @@ func TestLocateAndInstallPackageHeaders(t *testing.T) {
 	tmpInstallHeadersDir := testuitls.CreateTmpDir()
 
 	configPath := path.Join(tmpHostRootDir, "proc/config")
-	testConfigPath := testuitls.TestFilePath("src/agent/ebpf/bcc/linux_headers/testdata/config")
+	testConfigPath := testuitls.TestFilePath(testdataConfig)
 	assert.Nil(file.Create(configPath))
 	assert.Nil(file.Copy(testConfigPath, configPath))
 
@@ -423,7 +426,7 @@ func TestFindKernelHeadersTarFile(t *testing.T) {
 	tmpInstallHeadersDir := testuitls.CreateTmpDir()
 
 	configPath := path.Join(tmpHostRootDir, "proc/config")
-	testConfigPath := testuitls.TestFilePath("src/agent/ebpf/bcc/linux_headers/testdata/config")
+	testConfigPath := testuitls.TestFilePath(testdataConfig)
 	assert.Nil(file.Create(configPath))
 	assert.Nil(file.Copy(testConfigPath, configPath))
 
