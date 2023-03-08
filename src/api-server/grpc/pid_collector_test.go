@@ -29,7 +29,6 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/kubernetes/fake"
 
-	apiservergrpc "github.com/tricorder/src/api-server/grpc"
 	pb "github.com/tricorder/src/api-server/pb"
 	"github.com/tricorder/src/testing/pg"
 	grpcutils "github.com/tricorder/src/utils/grpc"
@@ -70,8 +69,11 @@ func TestProcessCollectorIntegration(t *testing.T) {
 
 	f, err := grpcutils.NewServerFixture(0)
 	require.Nil(err)
-	apiservergrpc.RegisterProcessCollectorServer(f, clientset, pgClient)
+	RegisterProcessCollectorServer(f, clientset, pgClient)
 	go func() { require.Nil(f.Serve()) }()
+
+	grpcConn, err := grpcutils.DialInsecure(f.Addr.String())
+	require.Nil(err)
 
 	processCollectorClient := pb.NewProcessCollectorClient(grpcConn)
 	clientStream, err := processCollectorClient.ReportProcess(context.Background())
