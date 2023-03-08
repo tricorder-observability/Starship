@@ -19,21 +19,20 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"net"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/kubernetes/fake"
 
+	apiservergrpc "github.com/tricorder/src/api-server/grpc"
 	pb "github.com/tricorder/src/api-server/pb"
 	"github.com/tricorder/src/testing/pg"
+	grpcutils "github.com/tricorder/src/utils/grpc"
 	upg "github.com/tricorder/src/utils/pg"
 )
 
@@ -69,20 +68,10 @@ func TestProcessCollectorIntegration(t *testing.T) {
 		assert.Nil(cleaner())
 	}()
 
-	// Start ProcessCollector server side in normal flow
-	grpcLis, err := net.Listen("tcp", ":50051")
-	assert.Nil(err)
-	defer grpcLis.Close()
-
-	grpcServer := grpc.NewServer()
-	pb.RegisterProcessCollectorServer(grpcServer, NewPIDCollector(clientset, pgClient))
-	go func() {
-		err = grpcServer.Serve(grpcLis)
-	}()
-
-	// Mock a ProcessCollector client side interact with server side
-	grpcConn, err := grpc.Dial("127.0.0.1:50051", grpc.WithTransportCredentials(insecure.NewCredentials()))
-	assert.Nil(err)
+	f, err := grpcutils.NewServerFixture(0)
+	require.Nil(err)
+	apiservergrpc.RegisterProcessCollectorServer(f, clientset, pgClient)
+	go func() { require.Nil(f.Serve()) }()
 
 	processCollectorClient := pb.NewProcessCollectorClient(grpcConn)
 	clientStream, err := processCollectorClient.ReportProcess(context.Background())
