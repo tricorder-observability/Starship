@@ -52,7 +52,7 @@ helm install my-starship tricorder-starship/starship
 ```
 
 You should see the following pods running on your cluster.
-![image](https://user-images.githubusercontent.com/1126565
+![image](https://user-images.githubusercontent.com/1126565)
 
 More details can be found at [helm-charts installation](
 https://github.com/tricorder-observability/Starship/tree/main/helm-charts).
