@@ -81,14 +81,14 @@ jobs:
       - name: Check README.md
         run: .github/scripts/check_readme.sh
         shell: bash
-  check-readme:
-    name: Markdown filenames
+  check-markdown-filenam:
+    name: Markdown filename
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       # Check that all markdown filenames are uppercase
       - name: Check markdown files
-        run: .github/scripts/check_markdown_naming.sh
+        run: .github/scripts/check_markdown_filename.sh
         shell: bash
   golangci-lint:
     name: Golangci-Lint
