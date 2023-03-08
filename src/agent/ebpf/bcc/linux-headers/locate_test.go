@@ -203,8 +203,10 @@ func TestFindKernelConfig(t *testing.T) {
 	assert.Nil(err)
 }
 
-const testdataConfig = "src/agent/ebpf/bcc/linux-headers/testdata/config"
-const testdataConfigGZ = "src/agent/ebpf/bcc/linux-headers/testdata/config.gz"
+const (
+	testdataConfig   = "src/agent/ebpf/bcc/linux-headers/testdata/config"
+	testdataConfigGZ = "src/agent/ebpf/bcc/linux-headers/testdata/config.gz"
+)
 
 // Tests that genAutoConf() generates the correct autoconf file.
 func TestGenAutoConf(t *testing.T) {
