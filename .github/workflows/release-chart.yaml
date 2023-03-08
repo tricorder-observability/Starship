@@ -37,12 +37,11 @@ jobs:
           create-kind-cluster: "false"
       - name: Release tricorder charts
         uses: helm/chart-releaser-action@v1.4.1
-        args:
-          - "--release-name-template='{{ .Version }}'"
         with:
           charts_dir: helm-charts/charts
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+          CR_RELEASE_NAME_TEMPLATE: "{{ .Version }}"
   copy-readme:
     name: Copy README.md
     runs-on: ubuntu-latest
