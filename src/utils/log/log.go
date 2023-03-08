@@ -217,6 +217,7 @@ func Errorln(args ...interface{}) {
 // Panicln logs a message at logrus. Level Panic on the standard logger.
 func Panicln(args ...interface{}) {
 	logger().Panicln(args...)
+	// Extra change for triggering tests
 }
 
 // Fatalln logs a message at logrus. Level Fatal on the standard logger then the process will exit with status set to 1.
