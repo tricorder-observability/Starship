@@ -25,7 +25,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/tricorder/src/api-server/http/api"
-	"github.com/tricorder/src/cli/internal/outputs"
+	"github.com/tricorder/src/cli/pkg/outputs"
 )
 
 var deleteCmd = &cobra.Command{

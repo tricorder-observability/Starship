@@ -24,7 +24,7 @@ import (
 	"github.com/tricorder/src/utils/log"
 
 	"github.com/tricorder/src/api-server/http/api"
-	"github.com/tricorder/src/cli/internal/outputs"
+	"github.com/tricorder/src/cli/pkg/outputs"
 
 	"github.com/spf13/cobra"
 )

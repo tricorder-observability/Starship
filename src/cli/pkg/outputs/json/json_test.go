@@ -13,21 +13,31 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-package yaml
+package json
 
 import (
-	"fmt"
+	"testing"
 
-	"gopkg.in/yaml.v2"
+	"github.com/stretchr/testify/assert"
 
-	"github.com/tricorder/src/cli/internal/model"
+	"github.com/tricorder/src/cli/pkg/model"
+	sysutils "github.com/tricorder/src/testing/sys"
 )
 
-func Output(data *model.Response) error {
-	bytes, e := yaml.Marshal(data)
-	if e != nil {
-		return e
+func TestOutput(t *testing.T) {
+	m := &model.Response{
+		Code:    "200",
+		Message: "success",
+		Data: []map[string]interface{}{
+			{
+				"name": "mock-data",
+			},
+		},
 	}
-	_, e = fmt.Printf("%v", string(bytes))
-	return e
+	assert := assert.New(t)
+	out := sysutils.CaptureStdout(func() {
+		err := Output(m)
+		assert.Nil(err)
+	})
+	assert.Contains(out, "{\"data\":[{\"name\":\"mock-data\"}],\"code\":\"200\",\"message\":\"success\"}")
 }

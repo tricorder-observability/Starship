@@ -3,13 +3,13 @@ load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
 go_library(
     name = "outputs",
     srcs = ["output.go"],
-    importpath = "github.com/tricorder/src/cli/internal/outputs",
+    importpath = "github.com/tricorder/src/cli/pkg/outputs",
     visibility = ["//src/cli:__subpackages__"],
     deps = [
-        "//src/cli/internal/model",
-        "//src/cli/internal/outputs/json",
-        "//src/cli/internal/outputs/table",
-        "//src/cli/internal/outputs/yaml",
+        "//src/cli/pkg/model",
+        "//src/cli/pkg/outputs/json",
+        "//src/cli/pkg/outputs/table",
+        "//src/cli/pkg/outputs/yaml",
     ],
 )
 
@@ -18,7 +18,7 @@ go_test(
     srcs = ["output_test.go"],
     embed = [":outputs"],
     deps = [
-        "//src/cli/internal/model",
+        "//src/cli/pkg/model",
         "//src/testing/sys",
         "@com_github_stretchr_testify//assert",
     ],
