@@ -5,7 +5,7 @@ go_library(
     srcs = ["json.go"],
     importpath = "github.com/tricorder/src/cli/internal/outputs/json",
     visibility = ["//src/cli:__subpackages__"],
-    deps = ["//src/cli/internal/model"],
+    deps = ["//src/cli/pkg/model"],
 )
 
 go_test(
@@ -13,7 +13,7 @@ go_test(
     srcs = ["json_test.go"],
     embed = [":json"],
     deps = [
-        "//src/cli/internal/model",
+        "//src/cli/pkg/model",
         "//src/testing/sys",
         "@com_github_stretchr_testify//assert",
     ],

@@ -6,10 +6,10 @@ go_library(
     importpath = "github.com/tricorder/src/cli/internal/outputs",
     visibility = ["//src/cli:__subpackages__"],
     deps = [
-        "//src/cli/internal/model",
         "//src/cli/internal/outputs/json",
         "//src/cli/internal/outputs/table",
         "//src/cli/internal/outputs/yaml",
+        "//src/cli/pkg/model",
     ],
 )
 
@@ -18,7 +18,7 @@ go_test(
     srcs = ["output_test.go"],
     embed = [":outputs"],
     deps = [
-        "//src/cli/internal/model",
+        "//src/cli/pkg/model",
         "//src/testing/sys",
         "@com_github_stretchr_testify//assert",
     ],

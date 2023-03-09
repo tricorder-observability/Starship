@@ -3,6 +3,6 @@ load("@io_bazel_rules_go//go:def.bzl", "go_library")
 go_library(
     name = "model",
     srcs = ["response.go"],
-    importpath = "github.com/tricorder/src/cli/internal/model",
+    importpath = "github.com/tricorder/src/cli/pkg/model",
     visibility = ["//src/cli:__subpackages__"],
 )

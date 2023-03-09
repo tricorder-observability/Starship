@@ -19,7 +19,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/tricorder/src/cli/internal/model"
+	"github.com/tricorder/src/cli/pkg/model"
 )
 
 func Output(data *model.Response) error {

@@ -21,7 +21,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/tricorder/src/cli/internal/model"
+	"github.com/tricorder/src/cli/pkg/model"
 	sysutils "github.com/tricorder/src/testing/sys"
 )
 

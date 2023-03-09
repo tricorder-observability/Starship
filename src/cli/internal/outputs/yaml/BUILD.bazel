@@ -6,7 +6,7 @@ go_library(
     importpath = "github.com/tricorder/src/cli/internal/outputs/yaml",
     visibility = ["//src/cli:__subpackages__"],
     deps = [
-        "//src/cli/internal/model",
+        "//src/cli/pkg/model",
         "@in_gopkg_yaml_v2//:yaml_v2",
     ],
 )
@@ -16,7 +16,7 @@ go_test(
     srcs = ["yaml_test.go"],
     embed = [":yaml"],
     deps = [
-        "//src/cli/internal/model",
+        "//src/cli/pkg/model",
         "//src/testing/sys",
         "@com_github_stretchr_testify//assert",
     ],

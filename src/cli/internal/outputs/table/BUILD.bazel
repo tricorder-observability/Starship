@@ -6,7 +6,7 @@ go_library(
     importpath = "github.com/tricorder/src/cli/internal/outputs/table",
     visibility = ["//src/cli:__subpackages__"],
     deps = [
-        "//src/cli/internal/model",
+        "//src/cli/pkg/model",
         "@com_github_olekukonko_tablewriter//:tablewriter",
     ],
 )
@@ -16,7 +16,7 @@ go_test(
     srcs = ["table_test.go"],
     embed = [":table"],
     deps = [
-        "//src/cli/internal/model",
+        "//src/cli/pkg/model",
         "//src/testing/sys",
         "@com_github_stretchr_testify//assert",
     ],

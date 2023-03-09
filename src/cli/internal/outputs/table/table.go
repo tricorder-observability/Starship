@@ -21,7 +21,7 @@ import (
 
 	"github.com/olekukonko/tablewriter"
 
-	"github.com/tricorder/src/cli/internal/model"
+	"github.com/tricorder/src/cli/pkg/model"
 )
 
 func Output(resp *model.Response) error {
