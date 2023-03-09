@@ -29,7 +29,6 @@ import (
 
 	pb "github.com/tricorder/src/api-server/pb"
 	grpcutils "github.com/tricorder/src/utils/grpc"
-	"github.com/tricorder/src/utils/grpcerr"
 	"github.com/tricorder/src/utils/log"
 	"github.com/tricorder/src/utils/pg"
 	"github.com/tricorder/src/utils/retry"
@@ -76,7 +75,7 @@ func RegisterProcessCollectorServer(f *grpcutils.ServerFixture, clientset kubern
 func (s *PIDCollector) ReportProcess(stream pb.ProcessCollector_ReportProcessServer) error {
 	for {
 		pw, err := stream.Recv()
-		if grpcerr.IsUnavailable(err) {
+		if err != nil {
 			log.Warnf("Agent disconnected, error: %v", err)
 			// The informer will be stopped when stopCh is closed.
 			close(s.podInformerQuitChan)
