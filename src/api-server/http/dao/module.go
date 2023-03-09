@@ -16,8 +16,6 @@
 package dao
 
 import (
-	"fmt"
-
 	"gorm.io/gorm/clause"
 
 	"github.com/tricorder/src/utils/sqlite"
@@ -60,10 +58,6 @@ func (g *ModuleDao) SaveModule(mod *ModuleGORM) error {
 }
 
 func (g *ModuleDao) UpdateByID(mod *ModuleGORM) error {
-	if len(mod.ID) == 0 {
-		return fmt.Errorf("module is 0")
-	}
-
 	result := g.Client.Engine.Model(&ModuleGORM{ID: mod.ID}).Updates(mod)
 	return result.Error
 }
@@ -78,17 +72,14 @@ func (g *ModuleDao) DeleteByID(id string) error {
 	return result.Error
 }
 
-func (g *ModuleDao) ListModule(query ...string) ([]ModuleGORM, error) {
+func (g *ModuleDao) ListModule(fields []string) ([]ModuleGORM, error) {
 	moduleList := make([]ModuleGORM, 0)
-	if len(query) == 0 {
-		query = []string{"id", "name", "desire_state", "create_time", "schema_attr", "fn", "ebpf"}
-	}
 	result := g.Client.Engine.
-		Select(query).Where("name is not null and name != '' ").
+		Select(fields).Where("name is not null and name != '' ").
 		Order("create_time desc").
 		Find(&moduleList)
 	if result.Error != nil {
-		return nil, fmt.Errorf("query module list error:%v", result.Error)
+		return nil, result.Error
 	}
 	return moduleList, nil
 }
@@ -97,25 +88,25 @@ func (g *ModuleDao) ListModuleByStatus(status int) ([]ModuleGORM, error) {
 	moduleList := make([]ModuleGORM, 0)
 	result := g.Client.Engine.Where(&ModuleGORM{DesireState: status}).Order("create_time desc").Find(&moduleList)
 	if result.Error != nil {
-		return nil, fmt.Errorf("query module list by status error:%v", result.Error)
+		return nil, result.Error
 	}
 	return moduleList, nil
 }
 
-func (g *ModuleDao) QueryByName(name string) (*ModuleGORM, error) {
+// queryAtMostOneRecord returns at most one record, basically simulate gorm First() without producing error logging.
+func (g *ModuleDao) queryAtMostOneRecord(m *ModuleGORM) (*ModuleGORM, error) {
 	module := &ModuleGORM{}
-	result := g.Client.Engine.Where(&ModuleGORM{Name: name}).First(module)
-	if result.Error != nil {
-		return nil, fmt.Errorf("query module by name error:%v", result.Error)
+	result := g.Client.Engine.Where(m).Find(module)
+	if result.RowsAffected == 0 {
+		return nil, result.Error
 	}
-	return module, nil
+	return module, result.Error
+}
+
+func (g *ModuleDao) QueryByName(name string) (*ModuleGORM, error) {
+	return g.queryAtMostOneRecord(&ModuleGORM{Name: name})
 }
 
 func (g *ModuleDao) QueryByID(id string) (*ModuleGORM, error) {
-	module := &ModuleGORM{}
-	result := g.Client.Engine.Where(&ModuleGORM{ID: id}).First(module)
-	if result.Error != nil {
-		return nil, fmt.Errorf("query module by id error:%v", result.Error)
-	}
-	return module, nil
+	return g.queryAtMostOneRecord(&ModuleGORM{ID: id})
 }
