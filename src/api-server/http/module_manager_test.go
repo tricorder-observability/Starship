@@ -87,13 +87,13 @@ func TestModuleManager(t *testing.T) {
 	mgr.PGClient = pgClient
 
 	r.GET("/api/listModule", mgr.listModuleHttp)
-	req, _ := http.NewRequest("GET", "/api/listModule?fields=id,name,desire_state", nil)
+	req, err := http.NewRequest("GET", "/api/listModule", nil)
+	require.Nil(err)
 
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, req)
 	resultStr := w.Body.String()
-	fmt.Printf("list module: %s", resultStr)
-	assert.Equal(true, strings.Contains(resultStr, "Success"))
+	require.Contains(resultStr, "Success")
 
 	wasmUid := "test_wasm_uid"
 	modulID := AddModule(t, wasmUid, r)

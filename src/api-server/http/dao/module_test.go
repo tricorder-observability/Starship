@@ -110,19 +110,19 @@ func TestModule(t *testing.T) {
 		"change module status error: not change module status")
 
 	// get module list *
-	list, err := moduleDao.ListModule("*")
+	list, err := moduleDao.ListModule([]string{"*"})
 	assert.Nil(err, "query module list error: %v", err)
 	assert.NotEqual(len(list), 0, "query module list error: not found module data")
 	assert.NotEqual(len(list[0].Wasm), 0, "query module list error: not found wasm data")
 
 	// get module list default
-	list, err = moduleDao.ListModule()
-	assert.Nil(err, "query module list default error: %v", err)
-	assert.NotEqual(len(list), 0, "query module list erro default: not found module data")
-	assert.Equal(len(list[0].Wasm), 0, "query module list erro default: not found wasm data")
+	list, err = moduleDao.ListModule(nil)
+	assert.Nil(err)
+	// Return all records.
+	assert.Equal(1, len(list))
 
 	// get module list default
-	list, err = moduleDao.ListModule("id", "name")
+	list, err = moduleDao.ListModule([]string{"id", "name"})
 	assert.Nil(err, "query module list default error: %v", err)
 	assert.NotEqual(len(list), 0, "query module list erro default: not found module data")
 	assert.NotEqual(len(list[0].ID), 0, "query module list erro default: ID is empty")

@@ -54,6 +54,7 @@ type ListModuleReq struct {
 	// Empty list instructs server to return a default set of fields.
 	// This allows client to control the size of the returned data to trade-off between responsiveness and completeness of
 	// returned information.
+	// TODO(yzhao): Change to string slice.
 	Fields string
 }
 

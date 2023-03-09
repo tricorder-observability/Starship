@@ -162,18 +162,22 @@ func (mgr *ModuleManager) createModule(body CreateModuleReq) CreateModuleResp {
 // @Success      200  {object}  ListModuleResp
 // @Router       /api/listModule [get]
 func (mgr *ModuleManager) listModuleHttp(c *gin.Context) {
-	fields, err := checkQuery(c, "fields")
-	if err != nil {
-		return
+	// Allow fields to be omitted.
+	const fieldsKey = "fields"
+	const defaultFields = "id,name,desire_state,create_time,schema_attr,fn,ebpf"
+	fields, exists := c.GetQuery(fieldsKey)
+	if !exists {
+		log.Debugf("listModule request has no 'fields', use default fields: %s", defaultFields)
+		fields = defaultFields
 	}
 	result := mgr.listModule(ListModuleReq{Fields: fields})
 	c.JSON(http.StatusOK, result)
 }
 
 func (mgr *ModuleManager) listModule(req ListModuleReq) ListModuleResp {
-	resultList, err := mgr.Module.ListModule(req.Fields)
+	fields := strings.Split(req.Fields, ",")
+	resultList, err := mgr.Module.ListModule(fields)
 	if err != nil {
-		log.Errorf("Failed to list module, error: %v", err)
 		return ListModuleResp{HTTPResp{
 			Code:    500,
 			Message: "Query Error: " + err.Error(),
