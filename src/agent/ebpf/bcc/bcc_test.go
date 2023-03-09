@@ -60,7 +60,7 @@ func TestAttachPerfEvent(t *testing.T) {
 	})
 	assert.Nil(err)
 
-	perfBuf, err := m.NewPerfBuffer("events")
+	perfBuf, err := m.newPerfBuffer("events")
 	require.Nil(err)
 	perfBuf.Start()
 
@@ -90,7 +90,7 @@ func TestAttachKprobe(t *testing.T) {
 	})
 	assert.Nil(err)
 
-	perfBuf, err := m.NewPerfBuffer("events")
+	perfBuf, err := m.newPerfBuffer("events")
 	require.Nil(err)
 	perfBuf.Start()
 
@@ -109,7 +109,7 @@ func TestAttachKprobe(t *testing.T) {
 	})
 	assert.Nil(err)
 
-	perfBuf, err = m.NewPerfBuffer("events")
+	perfBuf, err = m.newPerfBuffer("events")
 	require.Nil(err)
 	perfBuf.Start()
 
@@ -139,7 +139,7 @@ func TestAttachSyscallProbe(t *testing.T) {
 	})
 	assert.Nil(err)
 
-	perfBuf, err := m.NewPerfBuffer("events")
+	perfBuf, err := m.newPerfBuffer("events")
 	require.Nil(err)
 	perfBuf.Start()
 
@@ -158,7 +158,7 @@ func TestAttachSyscallProbe(t *testing.T) {
 	})
 	assert.Nil(err)
 
-	perfBuf, err = m.NewPerfBuffer("events")
+	perfBuf, err = m.newPerfBuffer("events")
 	require.Nil(err)
 	perfBuf.Start()
 
@@ -188,7 +188,7 @@ func TestAttachTPProbe(t *testing.T) {
 	})
 	assert.Nil(err)
 
-	perfBuf, err := m.NewPerfBuffer("events")
+	perfBuf, err := m.newPerfBuffer("events")
 	require.Nil(err)
 	perfBuf.Start()
 
@@ -222,7 +222,7 @@ func TestAttachUProbe(t *testing.T) {
 	})
 	assert.Nil(err)
 
-	perfBuf, err := m.NewPerfBuffer("events")
+	perfBuf, err := m.newPerfBuffer("events")
 	require.Nil(err)
 	perfBuf.Start()
 
@@ -247,7 +247,7 @@ func TestAttachUProbe(t *testing.T) {
 	})
 	assert.Nil(err)
 
-	perfBuf, err = m.NewPerfBuffer("events")
+	perfBuf, err = m.newPerfBuffer("events")
 	require.Nil(err)
 	perfBuf.Start()
 

@@ -30,7 +30,7 @@ type PerfBuffer struct {
 	bccPerfMap *bcc.PerfMap
 }
 
-func NewPerfBuffer(m *bcc.Module, name string) (*PerfBuffer, error) {
+func newPerfBuffer(m *bcc.Module, name string) (*PerfBuffer, error) {
 	res := new(PerfBuffer)
 	res.Name = name
 	res.bccTable = bcc.NewTable(m.TableId(name), m)

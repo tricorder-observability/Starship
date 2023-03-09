@@ -59,7 +59,7 @@ func (p *Program) Init() error {
 			return fmt.Errorf("failed to attach probe '%s', error: %v", probe, err)
 		}
 	}
-	perfBuffer, err := p.mod.NewPerfBuffer(p.spec.PerfBufferName)
+	perfBuffer, err := p.mod.newPerfBuffer(p.spec.PerfBufferName)
 	if err != nil {
 		return fmt.Errorf("while initializing eBPF program, failed to create PerfBuffer, error: %v", err)
 	}

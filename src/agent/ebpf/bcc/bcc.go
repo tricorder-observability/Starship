@@ -44,9 +44,9 @@ func newModule(code string) (*module, error) {
 	return &module{m: bccModule}, nil
 }
 
-// NewPerfBuffer returns a PerfBuffer object with the input name.
-func (m *module) NewPerfBuffer(name string) (*PerfBuffer, error) {
-	return NewPerfBuffer(m.m, name)
+// newPerfBuffer returns a PerfBuffer object with the input name.
+func (m *module) newPerfBuffer(name string) (*PerfBuffer, error) {
+	return newPerfBuffer(m.m, name)
 }
 
 // LoadKprobe load the kprobe specified by the input name, and returns the file descriptor pointed to
