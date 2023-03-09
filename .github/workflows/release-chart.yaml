@@ -42,8 +42,8 @@ jobs:
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
           CR_RELEASE_NAME_TEMPLATE: "{{ .Version }}"
-  copy-readme:
-    name: Copy README.md
+  release-gh-pages:
+    name: Release GitHub pages
     runs-on: ubuntu-latest
     permissions: write-all
     steps:
