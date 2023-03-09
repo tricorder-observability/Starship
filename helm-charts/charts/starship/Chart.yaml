@@ -11,10 +11,10 @@ maintainers:
   - name: yaxiong-zhao
 
 # Chart version, updating this version requires a release.
-version: v0.0.45
+version: v0.0.46
 
 # starship image tag
-appVersion: 070f320e3bdd528e533844d782b5520a960077b6
+appVersion: v0.0.46
 
 dependencies:
   - name: timescaledb-single
