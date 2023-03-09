@@ -2,6 +2,37 @@ apiVersion: v1
 entries:
   starship:
   - apiVersion: v2
+    appVersion: v0.0.46
+    created: "2023-03-09T04:53:45.410081038Z"
+    dependencies:
+    - condition: timescaledb-single.enabled
+      name: timescaledb-single
+      repository: https://charts.timescale.com
+      version: 0.27.5
+    - condition: promscale.enabled
+      name: promscale
+      repository: https://charts.timescale.com
+      version: 14.6.1
+    - condition: kube-prometheus-stack.enabled
+      name: kube-prometheus-stack
+      repository: https://prometheus-community.github.io/helm-charts
+      version: 43.2.1
+    - condition: grafana.enabled
+      name: grafana
+      repository: https://grafana.github.io/helm-charts
+      version: 6.51.1
+    description: '"Helm Charts for Starship, Tricorder Observability''s next-generatoin
+      " "Observability Platform built on eBPF+WASM" '
+    digest: e57ee2fa8326f5828a80cd3a8bbfa3066ab178dc3aa4677ce724c2b9ab90ec91
+    maintainers:
+    - name: yaxiong-zhao
+    name: starship
+    sources:
+    - https://github.com/tricorder-observability/Starship/helm-charts
+    urls:
+    - https://github.com/tricorder-observability/Starship/releases/download/v0.0.46/starship-v0.0.46.tgz
+    version: v0.0.46
+  - apiVersion: v2
     appVersion: 070f320e3bdd528e533844d782b5520a960077b6
     created: "2023-03-08T07:32:12.531296737Z"
     dependencies:
@@ -63,4 +94,4 @@ entries:
     urls:
     - https://github.com/tricorder-observability/Starship/releases/download/starship-0.0.44/starship-0.0.44.tgz
     version: 0.0.44
-generated: "2023-03-08T07:32:12.531311037Z"
+generated: "2023-03-09T04:53:45.410098639Z"
