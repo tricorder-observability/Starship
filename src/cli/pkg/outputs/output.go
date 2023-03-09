@@ -21,9 +21,9 @@ import (
 	"strings"
 
 	"github.com/tricorder/src/cli/pkg/model"
-	json_output "github.com/tricorder/src/cli/internal/outputs/json"
-	"github.com/tricorder/src/cli/internal/outputs/table"
-	yaml_output "github.com/tricorder/src/cli/internal/outputs/yaml"
+	json_output "github.com/tricorder/src/cli/pkg/outputs/json"
+	"github.com/tricorder/src/cli/pkg/outputs/table"
+	yaml_output "github.com/tricorder/src/cli/pkg/outputs/yaml"
 )
 
 const (

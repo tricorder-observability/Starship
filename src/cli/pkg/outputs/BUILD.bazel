@@ -1,20 +1,22 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
 
 go_library(
-    name = "table",
-    srcs = ["table.go"],
-    importpath = "github.com/tricorder/src/cli/internal/outputs/table",
+    name = "outputs",
+    srcs = ["output.go"],
+    importpath = "github.com/tricorder/src/cli/pkg/outputs",
     visibility = ["//src/cli:__subpackages__"],
     deps = [
         "//src/cli/pkg/model",
-        "@com_github_olekukonko_tablewriter//:tablewriter",
+        "//src/cli/pkg/outputs/json",
+        "//src/cli/pkg/outputs/table",
+        "//src/cli/pkg/outputs/yaml",
     ],
 )
 
 go_test(
-    name = "table_test",
-    srcs = ["table_test.go"],
-    embed = [":table"],
+    name = "outputs_test",
+    srcs = ["output_test.go"],
+    embed = [":outputs"],
     deps = [
         "//src/cli/pkg/model",
         "//src/testing/sys",
