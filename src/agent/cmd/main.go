@@ -61,30 +61,36 @@ func main() {
 	}
 
 	deployer := deployer.New(*apiServerAddr, cfg.nodeName, cfg.podID)
-	err = retry.ExpBackOffWithLimit(func() error {
+	for {
+		communicateWithNode(cfg.nodeName, deployer)
+	}
+
+	deployer.Stop()
+	log.Infof("Hello deployer\n")
+}
+
+func communicateWithNode(nodeName string, deployer *deployer.Deployer) error {
+	err := retry.ExpBackOffWithLimit(func() error {
 		return deployer.ConnectToAPIServer()
 	})
 	if err != nil {
-		log.Fatalf("Failed to connect to API server, error: %v", err)
+		log.Errorf("Failed to connect to API server, error: %v", err)
+		return err
 	}
 
 	pgClient := pg.NewClient(*modulePGURL)
 	err = retry.ExpBackOffWithLimit(pgClient.Connect)
 	if err != nil {
-		log.Fatalf("Failed to connect to database at '%s', error: %v", *modulePGURL, err)
+		log.Errorf("Failed to connect to database at '%s', error: %v", *modulePGURL, err)
+		return err
 	}
 	deployer.PGClient = pgClient
 
-	collector := proc_info.NewCollector(*hostSysRootPath, *apiServerAddr, cfg.nodeName)
+	collector := proc_info.NewCollector(*hostSysRootPath, *apiServerAddr, nodeName)
 	if err := collector.StartProcInfoReport(); err != nil {
 		log.Errorf("Failed to ReportProcess, error: %v", err)
+		return err
 	}
 
-	err = deployer.StartModuleDeployLoop()
-	if err != nil {
-		log.Fatalf("Failed to start deployment loop, error: %v", err)
-	}
-
-	deployer.Stop()
-	log.Infof("Hello deployer\n")
+	return deployer.StartModuleDeployLoop()
 }
