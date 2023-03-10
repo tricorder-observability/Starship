@@ -36,6 +36,7 @@ import (
 	pgclienttest "github.com/tricorder/src/testing/pg"
 	"github.com/tricorder/src/utils/cond"
 	"github.com/tricorder/src/utils/lock"
+	"github.com/tricorder/src/utils/uuid"
 )
 
 var mgr = ModuleManager{DatasourceUID: "test"}
@@ -97,6 +98,7 @@ func TestModuleManager(t *testing.T) {
 
 	wasmUid := "test_wasm_uid"
 	modulID := AddModule(t, wasmUid, r)
+	nodeAgentID := AddAgent(t, r)
 
 	r.GET("/api/deployModule", mgr.deployModuleHttp)
 	req, err = http.NewRequest("GET", fmt.Sprintf("/api/deployModule?id=%s", modulID), nil)
@@ -117,6 +119,14 @@ func TestModuleManager(t *testing.T) {
 	assert.Nil(err)
 	assert.Equal(int(pb.ModuleState_DEPLOYED), moduleResult.DesireState)
 
+	// check module instance's status
+	moduleInstanceResult, err := mgr.ModuleInstance.ListByModuleID(modulID)
+	assert.Nil(err)
+	assert.Equal(1, len(moduleInstanceResult))
+	assert.Equal(int(pb.ModuleState_DEPLOYED), moduleInstanceResult[0].DesireState)
+	assert.Equal(pb.ModuleInstanceState_INIT, moduleInstanceResult[0].State)
+	assert.Equal(nodeAgentID, moduleInstanceResult[0].AgentID)
+
 	// check grafana dashboard create result
 	ds := grafana.NewDashboard()
 	json, err := ds.GetDetailAsJSON(deployResult.UID)
@@ -131,6 +141,19 @@ func TestModuleManager(t *testing.T) {
 	unDeployModule(t, modulID, r)
 
 	deleteModule(t, modulID, r)
+}
+
+func AddAgent(t *testing.T, r *gin.Engine) string {
+	id := strings.Replace(uuid.New(), "-", "_", -1)
+	node := &dao.NodeAgentGORM{
+		AgentID:    id,
+		NodeName:   "test_node_agent",
+		AgentPodID: id + "_pod",
+		State:      int(pb.AgentState_OFFLINE),
+	}
+	err := mgr.NodeAgent.SaveAgent(node)
+	assert.Nil(t, err, "add test node agent failed")
+	return id
 }
 
 func AddModule(t *testing.T, wasmUid string, r *gin.Engine) string {
