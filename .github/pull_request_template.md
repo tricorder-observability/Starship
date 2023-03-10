@@ -1,4 +1,7 @@
-## Describe your changes
+# Describe your changes
 
-- [ ] Issue ticket number and link
-- [ ] If it is a core feature, I have added thorough tests.
+## Issue
+- [ ] If this PR fixes an issue, paste the link below
+
+## Test:
+- [ ] What tests are done for this PR
