@@ -41,8 +41,9 @@ import (
 )
 
 var (
-	moduleID = "9999"
-	agentID  = "1111"
+	moduleID         = "9999"
+	agentID          = "1111"
+	moduleInstanceID = "2222"
 )
 
 // Tests that the http service can handle request
@@ -62,12 +63,20 @@ func TestDeployModule(t *testing.T) {
 	testDir := bazel.CreateTmpDir()
 	sqliteClient, err := dao.InitSqlite(testDir)
 	assert.Nil(err)
-	testutil.PrepareTricorderDBData(moduleID, agentID, sqliteClient)
+	testutil.PrepareTricorderDBData(moduleID, agentID, moduleInstanceID, sqliteClient)
 
 	gLock := lock.NewLock()
 	waitCond := cond.NewCond()
 
 	nodeAgentDao := dao.NodeAgentDao{
+		Client: sqliteClient,
+	}
+
+	// moduleDao := dao.ModuleDao{
+	// 	Client: sqliteClient,
+	// }
+
+	moduleInstanceDao := dao.ModuleInstanceDao{
 		Client: sqliteClient,
 	}
 
@@ -84,6 +93,7 @@ func TestDeployModule(t *testing.T) {
 		}
 	}()
 
+	// test agent online and offline
 	c := newGRPCClient(f.Addr.String())
 
 	defer f.Server.Stop()
@@ -105,6 +115,26 @@ func TestDeployModule(t *testing.T) {
 	fmt.Printf("Received request to deploy module: %v", in)
 	assert.Equal(moduleID, in.ModuleId)
 
+	assert.Equal(pb.DeployModuleReq_DEPLOY, in.Deploy)
+
+	resp := pb.DeployModuleResp{
+		ModuleId: moduleID,
+		State:    pb.ModuleInstanceState_SUCCEEDED,
+	}
+
+	err = c.stream.Send(&resp)
+	if err != nil {
+		log.Fatalf("Streaming connection with api-server is broken, error: %v", err)
+	}
+
+	// wait for 2 seconds to make sure the node agent is marked offline
+	time.Sleep(2 * time.Second)
+
+	moduleInstance, err := moduleInstanceDao.QueryByID(moduleInstanceID)
+	require.NoError(err)
+	assert.Equal(moduleInstanceID, moduleInstance.ID)
+	assert.Equal(int(pb.ModuleInstanceState_SUCCEEDED), moduleInstance.State)
+
 	nodes, err := nodeAgentDao.List()
 	require.NoError(err)
 	assert.Equal(1, len(nodes))
@@ -120,6 +150,8 @@ func TestDeployModule(t *testing.T) {
 	assert.Equal(1, len(nodes))
 	assert.Equal(agentID, nodes[0].AgentID)
 	assert.Equal(nodes[0].State, int(pb.AgentState_OFFLINE))
+
+	// test module undeploy
 }
 
 type deployerClient struct {

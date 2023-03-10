@@ -220,11 +220,11 @@ func (g *ModuleInstanceDao) QueryByID(ID string) (*ModuleInstanceGORM, error) {
 	return module, nil
 }
 
-func (g *ModuleInstanceDao) QueryByNodeNameAndModuleID(nodeName, moduleID string) (*ModuleInstanceGORM, error) {
+func (g *ModuleInstanceDao) QueryByAgentIDAndModuleID(agentID, moduleID string) (*ModuleInstanceGORM, error) {
 	module := &ModuleInstanceGORM{}
-	result := g.Client.Engine.Where(&ModuleInstanceGORM{NodeName: nodeName, ModuleID: moduleID}).First(module)
+	result := g.Client.Engine.Where(&ModuleInstanceGORM{AgentID: agentID, ModuleID: moduleID}).First(module)
 	if result.Error != nil {
-		return nil, fmt.Errorf("query module instance by nodeName and moduleID error:%v", result.Error)
+		return nil, fmt.Errorf("query module instance by agentID and moduleID error:%v", result.Error)
 	}
 	return module, nil
 }
