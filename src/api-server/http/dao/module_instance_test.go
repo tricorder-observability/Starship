@@ -170,6 +170,11 @@ func TestModuleInstance(t *testing.T) {
 		"query moduleInstance list by nodeName error: not found moduleInstance data")
 	assert.Equal(list[0].ID, moduleInstance.ID,
 		"query moduleInstance list by nodeName erro default: not found inserted moduleInstance")
+
+	moduleRes, err = ModuleInstanceDao.QueryByNodeNameAndModuleID(moduleInstance.NodeName, moduleInstance.ModuleID)
+	assert.Nil(err)
+	assert.Equal(moduleRes.ID, moduleInstance.ID)
+	assert.Equal(moduleRes.NodeName, moduleInstance.NodeName)
 }
 
 // Tests that CheckModuleDesiredState returns expected values.
