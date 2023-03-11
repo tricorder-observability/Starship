@@ -97,11 +97,12 @@ func TestModuleManager(t *testing.T) {
 	require.Contains(resultStr, "Success")
 
 	wasmUid := "test_wasm_uid"
-	modulID := AddModule(t, wasmUid, r)
-	nodeAgentID := AddAgent(t, r)
+	moduleID := AddModule(t, wasmUid, r)
+	nodeAgentID, err := AddAgent(t, r)
+	assert.Nil(err)
 
 	r.GET("/api/deployModule", mgr.deployModuleHttp)
-	req, err = http.NewRequest("GET", fmt.Sprintf("/api/deployModule?id=%s", modulID), nil)
+	req, err = http.NewRequest("GET", fmt.Sprintf("/api/deployModule?id=%s", moduleID), nil)
 	assert.Nil(err)
 
 	w = httptest.NewRecorder()
@@ -115,12 +116,12 @@ func TestModuleManager(t *testing.T) {
 	assert.Nil(err)
 
 	// check module's status
-	moduleResult, err := mgr.Module.QueryByID(modulID)
+	moduleResult, err := mgr.Module.QueryByID(moduleID)
 	assert.Nil(err)
 	assert.Equal(int(pb.ModuleState_DEPLOYED), moduleResult.DesireState)
 
 	// check module instance's status
-	moduleInstanceResult, err := mgr.ModuleInstance.ListByModuleID(modulID)
+	moduleInstanceResult, err := mgr.ModuleInstance.ListByModuleID(moduleID)
 	assert.Nil(err)
 	assert.Equal(1, len(moduleInstanceResult))
 	assert.Equal(int(pb.ModuleState_DEPLOYED), moduleInstanceResult[0].DesireState)
@@ -138,12 +139,12 @@ func TestModuleManager(t *testing.T) {
 	err = mgr.PGClient.CheckTableExist(moduleDataTableNamePrefix + moduleResult.ID)
 	assert.Nil(err)
 
-	unDeployModule(t, modulID, nodeAgentID, r)
+	unDeployModule(t, moduleID, nodeAgentID, r)
 
-	deleteModule(t, modulID, r)
+	deleteModule(t, moduleID, r)
 }
 
-func AddAgent(t *testing.T, r *gin.Engine) string {
+func AddAgent(t *testing.T, r *gin.Engine) (string, error) {
 	id := strings.Replace(uuid.New(), "-", "_", -1)
 	node := &dao.NodeAgentGORM{
 		AgentID:    id,
@@ -153,7 +154,7 @@ func AddAgent(t *testing.T, r *gin.Engine) string {
 	}
 	err := mgr.NodeAgent.SaveAgent(node)
 	assert.Nil(t, err, "add test node agent failed")
-	return id
+	return id, err
 }
 
 func AddModule(t *testing.T, wasmUid string, r *gin.Engine) string {
@@ -248,31 +249,31 @@ func TestCreateModuleEmptyDataFields(t *testing.T) {
 	assert.Equal(`{"code":500,"message":"input data fields cannot be empty"}`, w.Body.String())
 }
 
-func deleteModule(t *testing.T, modulID string, r *gin.Engine) {
+func deleteModule(t *testing.T, moduleID string, r *gin.Engine) {
 	r.GET("/api/deleteModule", mgr.deleteModuleHttp)
-	req, _ := http.NewRequest("GET", fmt.Sprintf("/api/deleteModule?id=%s", modulID), nil)
+	req, _ := http.NewRequest("GET", fmt.Sprintf("/api/deleteModule?id=%s", moduleID), nil)
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, req)
 	resultStr := w.Body.String()
 	fmt.Printf("delete module: %s", resultStr)
 	assert.Equal(t, true, strings.Contains(resultStr, "Success"))
 
-	resultModule, _ := mgr.Module.QueryByID(modulID)
+	resultModule, _ := mgr.Module.QueryByID(moduleID)
 	if resultModule != nil {
 		t.Errorf("delete module by id error:%v", resultModule)
 	}
 
-	moduleInstanceResult, _ := mgr.ModuleInstance.ListByModuleID(modulID)
+	moduleInstanceResult, _ := mgr.ModuleInstance.ListByModuleID(moduleID)
 	if len(moduleInstanceResult) != 0 {
 		t.Errorf("delete module instance by id error:%v", moduleInstanceResult)
 	}
 }
 
-func unDeployModule(t *testing.T, modulID string, agentID string, r *gin.Engine) {
+func unDeployModule(t *testing.T, moduleID string, agentID string, r *gin.Engine) {
 	assert := assert.New(t)
 
 	r.GET("/api/undeployModule", mgr.undeployModuleHttp)
-	req, _ := http.NewRequest("GET", fmt.Sprintf("/api/undeployModule?id=%s", modulID), nil)
+	req, _ := http.NewRequest("GET", fmt.Sprintf("/api/undeployModule?id=%s", moduleID), nil)
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, req)
 	resultStr := w.Body.String()
@@ -280,14 +281,14 @@ func unDeployModule(t *testing.T, modulID string, agentID string, r *gin.Engine)
 	assert.Equal(true, strings.Contains(resultStr, "un-deploy success"))
 
 	// check code's status
-	resultModule, err := mgr.Module.QueryByID(modulID)
+	resultModule, err := mgr.Module.QueryByID(moduleID)
 	if err != nil {
 		t.Errorf("query module by id error:%v", err)
 	}
 	assert.Equal(int(pb.ModuleState_UNDEPLOYED), resultModule.DesireState)
 
 	// check module instance's status
-	moduleInstanceResult, err := mgr.ModuleInstance.ListByModuleID(modulID)
+	moduleInstanceResult, err := mgr.ModuleInstance.ListByModuleID(moduleID)
 	assert.Nil(err)
 	assert.Equal(1, len(moduleInstanceResult))
 	assert.Equal(int(pb.ModuleState_UNDEPLOYED), moduleInstanceResult[0].DesireState)
