@@ -35,7 +35,7 @@ var listCmd = &cobra.Command{
 	Long: "List agents. For example:\n" +
 		"$ starship-cli agent list --api-server=<address>",
 	Run: func(cmd *cobra.Command, args []string) {
-		url := api.GetURL(apiServerAddress, api.LIST_MODULE_PATH)
+		url := api.GetURL(apiServerAddress, api.LIST_AGENT_PATH)
 		resp, err := listAgents(url)
 		if err != nil {
 			log.Error(err)
