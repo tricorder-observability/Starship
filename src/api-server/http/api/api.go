@@ -21,12 +21,14 @@ import "strings"
 const (
 	ROOT            = "/api"
 	LIST_MODULE     = "/listModule"
+	LIST_AGENT      = "/listAgent"
 	CREATE_MODULE   = "/createModule"
 	DEPLOY_MODULE   = "/deployModule"
 	UNDEPLOY_MODULE = "/undeployModule"
 	DELETE_MODULE   = "/deleteModule"
 
 	LIST_MODULE_PATH     = ROOT + LIST_MODULE
+	LIST_AGENT_PATH      = ROOT + LIST_AGENT
 	CREATE_MODULE_PATH   = ROOT + CREATE_MODULE
 	DEPLOY_MODULE_PATH   = ROOT + DEPLOY_MODULE
 	UNDEPLOY_MODULE_PATH = ROOT + UNDEPLOY_MODULE

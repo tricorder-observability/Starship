@@ -142,6 +142,7 @@ func TestModuleManager(t *testing.T) {
 	unDeployModule(t, moduleID, nodeAgentID, r)
 
 	deleteModule(t, moduleID, r)
+	listAgent(t, nodeAgentID, r)
 }
 
 func AddAgent(t *testing.T, r *gin.Engine) (string, error) {
@@ -291,4 +292,16 @@ func unDeployModule(t *testing.T, moduleID string, agentID string, r *gin.Engine
 	assert.Equal(int(pb.ModuleState_UNDEPLOYED), moduleInstanceResult[0].DesireState)
 	assert.Equal(int(pb.ModuleInstanceState_INIT), moduleInstanceResult[0].State)
 	assert.Equal(agentID, moduleInstanceResult[0].AgentID)
+}
+
+func listAgent(t *testing.T, agentID string, r *gin.Engine) {
+	assert := assert.New(t)
+
+	r.GET("/api/listAgent", mgr.listAgentHttp)
+	req, _ := http.NewRequest("GET", "/api/listAgent", nil)
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+	resultStr := w.Body.String()
+	fmt.Printf("list agent: %s", resultStr)
+	assert.Contains(resultStr, agentID)
 }

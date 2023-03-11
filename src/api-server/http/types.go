@@ -63,6 +63,11 @@ type ListModuleResp struct {
 	Data []dao.ModuleGORM `json:"data"`
 }
 
+type ListAgentResp struct {
+	HTTPResp
+	Data []dao.NodeAgentGORM `json:"data"`
+}
+
 type DeployModuleResp struct {
 	HTTPResp
 	UID string `json:"uid"`

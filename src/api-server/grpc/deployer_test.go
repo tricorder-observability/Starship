@@ -126,7 +126,7 @@ func TestDeployModule(t *testing.T) {
 	assert.Equal(int(pb.ModuleInstanceState_SUCCEEDED), moduleInstance.State)
 
 	// test agent online and offline
-	nodes, err := nodeAgentDao.List()
+	nodes, err := nodeAgentDao.List([]string{})
 	require.NoError(err)
 	assert.Equal(1, len(nodes))
 	assert.Equal(agentID, nodes[0].AgentID)
@@ -136,7 +136,7 @@ func TestDeployModule(t *testing.T) {
 	// wait for 2 seconds to make sure the node agent is marked offline
 	time.Sleep(2 * time.Second)
 
-	nodes, err = nodeAgentDao.List()
+	nodes, err = nodeAgentDao.List([]string{})
 	require.NoError(err)
 	assert.Equal(1, len(nodes))
 	assert.Equal(agentID, nodes[0].AgentID)

@@ -110,19 +110,19 @@ func TestNodeAgent(t *testing.T) {
 	assert.Equal(node.NodeName, newNodeName, "change node state error, node.NodeName !=  "+newNodeName)
 
 	// get module list *
-	list, err := nodeAgentDao.List("*")
+	list, err := nodeAgentDao.List([]string{"*"})
 	require.Nil(err, "query node list error: %v", err)
 	assert.NotEqual(len(list), 0, "query node list error: not found node data")
 	assert.Equal(list[0].AgentID, node.AgentID, "query node list erro default: not found inserted node")
 
 	// get node list default
-	list, err = nodeAgentDao.List()
+	list, err = nodeAgentDao.List([]string{})
 	require.Nil(err, "query node list default error: %v", err)
 	assert.NotEqual(len(list), 0, "query node list erro default: not found node data")
 	assert.Equal(list[0].AgentID, node.AgentID, "query node list erro default: not found inserted node")
 
 	// get module list default
-	list, err = nodeAgentDao.List("agent_id", "node_name")
+	list, err = nodeAgentDao.List([]string{"agent_id", "node_name"})
 	require.Nil(err, "query node list default error: %v", err)
 	assert.NotEqual(len(list), 0, "query node list erro default: not found node data")
 	assert.Equal(list[0].AgentID, node.AgentID, "query node list erro default: not found inserted node")
