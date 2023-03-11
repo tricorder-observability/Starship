@@ -40,7 +40,7 @@ int sample_json(struct bpf_perf_event_data *ctx) {
 `
 
 // PrepareTricorderDBData writes test data into a testing database
-func PrepareTricorderDBData(moduleID string, agentID string, sqliteClient *sqlite.ORM) {
+func PrepareTricorderDBData(moduleID string, agentID string, moduleInstanceID string, sqliteClient *sqlite.ORM) {
 	moduleDao := dao.ModuleDao{
 		Client: sqliteClient,
 	}
@@ -73,7 +73,7 @@ func PrepareTricorderDBData(moduleID string, agentID string, sqliteClient *sqlit
 	}
 
 	moduleInstance := &dao.ModuleInstanceGORM{
-		ID:          "test-module-instance-foo",
+		ID:          moduleInstanceID,
 		ModuleID:    moduleID,
 		ModuleName:  module.Name,
 		AgentID:     agentID,

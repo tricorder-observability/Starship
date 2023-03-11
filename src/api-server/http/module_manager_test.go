@@ -36,6 +36,7 @@ import (
 	pgclienttest "github.com/tricorder/src/testing/pg"
 	"github.com/tricorder/src/utils/cond"
 	"github.com/tricorder/src/utils/lock"
+	"github.com/tricorder/src/utils/uuid"
 )
 
 var mgr = ModuleManager{DatasourceUID: "test"}
@@ -96,11 +97,13 @@ func TestModuleManager(t *testing.T) {
 	require.Contains(resultStr, "Success")
 
 	wasmUid := "test_wasm_uid"
-	modulID := AddModule(t, wasmUid, r)
+	moduleID := AddModule(t, wasmUid, r)
+	nodeAgentID, err := AddAgent(t, r)
+	require.NoError(err)
 
 	r.GET("/api/deployModule", mgr.deployModuleHttp)
-	req, err = http.NewRequest("GET", fmt.Sprintf("/api/deployModule?id=%s", modulID), nil)
-	assert.Nil(err)
+	req, err = http.NewRequest("GET", fmt.Sprintf("/api/deployModule?id=%s", moduleID), nil)
+	require.NoError(err)
 
 	w = httptest.NewRecorder()
 	r.ServeHTTP(w, req)
@@ -113,9 +116,17 @@ func TestModuleManager(t *testing.T) {
 	assert.Nil(err)
 
 	// check module's status
-	moduleResult, err := mgr.Module.QueryByID(modulID)
+	moduleResult, err := mgr.Module.QueryByID(moduleID)
 	assert.Nil(err)
 	assert.Equal(int(pb.ModuleState_DEPLOYED), moduleResult.DesireState)
+
+	// check module instance's status
+	moduleInstanceResult, err := mgr.ModuleInstance.ListByModuleID(moduleID)
+	assert.Nil(err)
+	assert.Equal(1, len(moduleInstanceResult))
+	assert.Equal(int(pb.ModuleState_DEPLOYED), moduleInstanceResult[0].DesireState)
+	assert.Equal(int(pb.ModuleInstanceState_INIT), moduleInstanceResult[0].State)
+	assert.Equal(nodeAgentID, moduleInstanceResult[0].AgentID)
 
 	// check grafana dashboard create result
 	ds := grafana.NewDashboard()
@@ -128,9 +139,21 @@ func TestModuleManager(t *testing.T) {
 	err = mgr.PGClient.CheckTableExist(moduleDataTableNamePrefix + moduleResult.ID)
 	assert.Nil(err)
 
-	unDeployModule(t, modulID, r)
+	unDeployModule(t, moduleID, nodeAgentID, r)
 
-	deleteModule(t, modulID, r)
+	deleteModule(t, moduleID, r)
+}
+
+func AddAgent(t *testing.T, r *gin.Engine) (string, error) {
+	id := strings.Replace(uuid.New(), "-", "_", -1)
+	node := &dao.NodeAgentGORM{
+		AgentID:    id,
+		NodeName:   "test_node_agent",
+		AgentPodID: id + "_pod",
+		State:      int(pb.AgentState_ONLINE),
+	}
+	err := mgr.NodeAgent.SaveAgent(node)
+	return id, err
 }
 
 func AddModule(t *testing.T, wasmUid string, r *gin.Engine) string {
@@ -225,34 +248,47 @@ func TestCreateModuleEmptyDataFields(t *testing.T) {
 	assert.Equal(`{"code":500,"message":"input data fields cannot be empty"}`, w.Body.String())
 }
 
-func deleteModule(t *testing.T, modulID string, r *gin.Engine) {
+func deleteModule(t *testing.T, moduleID string, r *gin.Engine) {
 	r.GET("/api/deleteModule", mgr.deleteModuleHttp)
-	req, _ := http.NewRequest("GET", fmt.Sprintf("/api/deleteModule?id=%s", modulID), nil)
+	req, _ := http.NewRequest("GET", fmt.Sprintf("/api/deleteModule?id=%s", moduleID), nil)
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, req)
 	resultStr := w.Body.String()
 	fmt.Printf("delete module: %s", resultStr)
 	assert.Equal(t, true, strings.Contains(resultStr, "Success"))
 
-	resultModule, _ := mgr.Module.QueryByID(modulID)
+	resultModule, _ := mgr.Module.QueryByID(moduleID)
 	if resultModule != nil {
 		t.Errorf("delete module by id error:%v", resultModule)
 	}
+
+	moduleInstanceResult, _ := mgr.ModuleInstance.ListByModuleID(moduleID)
+	assert.Len(t, moduleInstanceResult, 0)
 }
 
-func unDeployModule(t *testing.T, modulID string, r *gin.Engine) {
+func unDeployModule(t *testing.T, moduleID string, agentID string, r *gin.Engine) {
+	assert := assert.New(t)
+
 	r.GET("/api/undeployModule", mgr.undeployModuleHttp)
-	req, _ := http.NewRequest("GET", fmt.Sprintf("/api/undeployModule?id=%s", modulID), nil)
+	req, _ := http.NewRequest("GET", fmt.Sprintf("/api/undeployModule?id=%s", moduleID), nil)
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, req)
 	resultStr := w.Body.String()
 	fmt.Printf("un deploy module: %s", resultStr)
-	assert.Equal(t, true, strings.Contains(resultStr, "un-deploy success"))
+	assert.Contains(resultStr, "un-deploy success")
 
 	// check code's status
-	resultModule, err := mgr.Module.QueryByID(modulID)
+	resultModule, err := mgr.Module.QueryByID(moduleID)
 	if err != nil {
 		t.Errorf("query module by id error:%v", err)
 	}
-	assert.Equal(t, int(pb.ModuleState_UNDEPLOYED), resultModule.DesireState)
+	assert.Equal(int(pb.ModuleState_UNDEPLOYED), resultModule.DesireState)
+
+	// check module instance's status
+	moduleInstanceResult, err := mgr.ModuleInstance.ListByModuleID(moduleID)
+	assert.Nil(err)
+	assert.Equal(1, len(moduleInstanceResult))
+	assert.Equal(int(pb.ModuleState_UNDEPLOYED), moduleInstanceResult[0].DesireState)
+	assert.Equal(int(pb.ModuleInstanceState_INIT), moduleInstanceResult[0].State)
+	assert.Equal(agentID, moduleInstanceResult[0].AgentID)
 }

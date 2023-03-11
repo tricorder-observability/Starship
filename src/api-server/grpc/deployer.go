@@ -212,9 +212,10 @@ func (s *Deployer) DeployModule(stream servicepb.ModuleDeployer_DeployModuleServ
 			// TODO(yzhao): Should cache this result to an internal slice, and repeatively retry updating state.
 			// The current logic will drop this state and causes redeployment of the same module.
 			_ = s.gLock.ExecWithLock(func() error {
-				module, err := s.ModuleInstance.QueryByNodeNameAndModuleID(agentNodeName, result.ModuleId)
+				module, err := s.ModuleInstance.QueryByAgentIDAndModuleID(agentID, result.ModuleId)
 				if err != nil {
 					log.Errorf("locate module instance module error:%s", err.Error())
+					return nil
 				}
 				err = s.ModuleInstance.UpdateStatusByID(module.ID, int(result.State))
 				if err != nil {

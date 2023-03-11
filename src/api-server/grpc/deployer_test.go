@@ -17,8 +17,6 @@ package grpc
 
 import (
 	"context"
-	"fmt"
-	"io"
 	"testing"
 	"time"
 
@@ -41,8 +39,9 @@ import (
 )
 
 var (
-	moduleID = "9999"
-	agentID  = "1111"
+	moduleID         = "9999"
+	agentID          = "1111"
+	moduleInstanceID = "2222"
 )
 
 // Tests that the http service can handle request
@@ -62,12 +61,16 @@ func TestDeployModule(t *testing.T) {
 	testDir := bazel.CreateTmpDir()
 	sqliteClient, err := dao.InitSqlite(testDir)
 	assert.Nil(err)
-	testutil.PrepareTricorderDBData(moduleID, agentID, sqliteClient)
+	testutil.PrepareTricorderDBData(moduleID, agentID, moduleInstanceID, sqliteClient)
 
 	gLock := lock.NewLock()
 	waitCond := cond.NewCond()
 
 	nodeAgentDao := dao.NodeAgentDao{
+		Client: sqliteClient,
+	}
+
+	moduleInstanceDao := dao.ModuleInstanceDao{
 		Client: sqliteClient,
 	}
 
@@ -84,6 +87,7 @@ func TestDeployModule(t *testing.T) {
 		}
 	}()
 
+	// test agent online and offline
 	c := newGRPCClient(f.Addr.String())
 
 	defer f.Server.Stop()
@@ -95,15 +99,27 @@ func TestDeployModule(t *testing.T) {
 	waitCond.Broadcast()
 
 	in, err := c.stream.Recv()
-	if err == io.EOF {
-		fmt.Printf("receive stream err: %s", err.Error())
-	}
-	if err != nil {
-		fmt.Printf("Failed to read stream from DeplyModule(), error: %v", err)
+	require.NoError(err)
+
+	assert.Equal(moduleID, in.ModuleId)
+
+	assert.Equal(pb.DeployModuleReq_DEPLOY, in.Deploy)
+
+	resp := pb.DeployModuleResp{
+		ModuleId: moduleID,
+		State:    pb.ModuleInstanceState_SUCCEEDED,
 	}
 
-	fmt.Printf("Received request to deploy module: %v", in)
-	assert.Equal(moduleID, in.ModuleId)
+	err = c.stream.Send(&resp)
+	require.NoError(err)
+
+	// wait for 2 seconds to make sure the node agent is marked offline
+	time.Sleep(2 * time.Second)
+
+	moduleInstance, err := moduleInstanceDao.QueryByID(moduleInstanceID)
+	require.NoError(err)
+	assert.Equal(moduleInstanceID, moduleInstance.ID)
+	assert.Equal(int(pb.ModuleInstanceState_SUCCEEDED), moduleInstance.State)
 
 	nodes, err := nodeAgentDao.List()
 	require.NoError(err)

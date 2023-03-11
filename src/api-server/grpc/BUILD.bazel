@@ -18,7 +18,6 @@ go_library(
         "//src/utils/cond",
         "//src/utils/errors",
         "//src/utils/grpc",
-        "//src/utils/grpcerr",
         "//src/utils/lock",
         "//src/utils/log",
         "//src/utils/pg",
