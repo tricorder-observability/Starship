@@ -99,11 +99,11 @@ func TestModuleManager(t *testing.T) {
 	wasmUid := "test_wasm_uid"
 	moduleID := AddModule(t, wasmUid, r)
 	nodeAgentID, err := AddAgent(t, r)
-	assert.Nil(err)
+	require.NoError(err)
 
 	r.GET("/api/deployModule", mgr.deployModuleHttp)
 	req, err = http.NewRequest("GET", fmt.Sprintf("/api/deployModule?id=%s", moduleID), nil)
-	assert.Nil(err)
+	require.NoError(err)
 
 	w = httptest.NewRecorder()
 	r.ServeHTTP(w, req)
@@ -153,7 +153,6 @@ func AddAgent(t *testing.T, r *gin.Engine) (string, error) {
 		State:      int(pb.AgentState_ONLINE),
 	}
 	err := mgr.NodeAgent.SaveAgent(node)
-	assert.Nil(t, err, "add test node agent failed")
 	return id, err
 }
 
@@ -264,9 +263,7 @@ func deleteModule(t *testing.T, moduleID string, r *gin.Engine) {
 	}
 
 	moduleInstanceResult, _ := mgr.ModuleInstance.ListByModuleID(moduleID)
-	if len(moduleInstanceResult) != 0 {
-		t.Errorf("delete module instance by id error:%v", moduleInstanceResult)
-	}
+	assert.Len(t, moduleInstanceResult, 0)
 }
 
 func unDeployModule(t *testing.T, moduleID string, agentID string, r *gin.Engine) {
@@ -278,7 +275,7 @@ func unDeployModule(t *testing.T, moduleID string, agentID string, r *gin.Engine
 	r.ServeHTTP(w, req)
 	resultStr := w.Body.String()
 	fmt.Printf("un deploy module: %s", resultStr)
-	assert.Equal(true, strings.Contains(resultStr, "un-deploy success"))
+	assert.Contains(resultStr, "un-deploy success")
 
 	// check code's status
 	resultModule, err := mgr.Module.QueryByID(moduleID)

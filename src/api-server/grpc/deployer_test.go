@@ -17,8 +17,6 @@ package grpc
 
 import (
 	"context"
-	"fmt"
-	"io"
 	"testing"
 	"time"
 
@@ -72,10 +70,6 @@ func TestDeployModule(t *testing.T) {
 		Client: sqliteClient,
 	}
 
-	// moduleDao := dao.ModuleDao{
-	// 	Client: sqliteClient,
-	// }
-
 	moduleInstanceDao := dao.ModuleInstanceDao{
 		Client: sqliteClient,
 	}
@@ -105,14 +99,8 @@ func TestDeployModule(t *testing.T) {
 	waitCond.Broadcast()
 
 	in, err := c.stream.Recv()
-	if err == io.EOF {
-		fmt.Printf("receive stream err: %s", err.Error())
-	}
-	if err != nil {
-		fmt.Printf("Failed to read stream from DeplyModule(), error: %v", err)
-	}
+	require.NoError(err)
 
-	fmt.Printf("Received request to deploy module: %v", in)
 	assert.Equal(moduleID, in.ModuleId)
 
 	assert.Equal(pb.DeployModuleReq_DEPLOY, in.Deploy)
@@ -123,9 +111,7 @@ func TestDeployModule(t *testing.T) {
 	}
 
 	err = c.stream.Send(&resp)
-	if err != nil {
-		log.Fatalf("Streaming connection with api-server is broken, error: %v", err)
-	}
+	require.NoError(err)
 
 	// wait for 2 seconds to make sure the node agent is marked offline
 	time.Sleep(2 * time.Second)
@@ -150,8 +136,6 @@ func TestDeployModule(t *testing.T) {
 	assert.Equal(1, len(nodes))
 	assert.Equal(agentID, nodes[0].AgentID)
 	assert.Equal(nodes[0].State, int(pb.AgentState_OFFLINE))
-
-	// test module undeploy
 }
 
 type deployerClient struct {
