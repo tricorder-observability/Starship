@@ -97,14 +97,16 @@ func (g *ModuleInstanceDao) UpdateByID(module *ModuleInstanceGORM) error {
 	return result.Error
 }
 
-func (g *ModuleInstanceDao) UpdateStatusByID(ID string, statue int) error {
+func (g *ModuleInstanceDao) UpdateStatusByID(ID string, state int) error {
 	module := ModuleInstanceGORM{}
 
 	module.LastUpdateTime = &time.Time{}
 	*module.LastUpdateTime = time.Now()
-	module.State = statue
+	module.State = state
 
-	result := g.Client.Engine.Model(&ModuleInstanceGORM{}).Where("id", ID).Updates(module)
+	// use Select() to avoid update other fields and force update state 0 filed
+	result := g.Client.Engine.Model(&ModuleInstanceGORM{}).Where("id", ID).
+		Select("last_update_time", "state").Updates(module)
 	return result.Error
 }
 
@@ -115,7 +117,9 @@ func (g *ModuleInstanceDao) UpdateDesireStateByID(ID string, desireState int) er
 	*module.LastUpdateTime = time.Now()
 	module.DesireState = desireState
 
-	result := g.Client.Engine.Model(&ModuleInstanceGORM{}).Where("id", ID).Updates(module)
+	// use Select() to avoid update other fields and force update state 0 filed
+	result := g.Client.Engine.Model(&ModuleInstanceGORM{}).Where("id", ID).
+		Select("last_update_time", "desire_state").Updates(module)
 	return result.Error
 }
 
