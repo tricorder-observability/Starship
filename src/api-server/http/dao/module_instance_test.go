@@ -102,10 +102,20 @@ func TestModuleInstance(t *testing.T) {
 
 	// test update module status
 	err = ModuleInstanceDao.UpdateStatusByID(moduleInstance.ID, int(pb.ModuleInstanceState_SUCCEEDED))
-	assert.Nil(err, "update moduleInstance status by ID error: %v", err)
+	assert.Nil(err)
+
+	// if status is 0, need to force update to 0, because 0 is default value
+	err = ModuleInstanceDao.UpdateStatusByID(moduleInstance.ID, int(pb.ModuleInstanceState_INIT))
+	assert.Nil(err)
+	moduleInstance, err = ModuleInstanceDao.QueryByID(moduleInstance.ID)
+	assert.Nil(err)
+	assert.Equal(moduleInstance.State, int(pb.ModuleInstanceState_INIT))
+
+	err = ModuleInstanceDao.UpdateStatusByID(moduleInstance.ID, int(pb.ModuleInstanceState_SUCCEEDED))
+	assert.Nil(err)
 
 	moduleInstance, err = ModuleInstanceDao.QueryByID(moduleInstance.ID)
-	assert.Nil(err, "query moduleInstance by ID error: %v", err)
+	assert.Nil(err)
 
 	// check node status
 	assert.Equal(moduleInstance.State, int(pb.ModuleInstanceState_SUCCEEDED),
