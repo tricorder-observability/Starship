@@ -84,7 +84,8 @@ func (g *NodeAgentDao) UpdateStateByID(agentID string, statue int) error {
 	*agent.LastUpdateTime = time.Now()
 	agent.State = statue
 
-	result := g.Client.Engine.Model(&NodeAgentGORM{}).Where("agent_id", agentID).Updates(agent)
+	result := g.Client.Engine.Model(&NodeAgentGORM{}).Where("agent_id", agentID).
+		Select("state", "last_update_time").Updates(agent)
 	return result.Error
 }
 
