@@ -18,19 +18,20 @@ package cmd
 import (
 	"os"
 
+	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"github.com/tricorder/src/utils/log"
-
 	"github.com/tricorder/src/cli/cmd/module"
-
-	"github.com/spf13/cobra"
+	"github.com/tricorder/src/utils/log"
 )
 
 var rootCmd = &cobra.Command{
 	Use:   "starship-cli",
-	Short: "The CLI (Command Line Interface) for starship",
-	Long:  `CLI to manage starship observe modules.`,
+	Short: "The Starship CLI",
+	Long:  `The CLI to use the Tricorder Starship Observability platform.`,
+
+	// https://pkg.go.dev/github.com/spf13/cobra#section-readme
+	SuggestionsMinimumDistance: 1,
 }
 
 var apiServerAddress string
@@ -48,12 +49,9 @@ func init() {
 	const apiServerFlagName = "api-server"
 	rootCmd.AddCommand(module.ModuleCmd)
 	rootCmd.PersistentFlags().StringVar(&apiServerAddress, apiServerFlagName,
-		"localhost:8080", "address of starship api server.")
+		"localhost:8080", "address of Starship API Server.")
 	err := viper.BindPFlag(apiServerFlagName, rootCmd.PersistentFlags().Lookup(apiServerFlagName))
 	if err != nil {
-		log.Errorf("could not bind flag: %v", err)
+		log.Fatalf("Could not bind flag: %v", err)
 	}
-	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-
-	rootCmd.SuggestionsMinimumDistance = 1
 }

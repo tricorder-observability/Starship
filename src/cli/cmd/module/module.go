@@ -16,8 +16,6 @@
 package module
 
 import (
-	"fmt"
-
 	"github.com/spf13/cobra"
 
 	"github.com/tricorder/src/cli/pkg/kubernetes"
@@ -26,16 +24,10 @@ import (
 
 var ModuleCmd = &cobra.Command{
 	Use:   "module",
-	Short: "manage module",
-	Long: `manage module. For example:
-	1. create module:
-	$ starship-cli module create --bcc-file-path path/to/bcc_file --module-json-path path/to/module_request_json_file
-	`,
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("module called")
-	},
+	Short: "Manage eBPF+WASM modules",
+	Long:  "Create, deploy, undeploy, delete, list eBPF+WASM modules",
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
-		// if Starship apiServerAddress is not set, try to get it from kubernetes
+		// If Starship apiServerAddress is not set, try to get it from kubernetes
 		if apiServerAddress == "" {
 			newApiAddress, err := kubernetes.GetStarshipAPIAddress()
 			if err != nil {
@@ -55,9 +47,8 @@ var (
 
 func init() {
 	// Here you will define your flags and configuration settings.
-	ModuleCmd.PersistentFlags().StringVar(&apiServerAddress, "api-server", "", "address of Starship API Server.")
-	ModuleCmd.PersistentFlags().StringVarP(&output, "output", "o", "yaml",
-		"the style(json,yaml,table) of output, yaml is default.")
+	ModuleCmd.PersistentFlags().StringVar(&apiServerAddress, "api-server", "", "address of the Starship API Server.")
+	ModuleCmd.PersistentFlags().StringVarP(&output, "output", "o", "yaml", "the style (json,yaml,table) of output.")
 
 	ModuleCmd.AddCommand(listCmd)
 	ModuleCmd.AddCommand(createCmd)

@@ -6,7 +6,6 @@ go_library(
         "create.go",
         "delete.go",
         "deploy.go",
-        "init.go",
         "list.go",
         "module.go",
         "undeploy.go",
@@ -15,13 +14,11 @@ go_library(
     visibility = ["//visibility:public"],
     deps = [
         "//src/api-server/http/api",
-        "//src/api-server/http/dao",
         "//src/cli/pkg/kubernetes",
         "//src/cli/pkg/outputs",
         "//src/pb/module",
         "//src/utils/file",
         "//src/utils/log",
-        "//src/utils/uuid",
         "@com_github_spf13_cobra//:cobra",
     ],
 )

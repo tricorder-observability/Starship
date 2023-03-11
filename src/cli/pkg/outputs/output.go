@@ -21,9 +21,9 @@ import (
 	"strings"
 
 	"github.com/tricorder/src/cli/pkg/model"
-	json_output "github.com/tricorder/src/cli/pkg/outputs/json"
+	jsonoutput "github.com/tricorder/src/cli/pkg/outputs/json"
 	"github.com/tricorder/src/cli/pkg/outputs/table"
-	yaml_output "github.com/tricorder/src/cli/pkg/outputs/yaml"
+	"github.com/tricorder/src/cli/pkg/outputs/yaml"
 )
 
 const (
@@ -44,9 +44,9 @@ func Output(style string, resp []byte) error {
 	}
 	switch strings.ToLower(style) {
 	case JSON:
-		return json_output.Output(model)
+		return jsonoutput.Output(model)
 	case YAML:
-		return yaml_output.Output(model)
+		return yaml.Output(model)
 	case TABLE:
 		return table.Output(model)
 	default:

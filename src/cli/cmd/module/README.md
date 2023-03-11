@@ -1,3 +1,4 @@
 # Module
 
-Implementation of commands that manipulate eBPF+WASM modules.
+Implementation of `starship-cli module` subcommands, that mange eBPF+WASM
+modules.

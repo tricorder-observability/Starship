@@ -31,11 +31,9 @@ import (
 
 var listCmd = &cobra.Command{
 	Use:   "list",
-	Short: "Query modules.",
-	Long: `Query modules. For example:
-1. Query all modules:
-$ starship-cli module list
-`,
+	Short: "List eBPF+WASM modules",
+	Long: "List eBPF+WASM modules. For example:\n" +
+		"$ starship-cli module list --api-server=<address>",
 	Run: func(cmd *cobra.Command, args []string) {
 		url := api.GetURL(apiServerAddress, api.LIST_MODULE_PATH)
 		resp, err := listModules(url)

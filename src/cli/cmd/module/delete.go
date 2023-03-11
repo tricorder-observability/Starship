@@ -30,11 +30,9 @@ import (
 
 var deleteCmd = &cobra.Command{
 	Use:   "delete",
-	Short: "delete module from staship",
-	Long: `Delete module from staship. For example:
-
-$ starship-cli module delete --id 2a339411_7dd8_46ba_9581_e9d41286b564
-`,
+	Short: "Delete an eBPF+WASM module",
+	Long: "Delete an eBPF+WASM module. For example:\n" +
+		"$ starship-cli module delete --api-server=<address> --id 2a339411_7dd8_46ba_9581_e9d41286b564",
 	Run: func(cmd *cobra.Command, args []string) {
 		url := api.GetURL(apiServerAddress, api.DELETE_MODULE_PATH)
 		resp, err := deleteModule(url, moduleId)
