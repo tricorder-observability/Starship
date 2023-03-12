@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-package outputs
+package output
 
 import (
 	"encoding/json"
@@ -21,44 +21,46 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/tricorder/src/cli/pkg/model"
-	sysutils "github.com/tricorder/src/testing/sys"
+	"github.com/tricorder/src/api-server/http"
+	"github.com/tricorder/src/api-server/http/dao"
+	"github.com/tricorder/src/testing/sys"
 )
 
 func TestOutPut(t *testing.T) {
-	mod := model.Response{
-		Code:    200,
-		Message: "success",
-		Data: []map[string]interface{}{
+	assert := assert.New(t)
+
+	resp := http.ListModuleResp{
+		HTTPResp: http.HTTPResp{
+			Code:    200,
+			Message: "success",
+		},
+		Data: []dao.ModuleGORM{
 			{
-				"name": "mock-data",
+				Name: "mock-data",
 			},
 		},
 	}
 
-	resp, err := json.Marshal(mod)
-	assert.Nil(t, err)
+	modJSON, err := json.Marshal(resp)
+	assert.NoError(err)
 
 	cases := []struct {
-		caseStr     string
 		outPutStyle string
 		expected    string
 	}{
 		{
-			"json output", JSON, "{\"data\":[{\"name\":\"mock-data\"}],\"code\":200,\"message\":\"success\"}",
+			JSON, `{"code":200,"message":"success","data":[{"name":"mock-data"}]}`,
 		},
 		{
-			"yaml output", YAML, "code: 200\nmessage: success",
+			YAML, "code: 200\n  message: success",
 		},
 		{
-			"table output", TABLE, "+-----------+\n|   NAME    |\n+-----------+\n| mock-data |\n+-----------+\n",
+			TABLE, "+-----------+\n|   NAME    |\n+-----------+\n| mock-data |\n+-----------+\n",
 		},
 	}
-	assert := assert.New(t)
 	for _, sc := range cases {
-		out := sysutils.CaptureStdout(func() {
-			err := Output(sc.outPutStyle, resp)
-			assert.Nil(err)
+		out := sys.CaptureStdout(func() {
+			assert.Nil(Print(sc.outPutStyle, modJSON))
 		})
 		assert.Contains(out, sc.expected)
 	}

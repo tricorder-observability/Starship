@@ -23,7 +23,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/tricorder/src/api-server/http/api"
-	"github.com/tricorder/src/cli/pkg/outputs"
+	"github.com/tricorder/src/cli/pkg/output"
 	"github.com/tricorder/src/utils/log"
 )
 
@@ -39,7 +39,7 @@ var undeployCmd = &cobra.Command{
 			log.Error(err)
 		}
 
-		err = outputs.Output(output, resp)
+		err = output.Print(outputFormat, resp)
 		if err != nil {
 			log.Error(err)
 		}

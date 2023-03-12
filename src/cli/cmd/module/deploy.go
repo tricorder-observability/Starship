@@ -23,9 +23,8 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/tricorder/src/api-server/http/api"
+	"github.com/tricorder/src/cli/pkg/output"
 	"github.com/tricorder/src/utils/log"
-
-	outputs "github.com/tricorder/src/cli/pkg/outputs"
 )
 
 var deployCmd = &cobra.Command{
@@ -42,7 +41,7 @@ var deployCmd = &cobra.Command{
 		if len(resp) == 0 {
 			log.Fatalf("Failed to deploy module, id='%s', Empty response from API Server", moduleId)
 		}
-		if err := outputs.Output(output, resp); err != nil {
+		if err := output.Print(outputFormat, resp); err != nil {
 			log.Fatalf("Failed to write output, error: %v", err)
 		}
 	},

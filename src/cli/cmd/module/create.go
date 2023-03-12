@@ -24,7 +24,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/tricorder/src/api-server/http/api"
-	"github.com/tricorder/src/cli/pkg/outputs"
+	"github.com/tricorder/src/cli/pkg/output"
 	modulepb "github.com/tricorder/src/pb/module"
 	"github.com/tricorder/src/utils/file"
 	"github.com/tricorder/src/utils/log"
@@ -61,7 +61,7 @@ var createCmd = &cobra.Command{
 			log.Error(err)
 		}
 
-		err = outputs.Output(output, resp)
+		err = output.Print(outputFormat, resp)
 		if err != nil {
 			log.Error(err)
 		}

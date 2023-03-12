@@ -15,7 +15,7 @@ go_library(
     deps = [
         "//src/api-server/http/api",
         "//src/cli/pkg/kubernetes",
-        "//src/cli/pkg/outputs",
+        "//src/cli/pkg/output",
         "//src/pb/module",
         "//src/utils/file",
         "//src/utils/log",

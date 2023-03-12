@@ -13,18 +13,36 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-package table
+package output
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
+	"strings"
 
 	"github.com/olekukonko/tablewriter"
+	"gopkg.in/yaml.v2"
 
-	"github.com/tricorder/src/cli/pkg/model"
+	"github.com/tricorder/src/api-server/http"
 )
 
-func Output(resp *model.Response) error {
+const (
+	JSON  = "json"
+	YAML  = "yaml"
+	TABLE = "table"
+)
+
+func printJSON(data *http.ListModuleResp) error {
+	bytes, e := json.Marshal(data)
+	if e != nil {
+		return e
+	}
+	_, e = fmt.Printf("%v\n", string(bytes))
+	return e
+}
+
+func printTable(resp *http.ListModuleResp) error {
 	var stringMapArrays []map[string]string
 
 	bytes, _ := json.Marshal(resp.Data)
@@ -56,4 +74,35 @@ func Output(resp *model.Response) error {
 	table.Render()
 
 	return nil
+}
+
+func printYAML(data *http.ListModuleResp) error {
+	bytes, e := yaml.Marshal(data)
+	if e != nil {
+		return e
+	}
+	_, e = fmt.Printf("%v", string(bytes))
+	return e
+}
+
+// Print writes output to the console.
+func Print(style string, resp []byte) error {
+	var model *http.ListModuleResp
+	err := json.Unmarshal(resp, &model)
+	if err != nil {
+		return err
+	}
+	if len(style) == 0 {
+		style = YAML
+	}
+	switch strings.ToLower(style) {
+	case JSON:
+		return printJSON(model)
+	case YAML:
+		return printYAML(model)
+	case TABLE:
+		return printTable(model)
+	default:
+		return fmt.Errorf("unsupported output style: %s", style)
+	}
 }
