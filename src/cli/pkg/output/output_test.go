@@ -32,7 +32,7 @@ func TestOutPut(t *testing.T) {
 			Code:    200,
 			Message: "success",
 		},
-		data: []dao.ModuleGORM{
+		Data: []dao.ModuleGORM{
 			{
 				Name: "mock-data",
 			},
