@@ -61,7 +61,7 @@ var createCmd = &cobra.Command{
 			log.Error(err)
 		}
 
-		err = outputs.Output(output, resp)
+		err = output.Print(outputFormat, resp)
 		if err != nil {
 			log.Error(err)
 		}

@@ -22,6 +22,17 @@ import (
 	"github.com/tricorder/src/utils/log"
 )
 
+var (
+	// Address of API Server, specified from --api-server flag.
+	apiServerAddress string
+
+	// ID of a previousely-created eBPF+WASM module.
+	moduleId string
+
+	// The format of the output.
+	outputFormat string
+)
+
 var ModuleCmd = &cobra.Command{
 	Use:   "module",
 	Short: "Manage eBPF+WASM modules",
@@ -39,16 +50,10 @@ var ModuleCmd = &cobra.Command{
 	},
 }
 
-var (
-	apiServerAddress string
-	moduleId         string
-	output           string
-)
-
 func init() {
 	// Here you will define your flags and configuration settings.
 	ModuleCmd.PersistentFlags().StringVar(&apiServerAddress, "api-server", "", "address of the Starship API Server.")
-	ModuleCmd.PersistentFlags().StringVarP(&output, "output", "o", "yaml", "the style (json,yaml,table) of output.")
+	ModuleCmd.PersistentFlags().StringVarP(&outputFormat, "output", "o", "yaml", "format (yaml,json,table) of output.")
 
 	ModuleCmd.AddCommand(listCmd)
 	ModuleCmd.AddCommand(createCmd)
