@@ -15,6 +15,8 @@
 
 package api
 
+import "strings"
+
 // API path components.
 const (
 	ROOT            = "/api"
@@ -34,5 +36,9 @@ const (
 // GetURL returns a http URL that corresponds to the requested path.
 // The path has to start with '/'
 func GetURL(addr, path string) string {
-	return "http://" + addr + path
+	const httpProtoPrefix = "http://"
+	if strings.HasPrefix(addr, httpProtoPrefix) {
+		return addr + path
+	}
+	return httpProtoPrefix + addr + path
 }

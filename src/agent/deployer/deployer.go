@@ -131,16 +131,16 @@ func (s *Deployer) StartModuleDeployLoop() error {
 		if in.Deploy == pb.DeployModuleReq_DEPLOY {
 			err = s.deployModule(in)
 			if err != nil {
-				log.Infof("deploy module %s failed. err: %w", in.ModuleId, err)
+				log.Infof("deploy module %s failed. err: %v", in.ModuleId, err)
 			} else {
-				log.Infof("deploy module %s sucess", in.ModuleId)
+				log.Infof("deploy module %s success", in.ModuleId)
 			}
 		} else if in.Deploy == pb.DeployModuleReq_UNDEPLOY {
 			err = s.undeployModlue(in)
 			if err != nil {
-				log.Infof("undeploy deploy module %s failed. err: %w", in.ModuleId, err)
+				log.Infof("undeploy deploy module %s failed. err: %v", in.ModuleId, err)
 			} else {
-				log.Infof("undeploy module %s sucess", in.ModuleId)
+				log.Infof("undeploy module %s success", in.ModuleId)
 			}
 		}
 		resp := createDeployModuleResp(in.ModuleId, err)
