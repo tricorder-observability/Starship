@@ -25,7 +25,7 @@ import (
 	"github.com/tricorder/src/api-server/http/api"
 	"github.com/tricorder/src/utils/log"
 
-	outputs "github.com/tricorder/src/cli/pkg/outputs"
+	outputs "github.com/tricorder/src/cli/pkg/output"
 )
 
 var deployCmd = &cobra.Command{
