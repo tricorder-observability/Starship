@@ -1,38 +1,66 @@
+import { MinusCircleOutlined, PlusOutlined, UploadOutlined } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-components';
-import { Card } from 'antd';
-import React, { useEffect } from 'react';
-import { Button, Form, Input, message, Upload, Space, Select } from 'antd';
-import { UploadOutlined, MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
-import { codeSubmit } from '../services/ant-design-pro/api';
 import { history, useIntl } from '@umijs/max';
+import { Button, Card, Form, Input, message, Select, Space, Upload } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { codeSubmit } from '../services/ant-design-pro/api';
 
-const normFile = (e: any) => {
-  console.log('Upload event:', e);
-  if (Array.isArray(e)) {
-    return e;
-  }
-  return e?.fileList;
-};
 const width = '100%';
 const Code: React.FC = () => {
   const [form] = Form.useForm();
   const intl = useIntl();
+  const [fileContent, setFileContent] = useState<any>([]);
   const onFinish = async (values: any) => {
     try {
-      const msg = await codeSubmit({
-        name: values.name,
+      // const params_old = {
+      //   name: values.name,
+      //   ebpf: {
+      //     code: values.code,
+      //     eventSize: String(values.eventSize),
+      //     perfBuffers: [values.perfBuffers],
+      //     probes: values.probes,
+      //   },
+      //   fn: values.fn,
+      //   wasm: values.wasm?.[0]?.response?.data,
+      //   schemaName: values.schemaName,
+      //   schemaAttr: values.schemaAttr,
+      // };
+      // console.log('params_old', JSON.stringify(params_old, null, 1));
+      const params = {
         ebpf: {
           code: values.code,
-          eventSize: String(values.eventSize),
-          perfBuffers: [values.perfBuffers],
-          kprobes: values.kprobes,
+          fmt: 0,
+          lang: 0,
+          // perf_buffer_name: 'string',
+          probes: values.probes,
+          // [
+          //   {
+          //     binary_path: 'string',
+          //     entry: 'string',
+          //     return: 'string',
+          //     sample_period_nanos: 0,
+          //     target: 'string',
+          //     type: 0,
+          //   },
+          // ],
         },
-        fn: values.fn,
-        wasm: values.wasm?.[0]?.response?.data,
-        schemaName: values.schemaName,
-        schemaAttr: values.schemaAttr,
-      });
-      if (msg.code === '200') {
+        // id: 'string',
+        name: values.name,
+        wasm: {
+          code: fileContent,
+          fmt: 0,
+          fn_name: values.fn,
+          lang: 0,
+          output_schema: {
+            fields: values.schemaAttr,
+            name: 'string',
+          },
+        },
+      };
+      console.log('params', params);
+      // return;
+      const msg = await codeSubmit(params);
+      if (msg.code === 200) {
         message.success('success');
         history.push('/module-list');
         sessionStorage.setItem('codeCache', '');
@@ -65,6 +93,19 @@ const Code: React.FC = () => {
     };
   }, [form]);
 
+  const handleUpload = (info: any) => {
+    if (info.file.status === 'done') {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const arrBuffer: any = e.target?.result;
+        console.log('arrBuffer', arrBuffer, Object.prototype.toString.call(arrBuffer));
+        const uint8Array = new Uint8Array(arrBuffer);
+        setFileContent(Array.from(uint8Array));
+      };
+      reader.readAsArrayBuffer(info.file.originFileObj);
+    }
+  };
+
   return (
     <PageContainer>
       <Card
@@ -90,6 +131,7 @@ const Code: React.FC = () => {
           autoComplete="off"
           form={form}
         >
+          {/* 模块名字 */}
           <Form.Item
             label={intl.formatMessage({
               id: 'code.name',
@@ -102,6 +144,7 @@ const Code: React.FC = () => {
           >
             <Input style={{ width: width }} />
           </Form.Item>
+          {/* eBPF 代码 */}
           <Form.Item
             label={intl.formatMessage({
               id: 'code.code',
@@ -111,6 +154,7 @@ const Code: React.FC = () => {
           >
             <Input.TextArea rows={8} style={{ width: width }} />
           </Form.Item>
+          {/* eBPF event size */}
           <Form.Item
             label={intl.formatMessage({
               id: 'code.eventSize',
@@ -134,6 +178,7 @@ const Code: React.FC = () => {
           >
             <Input style={{ width: width }} />
           </Form.Item>
+          {/* eBPF perf buffers */}
           <Form.Item
             label={intl.formatMessage({
               id: 'code.perfBuffers',
@@ -143,6 +188,7 @@ const Code: React.FC = () => {
           >
             <Input style={{ width: width }} />
           </Form.Item>
+          {/* kprobe {target, entry, return} */}
           <Form.Item
             wrapperCol={{ offset: 0, span: 15 }}
             label={intl.formatMessage({
@@ -151,7 +197,7 @@ const Code: React.FC = () => {
             required={true}
           >
             <Form.List
-              name="kprobes"
+              name="probes"
               initialValue={[
                 {
                   target: null,
@@ -205,20 +251,26 @@ const Code: React.FC = () => {
               )}
             </Form.List>
           </Form.Item>
+          {/* wasm */}
           <Form.Item
             name="wasm"
             label={intl.formatMessage({
               id: 'code.wasm',
             })}
-            valuePropName="fileList"
-            getValueFromEvent={normFile}
             extra="WASM byte code(.wasm .wat)"
             rules={[{ required: true, message: 'Please input wasm code!' }]}
           >
-            <Upload action="/api/uploadFile" maxCount={1} accept=".wasm,.wat">
+            <Upload
+              action=""
+              maxCount={1}
+              accept=".wasm,.wat"
+              showUploadList={false}
+              onChange={handleUpload}
+            >
               <Button icon={<UploadOutlined />}>Click to upload</Button>
             </Upload>
           </Form.Item>
+          {/* WASM 回调方法 */}
           <Form.Item
             label={intl.formatMessage({
               id: 'code.fn',
@@ -228,6 +280,7 @@ const Code: React.FC = () => {
           >
             <Input style={{ width: width }} />
           </Form.Item>
+          {/* 采集数据的字段 */}
           <Form.Item
             wrapperCol={{ offset: 0, span: 15 }}
             label={intl.formatMessage({
@@ -266,9 +319,13 @@ const Code: React.FC = () => {
                             width: 166,
                           }}
                         >
-                          <Select.Option value="int">int</Select.Option>
-                          <Select.Option value="text">text</Select.Option>
-                          <Select.Option value="date">date</Select.Option>
+                          <Select.Option value={0}>bool</Select.Option>
+                          <Select.Option value={1}>date</Select.Option>
+                          <Select.Option value={2}>int</Select.Option>
+                          <Select.Option value={3}>integer</Select.Option>
+                          <Select.Option value={4}>json</Select.Option>
+                          <Select.Option value={5}>jsonb</Select.Option>
+                          <Select.Option value={6}>text</Select.Option>
                         </Select>
                       </Form.Item>
                       {fields.length > 1 && <MinusCircleOutlined onClick={() => remove(name)} />}
@@ -291,6 +348,7 @@ const Code: React.FC = () => {
               )}
             </Form.List>
           </Form.Item>
+          {/* 提交按钮 */}
           <Form.Item wrapperCol={{ offset: 5, span: 16 }}>
             <Button type="primary" htmlType="submit">
               {intl.formatMessage({
@@ -306,7 +364,7 @@ const Code: React.FC = () => {
                   code: null,
                   eventSize: null,
                   perfBuffers: null,
-                  kprobes: null,
+                  probes: null,
                   fn: null,
                   wasm: null,
                   schemaName: null,
