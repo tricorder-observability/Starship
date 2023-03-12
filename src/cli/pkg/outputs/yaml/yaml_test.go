@@ -20,12 +20,12 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/tricorder/src/cli/pkg/model"
+	"github.com/tricorder/src/api-server/http"
 	sysutils "github.com/tricorder/src/testing/sys"
 )
 
 func TestOutput(t *testing.T) {
-	m := &model.Response{
+	m := &http.HTTPResp{
 		Code:    200,
 		Message: "success",
 		Data: []map[string]interface{}{
