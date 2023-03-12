@@ -12,8 +12,8 @@ go_library(
     ],
     importpath = "github.com/tricorder/src/api-server/http",
     visibility = [
-      "//src/api-server:__subpackages__",
-      "//src/cli:__subpackages__",
+        "//src/api-server:__subpackages__",
+        "//src/cli:__subpackages__",
     ],
     deps = [
         "//src/api-server/http/api",
