@@ -28,7 +28,7 @@ import (
 
 func TestOutPut(t *testing.T) {
 	mod := http.ListModuleResp{
-		http.HTTPResp{
+		{
 			Code:    200,
 			Message: "success",
 		},
