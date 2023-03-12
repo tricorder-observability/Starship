@@ -50,7 +50,7 @@ var listCmd = &cobra.Command{
 
 func listModules(url string) ([]byte, error) {
 	c := http.Client{Timeout: time.Duration(3) * time.Second}
-	req, err := http.NewRequest("GET", fmt.Sprintf("%s?fields=%s", url, "id,name,status,create_time,"+
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s?fields=%s", url, "id,name,desire_state,create_time,"+
 		"ebpf_fmt,ebpf_lang,schema_name,fn,schema_attr"), nil)
 	if err != nil {
 		log.Error(err)

@@ -26,7 +26,7 @@ import (
 
 func TestOutput(t *testing.T) {
 	m := &model.Response{
-		Code:    "200",
+		Code:    200,
 		Message: "success",
 		Data: []map[string]interface{}{
 			{

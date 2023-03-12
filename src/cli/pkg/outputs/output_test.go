@@ -27,7 +27,7 @@ import (
 
 func TestOutPut(t *testing.T) {
 	mod := model.Response{
-		Code:    "200",
+		Code:    200,
 		Message: "success",
 		Data: []map[string]interface{}{
 			{
@@ -45,10 +45,10 @@ func TestOutPut(t *testing.T) {
 		expected    string
 	}{
 		{
-			"json output", JSON, "{\"data\":[{\"name\":\"mock-data\"}],\"code\":\"200\",\"message\":\"success\"}",
+			"json output", JSON, "{\"data\":[{\"name\":\"mock-data\"}],\"code\":200,\"message\":\"success\"}",
 		},
 		{
-			"yaml output", YAML, "code: \"200\"\nmessage: success",
+			"yaml output", YAML, "code: 200\nmessage: success",
 		},
 		{
 			"table output", TABLE, "+-----------+\n|   NAME    |\n+-----------+\n| mock-data |\n+-----------+\n",

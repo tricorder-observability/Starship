@@ -19,6 +19,6 @@ package model
 // In order to parse the API server's response and facilitate later formatting of the output
 type Response struct {
 	Data    []map[string]interface{} `json:"data"`
-	Code    string                   `json:"code"`
+	Code    int                      `json:"code"`
 	Message string                   `json:"message"`
 }
