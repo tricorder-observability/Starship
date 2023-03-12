@@ -158,7 +158,7 @@ func (mgr *ModuleManager) createModule(body CreateModuleReq) CreateModuleResp {
 // @Tags         agent
 // @Accept       json
 // @Produce      json
-// @Param			   fields	 query	string	false  "query field search like 'id,name,createTime'"
+// @Param			   fields	 query	string	false  "query field search like 'agent_id,node_name,agent_pod_id'"
 // @Success      200  {object}  ListModuleResp
 // @Router       /api/listAgent [get]
 func (mgr *ModuleManager) listAgentHttp(c *gin.Context) {
@@ -170,11 +170,11 @@ func (mgr *ModuleManager) listAgentHttp(c *gin.Context) {
 		log.Debugf("listModule request has no 'fields', use default fields: %s", defaultFields)
 		fields = defaultFields
 	}
-	result := mgr.listAgent(ListModuleReq{Fields: fields})
+	result := mgr.listAgent(ListAgentReq{Fields: fields})
 	c.JSON(http.StatusOK, result)
 }
 
-func (mgr *ModuleManager) listAgent(req ListModuleReq) ListAgentResp {
+func (mgr *ModuleManager) listAgent(req ListAgentReq) ListAgentResp {
 	fields := strings.Split(req.Fields, ",")
 	resultList, err := mgr.NodeAgent.List(fields)
 	if err != nil {
