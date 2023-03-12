@@ -28,11 +28,11 @@ import (
 
 func TestOutPut(t *testing.T) {
 	mod := http.ListModuleResp{
-		{
+		HTTPResp: http.HTTPResp{
 			Code:    200,
 			Message: "success",
 		},
-		[]dao.ModuleGORM{
+		data: []dao.ModuleGORM{
 			{
 				Name: "mock-data",
 			},
