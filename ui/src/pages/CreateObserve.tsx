@@ -12,39 +12,13 @@ const Code: React.FC = () => {
   const [fileContent, setFileContent] = useState<any>([]);
   const onFinish = async (values: any) => {
     try {
-      // const params_old = {
-      //   name: values.name,
-      //   ebpf: {
-      //     code: values.code,
-      //     eventSize: String(values.eventSize),
-      //     perfBuffers: [values.perfBuffers],
-      //     probes: values.probes,
-      //   },
-      //   fn: values.fn,
-      //   wasm: values.wasm?.[0]?.response?.data,
-      //   schemaName: values.schemaName,
-      //   schemaAttr: values.schemaAttr,
-      // };
-      // console.log('params_old', JSON.stringify(params_old, null, 1));
       const params = {
         ebpf: {
           code: values.code,
           fmt: 0,
           lang: 0,
-          // perf_buffer_name: 'string',
           probes: values.probes,
-          // [
-          //   {
-          //     binary_path: 'string',
-          //     entry: 'string',
-          //     return: 'string',
-          //     sample_period_nanos: 0,
-          //     target: 'string',
-          //     type: 0,
-          //   },
-          // ],
         },
-        // id: 'string',
         name: values.name,
         wasm: {
           code: fileContent,
@@ -57,8 +31,6 @@ const Code: React.FC = () => {
           },
         },
       };
-      console.log('params', params);
-      // return;
       const msg = await codeSubmit(params);
       if (msg.code === 200) {
         message.success('success');
@@ -98,7 +70,6 @@ const Code: React.FC = () => {
       const reader = new FileReader();
       reader.onload = (e) => {
         const arrBuffer: any = e.target?.result;
-        console.log('arrBuffer', arrBuffer, Object.prototype.toString.call(arrBuffer));
         const uint8Array = new Uint8Array(arrBuffer);
         setFileContent(Array.from(uint8Array));
       };
@@ -131,7 +102,6 @@ const Code: React.FC = () => {
           autoComplete="off"
           form={form}
         >
-          {/* 模块名字 */}
           <Form.Item
             label={intl.formatMessage({
               id: 'code.name',
@@ -144,7 +114,6 @@ const Code: React.FC = () => {
           >
             <Input style={{ width: width }} />
           </Form.Item>
-          {/* eBPF 代码 */}
           <Form.Item
             label={intl.formatMessage({
               id: 'code.code',
@@ -154,7 +123,6 @@ const Code: React.FC = () => {
           >
             <Input.TextArea rows={8} style={{ width: width }} />
           </Form.Item>
-          {/* eBPF event size */}
           <Form.Item
             label={intl.formatMessage({
               id: 'code.eventSize',
@@ -178,7 +146,6 @@ const Code: React.FC = () => {
           >
             <Input style={{ width: width }} />
           </Form.Item>
-          {/* eBPF perf buffers */}
           <Form.Item
             label={intl.formatMessage({
               id: 'code.perfBuffers',
@@ -188,7 +155,6 @@ const Code: React.FC = () => {
           >
             <Input style={{ width: width }} />
           </Form.Item>
-          {/* kprobe {target, entry, return} */}
           <Form.Item
             wrapperCol={{ offset: 0, span: 15 }}
             label={intl.formatMessage({
@@ -251,7 +217,6 @@ const Code: React.FC = () => {
               )}
             </Form.List>
           </Form.Item>
-          {/* wasm */}
           <Form.Item
             name="wasm"
             label={intl.formatMessage({
@@ -270,7 +235,6 @@ const Code: React.FC = () => {
               <Button icon={<UploadOutlined />}>Click to upload</Button>
             </Upload>
           </Form.Item>
-          {/* WASM 回调方法 */}
           <Form.Item
             label={intl.formatMessage({
               id: 'code.fn',
@@ -280,7 +244,6 @@ const Code: React.FC = () => {
           >
             <Input style={{ width: width }} />
           </Form.Item>
-          {/* 采集数据的字段 */}
           <Form.Item
             wrapperCol={{ offset: 0, span: 15 }}
             label={intl.formatMessage({
@@ -348,7 +311,6 @@ const Code: React.FC = () => {
               )}
             </Form.List>
           </Form.Item>
-          {/* 提交按钮 */}
           <Form.Item wrapperCol={{ offset: 5, span: 16 }}>
             <Button type="primary" htmlType="submit">
               {intl.formatMessage({

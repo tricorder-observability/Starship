@@ -56,16 +56,14 @@ const CodeList: React.FC = () => {
       const msg: any = await codeList({
         fields: `""`,
       });
-      console.log('codeList', msg);
       if (msg.code != 200) {
         message.error(msg.message);
         return;
       }
       setData(msg.data);
       return msg.data;
-    } catch (error) {
-      console.log(error);
-      message.error('请求失败');
+    } catch (error: any) {
+      message.error(error.message);
       return error;
     }
   };

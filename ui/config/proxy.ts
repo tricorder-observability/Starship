@@ -12,7 +12,7 @@
 export default {
   dev: {
     '/api/': {
-      target: 'http://18.143.46.201:8080',
+      target: 'http://ec2-3-93-75-222.compute-1.amazonaws.com:8089',
       changeOrigin: true,
       pathRewrite: { '^': '' },
     },
@@ -24,7 +24,7 @@ export default {
   test: {
     // localhost:8000/api/** -> https://preview.pro.ant.design/api/**
     '/api/': {
-      target: 'http://18.143.46.201:8080',
+      target: 'http://ec2-3-93-75-222.compute-1.amazonaws.com:8080',
       changeOrigin: true,
       pathRewrite: { '^': '' },
     },
