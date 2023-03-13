@@ -90,7 +90,6 @@ func StartHTTPService(cfg Config, pgClient *pg.Client) {
 
 	router.GET("/swagger/*any", ginswag.WrapHandler(swagfiles.Handler))
 
-	addr := cfg.Listen.Addr().String()
-	log.Infof("Listening on %s ...", addr)
-	_ = router.Run(addr)
+	log.Infof("Listening on %s ...", cfg.Listen.Addr().String())
+	_ = router.RunListener(cfg.Listen)
 }
