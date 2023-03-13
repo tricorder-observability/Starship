@@ -22,6 +22,19 @@ import (
 	"github.com/tricorder/src/utils/uuid"
 )
 
+var ebpfJson = `
+#include <linux/ptrace.h>
+
+BPF_PERF_OUTPUT(events);
+
+// Writes a fixed JSON string to perf buffer.
+int sample_json(struct bpf_perf_event_data *ctx) {
+  const char word[] = "{\"name\":\"John\", \"age\":30}";
+  events.perf_submit(ctx, (void *)word, sizeof(word));
+  return 0;
+}
+`
+
 func TestListAgents(t *testing.T) {
 	assert := assert.New(t)
 	require := require.New(t)
@@ -290,14 +303,23 @@ func TestDeployModule(t *testing.T) {
 	}
 
 	// before create module, add module to db
-	id := strings.Replace(uuid.New(), "-", "_", -1)
+	moduleID := strings.Replace(uuid.New(), "-", "_", -1)
 	module := &dao.ModuleGORM{
-		ID:                 id,
+		ID:                 moduleID,
+		Ebpf:               ebpfJson,
+		Wasm:               []byte("moduleString"),
+		CreateTime:         time.Date(2022, 12, 31, 14, 30, 0, 0, time.Local).Format("2006-01-02 15:04:05"),
 		DesireState:        int(pb.ModuleState_CREATED_),
-		Name:               "TestModule",
-		Wasm:               []byte("WasmUid"),
-		CreateTime:         time.Now().Format("2006-01-02 15:04:05"),
+		Name:               "test-module-foo",
+		EbpfFmt:            0,
+		EbpfLang:           0,
 		EbpfPerfBufferName: "events",
+
+		SchemaName: "out_put_name",
+		SchemaAttr: "[{\"name\":\"data\",\"type\":5}]",
+		Fn:         "copy_input_to_output",
+		WasmFmt:    0,
+		WasmLang:   0,
 	}
 
 	// save module
@@ -307,13 +329,13 @@ func TestDeployModule(t *testing.T) {
 	moduleRes, err := moduleDao.ListModule([]string{})
 	require.NoError(err)
 	assert.Equal(1, len(moduleRes))
-	assert.Equal("TestModule", moduleRes[0].Name)
+	assert.Equal("test-module-foo", moduleRes[0].Name)
 	assert.Equal(int(pb.ModuleState_CREATED_), moduleRes[0].DesireState)
 
 	client := NewClient("http://" + FakeHTTPServer.String())
 
 	// test deploy module
-	res, err := client.DeployModule(id)
+	res, err := client.DeployModule(moduleID)
 	require.NoError(err)
 	assert.Equal(200, res.Code)
 	assert.Contains(res.Message, "success")
@@ -322,7 +344,7 @@ func TestDeployModule(t *testing.T) {
 	moduleRes, err = moduleDao.ListModule([]string{})
 	require.NoError(err)
 	assert.Equal(1, len(moduleRes))
-	assert.Equal("TestModule", moduleRes[0].Name)
+	assert.Equal("test-module-foo", moduleRes[0].Name)
 	assert.Equal(int(pb.ModuleState_DEPLOYED), moduleRes[0].DesireState)
 }
 
@@ -356,14 +378,23 @@ func TestUndeployModule(t *testing.T) {
 	}
 
 	// before create module, add module to db
-	id := strings.Replace(uuid.New(), "-", "_", -1)
+	moduleID := strings.Replace(uuid.New(), "-", "_", -1)
 	module := &dao.ModuleGORM{
-		ID:                 id,
+		ID:                 moduleID,
+		Ebpf:               ebpfJson,
+		Wasm:               []byte("moduleString"),
+		CreateTime:         time.Date(2022, 12, 31, 14, 30, 0, 0, time.Local).Format("2006-01-02 15:04:05"),
 		DesireState:        int(pb.ModuleState_CREATED_),
-		Name:               "TestModule",
-		Wasm:               []byte("WasmUid"),
-		CreateTime:         time.Now().Format("2006-01-02 15:04:05"),
+		Name:               "test-module-foo",
+		EbpfFmt:            0,
+		EbpfLang:           0,
 		EbpfPerfBufferName: "events",
+
+		SchemaName: "out_put_name",
+		SchemaAttr: "[{\"name\":\"data\",\"type\":5}]",
+		Fn:         "copy_input_to_output",
+		WasmFmt:    0,
+		WasmLang:   0,
 	}
 
 	// save module
@@ -373,13 +404,13 @@ func TestUndeployModule(t *testing.T) {
 	moduleRes, err := moduleDao.ListModule([]string{})
 	require.NoError(err)
 	assert.Equal(1, len(moduleRes))
-	assert.Equal("TestModule", moduleRes[0].Name)
+	assert.Equal("test-module-foo", moduleRes[0].Name)
 	assert.Equal(int(pb.ModuleState_CREATED_), moduleRes[0].DesireState)
 
 	client := NewClient("http://" + FakeHTTPServer.String())
 
 	// test deploy module
-	res, err := client.UndeployModule(id)
+	res, err := client.UndeployModule(moduleID)
 	require.NoError(err)
 	assert.Equal(200, res.Code)
 	assert.Contains(res.Message, "success")
@@ -388,6 +419,6 @@ func TestUndeployModule(t *testing.T) {
 	moduleRes, err = moduleDao.ListModule([]string{})
 	require.NoError(err)
 	assert.Equal(1, len(moduleRes))
-	assert.Equal("TestModule", moduleRes[0].Name)
+	assert.Equal("test-module-foo", moduleRes[0].Name)
 	assert.Equal(int(pb.ModuleState_UNDEPLOYED), moduleRes[0].DesireState)
 }
