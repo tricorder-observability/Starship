@@ -46,4 +46,21 @@ func TestListAgent(t *testing.T) {
 	require.NoError(err)
 	assert.Equal(200, res.Code)
 	assert.Equal(0, len(res.Data))
+
+	nodeAgentDao := dao.NodeAgentDao{
+		Client: sqliteClient,
+	}
+	newAgent := dao.NodeAgentGORM{
+		AgentID:    "agent_test_id",
+		NodeName:   "agent_test_node",
+		AgentPodID: "agent_test_pod_id",
+	}
+	err = nodeAgentDao.SaveAgent(&newAgent)
+	require.NoError(err)
+
+	res, err = client.ListAgent(nil)
+	require.NoError(err)
+	assert.Equal(200, res.Code)
+	assert.Equal(1, len(res.Data))
+	assert.Equal("agent_test_id", res.Data[0].AgentID)
 }
