@@ -82,7 +82,7 @@ func LaunchContainer() (func() error, *pgutils.Client, error) {
 		return nil, nil, fmt.Errorf("Unable to create client to tsdb at %s, error: %v", tsdbURL, err)
 	}
 
-	// todo: add prometheus and jaeger client connector
+	// TODO(yzhao): add prometheus and jaeger client connector
 
 	cleanerFn := func() error {
 		pgClient.Close()

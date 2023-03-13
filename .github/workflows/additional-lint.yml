@@ -90,6 +90,13 @@ jobs:
       - name: Check markdown files
         run: .github/scripts/check_markdown_filename.sh
         shell: bash
+  check-todo:
+    name: TODOs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: .github/scripts/check_todo.sh
+        shell: bash
   golangci-lint:
     name: Golangci-Lint
     runs-on: ubuntu-latest

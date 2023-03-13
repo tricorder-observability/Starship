@@ -44,5 +44,5 @@ func TestExecWithLock(t *testing.T) {
 	}
 	assert.Nil(lock.ExecWithLock(fn), "fn must return nil")
 
-	// todo(jun): add test for synconized access
+	// TODO(jun): add test for synconized access
 }
