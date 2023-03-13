@@ -16,14 +16,11 @@
 package agent
 
 import (
-	"fmt"
-	"io"
-	"net/http"
-	"time"
+	"encoding/json"
 
 	"github.com/tricorder/src/utils/log"
 
-	"github.com/tricorder/src/api-server/http/api"
+	apiserver "github.com/tricorder/src/api-server/http"
 	"github.com/tricorder/src/cli/pkg/outputs"
 
 	"github.com/spf13/cobra"
@@ -35,39 +32,23 @@ var listCmd = &cobra.Command{
 	Long: "List agents. For example:\n" +
 		"$ starship-cli agent list --api-server=<address>",
 	Run: func(cmd *cobra.Command, args []string) {
-		url := api.GetURL(apiServerAddress, api.LIST_AGENT_PATH)
-		resp, err := listAgents(url)
+		client := apiserver.NewClient(apiServerAddress)
+		resp, err := client.ListAgent(nil)
 		if err != nil {
 			log.Error(err)
+			return
 		}
 
-		err = outputs.Output(output, resp)
+		// todo(jun): refactor output to delete this hack
+		respByte, err := json.Marshal(resp)
+		if err != nil {
+			log.Error(err)
+			return
+		}
+
+		err = outputs.Output(output, respByte)
 		if err != nil {
 			log.Error(err)
 		}
 	},
-}
-
-func listAgents(url string) ([]byte, error) {
-	c := http.Client{Timeout: time.Duration(3) * time.Second}
-	req, err := http.NewRequest("GET", fmt.Sprintf("%s?fields=%s", url, "agent_id,node_name,agent_pod_id,state,"+
-		"create_time,last_update_time"), nil)
-	if err != nil {
-		log.Error(err)
-		return nil, err
-	}
-	resp, err := c.Do(req)
-	if err != nil {
-		log.Error(err)
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		log.Fatal(err)
-		return nil, err
-	}
-
-	return body, nil
 }
