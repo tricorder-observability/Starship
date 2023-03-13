@@ -303,5 +303,6 @@ func listAgent(t *testing.T, agentID string, r *gin.Engine) {
 	r.ServeHTTP(w, req)
 	resultStr := w.Body.String()
 	fmt.Printf("list agent: %s", resultStr)
+	// todo(jun): do not using t *testing.T in test helper, need to refactor this test for better readability
 	assert.Contains(resultStr, agentID)
 }
