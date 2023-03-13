@@ -21,7 +21,7 @@ import (
 	"github.com/tricorder/src/utils/log"
 
 	apiserver "github.com/tricorder/src/api-server/http"
-	"github.com/tricorder/src/cli/pkg/outputs"
+	"github.com/tricorder/src/cli/pkg/output"
 
 	"github.com/spf13/cobra"
 )
@@ -46,7 +46,7 @@ var listCmd = &cobra.Command{
 			return
 		}
 
-		err = outputs.Output(output, respByte)
+		err = output.Print(outputFormat, respByte)
 		if err != nil {
 			log.Error(err)
 		}

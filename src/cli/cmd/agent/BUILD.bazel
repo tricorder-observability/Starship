@@ -11,7 +11,7 @@ go_library(
     deps = [
         "//src/api-server/http",
         "//src/cli/pkg/kubernetes",
-        "//src/cli/pkg/outputs",
+        "//src/cli/pkg/output",
         "//src/utils/log",
         "@com_github_spf13_cobra//:cobra",
     ],

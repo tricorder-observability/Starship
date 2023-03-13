@@ -41,13 +41,14 @@ var AgentCmd = &cobra.Command{
 
 var (
 	apiServerAddress string
-	output           string
+	// The format of the output.
+	outputFormat string
 )
 
 func init() {
 	// Here you will define your flags and configuration settings.
 	AgentCmd.PersistentFlags().StringVar(&apiServerAddress, "api-server", "", "address of the Starship API Server.")
-	AgentCmd.PersistentFlags().StringVarP(&output, "output", "o", "yaml", "the style (json,yaml,table) of output.")
+	AgentCmd.PersistentFlags().StringVarP(&outputFormat, "output", "o", "yaml", "the style (json,yaml,table) of output.")
 
 	AgentCmd.AddCommand(listCmd)
 }
