@@ -3,8 +3,10 @@ load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
 go_library(
     name = "http",
     srcs = [
+        "client.go",
         "cors.go",
         "exception.go",
+        "fake.go",
         "grafana.go",
         "http.go",
         "module_manager.go",
@@ -28,6 +30,7 @@ go_library(
         "//src/utils/lock",
         "//src/utils/log",
         "//src/utils/pg",
+        "//src/utils/sqlite",
         "//src/utils/uuid",
         "@com_github_gin_gonic_gin//:gin",
         "@com_github_mattn_go_sqlite3//:go-sqlite3",
@@ -46,6 +49,7 @@ filegroup(
 go_test(
     name = "http_test",
     srcs = [
+        "client_test.go",
         "grafana_test.go",
         "module_manager_test.go",
         "types_test.go",

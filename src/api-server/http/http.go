@@ -17,6 +17,7 @@ package http
 
 import (
 	"fmt"
+	"net"
 
 	"github.com/gin-gonic/gin"
 
@@ -34,6 +35,7 @@ import (
 )
 
 type Config struct {
+	Listen          net.Listener
 	Port            int
 	GrafanaURL      string
 	GrafanaUserName string
@@ -81,13 +83,13 @@ func StartHTTPService(cfg Config, pgClient *pg.Client) {
 	apiRoot := router.Group(api.ROOT)
 	apiRoot.POST(api.CREATE_MODULE, mgr.createModuleHttp)
 	apiRoot.GET(api.DELETE_MODULE, mgr.deleteModuleHttp)
+	apiRoot.GET(api.LIST_AGENT, mgr.listAgentHttp)
 	apiRoot.GET(api.LIST_MODULE, mgr.listModuleHttp)
 	apiRoot.POST(api.DEPLOY_MODULE, mgr.deployModuleHttp)
 	apiRoot.POST(api.UNDEPLOY_MODULE, mgr.undeployModuleHttp)
 
 	router.GET("/swagger/*any", ginswag.WrapHandler(swagfiles.Handler))
 
-	addr := fmt.Sprintf(":%d", cfg.Port)
-	log.Infof("Listening on %s ...", addr)
-	_ = router.Run(addr)
+	log.Infof("Listening on %s ...", cfg.Listen.Addr().String())
+	_ = router.RunListener(cfg.Listen)
 }

@@ -21,6 +21,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
+	"github.com/tricorder/src/cli/cmd/agent"
 	"github.com/tricorder/src/cli/cmd/module"
 	"github.com/tricorder/src/utils/log"
 )
@@ -48,6 +49,7 @@ func Execute() {
 func init() {
 	const apiServerFlagName = "api-server"
 	rootCmd.AddCommand(module.ModuleCmd)
+	rootCmd.AddCommand(agent.AgentCmd)
 	rootCmd.PersistentFlags().StringVar(&apiServerAddress, apiServerFlagName,
 		"localhost:8080", "address of Starship API Server.")
 	err := viper.BindPFlag(apiServerFlagName, rootCmd.PersistentFlags().Lookup(apiServerFlagName))

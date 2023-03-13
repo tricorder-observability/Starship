@@ -94,7 +94,7 @@ func (g *NodeAgentDao) DeleteByID(agentID string) error {
 	return result.Error
 }
 
-func (g *NodeAgentDao) List(query ...string) ([]NodeAgentGORM, error) {
+func (g *NodeAgentDao) List(query []string) ([]NodeAgentGORM, error) {
 	nodeList := make([]NodeAgentGORM, 0)
 	if len(query) == 0 {
 		query = []string{"agent_id", "node_name", "agent_pod_id", "state", "create_time", "last_update_time"}
