@@ -265,7 +265,7 @@ func TestDeleteModule(t *testing.T) {
 	res, err := client.DeleteModule(id)
 	require.NoError(err)
 	assert.Equal(200, res.Code)
-	assert.Contains(res.Message, "success")
+	assert.Contains(res.Message, "Success")
 
 	// after delete module, list module
 	moduleRes, err := moduleDao.ListModule([]string{})
