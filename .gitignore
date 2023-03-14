@@ -32,4 +32,4 @@ chef_guid
 local-mode-cache
 
 # vim
-.swp
+*.swp
