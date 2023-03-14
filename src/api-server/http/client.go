@@ -23,6 +23,21 @@ func NewClient(url string) *Client {
 	return &Client{url: url}
 }
 
+func executeHTTPReq(req *http.Request) ([]byte, error) {
+	httpClient := http.Client{Timeout: time.Duration(3) * time.Second}
+	httpResp, err := httpClient.Do(req)
+	if err != nil {
+		return nil, errors.Wrap("execute http request", "do request", err)
+	}
+
+	defer httpResp.Body.Close()
+	body, err := io.ReadAll(httpResp.Body)
+	if err != nil {
+		return nil, errors.Wrap("execute http request", "read response body", err)
+	}
+	return body, nil
+}
+
 // ListAgents returns the list of agents stored on the API Server.
 // agentReq is the request data structure, it will be converted to JSON and sent to the API Server.
 func (c *Client) ListAgents(agentReq *ListAgentReq) (*ListAgentResp, error) {
@@ -31,26 +46,19 @@ func (c *Client) ListAgents(agentReq *ListAgentReq) (*ListAgentResp, error) {
 		field = agentReq.Fields
 	}
 
-	httpClient := http.Client{Timeout: time.Duration(3) * time.Second}
 	req, err := http.NewRequest("GET", fmt.Sprintf("%s?fields=%s", c.url+api.LIST_AGENT_PATH, field), nil)
 	if err != nil {
 		return nil, errors.Wrap("listing agents", "create request", err)
 	}
-	resp, err := httpClient.Do(req)
-	if err != nil {
-		return nil, errors.Wrap("listing agents", "do request", err)
-	}
 
-	defer resp.Body.Close()
-	body, err := io.ReadAll(resp.Body)
+	body, err := executeHTTPReq(req)
 	if err != nil {
-		return nil, errors.Wrap("listing agents", "read response body", err)
+		return nil, errors.Wrap("listing agents", "execute http request", err)
 	}
-
 	var model *ListAgentResp
 	err = json.Unmarshal(body, &model)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap("listing agents", "decode response body", err)
 	}
 	return model, nil
 }
@@ -62,7 +70,7 @@ func (c *Client) CreateModule(moduleReq *CreateModuleReq) (*CreateModuleResp, er
 	if err != nil {
 		return nil, errors.Wrap("creating module", "encode req body", err)
 	}
-	httpClient := http.Client{Timeout: time.Duration(3) * time.Second}
+
 	req, err := http.NewRequest("POST", c.url+api.CREATE_MODULE_PATH, bytes.NewBuffer(bodyBytes))
 	if err != nil {
 		return nil, errors.Wrap("creating module", "create request", err)
@@ -70,21 +78,15 @@ func (c *Client) CreateModule(moduleReq *CreateModuleReq) (*CreateModuleResp, er
 
 	req.Header.Set("Content-Type", "application/json")
 
-	resp, err := httpClient.Do(req)
+	body, err := executeHTTPReq(req)
 	if err != nil {
-		return nil, errors.Wrap("creating module", "do request", err)
-	}
-
-	defer resp.Body.Close()
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, errors.Wrap("creating module", "read response body", err)
+		return nil, errors.Wrap("creating module", "execute http request", err)
 	}
 
 	var model *CreateModuleResp
 	err = json.Unmarshal(body, &model)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap("creating module", "decode response body", err)
 	}
 	return model, nil
 }
@@ -92,28 +94,21 @@ func (c *Client) CreateModule(moduleReq *CreateModuleReq) (*CreateModuleResp, er
 // DeployModule deploys a module on the API Server.
 // moduleId is the ID of the module to be deployed.
 func (c *Client) DeployModule(moduleId string) (*DeployModuleResp, error) {
-	httpClient := http.Client{Timeout: time.Duration(3) * time.Second}
 	url := fmt.Sprintf("%s?id=%s", c.url+api.DEPLOY_MODULE_PATH, moduleId)
 	req, err := http.NewRequest("POST", url, nil)
 	if err != nil {
 		return nil, errors.Wrap("deploying module", "create request", err)
 	}
 
-	resp, err := httpClient.Do(req)
+	body, err := executeHTTPReq(req)
 	if err != nil {
-		return nil, errors.Wrap("deploying module", "do request", err)
-	}
-
-	defer resp.Body.Close()
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, errors.Wrap("deploying module", "read response body", err)
+		return nil, errors.Wrap("deploying module", "execute http request", err)
 	}
 
 	var model *DeployModuleResp
 	err = json.Unmarshal(body, &model)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap("deploying module", "decode response body", err)
 	}
 	return model, nil
 }
@@ -121,28 +116,21 @@ func (c *Client) DeployModule(moduleId string) (*DeployModuleResp, error) {
 // UndeployModule undeploys a module on the API Server.
 // moduleId is the ID of the module to be undeployed.
 func (c *Client) UndeployModule(moduleId string) (*UndeployModuleResp, error) {
-	httpClient := http.Client{Timeout: time.Duration(3) * time.Second}
 	url := fmt.Sprintf("%s?id=%s", c.url+api.UNDEPLOY_MODULE_PATH, moduleId)
 	req, err := http.NewRequest("POST", url, nil)
 	if err != nil {
 		return nil, errors.Wrap("undeploying module", "create request", err)
 	}
 
-	resp, err := httpClient.Do(req)
+	body, err := executeHTTPReq(req)
 	if err != nil {
-		return nil, errors.Wrap("undeploying module", "do request", err)
-	}
-
-	defer resp.Body.Close()
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, errors.Wrap("undeploying module", "read response body", err)
+		return nil, errors.Wrap("undeploying module", "execute http request", err)
 	}
 
 	var model *UndeployModuleResp
 	err = json.Unmarshal(body, &model)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap("undeploying module", "decode response body", err)
 	}
 	return model, nil
 }
@@ -150,28 +138,21 @@ func (c *Client) UndeployModule(moduleId string) (*UndeployModuleResp, error) {
 // DeleteModule deletes a module on the API Server.
 // moduleId is the ID of the module to be deleted.
 func (c *Client) DeleteModule(moduleId string) (*DeleteModuleResp, error) {
-	httpClient := http.Client{Timeout: time.Duration(3) * time.Second}
 	url := fmt.Sprintf("%s?id=%s", c.url+api.DELETE_MODULE_PATH, moduleId)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, errors.Wrap("deleting module", "create request", err)
 	}
 
-	resp, err := httpClient.Do(req)
+	body, err := executeHTTPReq(req)
 	if err != nil {
-		return nil, errors.Wrap("deleting module", "do request", err)
-	}
-
-	defer resp.Body.Close()
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, errors.Wrap("deleting module", "read response body", err)
+		return nil, errors.Wrap("deleting module", "execute http request", err)
 	}
 
 	var model *DeleteModuleResp
 	err = json.Unmarshal(body, &model)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap("deleting module", "decode response body", err)
 	}
 	return model, nil
 }
@@ -185,27 +166,20 @@ func (c *Client) ListModules(moduleReq *ListModuleReq) (*ListModuleResp, error) 
 		field = moduleReq.Fields
 	}
 
-	httpClient := http.Client{Timeout: time.Duration(3) * time.Second}
 	req, err := http.NewRequest("GET", fmt.Sprintf("%s?fields=%s", c.url+api.LIST_MODULE_PATH, field), nil)
 	if err != nil {
 		return nil, errors.Wrap("listing modules", "create request", err)
 	}
 
-	resp, err := httpClient.Do(req)
+	body, err := executeHTTPReq(req)
 	if err != nil {
-		return nil, errors.Wrap("listing modules", "do request", err)
-	}
-
-	defer resp.Body.Close()
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, errors.Wrap("listing modules", "read response body", err)
+		return nil, errors.Wrap("listing module", "execute http request", err)
 	}
 
 	var model *ListModuleResp
 	err = json.Unmarshal(body, &model)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap("listing modules", "decode response body", err)
 	}
 	return model, nil
 }
