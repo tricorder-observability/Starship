@@ -35,7 +35,7 @@ int sample_json(struct bpf_perf_event_data *ctx) {
 }
 `
 
-func TestListAgents(t *testing.T) {
+func TestListAgent(t *testing.T) {
 	assert := assert.New(t)
 	require := require.New(t)
 
@@ -62,7 +62,7 @@ func TestListAgents(t *testing.T) {
 
 	// test list agent
 	client := NewClient("http://" + FakeHTTPServer.String())
-	res, err := client.ListAgents(nil)
+	res, err := client.ListAgent(nil)
 	require.NoError(err)
 	assert.Equal(200, res.Code)
 	assert.Equal(0, len(res.Data))
@@ -78,7 +78,7 @@ func TestListAgents(t *testing.T) {
 	err = nodeAgentDao.SaveAgent(&newAgent)
 	require.NoError(err)
 
-	res, err = client.ListAgents(nil)
+	res, err = client.ListAgent(nil)
 	require.NoError(err)
 	assert.Equal(200, res.Code)
 	assert.Equal(1, len(res.Data))

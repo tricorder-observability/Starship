@@ -23,9 +23,9 @@ func NewClient(url string) *Client {
 	return &Client{url: url}
 }
 
-// ListAgents returns the list of agents stored on the API Server.
+// ListAgent returns the list of agents stored on the API Server.
 // agentReq is the request data structure, it will be converted to JSON and sent to the API Server.
-func (c *Client) ListAgents(agentReq *ListAgentReq) (*ListAgentResp, error) {
+func (c *Client) ListAgent(agentReq *ListAgentReq) (*ListAgentResp, error) {
 	field := "agent_id,node_name,agent_pod_id,state,create_time,last_update_time"
 	if agentReq != nil && len(agentReq.Fields) > 0 {
 		field = agentReq.Fields

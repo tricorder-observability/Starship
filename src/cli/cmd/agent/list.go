@@ -33,7 +33,7 @@ var listCmd = &cobra.Command{
 		"$ starship-cli agent list --api-server=<address>",
 	Run: func(cmd *cobra.Command, args []string) {
 		client := apiserver.NewClient(apiServerAddress)
-		resp, err := client.ListAgents(nil)
+		resp, err := client.ListAgent(nil)
 		if err != nil {
 			log.Error(err)
 			return
