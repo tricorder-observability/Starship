@@ -3,7 +3,7 @@ import { PageContainer } from '@ant-design/pro-components';
 import { history, useIntl } from '@umijs/max';
 import { Button, Card, Form, Input, message, Select, Space, Upload } from 'antd';
 import React, { useEffect, useState } from 'react';
-import { codeSubmit } from '../services/ant-design-pro/api';
+import { createModule } from '../services/ant-design-pro/api';
 
 const width = '100%';
 const Code: React.FC = () => {
@@ -22,16 +22,17 @@ const Code: React.FC = () => {
         name: values.name,
         wasm: {
           code: fileContent,
+          // TODO(zhoujie): fmt default value
           fmt: 0,
           fn_name: values.fn,
+          // TODO(zhoujie): lang default value
           lang: 0,
           output_schema: {
             fields: values.schemaAttr,
-            name: 'string',
           },
         },
       };
-      const msg = await codeSubmit(params);
+      const msg = await createModule(params);
       if (msg.code === 200) {
         message.success('success');
         history.push('/module-list');
@@ -65,7 +66,7 @@ const Code: React.FC = () => {
     };
   }, [form]);
 
-  const handleUpload = (info: any) => {
+  const readFileContent = (info: any) => {
     if (info.file.status === 'done') {
       const reader = new FileReader();
       reader.onload = (e) => {
@@ -230,7 +231,7 @@ const Code: React.FC = () => {
               maxCount={1}
               accept=".wasm,.wat"
               showUploadList={false}
-              onChange={handleUpload}
+              onChange={readFileContent}
             >
               <Button icon={<UploadOutlined />}>Click to upload</Button>
             </Upload>

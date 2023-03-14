@@ -1,4 +1,9 @@
-import { codeDelete, codeDeploy, codeList, codeUndeploy } from '@/services/ant-design-pro/api';
+import {
+  deleteModule,
+  deployModule,
+  listModule,
+  undeployModule,
+} from '@/services/ant-design-pro/api';
 import { PageContainer } from '@ant-design/pro-components';
 import { useIntl } from '@umijs/max';
 import { Card, Form, message, Popconfirm, Table } from 'antd';
@@ -10,17 +15,6 @@ export interface CodeListItemType {
   Status: string;
   CreateTime: number;
 }
-
-// maybe use
-// const JsonRender = (json: any) => {
-//   if (!json) {
-//     return json;
-//   }
-//   if (typeof json === 'object') {
-//     return <pre>{JSON.stringify(json, undefined, 4)}</pre>;
-//   }
-//   return json;
-// };
 
 const ArrayRender = (
   data: {
@@ -53,9 +47,7 @@ const CodeList: React.FC = () => {
   const intl = useIntl();
   const getData = async () => {
     try {
-      const msg: any = await codeList({
-        fields: `""`,
-      });
+      const msg: any = await listModule();
       if (msg.code != 200) {
         message.error(msg.message);
         return;
@@ -123,7 +115,7 @@ const CodeList: React.FC = () => {
         <>
           <a
             onClick={async () => {
-              const res = await codeDeploy({
+              const res = await deployModule({
                 Id: columnData.id || columnData.ID,
               });
               if (res.code === 200) {
@@ -140,7 +132,7 @@ const CodeList: React.FC = () => {
           </a>
           <a
             onClick={async () => {
-              const res = await codeUndeploy({
+              const res = await undeployModule({
                 Id: columnData.id || columnData.ID,
               });
               if (res.code === 200) {
@@ -163,7 +155,7 @@ const CodeList: React.FC = () => {
             placement="bottom"
             title={'Are you sure to delete ?'}
             onConfirm={async () => {
-              const res = await codeDelete({
+              const res = await deleteModule({
                 Id: columnData.id || columnData.ID,
               });
               debugger;
