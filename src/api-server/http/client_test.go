@@ -338,7 +338,7 @@ func TestDeployModule(t *testing.T) {
 	res, err := client.DeployModule(moduleID)
 	require.NoError(err)
 	assert.Equal(200, res.Code)
-	assert.Contains(res.Message, "success")
+	assert.Contains(res.Message, "prepare to deploy module")
 
 	// check module state
 	moduleRes, err = moduleDao.ListModule([]string{})
