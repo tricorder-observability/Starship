@@ -39,7 +39,7 @@ var listCmd = &cobra.Command{
 			return
 		}
 
-		// todo(jun): refactor output to delete this hack
+		// TODO(jun): refactor output to delete this hack
 		respByte, err := json.Marshal(resp)
 		if err != nil {
 			log.Error(err)
