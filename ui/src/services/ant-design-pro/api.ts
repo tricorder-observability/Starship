@@ -110,23 +110,24 @@ export async function removeRule(options?: { [key: string]: any }) {
 }
 
 // code form提交
-export async function codeSubmit(body?: { [key: string]: any }) {
-  return request<API.ResponseType<any>>('/api/addCode', {
+export async function createModule(body?: { [key: string]: any }) {
+  return request<API.ResponseType<any>>('/api/createModule', {
     method: 'POST',
     data: body,
   });
 }
 
 // code list
-export async function codeList() {
-  return request<API.ResponseType<CodeListItemType[]>>('/api/listCode', {
+export async function listModule() {
+  return request<API.ResponseType<CodeListItemType[]>>('/api/listModule', {
     method: 'GET',
+    params: {},
   });
 }
 
 // code deploy
-export async function codeDeploy(body: any) {
-  return request<API.ResponseType<any>>('/api/deploy', {
+export async function deployModule(body: any) {
+  return request<API.ResponseType<any>>('/api/deployModule', {
     method: 'POST',
     params: {
       id: body.Id,
@@ -136,8 +137,8 @@ export async function codeDeploy(body: any) {
 }
 
 // code undeploy
-export async function codeUndeploy(body: any) {
-  return request<API.ResponseType<any>>('/api/undeploy', {
+export async function undeployModule(body: any) {
+  return request<API.ResponseType<any>>('/api/undeployModule', {
     method: 'POST',
     params: {
       id: body.Id,
@@ -147,8 +148,8 @@ export async function codeUndeploy(body: any) {
 }
 
 // code delete
-export async function codeDelete(body: any) {
-  return request<API.ResponseType<any>>('/api/deleteCode', {
+export async function deleteModule(body: any) {
+  return request<API.ResponseType<any>>('/api/deleteModule', {
     method: 'GET',
     params: {
       id: body.Id,
