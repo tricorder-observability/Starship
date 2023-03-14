@@ -15,7 +15,7 @@ import (
 	"github.com/tricorder/src/utils/lock"
 )
 
-func TestListAgent(t *testing.T) {
+func TestListAgents(t *testing.T) {
 	assert := assert.New(t)
 	require := require.New(t)
 
@@ -42,7 +42,7 @@ func TestListAgent(t *testing.T) {
 
 	// test list agent
 	client := NewClient("http://" + FakeHTTPServer.String())
-	res, err := client.ListAgent(nil)
+	res, err := client.ListAgents(nil)
 	require.NoError(err)
 	assert.Equal(200, res.Code)
 	assert.Equal(0, len(res.Data))
@@ -58,7 +58,7 @@ func TestListAgent(t *testing.T) {
 	err = nodeAgentDao.SaveAgent(&newAgent)
 	require.NoError(err)
 
-	res, err = client.ListAgent(nil)
+	res, err = client.ListAgents(nil)
 	require.NoError(err)
 	assert.Equal(200, res.Code)
 	assert.Equal(1, len(res.Data))

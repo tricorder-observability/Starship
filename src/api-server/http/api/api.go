@@ -19,7 +19,7 @@ import "strings"
 
 // API path components.
 const (
-	// todo: change to resful style
+	// TODO(jun): change to resful style
 	ROOT            = "/api"
 	LIST_MODULE     = "/listModule"
 	LIST_AGENT      = "/listAgent"
