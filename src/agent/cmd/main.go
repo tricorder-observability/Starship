@@ -63,7 +63,9 @@ func main() {
 	deployer := deployer.New(*apiServerAddr, cfg.nodeName, cfg.podID)
 	for {
 		err := communicateWithNode(cfg.nodeName, deployer)
-		log.Errorf("Failed to communicate with node[%v], error: %v", cfg.nodeName, err)
+		if err != nil {
+			log.Errorf("Failed to communicate with node[%v], error: %v", cfg.nodeName, err)
+		}
 	}
 
 	deployer.Stop()
