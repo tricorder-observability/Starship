@@ -24,7 +24,7 @@ import (
 	"github.com/olekukonko/tablewriter"
 	"gopkg.in/yaml.v2"
 
-	"github.com/tricorder/bazel-starship/src/cli/pkg/model"
+	"github.com/tricorder/src/cli/pkg/model"
 )
 
 const (
