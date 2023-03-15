@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-package module
+package agent
 
 import (
 	"github.com/spf13/cobra"
@@ -22,21 +22,10 @@ import (
 	"github.com/tricorder/src/utils/log"
 )
 
-var (
-	// Address of API Server, specified from --api-server flag.
-	apiServerAddress string
-
-	// ID of a previousely-created eBPF+WASM module.
-	moduleId string
-
-	// The format of the output.
-	outputFormat string
-)
-
-var ModuleCmd = &cobra.Command{
-	Use:   "module",
-	Short: "Manage eBPF+WASM modules",
-	Long:  "Create, deploy, undeploy, delete, list eBPF+WASM modules",
+var AgentCmd = &cobra.Command{
+	Use:   "agent",
+	Short: "Manage agents",
+	Long:  "list agents",
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
 		// If Starship apiServerAddress is not set, try to get it from kubernetes
 		if apiServerAddress == "" {
@@ -50,14 +39,16 @@ var ModuleCmd = &cobra.Command{
 	},
 }
 
+var (
+	apiServerAddress string
+	// The format of the output.
+	outputFormat string
+)
+
 func init() {
 	// Here you will define your flags and configuration settings.
-	ModuleCmd.PersistentFlags().StringVar(&apiServerAddress, "api-server", "", "address of the Starship API Server.")
-	ModuleCmd.PersistentFlags().StringVarP(&outputFormat, "output", "o", "yaml", "format (yaml,json,table) of output.")
+	AgentCmd.PersistentFlags().StringVar(&apiServerAddress, "api-server", "", "address of the Starship API Server.")
+	AgentCmd.PersistentFlags().StringVarP(&outputFormat, "output", "o", "yaml", "the style (json,yaml,table) of output.")
 
-	ModuleCmd.AddCommand(listCmd)
-	ModuleCmd.AddCommand(createCmd)
-	ModuleCmd.AddCommand(deployCmd)
-	ModuleCmd.AddCommand(deleteCmd)
-	ModuleCmd.AddCommand(undeployCmd)
+	AgentCmd.AddCommand(listCmd)
 }

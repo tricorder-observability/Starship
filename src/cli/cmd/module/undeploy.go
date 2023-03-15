@@ -22,19 +22,16 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/tricorder/src/utils/log"
-
 	"github.com/tricorder/src/api-server/http/api"
-	"github.com/tricorder/src/cli/pkg/outputs"
+	"github.com/tricorder/src/cli/pkg/output"
+	"github.com/tricorder/src/utils/log"
 )
 
 var undeployCmd = &cobra.Command{
 	Use:   "undeploy",
-	Short: "Undeploy module",
-	Long: `Undeploy module command. For example:
-
-$ starship-cli module undeploy --id ce8a4fbe_45db_49bb_9568_6688dd84480b
-`,
+	Short: "Undeploy an previously-deployed eBPF+WASM module",
+	Long: "Undeploy an previously-deployed eBPF+WASM module. For example:\n" +
+		"$ starship-cli module undeploy --api-server=<address> --id ce8a4fbe_45db_49bb_9568_6688dd84480b",
 	Run: func(cmd *cobra.Command, args []string) {
 		url := api.GetURL(apiServerAddress, api.UNDEPLOY_MODULE_PATH)
 		resp, err := undeployModule(url, moduleId)
@@ -42,7 +39,7 @@ $ starship-cli module undeploy --id ce8a4fbe_45db_49bb_9568_6688dd84480b
 			log.Error(err)
 		}
 
-		err = outputs.Output(output, resp)
+		err = output.Print(outputFormat, resp)
 		if err != nil {
 			log.Error(err)
 		}
@@ -50,7 +47,7 @@ $ starship-cli module undeploy --id ce8a4fbe_45db_49bb_9568_6688dd84480b
 }
 
 func init() {
-	undeployCmd.Flags().StringVarP(&moduleId, "id", "i", moduleId, "the id of module.")
+	undeployCmd.Flags().StringVarP(&moduleId, "id", "i", moduleId, "the ID of module.")
 	_ = undeployCmd.MarkFlagRequired("id")
 }
 

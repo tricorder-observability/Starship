@@ -63,6 +63,20 @@ type ListModuleResp struct {
 	Data []dao.ModuleGORM `json:"data"`
 }
 
+type ListAgentReq struct {
+	// These fields of the agent record are returned to the client.
+	// Empty list instructs server to return a default set of fields.
+	// This allows client to control the size of the returned data to trade-off between responsiveness and completeness of
+	// returned information.
+	// TODO(yzhao): Change to string slice.
+	Fields string
+}
+
+type ListAgentResp struct {
+	HTTPResp
+	Data []dao.NodeAgentGORM `json:"data"`
+}
+
 type DeployModuleResp struct {
 	HTTPResp
 	UID string `json:"uid"`

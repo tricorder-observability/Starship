@@ -84,7 +84,8 @@ func (g *NodeAgentDao) UpdateStateByID(agentID string, statue int) error {
 	*agent.LastUpdateTime = time.Now()
 	agent.State = statue
 
-	result := g.Client.Engine.Model(&NodeAgentGORM{}).Where("agent_id", agentID).Updates(agent)
+	result := g.Client.Engine.Model(&NodeAgentGORM{}).Where("agent_id", agentID).
+		Select("state", "last_update_time").Updates(agent)
 	return result.Error
 }
 
@@ -93,7 +94,7 @@ func (g *NodeAgentDao) DeleteByID(agentID string) error {
 	return result.Error
 }
 
-func (g *NodeAgentDao) List(query ...string) ([]NodeAgentGORM, error) {
+func (g *NodeAgentDao) List(query []string) ([]NodeAgentGORM, error) {
 	nodeList := make([]NodeAgentGORM, 0)
 	if len(query) == 0 {
 		query = []string{"agent_id", "node_name", "agent_pod_id", "state", "create_time", "last_update_time"}

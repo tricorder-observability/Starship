@@ -13,47 +13,42 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-package table
+package agent
 
 import (
 	"encoding/json"
-	"os"
 
-	"github.com/olekukonko/tablewriter"
+	"github.com/tricorder/src/utils/log"
 
-	"github.com/tricorder/src/cli/pkg/model"
+	apiserver "github.com/tricorder/src/api-server/http"
+	"github.com/tricorder/src/cli/pkg/output"
+
+	"github.com/spf13/cobra"
 )
 
-func Output(resp *model.Response) error {
-	var stringMapArrays []map[string]string
-
-	bytes, _ := json.Marshal(resp.Data)
-	_ = json.Unmarshal(bytes, &stringMapArrays)
-
-	if len(stringMapArrays) < 1 {
-		return nil
-	}
-
-	var header []string
-
-	for k := range stringMapArrays[0] {
-		header = append(header, k)
-	}
-
-	var dataT [][]string
-
-	for _, objMap := range stringMapArrays {
-		var datum []string
-		for _, key := range header {
-			datum = append(datum, objMap[key])
+var listCmd = &cobra.Command{
+	Use:   "list",
+	Short: "List agents",
+	Long: "List agents. For example:\n" +
+		"$ starship-cli agent list --api-server=<address>",
+	Run: func(cmd *cobra.Command, args []string) {
+		client := apiserver.NewClient(apiServerAddress)
+		resp, err := client.ListAgents(nil)
+		if err != nil {
+			log.Error(err)
+			return
 		}
-		dataT = append(dataT, datum)
-	}
 
-	table := tablewriter.NewWriter(os.Stdout)
-	table.SetHeader(header)
-	table.AppendBulk(dataT)
-	table.Render()
+		// TODO(jun): refactor output to delete this hack
+		respByte, err := json.Marshal(resp)
+		if err != nil {
+			log.Error(err)
+			return
+		}
 
-	return nil
+		err = output.Print(outputFormat, respByte)
+		if err != nil {
+			log.Error(err)
+		}
+	},
 }

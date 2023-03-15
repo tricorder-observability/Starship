@@ -1,23 +1,17 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
-    name = "module",
+    name = "agent",
     srcs = [
-        "create.go",
-        "delete.go",
-        "deploy.go",
+        "agent.go",
         "list.go",
-        "module.go",
-        "undeploy.go",
     ],
-    importpath = "github.com/tricorder/src/cli/cmd/module",
+    importpath = "github.com/tricorder/src/cli/cmd/agent",
     visibility = ["//visibility:public"],
     deps = [
-        "//src/api-server/http/api",
+        "//src/api-server/http",
         "//src/cli/pkg/kubernetes",
         "//src/cli/pkg/output",
-        "//src/pb/module",
-        "//src/utils/file",
         "//src/utils/log",
         "@com_github_spf13_cobra//:cobra",
     ],

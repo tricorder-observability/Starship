@@ -18,6 +18,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"net"
 
 	"golang.org/x/sync/errgroup"
 	"k8s.io/client-go/kubernetes"
@@ -159,8 +160,14 @@ func main() {
 
 	if *enableMgmtUI {
 		srvErrGroup.Go(func() error {
+			const tcp = "tcp"
+			addrStr := fmt.Sprintf(":%d", *mgmtUIPort)
+			listener, err := net.Listen(tcp, addrStr)
+			if err != nil {
+				return errors.Wrap("starting http server", "listen", err)
+			}
 			config := http.Config{
-				Port:            *mgmtUIPort,
+				Listen:          listener,
 				GrafanaURL:      *moduleGrafanaURL,
 				GrafanaUserName: *moduleGrafanaUserName,
 				GrafanaUserPass: *moduleGrafanaUserPassword,

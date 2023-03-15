@@ -97,14 +97,16 @@ func (g *ModuleInstanceDao) UpdateByID(module *ModuleInstanceGORM) error {
 	return result.Error
 }
 
-func (g *ModuleInstanceDao) UpdateStatusByID(ID string, statue int) error {
+func (g *ModuleInstanceDao) UpdateStatusByID(ID string, state int) error {
 	module := ModuleInstanceGORM{}
 
 	module.LastUpdateTime = &time.Time{}
 	*module.LastUpdateTime = time.Now()
-	module.State = statue
+	module.State = state
 
-	result := g.Client.Engine.Model(&ModuleInstanceGORM{}).Where("id", ID).Updates(module)
+	// use Select() to avoid update other fields and force update state 0 filed
+	result := g.Client.Engine.Model(&ModuleInstanceGORM{}).Where("id", ID).
+		Select("last_update_time", "state").Updates(module)
 	return result.Error
 }
 
@@ -115,7 +117,9 @@ func (g *ModuleInstanceDao) UpdateDesireStateByID(ID string, desireState int) er
 	*module.LastUpdateTime = time.Now()
 	module.DesireState = desireState
 
-	result := g.Client.Engine.Model(&ModuleInstanceGORM{}).Where("id", ID).Updates(module)
+	// use Select() to avoid update other fields and force update state 0 filed
+	result := g.Client.Engine.Model(&ModuleInstanceGORM{}).Where("id", ID).
+		Select("last_update_time", "desire_state").Updates(module)
 	return result.Error
 }
 
@@ -216,6 +220,15 @@ func (g *ModuleInstanceDao) QueryByID(ID string) (*ModuleInstanceGORM, error) {
 	result := g.Client.Engine.Where(&ModuleInstanceGORM{ID: ID}).First(module)
 	if result.Error != nil {
 		return nil, fmt.Errorf("query module instance by id error:%v", result.Error)
+	}
+	return module, nil
+}
+
+func (g *ModuleInstanceDao) QueryByAgentIDAndModuleID(agentID, moduleID string) (*ModuleInstanceGORM, error) {
+	module := &ModuleInstanceGORM{}
+	result := g.Client.Engine.Where(&ModuleInstanceGORM{AgentID: agentID, ModuleID: moduleID}).First(module)
+	if result.Error != nil {
+		return nil, fmt.Errorf("query module instance by agentID and moduleID error:%v", result.Error)
 	}
 	return module, nil
 }

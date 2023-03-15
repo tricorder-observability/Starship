@@ -152,6 +152,44 @@ func (mgr *ModuleManager) createModule(body CreateModuleReq) CreateModuleResp {
 	}}
 }
 
+// listAgentHttp godoc
+// @Summary      List all agent
+// @Description  List all agent
+// @Tags         agent
+// @Accept       json
+// @Produce      json
+// @Param			   fields	 query	string	false  "query field search like 'agent_id,node_name,agent_pod_id'"
+// @Success      200  {object}  ListModuleResp
+// @Router       /api/listAgent [get]
+func (mgr *ModuleManager) listAgentHttp(c *gin.Context) {
+	// Allow fields to be omitted.
+	const fieldsKey = "fields"
+	const defaultFields = "agent_id,node_name,agent_pod_id,state,create_time,last_update_time"
+	fields, exists := c.GetQuery(fieldsKey)
+	if !exists {
+		log.Debugf("listModule request has no 'fields', use default fields: %s", defaultFields)
+		fields = defaultFields
+	}
+	result := mgr.listAgent(ListAgentReq{Fields: fields})
+	c.JSON(http.StatusOK, result)
+}
+
+func (mgr *ModuleManager) listAgent(req ListAgentReq) ListAgentResp {
+	fields := strings.Split(req.Fields, ",")
+	resultList, err := mgr.NodeAgent.List(fields)
+	if err != nil {
+		return ListAgentResp{HTTPResp{
+			Code:    500,
+			Message: "Query Error: " + err.Error(),
+		}, nil}
+	}
+
+	return ListAgentResp{HTTPResp{
+		Code:    200,
+		Message: "Success",
+	}, resultList}
+}
+
 // listModuleHttp godoc
 // @Summary      List all moudle
 // @Description  List all moudle
@@ -331,7 +369,7 @@ func (mgr *ModuleManager) deployModule(id string) DeployModuleResp {
 			return errors.New("pre-deploy module: " + module.ID + "failed: " + err.Error())
 		}
 		// list all agents, and insert into module_instance table
-		nodeAgents, err := mgr.NodeAgent.List()
+		nodeAgents, err := mgr.NodeAgent.List([]string{})
 		if err != nil {
 			log.Fatalf("list agent error: %s", err.Error())
 		}

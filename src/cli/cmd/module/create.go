@@ -23,19 +23,19 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/tricorder/src/utils/log"
-
 	"github.com/tricorder/src/api-server/http/api"
-	"github.com/tricorder/src/cli/pkg/outputs"
+	"github.com/tricorder/src/cli/pkg/output"
 	modulepb "github.com/tricorder/src/pb/module"
 	"github.com/tricorder/src/utils/file"
+	"github.com/tricorder/src/utils/log"
 )
 
 var createCmd = &cobra.Command{
 	Use:   "create",
-	Short: "create module by json file.",
-	Long: `create module by json file. For example:
-$ starship-cli module create -b path/to/bcc_file -m path/to/module_json_file -w path/to/wasm_file`,
+	Short: "Create an eBPF+WASM module",
+	Long: "Create an eBPF+WASM module with BCC source file and WASM binary file. For example:\n" +
+		"$ starship-cli module create --api-server=<address> -m <module_json_file> -b <bcc_source_file> " +
+		"-w <wasm_binary_file>",
 	Run: func(cmd *cobra.Command, args []string) {
 		bccStr, err := file.Read(bccFilePath)
 		if err != nil {
@@ -61,7 +61,7 @@ $ starship-cli module create -b path/to/bcc_file -m path/to/module_json_file -w 
 			log.Error(err)
 		}
 
-		err = outputs.Output(output, resp)
+		err = output.Print(outputFormat, resp)
 		if err != nil {
 			log.Error(err)
 		}
@@ -76,10 +76,10 @@ var (
 )
 
 func init() {
-	createCmd.Flags().StringVarP(&moduleFilePath, "module-json-path", "m",
-		moduleFilePath, "The file path of module in json format.")
-	createCmd.Flags().StringVarP(&bccFilePath, "bcc-file-path", "b", bccFilePath, "The file path of bcc code.")
-	createCmd.Flags().StringVarP(&wasmFilePath, "wasm-file-path", "w", wasmFilePath, "The file path of wasm code.")
+	createCmd.Flags().StringVarP(&moduleFilePath, "module", "m",
+		moduleFilePath, "The path of the JSON file that describes an eBPF+WASM module.")
+	createCmd.Flags().StringVarP(&bccFilePath, "bcc", "b", bccFilePath, "The path of the BCC source file.")
+	createCmd.Flags().StringVarP(&wasmFilePath, "wasm", "w", wasmFilePath, "The path of the WASM binary file.")
 }
 
 func parseModuleJsonFile(moduleJsonFilePath string) (*modulepb.Module, error) {

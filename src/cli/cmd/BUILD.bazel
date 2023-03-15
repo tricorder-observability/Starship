@@ -6,6 +6,7 @@ go_library(
     importpath = "github.com/tricorder/src/cli/cmd",
     visibility = ["//visibility:public"],
     deps = [
+        "//src/cli/cmd/agent",
         "//src/cli/cmd/module",
         "//src/utils/log",
         "@com_github_spf13_cobra//:cobra",
