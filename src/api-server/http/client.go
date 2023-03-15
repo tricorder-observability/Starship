@@ -23,19 +23,23 @@ func NewClient(url string) *Client {
 	return &Client{url: url}
 }
 
-func executeHTTPReq(req *http.Request) ([]byte, error) {
+func executeHTTPReq(req *http.Request, resp any) error {
 	httpClient := http.Client{Timeout: time.Duration(3) * time.Second}
 	httpResp, err := httpClient.Do(req)
 	if err != nil {
-		return nil, errors.Wrap("execute http request", "do request", err)
+		return errors.Wrap("execute http request", "do request", err)
 	}
 
 	defer httpResp.Body.Close()
 	body, err := io.ReadAll(httpResp.Body)
 	if err != nil {
-		return nil, errors.Wrap("execute http request", "read response body", err)
+		return errors.Wrap("execute http request", "read response body", err)
 	}
-	return body, nil
+	err = json.Unmarshal(body, resp)
+	if err != nil {
+		return errors.Wrap("listing agents", "decode response body", err)
+	}
+	return nil
 }
 
 // ListAgents returns the list of agents stored on the API Server.
@@ -51,16 +55,13 @@ func (c *Client) ListAgents(agentReq *ListAgentReq) (*ListAgentResp, error) {
 		return nil, errors.Wrap("listing agents", "create request", err)
 	}
 
-	body, err := executeHTTPReq(req)
+	resp := &ListAgentResp{}
+	err = executeHTTPReq(req, resp)
 	if err != nil {
 		return nil, errors.Wrap("listing agents", "execute http request", err)
 	}
-	var model *ListAgentResp
-	err = json.Unmarshal(body, &model)
-	if err != nil {
-		return nil, errors.Wrap("listing agents", "decode response body", err)
-	}
-	return model, nil
+
+	return resp, nil
 }
 
 // CreateModule creates a new module on the API Server.
@@ -78,17 +79,13 @@ func (c *Client) CreateModule(moduleReq *CreateModuleReq) (*CreateModuleResp, er
 
 	req.Header.Set("Content-Type", "application/json")
 
-	body, err := executeHTTPReq(req)
+	resp := &CreateModuleResp{}
+	err = executeHTTPReq(req, resp)
 	if err != nil {
 		return nil, errors.Wrap("creating module", "execute http request", err)
 	}
 
-	var model *CreateModuleResp
-	err = json.Unmarshal(body, &model)
-	if err != nil {
-		return nil, errors.Wrap("creating module", "decode response body", err)
-	}
-	return model, nil
+	return resp, nil
 }
 
 // DeployModule deploys a module on the API Server.
@@ -100,17 +97,13 @@ func (c *Client) DeployModule(moduleId string) (*DeployModuleResp, error) {
 		return nil, errors.Wrap("deploying module", "create request", err)
 	}
 
-	body, err := executeHTTPReq(req)
+	resp := &DeployModuleResp{}
+	err = executeHTTPReq(req, resp)
 	if err != nil {
 		return nil, errors.Wrap("deploying module", "execute http request", err)
 	}
 
-	var model *DeployModuleResp
-	err = json.Unmarshal(body, &model)
-	if err != nil {
-		return nil, errors.Wrap("deploying module", "decode response body", err)
-	}
-	return model, nil
+	return resp, nil
 }
 
 // UndeployModule undeploys a module on the API Server.
@@ -122,17 +115,13 @@ func (c *Client) UndeployModule(moduleId string) (*UndeployModuleResp, error) {
 		return nil, errors.Wrap("undeploying module", "create request", err)
 	}
 
-	body, err := executeHTTPReq(req)
+	resp := &UndeployModuleResp{}
+	err = executeHTTPReq(req, resp)
 	if err != nil {
 		return nil, errors.Wrap("undeploying module", "execute http request", err)
 	}
 
-	var model *UndeployModuleResp
-	err = json.Unmarshal(body, &model)
-	if err != nil {
-		return nil, errors.Wrap("undeploying module", "decode response body", err)
-	}
-	return model, nil
+	return resp, nil
 }
 
 // DeleteModule deletes a module on the API Server.
@@ -144,17 +133,13 @@ func (c *Client) DeleteModule(moduleId string) (*DeleteModuleResp, error) {
 		return nil, errors.Wrap("deleting module", "create request", err)
 	}
 
-	body, err := executeHTTPReq(req)
+	resp := &DeleteModuleResp{}
+	err = executeHTTPReq(req, resp)
 	if err != nil {
 		return nil, errors.Wrap("deleting module", "execute http request", err)
 	}
 
-	var model *DeleteModuleResp
-	err = json.Unmarshal(body, &model)
-	if err != nil {
-		return nil, errors.Wrap("deleting module", "decode response body", err)
-	}
-	return model, nil
+	return resp, nil
 }
 
 // ListModules lists all modules on the API Server.
@@ -171,15 +156,11 @@ func (c *Client) ListModules(moduleReq *ListModuleReq) (*ListModuleResp, error) 
 		return nil, errors.Wrap("listing modules", "create request", err)
 	}
 
-	body, err := executeHTTPReq(req)
+	resp := &ListModuleResp{}
+	err = executeHTTPReq(req, resp)
 	if err != nil {
 		return nil, errors.Wrap("listing module", "execute http request", err)
 	}
 
-	var model *ListModuleResp
-	err = json.Unmarshal(body, &model)
-	if err != nil {
-		return nil, errors.Wrap("listing modules", "decode response body", err)
-	}
-	return model, nil
+	return resp, nil
 }
