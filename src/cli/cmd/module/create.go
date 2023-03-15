@@ -16,16 +16,13 @@
 package module
 
 import (
-	"bytes"
 	"encoding/json"
-	"io"
-	"net/http"
 
 	"github.com/spf13/cobra"
 
-	"github.com/tricorder/src/api-server/http/api"
 	"github.com/tricorder/src/cli/pkg/output"
-	modulepb "github.com/tricorder/src/pb/module"
+
+	apiserver "github.com/tricorder/src/api-server/http"
 	"github.com/tricorder/src/utils/file"
 	"github.com/tricorder/src/utils/log"
 )
@@ -55,13 +52,21 @@ var createCmd = &cobra.Command{
 		moduleReq.Ebpf.Code = bccStr
 		// override wasm code contet by wasm file
 		moduleReq.Wasm.Code = wasmBytes
-		url := api.GetURL(apiServerAddress, api.CREATE_MODULE_PATH)
-		resp, err := createModule(url, moduleReq)
+		client := apiserver.NewClient(apiServerAddress)
+		resp, err := client.CreateModule(moduleReq)
 		if err != nil {
 			log.Error(err)
+			return
 		}
 
-		err = output.Print(outputFormat, resp)
+		// TODO(jun): refactor output to delete this hack
+		respByte, err := json.Marshal(resp)
+		if err != nil {
+			log.Error(err)
+			return
+		}
+
+		err = output.Print(outputFormat, respByte)
 		if err != nil {
 			log.Error(err)
 		}
@@ -82,32 +87,15 @@ func init() {
 	createCmd.Flags().StringVarP(&wasmFilePath, "wasm", "w", wasmFilePath, "The path of the WASM binary file.")
 }
 
-func parseModuleJsonFile(moduleJsonFilePath string) (*modulepb.Module, error) {
+func parseModuleJsonFile(moduleJsonFilePath string) (*apiserver.CreateModuleReq, error) {
 	bytes, err := file.ReadBin(moduleJsonFilePath)
 	if err != nil {
 		return nil, err
 	}
-	var moduleReq *modulepb.Module
+	var moduleReq *apiserver.CreateModuleReq
 	err = json.Unmarshal([]byte(bytes), &moduleReq)
 	if err != nil {
 		return nil, err
 	}
 	return moduleReq, nil
-}
-
-func createModule(url string, moduleReq *modulepb.Module) ([]byte, error) {
-	bodyBytes, err := json.Marshal(moduleReq)
-	if err != nil {
-		return nil, err
-	}
-	resp, err := http.Post(url, "application/json", bytes.NewBuffer(bodyBytes))
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-	return body, nil
 }

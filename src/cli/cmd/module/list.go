@@ -16,15 +16,11 @@
 package module
 
 import (
-	"fmt"
-	"io"
-	"net/http"
-	"time"
+	"encoding/json"
 
+	apiserver "github.com/tricorder/src/api-server/http"
 	"github.com/tricorder/src/cli/pkg/output"
 	"github.com/tricorder/src/utils/log"
-
-	"github.com/tricorder/src/api-server/http/api"
 
 	"github.com/spf13/cobra"
 )
@@ -35,39 +31,23 @@ var listCmd = &cobra.Command{
 	Long: "List eBPF+WASM modules. For example:\n" +
 		"$ starship-cli module list --api-server=<address>",
 	Run: func(cmd *cobra.Command, args []string) {
-		url := api.GetURL(apiServerAddress, api.LIST_MODULE_PATH)
-		resp, err := listModules(url)
+		client := apiserver.NewClient(apiServerAddress)
+		resp, err := client.ListModules(nil)
 		if err != nil {
 			log.Error(err)
+			return
 		}
 
-		err = output.Print(outputFormat, resp)
+		// TODO(jun): refactor output to delete this hack
+		respByte, err := json.Marshal(resp)
+		if err != nil {
+			log.Error(err)
+			return
+		}
+
+		err = output.Print(outputFormat, respByte)
 		if err != nil {
 			log.Error(err)
 		}
 	},
-}
-
-func listModules(url string) ([]byte, error) {
-	c := http.Client{Timeout: time.Duration(3) * time.Second}
-	req, err := http.NewRequest("GET", fmt.Sprintf("%s?fields=%s", url, "id,name,desire_state,create_time,"+
-		"ebpf_fmt,ebpf_lang,schema_name,fn,schema_attr"), nil)
-	if err != nil {
-		log.Error(err)
-		return nil, err
-	}
-	resp, err := c.Do(req)
-	if err != nil {
-		log.Error(err)
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		log.Fatal(err)
-		return nil, err
-	}
-
-	return body, nil
 }

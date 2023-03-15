@@ -24,7 +24,7 @@ import (
 	"github.com/olekukonko/tablewriter"
 	"gopkg.in/yaml.v2"
 
-	"github.com/tricorder/src/api-server/http"
+	"github.com/tricorder/bazel-starship/src/cli/pkg/model"
 )
 
 const (
@@ -33,7 +33,7 @@ const (
 	TABLE = "table"
 )
 
-func printJSON(data *http.ListModuleResp) error {
+func printJSON(data *model.Response) error {
 	bytes, e := json.Marshal(data)
 	if e != nil {
 		return e
@@ -42,7 +42,7 @@ func printJSON(data *http.ListModuleResp) error {
 	return e
 }
 
-func printTable(resp *http.ListModuleResp) error {
+func printTable(resp *model.Response) error {
 	var stringMapArrays []map[string]string
 
 	bytes, _ := json.Marshal(resp.Data)
@@ -76,7 +76,7 @@ func printTable(resp *http.ListModuleResp) error {
 	return nil
 }
 
-func printYAML(data *http.ListModuleResp) error {
+func printYAML(data *model.Response) error {
 	bytes, e := yaml.Marshal(data)
 	if e != nil {
 		return e
@@ -87,7 +87,7 @@ func printYAML(data *http.ListModuleResp) error {
 
 // Print writes output to the console.
 func Print(style string, resp []byte) error {
-	var model *http.ListModuleResp
+	var model model.Response
 	err := json.Unmarshal(resp, &model)
 	if err != nil {
 		return err
@@ -97,11 +97,11 @@ func Print(style string, resp []byte) error {
 	}
 	switch strings.ToLower(style) {
 	case JSON:
-		return printJSON(model)
+		return printJSON(&model)
 	case YAML:
-		return printYAML(model)
+		return printYAML(&model)
 	case TABLE:
-		return printTable(model)
+		return printTable(&model)
 	default:
 		return fmt.Errorf("unsupported output style: %s", style)
 	}
