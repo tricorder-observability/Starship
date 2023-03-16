@@ -25,7 +25,7 @@ jobs:
         # because super linter runs each file against the linter, but some
         # linter has to work with the whole code base. See:
         # https://github.com/github/super-linter/issues/3596
-        run: cat .github/super-linter.env >> "$GITHUB_ENV"
+        run: cat .github/super_linter.env >> "$GITHUB_ENV"
 
       - name: Lint Code Base
         # https://github.com/github/super-linter#slim-image
