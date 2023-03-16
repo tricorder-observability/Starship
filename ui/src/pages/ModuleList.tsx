@@ -1,27 +1,20 @@
+import {
+  deleteModule,
+  deployModule,
+  listModule,
+  undeployModule,
+} from '@/services/ant-design-pro/api';
 import { PageContainer } from '@ant-design/pro-components';
-import { Card } from 'antd';
-import React, { useEffect, useState } from 'react';
-import { Table, message, Popconfirm, Form } from 'antd';
-import { codeList, codeDeploy, codeDelete, codeUndeploy } from '@/services/ant-design-pro/api';
-import type { ColumnsType } from 'antd/lib/table';
 import { useIntl } from '@umijs/max';
+import { Card, Form, message, Popconfirm, Table } from 'antd';
+import type { ColumnsType } from 'antd/lib/table';
+import React, { useEffect, useState } from 'react';
 
 export interface CodeListItemType {
   Name: string;
   Status: string;
   CreateTime: number;
 }
-
-// maybe use
-// const JsonRender = (json: any) => {
-//   if (!json) {
-//     return json;
-//   }
-//   if (typeof json === 'object') {
-//     return <pre>{JSON.stringify(json, undefined, 4)}</pre>;
-//   }
-//   return json;
-// };
 
 const ArrayRender = (
   data: {
@@ -54,11 +47,15 @@ const CodeList: React.FC = () => {
   const intl = useIntl();
   const getData = async () => {
     try {
-      const msg = await codeList();
+      const msg: any = await listModule();
+      if (msg.code != 200) {
+        message.error(msg.message);
+        return;
+      }
       setData(msg.data);
       return msg.data;
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
+      message.error(error.message);
       return error;
     }
   };
@@ -67,7 +64,7 @@ const CodeList: React.FC = () => {
       title: intl.formatMessage({
         id: 'codeList.name',
       }),
-      dataIndex: 'Name',
+      dataIndex: 'name',
       render: (val) => {
         return val;
       },
@@ -77,7 +74,7 @@ const CodeList: React.FC = () => {
         id: 'codeList.status',
       }),
       // 0: 代表未部署，1代表成功 2 部署中 3 部署失败
-      dataIndex: 'Status',
+      dataIndex: 'status',
       render: (d: number) => {
         if (d === 0) {
           return intl.formatMessage({
@@ -106,7 +103,7 @@ const CodeList: React.FC = () => {
       title: intl.formatMessage({
         id: 'codeList.create_time',
       }),
-      dataIndex: 'CreateTime',
+      dataIndex: 'create_time',
     },
     {
       title: intl.formatMessage({
@@ -118,10 +115,10 @@ const CodeList: React.FC = () => {
         <>
           <a
             onClick={async () => {
-              const res = await codeDeploy({
-                Id: columnData.Id || columnData.ID,
+              const res = await deployModule({
+                Id: columnData.id || columnData.ID,
               });
-              if (res.code === '200') {
+              if (res.code === 200) {
                 message.success('deploy success');
                 getData();
               } else {
@@ -135,10 +132,10 @@ const CodeList: React.FC = () => {
           </a>
           <a
             onClick={async () => {
-              const res = await codeUndeploy({
-                Id: columnData.Id || columnData.ID,
+              const res = await undeployModule({
+                Id: columnData.id || columnData.ID,
               });
-              if (res.code === '200') {
+              if (res.code === 200) {
                 message.success('undeploy success');
                 getData();
               } else {
@@ -158,10 +155,11 @@ const CodeList: React.FC = () => {
             placement="bottom"
             title={'Are you sure to delete ?'}
             onConfirm={async () => {
-              const res = await codeDelete({
-                Id: columnData.Id || columnData.ID,
+              const res = await deleteModule({
+                Id: columnData.id || columnData.ID,
               });
-              if (res.code === '200') {
+              debugger;
+              if (res.code === 200) {
                 message.success('delete success');
                 getData();
               } else {

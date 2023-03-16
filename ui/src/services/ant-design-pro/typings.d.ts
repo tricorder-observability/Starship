@@ -116,7 +116,7 @@ declare namespace API {
 
   type ResponseType<T> = {
     data: T;
-    code: string;
+    code: number;
     message: string;
   };
 }

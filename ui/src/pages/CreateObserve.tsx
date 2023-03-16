@@ -1,38 +1,39 @@
+import { MinusCircleOutlined, PlusOutlined, UploadOutlined } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-components';
-import { Card } from 'antd';
-import React, { useEffect } from 'react';
-import { Button, Form, Input, message, Upload, Space, Select } from 'antd';
-import { UploadOutlined, MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
-import { codeSubmit } from '../services/ant-design-pro/api';
 import { history, useIntl } from '@umijs/max';
+import { Button, Card, Form, Input, message, Select, Space, Upload } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { createModule } from '../services/ant-design-pro/api';
 
-const normFile = (e: any) => {
-  console.log('Upload event:', e);
-  if (Array.isArray(e)) {
-    return e;
-  }
-  return e?.fileList;
-};
 const width = '100%';
 const Code: React.FC = () => {
   const [form] = Form.useForm();
   const intl = useIntl();
+  const [fileContent, setFileContent] = useState<any>([]);
   const onFinish = async (values: any) => {
     try {
-      const msg = await codeSubmit({
-        name: values.name,
+      const params = {
         ebpf: {
           code: values.code,
-          eventSize: String(values.eventSize),
-          perfBuffers: [values.perfBuffers],
-          kprobes: values.kprobes,
+          fmt: 0,
+          lang: 0,
+          probes: values.probes,
         },
-        fn: values.fn,
-        wasm: values.wasm?.[0]?.response?.data,
-        schemaName: values.schemaName,
-        schemaAttr: values.schemaAttr,
-      });
-      if (msg.code === '200') {
+        name: values.name,
+        wasm: {
+          code: fileContent,
+          // TODO(zhoujie): fmt default value
+          fmt: 0,
+          fn_name: values.fn,
+          // TODO(zhoujie): lang default value
+          lang: 0,
+          output_schema: {
+            fields: values.schemaAttr,
+          },
+        },
+      };
+      const msg = await createModule(params);
+      if (msg.code === 200) {
         message.success('success');
         history.push('/module-list');
         sessionStorage.setItem('codeCache', '');
@@ -64,6 +65,18 @@ const Code: React.FC = () => {
       window.removeEventListener('beforeunload', beforeunloadCallback);
     };
   }, [form]);
+
+  const readFileContent = (info: any) => {
+    if (info.file.status === 'done') {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const arrBuffer: any = e.target?.result;
+        const uint8Array = new Uint8Array(arrBuffer);
+        setFileContent(Array.from(uint8Array));
+      };
+      reader.readAsArrayBuffer(info.file.originFileObj);
+    }
+  };
 
   return (
     <PageContainer>
@@ -151,7 +164,7 @@ const Code: React.FC = () => {
             required={true}
           >
             <Form.List
-              name="kprobes"
+              name="probes"
               initialValue={[
                 {
                   target: null,
@@ -210,12 +223,16 @@ const Code: React.FC = () => {
             label={intl.formatMessage({
               id: 'code.wasm',
             })}
-            valuePropName="fileList"
-            getValueFromEvent={normFile}
             extra="WASM byte code(.wasm .wat)"
             rules={[{ required: true, message: 'Please input wasm code!' }]}
           >
-            <Upload action="/api/uploadFile" maxCount={1} accept=".wasm,.wat">
+            <Upload
+              action=""
+              maxCount={1}
+              accept=".wasm,.wat"
+              showUploadList={false}
+              onChange={readFileContent}
+            >
               <Button icon={<UploadOutlined />}>Click to upload</Button>
             </Upload>
           </Form.Item>
@@ -266,9 +283,13 @@ const Code: React.FC = () => {
                             width: 166,
                           }}
                         >
-                          <Select.Option value="int">int</Select.Option>
-                          <Select.Option value="text">text</Select.Option>
-                          <Select.Option value="date">date</Select.Option>
+                          <Select.Option value={0}>bool</Select.Option>
+                          <Select.Option value={1}>date</Select.Option>
+                          <Select.Option value={2}>int</Select.Option>
+                          <Select.Option value={3}>integer</Select.Option>
+                          <Select.Option value={4}>json</Select.Option>
+                          <Select.Option value={5}>jsonb</Select.Option>
+                          <Select.Option value={6}>text</Select.Option>
                         </Select>
                       </Form.Item>
                       {fields.length > 1 && <MinusCircleOutlined onClick={() => remove(name)} />}
@@ -306,7 +327,7 @@ const Code: React.FC = () => {
                   code: null,
                   eventSize: null,
                   perfBuffers: null,
-                  kprobes: null,
+                  probes: null,
                   fn: null,
                   wasm: null,
                   schemaName: null,
