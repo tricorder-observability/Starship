@@ -52,7 +52,7 @@ func TestOutPut(t *testing.T) {
 			JSON, `{"code":200,"message":"success","data":[{"name":"mock-data"}]}`,
 		},
 		{
-			YAML, "code: 200\n  message: success",
+			YAML, "code: 200\nmessage: success",
 		},
 		{
 			TABLE, "+-----------+\n|   NAME    |\n+-----------+\n| mock-data |\n+-----------+\n",

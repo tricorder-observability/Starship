@@ -16,6 +16,7 @@
 package module
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -24,7 +25,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/tricorder/src/api-server/http/api"
+	apiserver "github.com/tricorder/src/api-server/http"
 	"github.com/tricorder/src/cli/pkg/output"
 )
 
@@ -34,13 +35,23 @@ var deleteCmd = &cobra.Command{
 	Long: "Delete an eBPF+WASM module. For example:\n" +
 		"$ starship-cli module delete --api-server=<address> --id 2a339411_7dd8_46ba_9581_e9d41286b564",
 	Run: func(cmd *cobra.Command, args []string) {
-		url := api.GetURL(apiServerAddress, api.DELETE_MODULE_PATH)
-		resp, err := deleteModule(url, moduleId)
+		client := apiserver.NewClient(apiServerAddress)
+		resp, err := client.DeleteModule(moduleId)
 		if err != nil {
 			log.Error(err)
+			return
 		}
 
-		err = output.Print(outputFormat, resp)
+		// TODO(jun): refactor output to delete this hack
+		// we can upgrade golang version and introduce generic code
+		// to provide a generic interface to output
+		respByte, err := json.Marshal(resp)
+		if err != nil {
+			log.Error(err)
+			return
+		}
+
+		err = output.Print(outputFormat, respByte)
 		if err != nil {
 			log.Error(err)
 		}

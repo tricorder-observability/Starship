@@ -16,13 +16,11 @@
 package module
 
 import (
-	"fmt"
-	"io"
-	"net/http"
+	"encoding/json"
 
 	"github.com/spf13/cobra"
 
-	"github.com/tricorder/src/api-server/http/api"
+	apiserver "github.com/tricorder/src/api-server/http"
 	"github.com/tricorder/src/cli/pkg/output"
 	"github.com/tricorder/src/utils/log"
 )
@@ -33,15 +31,22 @@ var deployCmd = &cobra.Command{
 	Long: "Deploy a previously-created eBPF+WASM module. For example:\n" +
 		"$ starship-cli module deploy --api-server=<address> --id=ce8a4fbe_45db_49bb_9568_6688dd84480b",
 	Run: func(cmd *cobra.Command, args []string) {
-		url := api.GetURL(apiServerAddress, api.DEPLOY_MODULE_PATH)
-		resp, err := deployModule(url, moduleId)
+		client := apiserver.NewClient(apiServerAddress)
+		resp, err := client.DeployModule(moduleId)
 		if err != nil {
-			log.Fatalf("Failed to deploy module, id='%s', error: %v", moduleId, err)
+			log.Error(err)
+			return
 		}
-		if len(resp) == 0 {
-			log.Fatalf("Failed to deploy module, id='%s', Empty response from API Server", moduleId)
+
+		// TODO(jun): refactor output to delete this hack
+		// we can upgrade golang version and introduce generic code
+		// to provide a generic interface to output
+		respByte, err := json.Marshal(resp)
+		if err != nil {
+			log.Error(err)
+			return
 		}
-		if err := output.Print(outputFormat, resp); err != nil {
+		if err := output.Print(outputFormat, respByte); err != nil {
 			log.Fatalf("Failed to write output, error: %v", err)
 		}
 	},
@@ -50,17 +55,4 @@ var deployCmd = &cobra.Command{
 func init() {
 	deployCmd.Flags().StringVarP(&moduleId, "id", "i", moduleId, "the ID of a previously-created eBPF+WASM module.")
 	_ = deployCmd.MarkFlagRequired("id")
-}
-
-func deployModule(url string, moduleId string) ([]byte, error) {
-	resp, err := http.Post(fmt.Sprintf("%s?id=%s", url, moduleId), "application/json", nil)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-	return body, nil
 }
