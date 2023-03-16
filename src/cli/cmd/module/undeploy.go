@@ -35,13 +35,15 @@ var undeployCmd = &cobra.Command{
 		"$ starship-cli module undeploy --api-server=<address> --id ce8a4fbe_45db_49bb_9568_6688dd84480b",
 	Run: func(cmd *cobra.Command, args []string) {
 		client := apiserver.NewClient(apiServerAddress)
-		resp, err := client.DeleteModule(moduleId)
+		resp, err := client.UndeployModule(moduleId)
 		if err != nil {
 			log.Error(err)
 			return
 		}
 
 		// TODO(jun): refactor output to delete this hack
+		// we can upgrade golang version and introduce generic code
+		// to provide a generic interface to output
 		respByte, err := json.Marshal(resp)
 		if err != nil {
 			log.Error(err)

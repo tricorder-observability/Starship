@@ -43,6 +43,8 @@ var deleteCmd = &cobra.Command{
 		}
 
 		// TODO(jun): refactor output to delete this hack
+		// we can upgrade golang version and introduce generic code
+		// to provide a generic interface to output
 		respByte, err := json.Marshal(resp)
 		if err != nil {
 			log.Error(err)
