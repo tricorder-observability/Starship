@@ -1,5 +1,9 @@
 # DEV
 
+## Testing GitHub workflow changes
+
+Change the trigger condition to be pull request on main branch, and test the change in a Pull Request.
+
 ## Update proto file's generated .pb.go source files
 
 ```
