@@ -13,10 +13,9 @@ go_library(
     importpath = "github.com/tricorder/src/cli/cmd/module",
     visibility = ["//visibility:public"],
     deps = [
-        "//src/api-server/http/api",
+        "//src/api-server/http",
         "//src/cli/pkg/kubernetes",
         "//src/cli/pkg/output",
-        "//src/pb/module",
         "//src/utils/file",
         "//src/utils/log",
         "@com_github_spf13_cobra//:cobra",
