@@ -44,10 +44,9 @@ def container_pulls():
 
     # Base image used by bazel to build container images.
     # See $ToT/devops/docker/base_build_image/README.md for more details.
-    container_pull(
+    _docker_hub(
         name = "base_build_image",
-        registry = "public.ecr.aws/tricorder",
-        repository = "base_build_image",
+        repository = "tricorderobservability/base_build_image",
         tag = "v0.1",
-        digest = "sha256:04bc4b96ca3763ad37d04b4914aaede13ff47ef1d5c6e6d7f17dba6da4d5f421",
+        digest = "sha256:f077b5c65e9eff8f630728b04941bc0763d95897f23638731da3ba4c21a68288",
     )
