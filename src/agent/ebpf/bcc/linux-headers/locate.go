@@ -358,6 +358,7 @@ func Init() error {
 	// installHeadersDir is the install dir in container, because of the
 	// compressed tar struct is /usr/src/linux-headers-<version>-starship, so compress destination is /
 	hostRootDir := "/host"
+	// TODO(yzhao): Rename linux_headers to linux-headers.
 	starShipDir := "/starship/linux_headers"
 	libModulesDir := "/lib/modules"
 	installHeadersDir := "/"
