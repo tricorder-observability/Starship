@@ -8,5 +8,6 @@ ToT=$(git rev-parse --show-toplevel)
 echo "Logging into docker ..."
 docker login --username tricorderobservability
 
+cp -r modules/common ${ToT}/devops/base_build_image/
 docker build ${ToT}/devops/base_build_image/ -t ${image}
 docker push ${image}
