@@ -7,7 +7,7 @@
 
 🖖 Starship 🪐 is a next-generation Observability platform built on 🐝 eBPF➕WASM ![image](https://user-images.githubusercontent.com/112656580/219543881-046af389-ca10-4dda-b79a-a60088a1220a.png)
 
-🚀 Starship is to modern Observability, as ChatGPT is to consumer knownledge discovery.
+🚀 Starship is to modern Observability, as ChatGPT is to consumer knowledge discovery.
 🐝 eBPF enables instrumentation-free data collection, and
 ![image](https://user-images.githubusercontent.com/112656580/219543881-046af389-ca10-4dda-b79a-a60088a1220a.png)
 WASM complements eBPF's inability to perform complex data processing.
