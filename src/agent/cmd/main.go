@@ -91,7 +91,8 @@ func communicateWithNode(nodeName string, deployer *deployer.Deployer) error {
 	deployer.PGClient = pgClient
 
 	collector := proc_info.NewCollector(*hostSysRootPath, *apiServerAddr, nodeName)
-	if err := collector.StartProcInfoReport(); err != nil {
+	err = collector.StartProcInfoReport()
+	if err != nil {
 		log.Errorf("Failed to ReportProcess, error: %v", err)
 		return err
 	}
