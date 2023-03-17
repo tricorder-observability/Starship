@@ -13,5 +13,5 @@ RUN mkdir -p /starship/wasm
 RUN tar xvf wasi-sdk-${WASI_VERSION_FULL}-linux.tar.gz -C /opt
 RUN rm -rf wasi-sdk-${WASI_VERSION_FULL}-linux.tar.gz && mv /opt/wasi-sdk-${WASI_VERSION_FULL} /starship/wasm/wasi-sdk
 
-RUN mkdir -p /starship/include
-COPY common/* /starship/include/
+RUN mkdir -p /starship/wasm/include
+COPY common/* /starship/wasm/include/
