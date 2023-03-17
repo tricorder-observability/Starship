@@ -1,10 +1,9 @@
 name: Release images
 
 on:
-  push:
-    # Run this workflow when a tag like v0.0.45 is created.
-    tags:
-      - 'v[0-9]+\.[0-9]+\.[0-9]+'
+  # Requires manual trigger
+  # See https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_dispatch
+  workflow_dispatch
 
 # Only allow running one release action, see more details at:
 # https://docs.github.com/en/actions/using-jobs/using-concurrency
