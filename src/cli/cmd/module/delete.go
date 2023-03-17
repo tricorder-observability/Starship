@@ -17,9 +17,6 @@ package module
 
 import (
 	"encoding/json"
-	"fmt"
-	"io"
-	"net/http"
 
 	"github.com/tricorder/src/utils/log"
 
@@ -61,17 +58,4 @@ var deleteCmd = &cobra.Command{
 func init() {
 	deleteCmd.Flags().StringVarP(&moduleId, "id", "i", moduleId, "the id of module.")
 	_ = deleteCmd.MarkFlagRequired("id")
-}
-
-func deleteModule(url string, moduleId string) ([]byte, error) {
-	resp, err := http.Get(fmt.Sprintf("%s?id=%s", url, moduleId))
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-	return body, nil
 }

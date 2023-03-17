@@ -67,10 +67,6 @@ func main() {
 			log.Errorf("Failed to communicate with node[%v], error: %v", cfg.nodeName, err)
 		}
 	}
-
-	deployer.Stop()
-
-	log.Infof("The deployer has been stopped.\n")
 }
 
 func communicateWithNode(nodeName string, deployer *deployer.Deployer) error {
