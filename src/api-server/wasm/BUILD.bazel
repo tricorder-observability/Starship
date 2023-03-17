@@ -1,0 +1,25 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+
+go_library(
+    name = "wasm",
+    srcs = ["wasm.go"],
+    importpath = "github.com/tricorder/src/api-server/wasm",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//src/utils/errors",
+        "//src/utils/uuid",
+    ],
+)
+
+go_test(
+    name = "wasm_test",
+    srcs = ["wasm_test.go"],
+    embed = [":wasm"],
+    data = [
+        "//src/api-server/wasm/testdata:wasm_elfs",
+    ],
+    deps = [
+        "//src/testing/bazel",
+        "@com_github_stretchr_testify//assert",
+    ],
+)
