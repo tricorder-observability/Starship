@@ -7,51 +7,55 @@ import (
 	"strings"
 
 	"github.com/tricorder/src/utils/errors"
+	"github.com/tricorder/src/utils/file"
 	"github.com/tricorder/src/utils/uuid"
 )
 
 const (
-	WASIClang           = "WASI_SDK_PATH=/opt/wasi-sdk /opt/wasi-sdk/bin/clang"
-	WASICFlags          = "--sysroot=/opt/wasi-sdk/share/wasi-sysroot -Wall -Wextra -Wl,--export-all"
-	WASIStarshipInclude = "/opt/starship/include"
-	BuildTmpDir         = "/tmp"
+	DefaultWASIClang           = "WASI_SDK_PATH=/opt/wasi-sdk /opt/wasi-sdk/bin/clang"
+	DefaultWASICFlags          = "--sysroot=/opt/wasi-sdk/share/wasi-sysroot -Wall -Wextra -Wl,--export-all"
+	DefaultWASIStarshipInclude = "/opt/starship/include"
+	DefaultBuildTmpDir         = "/tmp"
 )
 
-func isWasmELF(filePath string) bool {
-	if !strings.HasSuffix(filePath, ".wasm") {
-		return false
-	}
-
-	file, err := os.Open(filePath)
-	if err != nil {
-		return false
-	}
-
-	// Read the first four bytes of the file
-	buf := make([]byte, 4)
-	n, err := file.Read(buf)
-	if err != nil || n < 4 {
-		return false
-	}
-
-	// Compare with wasm magic number: \x00\x61\x73\x6d (0x6d736100 in little endian)
-	wasmMagic := []byte{0x00, 0x61, 0x73, 0x6d}
-	isWasm := true
-
-	for i := range buf {
-		if buf[i] != wasmMagic[i] {
-			isWasm = false
-			break
-		}
-	}
-
-	return isWasm
+type WASICompiler struct {
+	WASIClang           string
+	WASICFlags          string
+	WASIStarshipInclude string
+	BuildTmpDir         string
 }
 
-func WASICompileC(code string) ([]byte, error) {
+func NewWASICompiler(WASIClang string, WASICFlags string,
+	WASIStarshipInclude string, BuildTmpDir string,
+) *WASICompiler {
+	if WASIClang == "" {
+		WASIClang = DefaultWASIClang
+	}
+
+	if WASICFlags == "" {
+		WASICFlags = DefaultWASICFlags
+	}
+
+	if WASIStarshipInclude == "" {
+		WASIStarshipInclude = DefaultWASIStarshipInclude
+	}
+
+	if BuildTmpDir == "" {
+		BuildTmpDir = DefaultBuildTmpDir
+	}
+
+	return &WASICompiler{
+		WASIClang:           WASIClang,
+		WASICFlags:          WASICFlags,
+		WASIStarshipInclude: WASIStarshipInclude,
+		BuildTmpDir:         BuildTmpDir,
+	}
+}
+
+func (w *WASICompiler) BuildC(code string) ([]byte, error) {
 	srcID := strings.Replace(uuid.New(), "-", "_", -1)
-	srcFilePath := BuildTmpDir + "/" + srcID + ".c"
-	dstFilePath := BuildTmpDir + "/" + srcID + ".wasm"
+	srcFilePath := w.BuildTmpDir + "/" + srcID + ".c"
+	dstFilePath := w.BuildTmpDir + "/" + srcID + ".wasm"
 
 	// write code string to tmp file
 	phase := "write code to " + srcFilePath
@@ -70,7 +74,7 @@ func WASICompileC(code string) ([]byte, error) {
 
 	// compile code
 	phase = "compile " + srcFilePath + " to " + dstFilePath
-	cmd := exec.Command(WASIClang, WASICFlags, "-L"+WASIStarshipInclude, srcFilePath, "-o", dstFilePath)
+	cmd := exec.Command(w.WASIClang, w.WASICFlags, "-L"+w.WASIStarshipInclude, srcFilePath, "-o", dstFilePath)
 	out, err := cmd.Output()
 	if err != nil {
 		return nil, errors.Wrap("compile wasm code", phase, err)
@@ -89,7 +93,7 @@ func WASICompileC(code string) ([]byte, error) {
 
 	// check comiled file fmt
 	phase = "check compiled file format " + dstFilePath
-	if !isWasmELF(dstFilePath) {
+	if !file.IsWasmELF(dstFilePath) {
 		return nil, errors.New("compile wasm code", phase+" error: File is not a wasm file.")
 	}
 
