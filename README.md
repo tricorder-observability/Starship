@@ -7,7 +7,7 @@
 
 🖖 Starship 🪐 is a next-generation Observability platform built on 🐝 eBPF➕WASM ![image](https://user-images.githubusercontent.com/112656580/219543881-046af389-ca10-4dda-b79a-a60088a1220a.png)
 
-🚀 Starship is to modern Observability, as ChatGPT is to consumer knownledge discovery.
+🚀 Starship is to modern Observability, as ChatGPT is to consumer knowledge discovery.
 🐝 eBPF enables instrumentation-free data collection, and
 ![image](https://user-images.githubusercontent.com/112656580/219543881-046af389-ca10-4dda-b79a-a60088a1220a.png)
 WASM complements eBPF's inability to perform complex data processing.
@@ -54,11 +54,10 @@ helm install my-starship tricorder-starship/starship
 ```
 
 You should see the following pods running on your cluster.
-![image](https://user-images.githubusercontent.com/1126565)
+![image](https://user-images.githubusercontent.com/112656580/220381364-65bebd35-bf6d-4780-981b-be94c5464607.png)
 
 More details can be found at [helm-charts installation](
 https://github.com/tricorder-observability/Starship/tree/main/helm-charts).
-80/220381364-65bebd35-bf6d-4780-981b-be94c5464607.png)
 
 Then follow the [CLI build and install](
 https://github.com/tricorder-observability/starship/blob/main/src/cli/README.md#build-and-install)
