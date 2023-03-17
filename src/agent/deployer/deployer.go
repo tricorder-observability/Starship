@@ -19,9 +19,9 @@ package deployer
 import (
 	"context"
 	"fmt"
-	"io"
-
+	"github.com/tricorder/src/utils/retry"
 	"google.golang.org/grpc"
+	"io"
 
 	"github.com/tricorder/src/utils/errors"
 	grpcutils "github.com/tricorder/src/utils/grpc"
@@ -122,8 +122,9 @@ func (s *Deployer) StartModuleDeployLoop() error {
 			return nil
 		}
 		if err != nil {
-			log.Errorf("Failed to read stream from DeplyModule(), error: %v", err)
-			return err
+			retry.ExpBackOffWithLimit(s.ConnectToAPIServer)
+			log.Errorf("Failed to read stream from DeplyModule(), reconnecting, error: %v", err)
+			continue //return
 		}
 
 		log.Infof("Received request to deploy module. ID=%s", in.ModuleId)
@@ -148,8 +149,8 @@ func (s *Deployer) StartModuleDeployLoop() error {
 		err = s.sendResp(resp)
 		// TODO(yzhao): Need to handle error correctly, the code below ignores EoF error.
 		if grpcerr.IsUnavailable(err) {
-			log.Errorf("Streaming connection with api-server is broken, error: %v", err)
-			return err
+			log.Errorf("Streaming connection with api-server is broken, error: %v", err)	
+			continue //return err
 		}
 	}
 }

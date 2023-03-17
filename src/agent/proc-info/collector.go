@@ -50,6 +50,8 @@ type Collector struct {
 
 	// Connects to API server's process info collector server, and reports process information.
 	procCollectorClient pb.ProcessCollectorClient
+
+	stream pb.ProcessCollector_ReportProcessClient
 }
 
 func NewCollector(hostSysRootPath, apiServerAddr, nodeName string) *Collector {
@@ -58,6 +60,30 @@ func NewCollector(hostSysRootPath, apiServerAddr, nodeName string) *Collector {
 		apiServerAddr:   apiServerAddr,
 		nodeName:        nodeName,
 	}
+}
+
+func (c *Collector) ConnectToAPIServer() error {
+	log.Info("Connecting to API Server at %s", c.apiServerAddr)
+
+	grpcConn, err := grpc.Dial(c.apiServerAddr,
+		grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		return fmt.Errorf("failed to connect to API server at '%s', error: %v", c.apiServerAddr, err)
+	}
+	c.procCollectorClient = pb.NewProcessCollectorClient(grpcConn)
+
+	stream, err := c.procCollectorClient.ReportProcess(context.Background())
+	if err != nil {
+		return err
+	}
+	c.stream = stream
+
+	if err = stream.Send(&pb.ProcessWrapper{
+		Msg: &pb.ProcessWrapper_NodeName{NodeName: c.nodeName}}); err != nil {
+		log.Errorf("stream.Send error: %v", err)
+	}
+
+	return err
 }
 
 func (c *Collector) connect() error {
@@ -71,28 +97,21 @@ func (c *Collector) connect() error {
 }
 
 func (c *Collector) StartProcInfoReport() error {
-	err := retry.ExpBackOffWithLimit(c.connect)
+	err := retry.ExpBackOffWithLimit(c.ConnectToAPIServer)
 	if err != nil {
-		log.Errorf("Failed to connect to API server, error: %v", err)
-	}
-
-	stream, err := c.procCollectorClient.ReportProcess(context.Background())
-	if err != nil {
-		return err
-	}
-
-	if err = stream.Send(&pb.ProcessWrapper{Msg: &pb.ProcessWrapper_NodeName{NodeName: c.nodeName}}); err != nil {
-		log.Errorf("stream.Send error: %v", err)
+		log.Fatalf("Failed to connect to API server, error: %v", err)
 	}
 
 	go func() {
 		for {
-			containerInfo, err := stream.Recv()
+			containerInfo, err := c.stream.Recv()
 			if err == io.EOF {
 				return
 			}
 			if err != nil {
 				log.Errorf("while report process info, gRPC stream to API server broke, error: %v", err)
+				retry.ExpBackOffWithLimit(c.ConnectToAPIServer)
+				continue
 			}
 			processInfo, err := grabProcessInfo(c.hostSysRootPath+"/fs/cgroup", containerInfo)
 			if err != nil {
@@ -103,7 +122,7 @@ func (c *Collector) StartProcInfoReport() error {
 				continue
 			}
 
-			if err = stream.Send(&pb.ProcessWrapper{Msg: &pb.ProcessWrapper_Process{Process: processInfo}}); err != nil {
+			if err = c.stream.Send(&pb.ProcessWrapper{Msg: &pb.ProcessWrapper_Process{Process: processInfo}}); err != nil {
 				log.Errorf("stream.Send error: %v", err)
 			}
 		}
