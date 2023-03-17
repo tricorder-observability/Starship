@@ -1,4 +1,4 @@
-name: Bazel build and test
+name: Bazel Build and Test
 
 on:
   pull_request:
@@ -10,10 +10,6 @@ on:
 
 permissions:
   contents: read
-
-env:
-  # only for build local docker image, but not push
-  REGISTRY_SERVER_ADDRESS: localhost
 
 jobs:
   query-changed-src-files:

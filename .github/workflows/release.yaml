@@ -1,4 +1,4 @@
-name: Release container images and helm charts
+name: Release Container Images and Helm Charts
 
 on:
   # Requires manual trigger
