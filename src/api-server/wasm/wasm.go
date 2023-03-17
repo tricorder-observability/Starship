@@ -12,9 +12,9 @@ import (
 )
 
 const (
-	DefaultWASIClang           = "WASI_SDK_PATH=/opt/wasi-sdk /opt/wasi-sdk/bin/clang"
-	DefaultWASICFlags          = "--sysroot=/opt/wasi-sdk/share/wasi-sysroot -Wall -Wextra -Wl,--export-all"
-	DefaultWASIStarshipInclude = "/opt/starship/include"
+	DefaultWASIClang           = "WASI_SDK_PATH=/starship/wasm/wasi-sdk/starship/wasm/wasi-sdk/bin/clang"
+	DefaultWASICFlags          = "--sysroot=/starship/wasm/wasi-sdk/share/wasi-sysroot -Wall -Wextra -Wl,--export-all"
+	DefaultWASIStarshipInclude = "/starship/wasm/include"
 	DefaultBuildTmpDir         = "/tmp"
 )
 
