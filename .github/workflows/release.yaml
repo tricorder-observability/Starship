@@ -1,4 +1,4 @@
-name: Release images
+name: Release container images and helm charts
 
 on:
   # Requires manual trigger
@@ -8,7 +8,7 @@ on:
 # Only allow running one release action, see more details at:
 # https://docs.github.com/en/actions/using-jobs/using-concurrency
 concurrency:
-  group: starship-${{ github.ref }}
+  group: starship-${{ github.ref_name }}
   cancel-in-progress: true
 
 env:
@@ -88,3 +88,48 @@ jobs:
           file: ./ui/docker/Dockerfile
           context: ./ui
           tags: ${{ env.REGISTRY }}/mgmt-ui:${{ env.TAG }},${{ env.DOCKER_HUB_REGISTRY }}/mgmt-ui:${{ env.TAG }}
+
+  release-helm-charts:
+    name: Release Helm Charts
+    runs-on: ubuntu-latest
+    permissions: write-all
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Configure Git
+        run: |
+          git config user.name "$GITHUB_ACTOR"
+          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+      - name: Install Helm
+        uses: azure/setup-helm@v3.1
+        with:
+          version: v3.4.1
+      - name: Setup
+        uses: ./.github/actions/setup
+        with:
+          create-kind-cluster: "false"
+      - name: Release tricorder charts
+        uses: helm/chart-releaser-action@v1.4.1
+        with:
+          charts_dir: helm-charts/charts
+        env:
+          CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+          CR_RELEASE_NAME_TEMPLATE: "{{ .Version }}"
+
+  release-gh-pages:
+    name: Release GitHub pages
+    runs-on: ubuntu-latest
+    permissions: write-all
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Copy README.md To Branches Action
+        uses: planetoftheweb/copy-to-branches@v1.2
+        env:
+          key: main
+          branches: gh-pages
+          files: README.md helm-charts/README.md helm-charts/docs
