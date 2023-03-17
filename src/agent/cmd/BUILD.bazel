@@ -4,7 +4,7 @@ load("//:bazel/container_image.bzl", "container_image", "container_push", "go_im
 go_library(
     name = "cmd_lib",
     srcs = [
-        "config.go",
+        "env_var.go",
         "main.go",
     ],
     importpath = "github.com/tricorder/src/agent/cmd",
