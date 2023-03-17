@@ -122,7 +122,8 @@ func (s *Deployer) StartModuleDeployLoop() error {
 			return nil
 		}
 		if err != nil {
-			log.Fatalf("Failed to read stream from DeplyModule(), error: %v", err)
+			log.Errorf("Failed to read stream from DeplyModule(), error: %v", err)
+			return err
 		}
 
 		log.Infof("Received request to deploy module. ID=%s", in.ModuleId)
@@ -147,7 +148,8 @@ func (s *Deployer) StartModuleDeployLoop() error {
 		err = s.sendResp(resp)
 		// TODO(yzhao): Need to handle error correctly, the code below ignores EoF error.
 		if grpcerr.IsUnavailable(err) {
-			log.Fatalf("Streaming connection with api-server is broken, error: %v", err)
+			log.Errorf("Streaming connection with api-server is broken, error: %v", err)
+			return err
 		}
 	}
 }

@@ -73,7 +73,7 @@ func (c *Collector) connect() error {
 func (c *Collector) StartProcInfoReport() error {
 	err := retry.ExpBackOffWithLimit(c.connect)
 	if err != nil {
-		log.Fatalf("Failed to connect to API server, error: %v", err)
+		log.Errorf("Failed to connect to API server, error: %v", err)
 	}
 
 	stream, err := c.procCollectorClient.ReportProcess(context.Background())
@@ -92,7 +92,7 @@ func (c *Collector) StartProcInfoReport() error {
 				return
 			}
 			if err != nil {
-				log.Fatalf("while report process info, gRPC stream to API server broke, error: %v", err)
+				log.Errorf("while report process info, gRPC stream to API server broke, error: %v", err)
 			}
 			processInfo, err := grabProcessInfo(c.hostSysRootPath+"/fs/cgroup", containerInfo)
 			if err != nil {
