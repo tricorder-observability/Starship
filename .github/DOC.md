@@ -10,7 +10,7 @@ GitHub actions workflow configuration files, scripts, and related contents.
 * `linters` stores individual linters configuration files for super linter
   **NOTE** All configuration files are hidden files `.<filename>`,
   us `ls -a` or `ls -A` to list.
-* `super-linter.env` has the environment variables that enable/disable
+* `super_linter.env` has the environment variables that enable/disable
   individual linters of super-linters. The file could be placed elsewhere,
   but the current path is a canonical location shared between local
   environment and GitHub action:
