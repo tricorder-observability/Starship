@@ -215,3 +215,35 @@ func Contains(filePath, content string) bool {
 	}
 	return strings.Contains(contents, content)
 }
+
+// IsWasmELF checks if the file is a WebAssembly binary.
+func IsWasmELF(filePath string) bool {
+	if !strings.HasSuffix(filePath, ".wasm") {
+		return false
+	}
+
+	file, err := os.Open(filePath)
+	if err != nil {
+		return false
+	}
+
+	// Read the first four bytes of the file
+	buf := make([]byte, 4)
+	n, err := file.Read(buf)
+	if err != nil || n < 4 {
+		return false
+	}
+
+	// Compare with wasm magic number: \x00\x61\x73\x6d (0x6d736100 in little endian)
+	wasmMagic := []byte{0x00, 0x61, 0x73, 0x6d}
+	isWasm := true
+
+	for i := range buf {
+		if buf[i] != wasmMagic[i] {
+			isWasm = false
+			break
+		}
+	}
+
+	return isWasm
+}

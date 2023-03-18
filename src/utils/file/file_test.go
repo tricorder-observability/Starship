@@ -22,8 +22,17 @@ import (
 
 	// Use primitive bazel instead of src/testing/bazel to avoid circular dependency between
 	// src/utils/fail and src/testing/bazel
+	"github.com/bazelbuild/rules_go/go/runfiles"
 	"github.com/bazelbuild/rules_go/go/tools/bazel"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+)
+
+const (
+	testdataGoodWASM = "src/utils/file/testdata/good.wasm"
+	testdataBadWASM1 = "src/utils/file/testdata/bad_fmt.wasm"
+	testdataBadWASM2 = "src/utils/file/testdata/bad_magic_num.wasm"
+	testdataBadWASM3 = "src/utils/file/testdata/bad_suffix.wa"
 )
 
 func TestExists(t *testing.T) {
@@ -218,4 +227,24 @@ func TestContains(t *testing.T) {
 
 	assert.Equal(false, Contains(p, "bar"))
 	assert.Equal(true, Contains(p, "123"))
+}
+
+// Tests IsWasmELF() can check if a file is a valid wasm file.
+func TestIsWasmELF(t *testing.T) {
+	assert := assert.New(t)
+	require := require.New(t)
+
+	goodWASM, err := runfiles.Rlocation("tricorder/" + testdataGoodWASM)
+	require.NoError(err)
+	badWASM1, err := runfiles.Rlocation("tricorder/" + testdataBadWASM1)
+	require.NoError(err)
+	badWASM2, err := runfiles.Rlocation("tricorder/" + testdataBadWASM2)
+	require.NoError(err)
+	badWASM3, err := runfiles.Rlocation("tricorder/" + testdataBadWASM3)
+	require.NoError(err)
+
+	assert.True(IsWasmELF(goodWASM))
+	assert.False(IsWasmELF(badWASM1))
+	assert.False(IsWasmELF(badWASM2))
+	assert.False(IsWasmELF(badWASM3))
 }
