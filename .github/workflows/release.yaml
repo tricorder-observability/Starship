@@ -5,6 +5,11 @@ on:
   # See https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_dispatch
   workflow_dispatch
 
+  # Remove this before merging
+  pull_request:
+    branches:
+      main
+
 # Only allow running one release action, see more details at:
 # https://docs.github.com/en/actions/using-jobs/using-concurrency
 concurrency:
@@ -77,6 +82,8 @@ jobs:
           registry: docker.io
           username: ${{ secrets.DOCKER_HUB_USER_NAME }}
           password: ${{ secrets.DOCKER_HUB_USER_PASSWORD }}
+      - name: Debug
+        run: git describe --tags --abbrev=0 2> /dev/null
 
       - uses: bazelbuild/setup-bazelisk@v2
 
