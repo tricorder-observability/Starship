@@ -1,6 +1,7 @@
 package wasm
 
 import (
+	"bytes"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -12,9 +13,10 @@ import (
 )
 
 const (
-	DefaultWASIClang           = "WASI_SDK_PATH=/starship/wasm/wasi-sdk/starship/wasm/wasi-sdk/bin/clang"
-	DefaultWASICFlags          = "--sysroot=/starship/wasm/wasi-sdk/share/wasi-sysroot -Wall -Wextra -Wl,--export-all"
-	DefaultWASIStarshipInclude = "/starship/wasm/include"
+	DefaultWASISDKPath         = "/opt/tricorder/wasm/wasi-sdk/starship/wasm/wasi-sdk"
+	DefaultWASIClang           = "/opt/tricorder/wasm/wasi-sdk/starship/wasm/wasi-sdk/bin/clang"
+	DefaultWASICFlags          = "--sysroot=" + DefaultWASISDKPath + "/share/wasi-sysroot"
+	DefaultWASIStarshipInclude = "/opt/tricorder/wasm/include"
 	DefaultBuildTmpDir         = "/tmp"
 )
 
@@ -25,16 +27,15 @@ type WASICompiler struct {
 	BuildTmpDir         string
 }
 
-func NewWASICompiler(WASIClang string, WASICFlags string,
+func NewWASICompiler(WASISDKPath string,
 	WASIStarshipInclude string, BuildTmpDir string,
 ) *WASICompiler {
-	if WASIClang == "" {
-		WASIClang = DefaultWASIClang
+	if WASISDKPath == "" {
+		WASISDKPath = DefaultWASISDKPath
 	}
 
-	if WASICFlags == "" {
-		WASICFlags = DefaultWASICFlags
-	}
+	WASIClang := WASISDKPath + "/bin/clang"
+	WASICFlags := "--sysroot=" + WASISDKPath + "/share/wasi-sysroot"
 
 	if WASIStarshipInclude == "" {
 		WASIStarshipInclude = DefaultWASIStarshipInclude
@@ -74,10 +75,13 @@ func (w *WASICompiler) BuildC(code string) ([]byte, error) {
 
 	// compile code
 	phase = "compile " + srcFilePath + " to " + dstFilePath
-	cmd := exec.Command(w.WASIClang, w.WASICFlags, "-L"+w.WASIStarshipInclude, srcFilePath, "-o", dstFilePath)
+	cmd := exec.Command(w.WASIClang, w.WASICFlags, "-I"+w.WASIStarshipInclude, srcFilePath,
+		"-Wall", "-Wextra", "-Wl", "-o", dstFilePath)
+	var stderr bytes.Buffer
+	cmd.Stderr = &stderr
 	out, err := cmd.Output()
 	if err != nil {
-		return nil, errors.Wrap("compile wasm code", phase, err)
+		return nil, errors.Wrap("compile wasm code", phase+" error cc output:\n"+stderr.String(), err)
 	}
 
 	if len(out) > 0 {
@@ -99,7 +103,7 @@ func (w *WASICompiler) BuildC(code string) ([]byte, error) {
 
 	// read compiled file
 	phase = "read compiled file " + dstFilePath
-	data, err := ioutil.ReadFile("input.txt")
+	data, err := ioutil.ReadFile(dstFilePath)
 	if err != nil {
 		return nil, errors.Wrap("compile wasm code", phase, err)
 	}
