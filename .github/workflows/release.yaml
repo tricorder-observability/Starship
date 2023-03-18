@@ -78,6 +78,12 @@ jobs:
           registry: docker.io
           username: ${{ secrets.DOCKER_HUB_USER_NAME }}
           password: ${{ secrets.DOCKER_HUB_USER_PASSWORD }}
+
+      - name: Configure Git
+        run: |
+          git config user.name "$GITHUB_ACTOR"
+          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+
       - name: Debug
         run: |
           git fetch --tags > /dev/null 2>&1
