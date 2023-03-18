@@ -64,6 +64,6 @@ func StartFakeNewServer(sqliteClient *sqlite.ORM, gLock *lock.Lock,
 		WaitCond:        waitCond,
 		Standalone:      false,
 	}
-	wasiCompiler := wasm.NewWASICompiler(wasm.DefaultWASIClang, wasm.DefaultWASIStarshipInclude, wasm.DefaultBuildTmpDir)
+	wasiCompiler := wasm.NewWASICompiler(wasm.DefaultWASISDKPath, wasm.DefaultWASIStarshipInclude, wasm.DefaultBuildTmpDir)
 	return server.Start(cfg, pgClient, wasiCompiler)
 }

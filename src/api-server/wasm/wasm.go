@@ -13,8 +13,8 @@ import (
 )
 
 const (
-	DefaultWASISDKPath         = "/opt/tricorder/wasm/wasi-sdk/starship/wasm/wasi-sdk"
-	DefaultWASIClang           = "/opt/tricorder/wasm/wasi-sdk/starship/wasm/wasi-sdk/bin/clang"
+	DefaultWASISDKPath         = "/opt/tricorder/wasm/wasi-sdk"
+	DefaultWASIClang           = DefaultWASISDKPath + "/bin/clang"
 	DefaultWASICFlags          = "--sysroot=" + DefaultWASISDKPath + "/share/wasi-sysroot"
 	DefaultWASIStarshipInclude = "/opt/tricorder/wasm/include"
 	DefaultBuildTmpDir         = "/tmp"
@@ -76,7 +76,7 @@ func (w *WASICompiler) BuildC(code string) ([]byte, error) {
 	// compile code
 	phase = "compile " + srcFilePath + " to " + dstFilePath
 	cmd := exec.Command(w.WASIClang, w.WASICFlags, "-I"+w.WASIStarshipInclude, srcFilePath,
-		"-Wall", "-Wextra", "-Wl", "-o", dstFilePath)
+		"-Wl,--export-all", "-Wall", "-Wextra", "-o", dstFilePath)
 	var stderr bytes.Buffer
 	cmd.Stderr = &stderr
 	out, err := cmd.Output()

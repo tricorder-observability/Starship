@@ -16,6 +16,7 @@ go_library(
         "//src/api-server/http",
         "//src/cli/pkg/kubernetes",
         "//src/cli/pkg/output",
+        "//src/pb/module/common",
         "//src/utils/file",
         "//src/utils/log",
         "@com_github_spf13_cobra//:cobra",

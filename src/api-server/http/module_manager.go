@@ -125,8 +125,6 @@ func (mgr *ModuleManager) createModule(body CreateModuleReq) CreateModuleResp {
 			}}
 		}
 		body.Wasm.Code = wasmModule
-	} else {
-		body.Wasm.Code = []byte(wasmCode)
 	}
 
 	mod := &dao.ModuleGORM{
