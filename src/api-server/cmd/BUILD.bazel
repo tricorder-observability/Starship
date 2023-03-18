@@ -78,7 +78,7 @@ container_image(
     tars = [
         ":tricorder_db_tar",
         ":wasi_sdk_tar",
-        ":wasm_common_includes"
+        ":wasm_common_includes",
     ],
 )
 
