@@ -79,7 +79,9 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USER_NAME }}
           password: ${{ secrets.DOCKER_HUB_USER_PASSWORD }}
       - name: Debug
-        run: git describe --tags --abbrev=0 2> /dev/null
+        run: |
+          git fetch --tags > /dev/null 2>&1
+          git describe --tags --abbrev=0 2> /dev/null
 
       - uses: bazelbuild/setup-bazelisk@v2
 
