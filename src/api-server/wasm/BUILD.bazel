@@ -8,6 +8,7 @@ go_library(
     deps = [
         "//src/utils/errors",
         "//src/utils/file",
+        "//src/utils/log",
         "//src/utils/uuid",
     ],
 )
@@ -15,6 +16,13 @@ go_library(
 go_test(
     name = "wasm_test",
     srcs = ["wasm_test.go"],
+    data = [
+        "//src/api-server/cmd:extract_wasi_sdk",
+        "//modules/common:wasm_common_includes"
+    ],
     embed = [":wasm"],
-    deps = ["@com_github_stretchr_testify//assert"],
+    deps = [
+        "//src/testing/bazel",
+        "@com_github_stretchr_testify//assert",
+    ],
 )

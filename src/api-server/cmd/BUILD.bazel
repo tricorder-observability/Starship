@@ -41,6 +41,7 @@ genrule(
     # --no-same-owner is required when building inside docker container.
     # See https://superuser.com/a/1435438
     cmd = "tar -C $(@D) -xf $(location @download_wasi_sdk_from_github_url//file) --no-same-owner",
+    visibility = ["//visibility:public"],
 )
 
 # Repackage wasi sdk into a different directory.
@@ -51,6 +52,12 @@ pkg_tar(
     # This symlink matches the setup in
     # devops/dev_image/install.yaml (search `tags: wasi-sdk`)
     symlinks = {"/opt/tricorder/wasm/wasi-sdk": "/opt/tricorder/wasm/wasi-sdk-19.0"},
+)
+
+pkg_tar(
+    name = "wasm_common_includes",
+    srcs = ["//modules/common:wasm_common_includes"],
+    package_dir = "/opt/tricorder/wasm/include",
 )
 
 go_image(
@@ -71,6 +78,7 @@ container_image(
     tars = [
         ":tricorder_db_tar",
         ":wasi_sdk_tar",
+        ":wasm_common_includes"
     ],
 )
 
