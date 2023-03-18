@@ -20,7 +20,7 @@ jobs:
   build-and-push-images:
     runs-on: ubuntu-latest
     container:
-      image: docker.io/tricorderobservability/ci_image:202302140538
+      image: docker.io/tricorderobservability/ci_image:202303180311
     timeout-minutes: 90
     permissions:
       packages: write

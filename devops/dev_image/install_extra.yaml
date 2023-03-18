@@ -62,15 +62,6 @@
       ansible.builtin.unarchive:
         src: "{{ tmp_dir }}/eksctl.tar.gz"
         dest: "{{ bin_dir }}"
-    - name: Downlaod WASI SDK tar.gz
-      ansible.builtin.get_url:
-        force: true
-        url: https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-17/wasi-sdk-17.0-linux.tar.gz
-        dest: "{{ tmp_dir }}/wasi-sdk.tar.gz"
-    - name: Extract wasi-sdk.tar.gz
-      ansible.builtin.unarchive:
-        src: "{{ tmp_dir }}/wasi-sdk.tar.gz"
-        dest: /opt/tricorder
     - name: Install bazelisk
       ansible.builtin.get_url:
         force: true

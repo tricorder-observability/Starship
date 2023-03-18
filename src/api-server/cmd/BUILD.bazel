@@ -32,6 +32,27 @@ go_binary(
     visibility = ["//visibility:public"],
 )
 
+# This is to extract the tar, and then let the wasi_sdk_tar to repackage into
+# a different directory structure.
+genrule(
+    name = "extract_wasi_sdk",
+    srcs = ["@download_wasi_sdk_from_github_url//file"],
+    outs = ["wasi-sdk-19.0"],
+    # --no-same-owner is required when building inside docker container.
+    # See https://superuser.com/a/1435438
+    cmd = "tar -C $(@D) -xf $(location @download_wasi_sdk_from_github_url//file) --no-same-owner",
+)
+
+# Repackage wasi sdk into a different directory.
+pkg_tar(
+    name = "wasi_sdk_tar",
+    srcs = [":extract_wasi_sdk"],
+    package_dir = "/opt/tricorder/wasm",
+    # This symlink matches the setup in
+    # devops/dev_image/install.yaml (search `tags: wasi-sdk`)
+    symlinks = {"/opt/tricorder/wasm/wasi-sdk": "/opt/tricorder/wasm/wasi-sdk-19.0"},
+)
+
 go_image(
     name = "api-server_base_image",
     binary = ":api-server",
@@ -47,7 +68,10 @@ pkg_tar(
 container_image(
     name = "api-server_image",
     base = ":api-server_base_image",
-    tars = [":tricorder_db_tar"],
+    tars = [
+        ":tricorder_db_tar",
+        ":wasi_sdk_tar",
+    ],
 )
 
 go_test(

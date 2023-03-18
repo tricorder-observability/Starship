@@ -120,3 +120,10 @@ http_file(
     sha256 = "c43ff01e1e65f34714154db27070851e5a9327fa73aeb57bf018fc2290b23b60",
     urls = ["https://tricorder-dev.s3.ap-northeast-1.amazonaws.com/linux-headers.tar.gz"],
 )
+
+http_file(
+    name = "download_wasi_sdk_from_github_url",
+    downloaded_file_path = "wasi-sdk.tar.gz",
+    sha256 = "d900abc826eec1955b9afd250e7cc2496338abbf6c440d86a313c06e42083fa1",
+    urls = ["https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-19/wasi-sdk-19.0-linux.tar.gz"],
+)
