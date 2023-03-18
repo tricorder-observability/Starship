@@ -51,7 +51,7 @@ jobs:
     # Wait for helm-charts releaser to finish, which pushes tag
     needs: release-helm-charts
     container:
-      image: docker.io/tricorderobservability/ci_image:202302140538
+      image: docker.io/tricorderobservability/ci_image:202303180311
     timeout-minutes: 90
     permissions:
       packages: write
