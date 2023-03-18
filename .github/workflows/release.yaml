@@ -1,10 +1,6 @@
 name: Release Container Images and Helm Charts
 
 on:
-  # Requires manual trigger
-  # See https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_dispatch
-  workflow_dispatch
-
   # Remove this before merging
   pull_request:
     branches:
