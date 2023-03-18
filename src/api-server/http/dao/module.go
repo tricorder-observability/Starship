@@ -34,6 +34,7 @@ type ModuleGORM struct {
 	EbpfPerfBufferName string `gorm:"column:ebpf_perf_name" json:"ebpf_perf_name,omitempty"`
 	EbpfProbes         string `gorm:"column:ebpf_probes" json:"ebpf_probes,omitempty"`
 	// wasm store the whole wasm file content
+	WasmCode   string `gorm:"column:wasm_code" json:"wasm_code,omitempty"`
 	Wasm       []byte `gorm:"column:wasm" json:"wasm,omitempty"`
 	SchemaName string `gorm:"column:schema_name" json:"schema_name,omitempty"`
 	SchemaAttr string `gorm:"column:schema_attr" json:"schema_attr,omitempty"`

@@ -30,6 +30,7 @@ import (
 	"github.com/tricorder/src/api-server/http/api"
 	"github.com/tricorder/src/api-server/http/dao"
 	"github.com/tricorder/src/api-server/http/grafana"
+	"github.com/tricorder/src/api-server/wasm"
 	"github.com/tricorder/src/utils/cond"
 	"github.com/tricorder/src/utils/lock"
 	"github.com/tricorder/src/utils/pg"
@@ -58,7 +59,7 @@ type Config struct {
 // object) implemented with GORM.
 //
 // The server creates data table on Postgres, and dashboard on Grafana, when deploying an eBPF+WASM module.
-func StartHTTPService(cfg Config, pgClient *pg.Client) error {
+func StartHTTPService(cfg Config, pgClient *pg.Client, wasiCompiler *wasm.WASICompiler) error {
 	log.Infof("Starting API Server's http service ...")
 
 	grafana.InitGrafanaConfig(cfg.GrafanaURL, cfg.GrafanaUserName, cfg.GrafanaUserPass)
@@ -83,6 +84,7 @@ func StartHTTPService(cfg Config, pgClient *pg.Client) error {
 		PGClient:       pgClient,
 		gLock:          cfg.GLock,
 		waitCond:       cfg.WaitCond,
+		wasiCompiler:   wasiCompiler,
 	}
 	router := gin.Default()
 

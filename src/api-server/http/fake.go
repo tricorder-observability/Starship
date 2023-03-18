@@ -5,6 +5,7 @@ import (
 	"net"
 
 	"github.com/tricorder/src/api-server/http/dao"
+	"github.com/tricorder/src/api-server/wasm"
 	"github.com/tricorder/src/utils/cond"
 	"github.com/tricorder/src/utils/lock"
 	"github.com/tricorder/src/utils/pg"
@@ -15,7 +16,7 @@ import (
 type Server struct{}
 
 // StartServer starts the gRPC server goroutine.
-func (srv *Server) Start(cfg Config, pgClient *pg.Client) net.Addr {
+func (srv *Server) Start(cfg Config, pgClient *pg.Client, wasiCompiler *wasm.WASICompiler) net.Addr {
 	lis, err := net.Listen("tcp", ":0")
 	if err != nil {
 		log.Fatalf("Could not listen on ':0'")
@@ -24,7 +25,7 @@ func (srv *Server) Start(cfg Config, pgClient *pg.Client) net.Addr {
 	cfg.Listen = lis
 
 	go func() {
-		err := StartHTTPService(cfg, pgClient)
+		err := StartHTTPService(cfg, pgClient, wasiCompiler)
 		if err != nil {
 			log.Fatalf("Failed to run HTTP Service, error: %v", err)
 		}
@@ -63,5 +64,6 @@ func StartFakeNewServer(sqliteClient *sqlite.ORM, gLock *lock.Lock,
 		WaitCond:        waitCond,
 		Standalone:      false,
 	}
-	return server.Start(cfg, pgClient)
+	wasiCompiler := wasm.NewWASICompiler(wasm.DefaultWASIClang, wasm.DefaultWASIStarshipInclude, wasm.DefaultBuildTmpDir)
+	return server.Start(cfg, pgClient, wasiCompiler)
 }
