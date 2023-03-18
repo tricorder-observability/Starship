@@ -38,7 +38,9 @@ genrule(
     name = "extract_wasi_sdk",
     srcs = ["@download_wasi_sdk_from_github_url//file"],
     outs = ["wasi-sdk-19.0"],
-    cmd = "tar -C $(@D) -xf $(location @download_wasi_sdk_from_github_url//file)",
+    # --no-same-owner is required when building inside docker container.
+    # See https://superuser.com/a/1435438
+    cmd = "tar -C $(@D) -xf $(location @download_wasi_sdk_from_github_url//file) --no-same-owner",
 )
 
 # Repackage wasi sdk into a different directory.
