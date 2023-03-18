@@ -38,12 +38,12 @@ int main() { return 0; }`
 	}		
 	`
 	wasiCompiler = NewWASICompiler(wasiSDKPath, wasmStarshipIncudePath, tmpBuildDir)
-	wasmELF, err = wasiCompiler.BuildC(testWASMCode2)
+	_, err = wasiCompiler.BuildC(testWASMCode2)
 	assert.NotNil(err)
 
 	testWASMCode3 := "aaaaa"
 	wasiCompiler = NewWASICompiler(wasiSDKPath, wasmStarshipIncudePath, tmpBuildDir)
-	wasmELF, err = wasiCompiler.BuildC(testWASMCode3)
+	_, err = wasiCompiler.BuildC(testWASMCode3)
 	assert.NotNil(err)
 
 	// contain starship common header
@@ -95,4 +95,5 @@ int main() { return 0; }`
 	wasiCompiler = NewWASICompiler(wasiSDKPath, wasmStarshipIncudePath, tmpBuildDir)
 	wasmELF, err = wasiCompiler.BuildC(testWASMCode4)
 	assert.Nil(err)
+	assert.Equal(wasmELF[:4], wasmMagic)
 }
