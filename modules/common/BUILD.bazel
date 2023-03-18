@@ -4,6 +4,6 @@ filegroup(
     name = "wasm_common_includes",
     srcs = glob([
         "*.h",
-        "*.c"
+        "*.c",
     ]),
 )

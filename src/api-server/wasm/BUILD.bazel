@@ -8,7 +8,6 @@ go_library(
     deps = [
         "//src/utils/errors",
         "//src/utils/file",
-        "//src/utils/log",
         "//src/utils/uuid",
     ],
 )
@@ -17,8 +16,8 @@ go_test(
     name = "wasm_test",
     srcs = ["wasm_test.go"],
     data = [
+        "//modules/common:wasm_common_includes",
         "//src/api-server/cmd:extract_wasi_sdk",
-        "//modules/common:wasm_common_includes"
     ],
     embed = [":wasm"],
     deps = [
