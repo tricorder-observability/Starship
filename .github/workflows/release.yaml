@@ -16,40 +16,11 @@ env:
   DOCKER_HUB_REGISTRY: docker.io/tricorderobservability
 
 jobs:
-  release-helm-charts:
-    name: Release Helm Charts
-    runs-on: ubuntu-latest
-    permissions: write-all
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-      - name: Configure Git
-        run: |
-          git config user.name "$GITHUB_ACTOR"
-          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
-      - name: Install Helm
-        uses: azure/setup-helm@v3.1
-        with:
-          version: v3.4.1
-      - name: Setup
-        uses: ./.github/actions/setup
-        with:
-          create-kind-cluster: "false"
-      - name: Release tricorder charts
-        uses: helm/chart-releaser-action@v1.4.1
-        with:
-          charts_dir: helm-charts/charts
-        env:
-          CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-          CR_RELEASE_NAME_TEMPLATE: "{{ .Version }}"
-
   build-and-push-images:
     name: Build and Push Container Images
     runs-on: ubuntu-latest
     # Wait for helm-charts releaser to finish, which pushes tag
-    needs: release-helm-charts
+    # needs: release-helm-charts
     container:
       image: docker.io/tricorderobservability/ci_image:202303180311
     timeout-minutes: 90
@@ -135,6 +106,36 @@ jobs:
           file: ./ui/docker/Dockerfile
           context: ./ui
           tags: ${{ env.REGISTRY }}/mgmt-ui:${{ env.TAG }},${{ env.DOCKER_HUB_REGISTRY }}/mgmt-ui:${{ env.TAG }}
+
+  release-helm-charts:
+    name: Release Helm Charts
+    runs-on: ubuntu-latest
+    permissions: write-all
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Configure Git
+        run: |
+          git config user.name "$GITHUB_ACTOR"
+          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+        shell: bash
+      - name: Install Helm
+        uses: azure/setup-helm@v3.1
+        with:
+          version: v3.4.1
+      - name: Setup
+        uses: ./.github/actions/setup
+        with:
+          create-kind-cluster: "false"
+      - name: Release tricorder charts
+        uses: helm/chart-releaser-action@v1.4.1
+        with:
+          charts_dir: helm-charts/charts
+        env:
+          CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+          CR_RELEASE_NAME_TEMPLATE: "{{ .Version }}"
 
   release-gh-pages:
     name: Release GitHub pages
