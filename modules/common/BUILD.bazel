@@ -1,0 +1,9 @@
+package(default_visibility = ["//src:__subpackages__"])
+
+filegroup(
+    name = "wasm_common_includes",
+    srcs = glob([
+        "*.h",
+        "*.c",
+    ]),
+)

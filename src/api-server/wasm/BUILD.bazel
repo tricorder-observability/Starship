@@ -1,0 +1,32 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+
+go_library(
+    name = "wasm",
+    srcs = ["wasm.go"],
+    importpath = "github.com/tricorder/src/api-server/wasm",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//src/utils/errors",
+        "//src/utils/file",
+        "//src/utils/uuid",
+    ],
+)
+
+go_test(
+    name = "wasm_test",
+    srcs = ["wasm_test.go"],
+    data = [
+        "//modules/common:wasm_common_includes",
+        "//src/api-server/cmd:extract_wasi_sdk",
+    ],
+    embed = [":wasm"],
+    # Needs to have this to work around missing exec permission for the clang
+    # executable extracted from the downloaded WASI SDK:
+    # //src/api-server/cmd:extract_wasi_sdk.
+    tags = ["ci_disabled"],
+    deps = [
+        "//src/testing/bazel",
+        "//src/utils/log",
+        "@com_github_stretchr_testify//assert",
+    ],
+)
