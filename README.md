@@ -26,6 +26,15 @@ community.
 ![Twitter Follow](https://img.shields.io/twitter/follow/tricorder_o11y?style=social)
 [![Slack Badge](https://img.shields.io/badge/Slack-4A154B?logo=slack&style=social&label=Join%20Tricorder)](https://join.slack.com/t/tricorderobse-mfl6648/shared_invite/zt-1oxqtq793-rRA03FN1YuyCiQrN_TrZoQ)
 
+## Building
+```
+git clone git@github.com:tricorder-observability/Starship.git
+cd Starship
+# Launch the dev container, which has all environment setup for building Starship.
+devops/dev_image/run.sh
+bazel build src/...
+```
+
 ## Get Started
 
 ☸️ [Helm-charts](https://tricorder-observability.github.io/Starship),
