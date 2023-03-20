@@ -26,14 +26,20 @@ community.
 ![Twitter Follow](https://img.shields.io/twitter/follow/tricorder_o11y?style=social)
 [![Slack Badge](https://img.shields.io/badge/Slack-4A154B?logo=slack&style=social&label=Join%20Tricorder)](https://join.slack.com/t/tricorderobse-mfl6648/shared_invite/zt-1oxqtq793-rRA03FN1YuyCiQrN_TrZoQ)
 
-## Building
+## Building Starship
+The easiest way to get started with building Starship is to use the dev image:
+
 ```
-git clone git@github.com:tricorder-observability/Starship.git
+git clone git@github.com:<fork>/Starship.git
 cd Starship
-# Launch the dev container, which has all environment setup for building Starship.
+# Luanch dev image container
 devops/dev_image/run.sh
+# Inside the container
 bazel build src/...
 ```
+
+`devops/dev_image/run.sh` mounts the `pwd` (which is the root of the cloned Starship repo)
+to `/starship` inside the dev image.
 
 ## Get Started
 
@@ -171,23 +177,7 @@ object files are supported as well.
 ### Overview
 - Fork the repo
 - Createing Pull Request
-- Wait for review
-
-### Building Starship
-
-The development environment is based on Ubuntu.
-The easiest way to get started with building Starship is to use the dev image:
-
-```
-git clone git@github.com:<fork>/Starship.git
-cd starship
-devops/dev_image/run.sh
-# Inside the container
-bazel build src/...
-```
-
-`devops/dev_image/run.sh` is a script that mounts the `pwd` (which is the root
-of the cloned Starship repo) to `/starship` inside the dev image.
+- Ask for review
 
 ### Provision development environment on localhost
 You can use Ansible to provision development environment on your localhost.
