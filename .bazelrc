@@ -20,6 +20,7 @@ build:github-actions --bes_results_url=https://app.buildbuddy.io/invocation/
 build:github-actions --bes_backend=grpcs://remote.buildbuddy.io
 build:github-actions --remote_cache=grpcs://remote.buildbuddy.io
 build:github-actions --remote_timeout=3600
+build:github-actions --remote_download_outputs=all
 
 # This is to flush bazel cache for new version of clang/gcc.
 # Because changing env variable in the sandbox forces bazel to rebuild
