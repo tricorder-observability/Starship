@@ -32,9 +32,9 @@ build:github-actions --remote_download_outputs=all
 # go.mod file.
 #
 # https://bazel.build/reference/command-line-reference#flag--action_env
-build --action_env=CLANG_COMPILER_VERSION=14.0_0
+build --action_env=CLANG_COMPILER_VERSION=14.0_1
 # https://bazel.build/reference/command-line-reference#flag--host_action_env
-build --host_action_env=CLANG_COMPILER_VERSION=14.0_0
+build --host_action_env=CLANG_COMPILER_VERSION=14.0_1
 
 # This causes binaries not available locally since it's cached remotely.
 # build --remote_download_minimal
