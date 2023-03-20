@@ -1,6 +1,7 @@
 package wasm
 
 import (
+	"os"
 	"path"
 	"testing"
 
@@ -44,14 +45,10 @@ int main() { return 0; }`
 	assert.NotNil(err)
 
 	wasiSDKClangPath := path.Join(wasiSDKPath, "bin", "clang")
-	stat, err := os.LsStat(wasiSDKClangPath)
+	stat, err := os.Lstat(wasiSDKClangPath)
 	assert.NoError(err)
 	log.Infof("stat=%v", stat)
-
-	realPath, err := os.ReadLink(wasiSDKClangPath)
-	stat, err := os.LsStat(realPath)
-	assert.NoError(err)
-	log.Infof("stat=%v", stat)
+	log.Infof("stat.Mode()=%v", stat.Mode())
 
 	testWASMCode3 := "aaaaa"
 	wasiCompiler = NewWASICompiler(wasiSDKPath, wasmStarshipIncudePath, tmpBuildDir)
