@@ -69,7 +69,7 @@ test --remote_download_minimal
 
 # Force all test to print detailed output.
 test --test_arg=-test.v
-test --test_output=all
+test --test_output=errors
 
 test:bpf --test_tag_filters=bpf,-disabled --strategy=TestRunner=standalone
 
