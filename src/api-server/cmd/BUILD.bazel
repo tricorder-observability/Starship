@@ -44,7 +44,8 @@ genrule(
     # See https://bazel.build/reference/be/make-variables
     # -p is required to forcefully preserve the permissions
     # See https://askubuntu.com/a/463335
-    cmd = "tar -p -C $(@D) -xf $(location @download_wasi_sdk_from_github_url//file) --no-same-owner",
+    cmd = "tar -p -C $(@D) -xf $(location @download_wasi_sdk_from_github_url//file) --no-same-owner && " +
+          "chmod a+x $(@D)/wasi-sdk-19.0/bin/clang-15",
     visibility = ["//visibility:public"],
 )
 
