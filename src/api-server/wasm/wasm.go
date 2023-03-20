@@ -73,7 +73,8 @@ func (w *WASICompiler) BuildC(code string) ([]byte, error) {
 
 	// compile code
 	phase = "compile " + srcFilePath + " to " + dstFilePath
-	cmd := exec.Command(w.WASIClang, w.WASICFlags, w.WASIStarshipInclude+"/cJSON.c", "-I"+w.WASIStarshipInclude, srcFilePath,
+	cmd := exec.Command(w.WASIClang, w.WASICFlags,
+		w.WASIStarshipInclude+"/cJSON.c", "-I"+w.WASIStarshipInclude, srcFilePath,
 		"-Wl,--export-all", "-Wall", "-Wextra", "-o", dstFilePath)
 	var stderr bytes.Buffer
 	cmd.Stderr = &stderr
