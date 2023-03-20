@@ -37,6 +37,8 @@ go_binary(
 genrule(
     name = "extract_wasi_sdk",
     srcs = ["@download_wasi_sdk_from_github_url//file"],
+    # This is very dumb, as long as this directory exists in the local build
+    # artifact store, bazel will not rebuild.
     outs = ["wasi-sdk-19.0"],
     # --no-same-owner is required when building inside docker container.
     # See https://superuser.com/a/1435438
