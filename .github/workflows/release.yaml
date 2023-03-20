@@ -51,6 +51,7 @@ jobs:
 
       - name: Configure Git
         run: |
+          git config --global --add safe.directory $(realpath .)
           git config user.name "$GITHUB_ACTOR"
           git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
         shell: bash
