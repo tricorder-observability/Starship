@@ -53,16 +53,19 @@ jobs:
         run: |
           git config user.name "$GITHUB_ACTOR"
           git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+        shell: bash
 
       - name: Debug
         run: |
           git fetch --tags > /dev/null 2>&1
           git describe --tags --abbrev=0 2> /dev/null
+        shell: bash
 
       - name: Debug
         run: |
           git fetch --tags > /dev/null 2>&1
           git describe --tags --abbrev=0 2> /dev/null
+        shell: bash
 
       - uses: bazelbuild/setup-bazelisk@v2
 
