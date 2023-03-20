@@ -7,7 +7,6 @@
         "ENV GOPATH /opt/tricorder/go",
         "ENV CC clang",
         "ENV CXX clang++",
-        "WORKDIR /starship",
         "ENTRYPOINT [\"zsh\"]"
       ],
       "commit": true,
