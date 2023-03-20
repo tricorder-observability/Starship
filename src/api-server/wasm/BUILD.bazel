@@ -22,7 +22,7 @@ go_test(
     embed = [":wasm"],
     deps = [
         "//src/testing/bazel",
-        "//src/utils/exec",
+        "//src/utils/log",
         "@com_github_stretchr_testify//assert",
     ],
 )
