@@ -29,6 +29,12 @@ int hello() {
 }
 int main() { return 0; }`
 
+	wasiSDKClangPath := path.Join(wasiSDKPath, "bin", "clang")
+	stat, err := os.Lstat(wasiSDKClangPath)
+	assert.NoError(err)
+	log.Infof("stat=%v", stat)
+	log.Infof("stat.Mode()=%v", stat.Mode())
+
 	wasiCompiler := NewWASICompiler(wasiSDKPath, wasmStarshipIncudePath, tmpBuildDir)
 	wasmELF, err := wasiCompiler.BuildC(testWASMCode1)
 	assert.Nil(err)
@@ -43,12 +49,6 @@ int main() { return 0; }`
 	wasiCompiler = NewWASICompiler(wasiSDKPath, wasmStarshipIncudePath, tmpBuildDir)
 	_, err = wasiCompiler.BuildC(testWASMCode2)
 	assert.NotNil(err)
-
-	wasiSDKClangPath := path.Join(wasiSDKPath, "bin", "clang")
-	stat, err := os.Lstat(wasiSDKClangPath)
-	assert.NoError(err)
-	log.Infof("stat=%v", stat)
-	log.Infof("stat.Mode()=%v", stat.Mode())
 
 	testWASMCode3 := "aaaaa"
 	wasiCompiler = NewWASICompiler(wasiSDKPath, wasmStarshipIncudePath, tmpBuildDir)
