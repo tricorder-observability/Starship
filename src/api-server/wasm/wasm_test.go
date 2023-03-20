@@ -1,11 +1,13 @@
 package wasm
 
 import (
+	"path"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 
 	bazelutils "github.com/tricorder/src/testing/bazel"
+	"github.com/tricorder/src/utils/exec"
 )
 
 func TestWASMBUILDC(t *testing.T) {
@@ -35,11 +37,16 @@ int main() { return 0; }`
 	testWASMCode2 := `
 	int hello() {
 		return 0;
-	}		
+	}
 	`
 	wasiCompiler = NewWASICompiler(wasiSDKPath, wasmStarshipIncudePath, tmpBuildDir)
 	_, err = wasiCompiler.BuildC(testWASMCode2)
 	assert.NotNil(err)
+
+	stdout, stderr, err := exec.Run("ls", "-l", path.Join(wasiSDKPath, "bin", "clang"))
+	assert.NoError(err)
+	assert.Equal("", stdout)
+	assert.Equal("", stderr)
 
 	testWASMCode3 := "aaaaa"
 	wasiCompiler = NewWASICompiler(wasiSDKPath, wasmStarshipIncudePath, tmpBuildDir)
@@ -53,29 +60,29 @@ int main() { return 0; }`
 	#include <assert.h>
 	#include <stdint.h>
 	#include <string.h>
-	
+
 	struct detectionPackets {
 	  unsigned long long nb_ddos_packets;
 	} __attribute__((packed));
-	
+
 	static_assert(sizeof(struct detectionPackets) == 8,
 				  "Size of detectionPackets is not 8");
-	
+
 	// A simple function to copy entire input buf to output buffer.
 	// Return 0 if succeeded.
 	// Return 1 if failed to malloc output buffer.
 	int write_events_to_output() {
 	  struct detectionPackets *detection_packet = get_input_buf();
-	
+
 	  cJSON *root = cJSON_CreateObject();
-	
+
 	  cJSON_AddNumberToObject(root, "nb_ddos_packets",
 							  detection_packet->nb_ddos_packets);
-	
+
 	  char *json = NULL;
 	  json = cJSON_Print(root);
 	  cJSON_Delete(root);
-	
+
 	  int json_size = strlen(json);
 	  void *buf = malloc_output_buf(json_size);
 	  if (buf == NULL) {
@@ -86,7 +93,7 @@ int main() { return 0; }`
 	  free(json);
 	  return 0;
 	}
-	
+
 	// Do nothing
 	// TODO(yaxiong): Investigate how to remove this and build wasi module without
 	// main().

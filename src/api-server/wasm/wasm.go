@@ -27,9 +27,7 @@ type WASICompiler struct {
 	BuildTmpDir         string
 }
 
-func NewWASICompiler(WASISDKPath string,
-	WASIStarshipInclude string, BuildTmpDir string,
-) *WASICompiler {
+func NewWASICompiler(WASISDKPath string, WASIStarshipInclude string, BuildTmpDir string) *WASICompiler {
 	if WASISDKPath == "" {
 		WASISDKPath = DefaultWASISDKPath
 	}
