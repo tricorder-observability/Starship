@@ -68,6 +68,8 @@ jobs:
           echo ${{ needs.query-changed-src-files.outputs.all }}
           echo ${{ steps.q.outputs.any_affected }}
           echo ${{ steps.q.outputs.all }}
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
       - name: Bazel build affected rules
         if: steps.q.outputs.any_affected == 'true'
         run: .github/scripts/bazel.sh build ${{ steps.q.outputs.all }}
