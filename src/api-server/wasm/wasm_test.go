@@ -22,6 +22,8 @@ func TestWASMBUILDC(t *testing.T) {
 	cmd := exec.Command("tar", "-p", "-C", wasiSDKPath, "-zxvf", wasiSDKTarPath, "--no-same-owner")
 	_, err := cmd.Output()
 	require.NoError(err)
+
+	require.NoError(err)
 	wasiSDKPath += "/wasi-sdk-19.0"
 
 	wasiBazelIncludeFilePath := "modules/common"
