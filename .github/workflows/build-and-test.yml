@@ -70,8 +70,8 @@ jobs:
           echo ${{ steps.q.outputs.all }}
       # See https://github.com/mxschmitt/action-tmate
       # Uncomment the step below to SSH to the running github action host.
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
+      # - name: Setup tmate session
+        # uses: mxschmitt/action-tmate@v3
       - name: Bazel build affected rules
         if: steps.q.outputs.any_affected == 'true'
         run: .github/scripts/bazel.sh build ${{ steps.q.outputs.all }}

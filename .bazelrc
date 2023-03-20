@@ -23,18 +23,15 @@ build:github-actions --remote_timeout=3600
 # Otherwise, the output is not available when it's been build on remote.
 build:github-actions --remote_download_outputs=all
 
-# This is to flush bazel cache for new version of clang/gcc.
+# This is to forcefully flush bazel cache.
 # Because changing env variable in the sandbox forces bazel to rebuild
 # everything; thus when we increment Clang version, we wont run into situation
 # where artifacts built by different compiler version causes hidden issues.
 #
-# This does not apply to Go, as Bazel's Golang tool chain version is read from
-# go.mod file.
-#
 # https://bazel.build/reference/command-line-reference#flag--action_env
-build --action_env=CLANG_COMPILER_VERSION=14.0_0
+build --action_env=CACHE_VERSION=0.0.1
 # https://bazel.build/reference/command-line-reference#flag--host_action_env
-build --host_action_env=CLANG_COMPILER_VERSION=14.0_0
+build --host_action_env=CACHE_VERSION=0.0.1
 
 # This causes binaries not available locally since it's cached remotely.
 # build --remote_download_minimal
