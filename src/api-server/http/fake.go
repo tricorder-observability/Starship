@@ -24,7 +24,10 @@ func (srv *Server) Start(cfg Config, pgClient *pg.Client) net.Addr {
 	cfg.Listen = lis
 
 	go func() {
-		StartHTTPService(cfg, pgClient)
+		err := StartHTTPService(cfg, pgClient)
+		if err != nil {
+			log.Fatalf("Failed to run HTTP Service, error: %v", err)
+		}
 	}()
 
 	return lis.Addr()

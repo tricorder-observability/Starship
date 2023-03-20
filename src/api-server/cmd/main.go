@@ -45,7 +45,8 @@ var (
 	standalone = flag.Bool("standalone", false, "If true, API Server can be started without dependent services")
 
 	// Management Web UI requires to connect to Postgres, Grafana, this allows us to disable this service in tests.
-	enableMgmtUI = flag.Bool("enable_mgmt_ui", true, "If true, start management Web UI")
+	enableMgmtUI = flag.Bool("enable_mgmt_ui", true, "If true, start API Server's HTTP API handler, "+
+		"which is required to support the management Web UI.")
 	// This allows us to disable this service in tests.
 	enableGRPC = flag.Bool("enable_grpc", true, "If true, start the gRPC server for managing agents")
 
@@ -180,9 +181,7 @@ func main() {
 				GLock:           gLock,
 				Standalone:      *standalone,
 			}
-
-			http.StartHTTPService(config, pgClient)
-			return nil
+			return http.StartHTTPService(config, pgClient)
 		})
 	}
 

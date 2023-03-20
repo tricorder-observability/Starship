@@ -21,6 +21,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	"github.com/tricorder/src/utils/errors"
 	"github.com/tricorder/src/utils/log"
 
 	swagfiles "github.com/swaggo/files"
@@ -50,7 +51,14 @@ type Config struct {
 	Standalone      bool
 }
 
-func StartHTTPService(cfg Config, pgClient *pg.Client) {
+// StartHTTPService launches long-running HTTP Server to support API Server's HTTP APIs, accessible from
+// http://<api-server-host>/api
+//
+// The server stores its persistent data to an embedded SQLite database, which is accessed through DAO (data access
+// object) implemented with GORM.
+//
+// The server creates data table on Postgres, and dashboard on Grafana, when deploying an eBPF+WASM module.
+func StartHTTPService(cfg Config, pgClient *pg.Client) error {
 	log.Infof("Starting API Server's http service ...")
 
 	grafana.InitGrafanaConfig(cfg.GrafanaURL, cfg.GrafanaUserName, cfg.GrafanaUserPass)
@@ -91,5 +99,9 @@ func StartHTTPService(cfg Config, pgClient *pg.Client) {
 	router.GET("/swagger/*any", ginswag.WrapHandler(swagfiles.Handler))
 
 	log.Infof("Listening on %s ...", cfg.Listen.Addr().String())
-	_ = router.RunListener(cfg.Listen)
+	err = router.RunListener(cfg.Listen)
+	if err != nil {
+		return errors.Wrap("Running HTTP server", "listen", err)
+	}
+	return nil
 }

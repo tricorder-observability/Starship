@@ -17,9 +17,6 @@ package module
 
 import (
 	"encoding/json"
-	"fmt"
-	"io"
-	"net/http"
 
 	"github.com/spf13/cobra"
 
@@ -60,17 +57,4 @@ var undeployCmd = &cobra.Command{
 func init() {
 	undeployCmd.Flags().StringVarP(&moduleId, "id", "i", moduleId, "the ID of module.")
 	_ = undeployCmd.MarkFlagRequired("id")
-}
-
-func undeployModule(url string, moduleId string) ([]byte, error) {
-	resp, err := http.Post(fmt.Sprintf("%s?id=%s", url, moduleId), "application/json", nil)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-	return body, nil
 }
