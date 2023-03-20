@@ -15,7 +15,10 @@
 
 package errors
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
 
 // Wrap returns a new error object with the context enclosed in its message.
 func Wrap(context, failure string, err error) error {
@@ -25,4 +28,8 @@ func Wrap(context, failure string, err error) error {
 // New returns a new error object with the context.
 func New(context, failure string) error {
 	return fmt.Errorf("%s, failed to %s", context, failure)
+}
+
+func Is(err, target error) bool {
+	return errors.Is(err, target)
 }

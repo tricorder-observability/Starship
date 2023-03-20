@@ -16,6 +16,7 @@
 package errors
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -36,4 +37,35 @@ func TestNew(t *testing.T) {
 
 	wrappedErr := New("while testing Wrap", "create")
 	assert.Equal("while testing Wrap, failed to create", wrappedErr.Error())
+}
+
+// Tests that Is returns true when the error is the same.
+func TestIs(t *testing.T) {
+	err1 := errors.New("1")
+	erra := err1
+	errb := errors.New("b")
+
+	err3 := errors.New("3")
+
+	testCases := []struct {
+		err    error
+		target error
+		match  bool
+	}{
+		{nil, nil, true},
+		{err1, nil, false},
+		{err1, err1, true},
+		{erra, err1, true},
+		{errb, err1, false},
+		{err1, err3, false},
+		{erra, err3, false},
+		{errb, err3, false},
+	}
+	for _, tc := range testCases {
+		t.Run("", func(t *testing.T) {
+			if got := errors.Is(tc.err, tc.target); got != tc.match {
+				t.Errorf("Is(%v, %v) = %v, want %v", tc.err, tc.target, got, tc.match)
+			}
+		})
+	}
 }

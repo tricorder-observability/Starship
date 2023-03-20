@@ -10,9 +10,14 @@ go_library(
 go_test(
     name = "file_test",
     srcs = ["file_test.go"],
+    data = [
+        "//src/utils/file/testdata:wasm_elfs",
+    ],
     embed = [":file"],
     deps = [
         "@com_github_stretchr_testify//assert",
+        "@com_github_stretchr_testify//require",
+        "@io_bazel_rules_go//go/runfiles:go_default_library",
         "@io_bazel_rules_go//go/tools/bazel:go_default_library",
     ],
 )

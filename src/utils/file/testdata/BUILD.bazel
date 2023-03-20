@@ -1,0 +1,9 @@
+package(default_visibility = ["//src:__subpackages__"])
+
+filegroup(
+    name = "wasm_elfs",
+    srcs = glob([
+        "*.wasm",
+        "bad_suffix.wa",
+    ]),
+)
