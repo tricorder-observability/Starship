@@ -47,6 +47,7 @@ minikube start --profile=${USER} --cpus=8 --memory=8192
 # consistently, and you might run into unexpected issues with a different
 # namespace.
 kubectl create namespace tricorder
+kubectl config set-context --current --namespace=tricorder
 
 # Add Starship's helm-charts and install Starship
 helm repo add tricorder-starship https://tricorder-observability.github.io/Starship
