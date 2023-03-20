@@ -12,9 +12,9 @@ runs:
       uses: azure/setup-helm@v3.4
       with:
         version: v3.9.0
-    - uses: actions/setup-python@v2
+    - uses: actions/setup-python@v4
       with:
-        python-version: 3.7
+        python-version: '3.10'
     - name: Set up chart-testing
       uses: helm/chart-testing-action@v2.3.0
     - name: Create kind cluster
