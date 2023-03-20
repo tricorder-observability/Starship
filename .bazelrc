@@ -15,7 +15,6 @@ build --config=clang
 # Remote cache is disabled for local build, because it's actually slower to
 # upload local build results to and fetch remotely-cached results from
 # remote cache server.
-build:github-actions --config=clang
 build:github-actions --bes_results_url=https://app.buildbuddy.io/invocation/
 build:github-actions --bes_backend=grpcs://remote.buildbuddy.io
 build:github-actions --remote_cache=grpcs://remote.buildbuddy.io
@@ -66,17 +65,7 @@ build:clang --action_env=CXX=clang++
 build:clang --host_action_env=CXX=clang++
 
 test --test_tag_filters=-bpf,-disabled
-
-# https://bazel.build/reference/command-line-reference#flag--remote_download_minimal
-test --remote_download_minimal
-
 # Force all test to print detailed output.
 test --test_arg=-test.v
 test --test_output=errors
-
 test:bpf --test_tag_filters=bpf,-disabled --strategy=TestRunner=standalone
-
-# https://bazel.build/reference/command-line-reference#flag--remote_download_outputs
-# TODO(yzhao): Default is all, but removing this causes some push_image rule
-# fails to run.
-run --remote_download_outputs=all
