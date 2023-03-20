@@ -29,9 +29,9 @@ build:github-actions --remote_download_outputs=all
 # where artifacts built by different compiler version causes hidden issues.
 #
 # https://bazel.build/reference/command-line-reference#flag--action_env
-build --action_env=CACHE_VERSION=0.0.1
+build --action_env=CACHE_VERSION=0.0.2
 # https://bazel.build/reference/command-line-reference#flag--host_action_env
-build --host_action_env=CACHE_VERSION=0.0.1
+build --host_action_env=CACHE_VERSION=0.0.2
 
 # This causes binaries not available locally since it's cached remotely.
 # build --remote_download_minimal
