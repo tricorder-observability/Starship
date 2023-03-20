@@ -40,6 +40,8 @@ genrule(
     outs = ["wasi-sdk-19.0"],
     # --no-same-owner is required when building inside docker container.
     # See https://superuser.com/a/1435438
+    # @D refers to bazel's output directory
+    # See https://bazel.build/reference/be/make-variables
     cmd = "tar -C $(@D) -xf $(location @download_wasi_sdk_from_github_url//file) --no-same-owner",
 )
 
