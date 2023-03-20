@@ -1,14 +1,11 @@
 package wasm
 
 import (
-	"os"
-	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 
 	bazelutils "github.com/tricorder/src/testing/bazel"
-	"github.com/tricorder/src/utils/log"
 )
 
 func TestWASMBUILDC(t *testing.T) {
@@ -30,16 +27,6 @@ int hello() {
 int main() { return 0; }`
 
 	wasiCompiler := NewWASICompiler(wasiSDKPath, wasmStarshipIncudePath, tmpBuildDir)
-	realPath, err := filepath.EvalSymlinks(wasiCompiler.WASIClang)
-
-	assert.NoError(err)
-
-	stat, err := os.Lstat(realPath)
-	assert.NoError(err)
-
-	log.Infof("clang=%s stat=%v", realPath, stat)
-	log.Infof("stat.Mode()=%v", stat.Mode())
-
 	wasmELF, err := wasiCompiler.BuildC(testWASMCode1)
 	assert.Nil(err)
 	assert.Equal(wasmELF[:4], wasmMagic)
