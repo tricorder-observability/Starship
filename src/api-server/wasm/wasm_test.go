@@ -32,7 +32,7 @@ int main() { return 0; }`
 
 	stat, err := os.Lstat(wasiCompiler.WASIClang)
 	assert.NoError(err)
-	log.Infof("stat=%v", stat)
+	log.Infof("clang=%s stat=%v", wasiCompiler.WASIClang, stat)
 	log.Infof("stat.Mode()=%v", stat.Mode())
 
 	wasmELF, err := wasiCompiler.BuildC(testWASMCode1)
