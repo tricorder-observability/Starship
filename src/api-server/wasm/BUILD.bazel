@@ -20,6 +20,7 @@ go_test(
         "//src/api-server/cmd:extract_wasi_sdk",
     ],
     embed = [":wasm"],
+    tags = ["bpf"],
     deps = [
         "//src/testing/bazel",
         "//src/utils/log",
