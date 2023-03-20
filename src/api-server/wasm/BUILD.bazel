@@ -17,15 +17,12 @@ go_test(
     srcs = ["wasm_test.go"],
     data = [
         "//modules/common:wasm_common_includes",
-        "//src/api-server/cmd:extract_wasi_sdk",
+        "@download_wasi_sdk_from_github_url//file",
     ],
     embed = [":wasm"],
-    # Needs to have this to work around missing exec permission for the clang
-    # executable extracted from the downloaded WASI SDK:
-    # //src/api-server/cmd:extract_wasi_sdk.
-    tags = ["ci_disabled"],
     deps = [
         "//src/testing/bazel",
         "@com_github_stretchr_testify//assert",
+        "@com_github_stretchr_testify//require",
     ],
 )
