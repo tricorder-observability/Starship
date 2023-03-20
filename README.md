@@ -40,7 +40,7 @@ $ commit: ddac20b4b34a9c8c857fc602203b6ba2679794d3
 
 # First start the minikube cluster, and make sure have at least 8 cpus and
 # 8196 MB memory.
-minikube start --cpus=8 --memory=8192
+minikube start --profile=${USER} --cpus=8 --memory=8192
 
 # Create a namespace for installing Starship.
 # Do not use a different namespace, as our documentation uses this namespace
