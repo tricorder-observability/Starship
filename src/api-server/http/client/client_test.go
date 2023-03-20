@@ -124,6 +124,7 @@ func TestCreateModule(t *testing.T) {
 		Wasm: &wasm.Program{
 			Code:   []byte("test_code"),
 			FnName: "test_fn",
+			Fmt:    common.Format_BINARY,
 			OutputSchema: &common.Schema{
 				Fields: []*common.DataField{
 					{

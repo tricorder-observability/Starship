@@ -169,6 +169,7 @@ func AddModule(t *testing.T, wasmUid string, r *gin.Engine) string {
 		"wasm":{
 			"code": "",
 			"fn_name":"copy_input_to_output",
+			"fmt":    1,
 			"output_schema":{
 				"name":"test_tabel_name",
 				"fields":[
@@ -224,6 +225,7 @@ func TestCreateModuleEmptyDataFields(t *testing.T) {
 		"wasm":{
 			"code": "",
 			"fn_name":"copy_input_to_output",
+			"fmt":    1,
 			"output_schema":{
 				"name":"test_tabel_name",
 				"fields":[]
@@ -310,6 +312,5 @@ func listAgent(t *testing.T, agentID string, r *gin.Engine) {
 	r.ServeHTTP(w, req)
 	resultStr := w.Body.String()
 	fmt.Printf("list agent: %s", resultStr)
-	// TODO(jun): do not using t *testing.T in test helper, need to refactor this test for better readability
 	assert.Contains(resultStr, agentID)
 }
