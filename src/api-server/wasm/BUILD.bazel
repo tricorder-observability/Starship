@@ -20,6 +20,10 @@ go_test(
         "//src/api-server/cmd:extract_wasi_sdk",
     ],
     embed = [":wasm"],
+    # Needs to have this to work around missing exec permission for the clang
+    # executable extracted from the downloaded WASI SDK:
+    # //src/api-server/cmd:extract_wasi_sdk.
+    tags = ["bpf"],
     deps = [
         "//src/testing/bazel",
         "//src/utils/log",
