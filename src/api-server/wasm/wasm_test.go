@@ -2,7 +2,6 @@ package wasm
 
 import (
 	"os"
-	"path"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -29,13 +28,13 @@ int hello() {
 }
 int main() { return 0; }`
 
-	wasiSDKClangPath := path.Join(wasiSDKPath, "bin", "clang")
-	stat, err := os.Lstat(wasiSDKClangPath)
+	wasiCompiler := NewWASICompiler(wasiSDKPath, wasmStarshipIncudePath, tmpBuildDir)
+
+	stat, err := os.Lstat(wasiCompiler.WASIClang)
 	assert.NoError(err)
 	log.Infof("stat=%v", stat)
 	log.Infof("stat.Mode()=%v", stat.Mode())
 
-	wasiCompiler := NewWASICompiler(wasiSDKPath, wasmStarshipIncudePath, tmpBuildDir)
 	wasmELF, err := wasiCompiler.BuildC(testWASMCode1)
 	assert.Nil(err)
 	assert.Equal(wasmELF[:4], wasmMagic)
