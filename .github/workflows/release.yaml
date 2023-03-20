@@ -26,9 +26,6 @@ jobs:
     timeout-minutes: 90
     permissions:
       packages: write
-    env:
-      # https://docs.github.com/en/actions/learn-github-actions/contexts#github-context
-      TAG: ${{ github.ref_name }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
@@ -49,29 +46,31 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USER_NAME }}
           password: ${{ secrets.DOCKER_HUB_USER_PASSWORD }}
 
+      - name: Configure safe directory
+        run: |
+          # The following is required for:
+          # https://github.com/actions/checkout/issues/363
+          git config --global --add safe.directory $(realpath .)
+
       - name: Configure Git
         run: |
-          git config --global --add safe.directory $(realpath .)
           git config user.name "$GITHUB_ACTOR"
           git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
-        shell: bash
 
-      - name: Debug
+      - name: Retrieve Git Tag
         run: |
           git fetch --tags > /dev/null 2>&1
-          git describe --tags --abbrev=0 2> /dev/null
-        shell: bash
+          echo "TAG=$(git describe --tags --abbrev=0 2> /dev/null)" >> $GITHUB_ENV
 
-      - name: Debug
+      - name: Use the value
+        id: step_two
         run: |
-          git fetch --tags > /dev/null 2>&1
-          git describe --tags --abbrev=0 2> /dev/null
-        shell: bash
+            echo "${{ env.TAG }}"
 
       - uses: bazelbuild/setup-bazelisk@v2
 
       - name: Build and push starship api-server image to Github Packages
-        run: .github/scripts/bazel.sh run --define=TAG=${TAG} --define=REGISTRY=${REGISTRY} //src/api-server/cmd:push_api-server_image
+        run: .github/scripts/bazel.sh run --define=TAG=${{ env.TAG }} --define=REGISTRY=${REGISTRY} //src/api-server/cmd:push_api-server_image
         working-directory: .
 
       - name: Build and push starship api-server image to Docker hub
