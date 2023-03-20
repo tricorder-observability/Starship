@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	bazelutils "github.com/tricorder/src/testing/bazel"
-	"github.com/tricorder/src/utils/exec"
+	"github.com/tricorder/src/utils/log"
 )
 
 func TestWASMBUILDC(t *testing.T) {
@@ -43,10 +43,15 @@ int main() { return 0; }`
 	_, err = wasiCompiler.BuildC(testWASMCode2)
 	assert.NotNil(err)
 
-	stdout, stderr, err := exec.Run("ls", "-l", path.Join(wasiSDKPath, "bin", "clang"))
+	wasiSDKClangPath := path.Join(wasiSDKPath, "bin", "clang")
+	stat, err := os.LsStat(wasiSDKClangPath)
 	assert.NoError(err)
-	assert.Equal("", stdout)
-	assert.Equal("", stderr)
+	log.Infof("stat=%v", stat)
+
+	realPath, err := os.ReadLink(wasiSDKClangPath)
+	stat, err := os.LsStat(realPath)
+	assert.NoError(err)
+	log.Infof("stat=%v", stat)
 
 	testWASMCode3 := "aaaaa"
 	wasiCompiler = NewWASICompiler(wasiSDKPath, wasmStarshipIncudePath, tmpBuildDir)
