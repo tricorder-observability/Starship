@@ -17,7 +17,6 @@ package main
 
 import (
 	"flag"
-	"net"
 
 	"golang.org/x/sync/errgroup"
 	"k8s.io/client-go/kubernetes"
@@ -164,8 +163,7 @@ func main() {
 
 	if *enableMgmtUI {
 		srvErrGroup.Go(func() error {
-			addrStr := sys.PortAddr(*mgmtUIPort)
-			listener, err := net.Listen(sys.TCP, addrStr)
+			listener, _, err := sys.ListenTCP(*mgmtUIPort)
 			if err != nil {
 				return errors.Wrap("starting http server", "listen", err)
 			}
