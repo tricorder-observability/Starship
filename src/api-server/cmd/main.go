@@ -113,14 +113,17 @@ func main() {
 		log.Fatalf("Failed to initialize a client to Postgresql database error at %s, error: %v", *modulePGURL, err)
 	}
 
-	sqliteClient, _ := dao.InitSqlite(*moduleDBDirPath)
+	sqliteClient, err := dao.InitSqlite(*moduleDBDirPath)
+	if err != nil {
+		log.Fatalf("While starting API Server, failed to initialize SQLite database, error: %v", err)
+	}
+
 	moduleDao := dao.ModuleDao{
 		Client: sqliteClient,
 	}
 	nodeAgentDao := dao.NodeAgentDao{
 		Client: sqliteClient,
 	}
-
 	moduleInstanceDao := dao.ModuleInstanceDao{
 		Client: sqliteClient,
 	}

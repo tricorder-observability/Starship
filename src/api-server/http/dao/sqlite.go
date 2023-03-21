@@ -23,7 +23,7 @@ import (
 	"github.com/tricorder/src/utils/log"
 )
 
-// InitSqlite prepares sqlite db file and setup the initial condition.
+// InitSqlite prepares SQLite DB file, and creates the required data tables for required by API Server's operations.
 func InitSqlite(dbPath string) (*sqlite.ORM, error) {
 	log.Infof("Opening SQLite database file at %s", dbPath)
 
