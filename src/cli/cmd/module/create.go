@@ -46,7 +46,12 @@ var createCmd = &cobra.Command{
 		}
 		if wasmFileTextPath != "" {
 			fileType := file.GetFileType(wasmFileTextPath)
-			if !(fileType == file.C || fileType == file.WAT) {
+			switch fileType {
+			case file.C:
+				wasmFileTextLanguage = int(common.Lang_C)
+			case file.WAT:
+				wasmFileTextLanguage = int(common.Lang_WAT)
+			default:
 				log.Fatalf("Failed to read --wasm-text-path='%s', error: suffix is not .c or .wat", wasmFileTextPath)
 			}
 		}
@@ -74,6 +79,7 @@ var createCmd = &cobra.Command{
 			}
 			moduleReq.Wasm.Code = wasmBytes
 			moduleReq.Wasm.Fmt = common.Format_BINARY
+			moduleReq.Wasm.Lang = common.Lang(wasmFileTextLanguage)
 		} else {
 			wasmBytes, err := file.ReadBin(wasmFileTextPath)
 			if err != nil {
@@ -81,6 +87,7 @@ var createCmd = &cobra.Command{
 			}
 			moduleReq.Wasm.Code = wasmBytes
 			moduleReq.Wasm.Fmt = common.Format_TEXT
+			moduleReq.Wasm.Lang = common.Lang(wasmFileTextLanguage)
 		}
 
 		// override bcc code contet by bcc file
@@ -114,7 +121,7 @@ var (
 	bccFilePath          string
 	wasmFileBinPath      string
 	wasmFileTextPath     string
-	wasmFileTextLanguage string
+	wasmFileTextLanguage int
 )
 
 func init() {
