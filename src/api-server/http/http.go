@@ -75,7 +75,7 @@ func StartHTTPService(cfg Config, pgClient *pg.Client, wasiCompiler *wasm.WASICo
 		}
 	}
 
-	mgr := ModuleManager{
+	mgr := module_manager.ModuleManager{
 		grafanaConfig:  config,
 		DatasourceUID:  cfg.DatasourceUID,
 		GrafanaClient:  grafanaManager,
