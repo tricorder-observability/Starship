@@ -1,6 +1,7 @@
 package client
 
 import (
+	"os/exec"
 	"strings"
 	"testing"
 	"time"
@@ -15,6 +16,7 @@ import (
 	common "github.com/tricorder/src/pb/module/common"
 	"github.com/tricorder/src/pb/module/ebpf"
 	"github.com/tricorder/src/pb/module/wasm"
+	bazelutils "github.com/tricorder/src/testing/bazel"
 	testutils "github.com/tricorder/src/testing/bazel"
 	grafanatest "github.com/tricorder/src/testing/grafana"
 	pgclienttest "github.com/tricorder/src/testing/pg"
@@ -35,6 +37,68 @@ int sample_json(struct bpf_perf_event_data *ctx) {
   return 0;
 }
 `
+var wasmJson = `
+#include "cJSON.h"
+#include "io.h"
+#include <assert.h>
+#include <stdint.h>
+#include <string.h>
+
+struct detectionPackets {
+  unsigned long long nb_ddos_packets;
+} __attribute__((packed));
+
+static_assert(sizeof(struct detectionPackets) == 8,
+			  "Size of detectionPackets is not 8");
+
+// A simple function to copy entire input buf to output buffer.
+// Return 0 if succeeded.
+// Return 1 if failed to malloc output buffer.
+int write_events_to_output() {
+  struct detectionPackets *detection_packet = get_input_buf();
+
+  cJSON *root = cJSON_CreateObject();
+
+  cJSON_AddNumberToObject(root, "nb_ddos_packets",
+						  detection_packet->nb_ddos_packets);
+
+  char *json = NULL;
+  json = cJSON_Print(root);
+  cJSON_Delete(root);
+
+  int json_size = strlen(json);
+  void *buf = malloc_output_buf(json_size);
+  if (buf == NULL) {
+	return 1;
+  }
+  copy_to_output(json, json_size);
+  // Free allocated memory from JSON_print().
+  free(json);
+  return 0;
+}
+
+int main() { return 0; }
+`
+
+func initWasiSDK() (string, string, string, error) {
+	wasiTarBazelFilePath := "external/download_wasi_sdk_from_github_url/file/wasi-sdk.tar.gz"
+	wasiSDKTarPath := bazelutils.TestFilePath(wasiTarBazelFilePath)
+	wasiSDKPath := bazelutils.CreateTmpDir()
+	wasiBuildTmpPath := bazelutils.CreateTmpDir()
+
+	// decompress wasi-sdk.tar.gz toolchain to bazel runtime
+	cmd := exec.Command("tar", "-p", "-C", wasiSDKPath, "-zxvf", wasiSDKTarPath, "--no-same-owner")
+	_, err := cmd.Output()
+	if err != nil {
+		return "", "", "", err
+	}
+
+	wasiSDKPath += "/wasi-sdk-19.0"
+
+	wasiBazelIncludeFilePath := "modules/common"
+	wasmStarshipIncudePath := bazelutils.TestFilePath(wasiBazelIncludeFilePath)
+	return wasiSDKPath, wasmStarshipIncudePath, wasiBuildTmpPath, nil
+}
 
 func TestListAgent(t *testing.T) {
 	assert := assert.New(t)
@@ -57,7 +121,10 @@ func TestListAgent(t *testing.T) {
 	gLock := lock.NewLock()
 	waitCond := cond.NewCond()
 
-	fakeServer := fake.StartFakeNewServer(sqliteClient, gLock, waitCond, pgClient, grafanaURL)
+	wasiSDK, wasiStarshipIncludePath, wasiBuildTmpPath, err := initWasiSDK()
+	require.Nil(err)
+
+	fakeServer := fake.StartFakeNewServer(sqliteClient, gLock, waitCond, pgClient, grafanaURL, wasiSDK, wasiStarshipIncludePath, wasiBuildTmpPath)
 
 	// test list agent
 	client := NewClient("http://" + fakeServer.String())
@@ -105,7 +172,10 @@ func TestCreateModule(t *testing.T) {
 	gLock := lock.NewLock()
 	waitCond := cond.NewCond()
 
-	fakeServer := fake.StartFakeNewServer(sqliteClient, gLock, waitCond, pgClient, grafanaURL)
+	wasiSDK, wasiStarshipIncludePath, wasiBuildTmpPath, err := initWasiSDK()
+	require.Nil(err)
+
+	fakeServer := fake.StartFakeNewServer(sqliteClient, gLock, waitCond, pgClient, grafanaURL, wasiSDK, wasiStarshipIncludePath, wasiBuildTmpPath)
 
 	moduleDao := dao.ModuleDao{
 		Client: sqliteClient,
@@ -156,6 +226,55 @@ func TestCreateModule(t *testing.T) {
 	require.NoError(err)
 	assert.Equal(1, len(module))
 	assert.Equal("test_module", module[0].Name)
+
+	err = moduleDao.DeleteByID(module[0].ID)
+	assert.NoError(err)
+
+	// test create module with wasm code,
+	// it will compile wasm code to wasm binary and save it to db
+	moduleReq = &http.CreateModuleReq{
+		Name: "test_module_wasm",
+		Wasm: &wasm.Program{
+			Code:   []byte(wasmJson),
+			FnName: "write_events_to_output",
+			Fmt:    common.Format_TEXT,
+			OutputSchema: &common.Schema{
+				Fields: []*common.DataField{
+					{
+						Name: "test_field",
+						Type: common.DataField_JSONB,
+					},
+				},
+			},
+		},
+		Ebpf: &ebpf.Program{
+			Code:           "test_code",
+			PerfBufferName: "test_perf_buffer_name",
+			Probes: []*ebpf.ProbeSpec{
+				{
+					Target: "test_target",
+					Entry:  "test_entry",
+					Return: "test_return",
+				},
+			},
+		},
+	}
+
+	res, err = client.CreateModule(moduleReq)
+	require.NoError(err)
+	assert.Equal(200, res.Code)
+
+	// after create module, list module
+	module, err = moduleDao.ListModule([]string{})
+	require.NoError(err)
+	assert.Equal(1, len(module))
+	assert.Equal("test_module_wasm", module[0].Name)
+
+	// Compare with wasm magic number: \x00\x61\x73\x6d (0x6d736100 in little endian)
+	wasmMagic := []byte{0x00, 0x61, 0x73, 0x6d}
+	wasmELF := module[0].Wasm
+	assert.Equal(wasmELF[:4], wasmMagic)
+
 }
 
 func TestListModule(t *testing.T) {
@@ -179,7 +298,10 @@ func TestListModule(t *testing.T) {
 	gLock := lock.NewLock()
 	waitCond := cond.NewCond()
 
-	fakeServer := fake.StartFakeNewServer(sqliteClient, gLock, waitCond, pgClient, grafanaURL)
+	wasiSDK, wasiStarshipIncludePath, wasiBuildTmpPath, err := initWasiSDK()
+	require.Nil(err)
+
+	fakeServer := fake.StartFakeNewServer(sqliteClient, gLock, waitCond, pgClient, grafanaURL, wasiSDK, wasiStarshipIncludePath, wasiBuildTmpPath)
 
 	moduleDao := dao.ModuleDao{
 		Client: sqliteClient,
@@ -232,7 +354,10 @@ func TestDeleteModule(t *testing.T) {
 	gLock := lock.NewLock()
 	waitCond := cond.NewCond()
 
-	fakeServer := fake.StartFakeNewServer(sqliteClient, gLock, waitCond, pgClient, grafanaURL)
+	wasiSDK, wasiStarshipIncludePath, wasiBuildTmpPath, err := initWasiSDK()
+	require.Nil(err)
+
+	fakeServer := fake.StartFakeNewServer(sqliteClient, gLock, waitCond, pgClient, grafanaURL, wasiSDK, wasiStarshipIncludePath, wasiBuildTmpPath)
 
 	moduleDao := dao.ModuleDao{
 		Client: sqliteClient,
@@ -288,7 +413,10 @@ func TestDeployModule(t *testing.T) {
 	gLock := lock.NewLock()
 	waitCond := cond.NewCond()
 
-	fakeServer := fake.StartFakeNewServer(sqliteClient, gLock, waitCond, pgClient, grafanaURL)
+	wasiSDK, wasiStarshipIncludePath, wasiBuildTmpPath, err := initWasiSDK()
+	require.Nil(err)
+
+	fakeServer := fake.StartFakeNewServer(sqliteClient, gLock, waitCond, pgClient, grafanaURL, wasiSDK, wasiStarshipIncludePath, wasiBuildTmpPath)
 
 	moduleDao := dao.ModuleDao{
 		Client: sqliteClient,
@@ -361,7 +489,10 @@ func TestUndeployModule(t *testing.T) {
 	gLock := lock.NewLock()
 	waitCond := cond.NewCond()
 
-	fakeServer := fake.StartFakeNewServer(sqliteClient, gLock, waitCond, pgClient, grafanaURL)
+	wasiSDK, wasiStarshipIncludePath, wasiBuildTmpPath, err := initWasiSDK()
+	require.Nil(err)
+
+	fakeServer := fake.StartFakeNewServer(sqliteClient, gLock, waitCond, pgClient, grafanaURL, wasiSDK, wasiStarshipIncludePath, wasiBuildTmpPath)
 
 	moduleDao := dao.ModuleDao{
 		Client: sqliteClient,

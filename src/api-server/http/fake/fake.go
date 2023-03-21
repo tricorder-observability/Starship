@@ -38,7 +38,7 @@ func (srv *Server) Start(cfg http.Config, pgClient *pg.Client, wasiCompiler *was
 // StartNewServer creates a Server and start the server.
 func StartFakeNewServer(sqliteClient *sqlite.ORM, gLock *lock.Lock,
 	waitCond *cond.Cond, pgClient *pg.Client, grafanaURL string,
-) net.Addr {
+	wasiSDKPath string, wasiStarshipIncludePath string, wasiBuildTmpPath string) net.Addr {
 	server := Server{}
 
 	moduleDao := dao.ModuleDao{
@@ -65,6 +65,6 @@ func StartFakeNewServer(sqliteClient *sqlite.ORM, gLock *lock.Lock,
 		WaitCond:        waitCond,
 		Standalone:      false,
 	}
-	wasiCompiler := wasm.NewWASICompiler(wasm.DefaultWASISDKPath, wasm.DefaultWASIStarshipInclude, wasm.DefaultBuildTmpDir)
+	wasiCompiler := wasm.NewWASICompiler(wasiSDKPath, wasiStarshipIncludePath, wasiBuildTmpPath)
 	return server.Start(cfg, pgClient, wasiCompiler)
 }
