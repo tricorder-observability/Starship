@@ -5,7 +5,6 @@ go_library(
     srcs = [
         "cors.go",
         "exception.go",
-        "grafana.go",
         "http.go",
         "module_manager.go",
         "types.go",
@@ -30,7 +29,6 @@ go_library(
         "//src/utils/pg",
         "//src/utils/uuid",
         "@com_github_gin_gonic_gin//:gin",
-        "@com_github_mattn_go_sqlite3//:go-sqlite3",
         "@com_github_swaggo_files//:files",
         "@com_github_swaggo_gin_swagger//:gin-swagger",
     ],
@@ -46,7 +44,6 @@ filegroup(
 go_test(
     name = "http_test",
     srcs = [
-        "grafana_test.go",
         "module_manager_test.go",
         "types_test.go",
     ],

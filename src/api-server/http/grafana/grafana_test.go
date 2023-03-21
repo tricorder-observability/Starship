@@ -80,3 +80,19 @@ func createDatasource(token string) error {
 	}
 	return nil
 }
+
+// Tests that we can initialize API token on Grafana.
+func TestInitGrafanaAPIToken(t *testing.T) {
+	assert := assert.New(t)
+	require := require.New(t)
+
+	cleanerFn, grafanaURL, err := grafanaTest.LaunchContainer()
+	require.Nil(err)
+	defer func() {
+		assert.Nil(cleanerFn())
+	}()
+
+	InitGrafanaConfig(grafanaURL, "admin", "admin")
+	grafanaManager := NewGrafanaManagement()
+	assert.Nil(grafanaManager.InitGrafanaAPIToken())
+}

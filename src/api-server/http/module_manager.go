@@ -43,7 +43,7 @@ type ModuleManager struct {
 	Module         dao.ModuleDao
 	NodeAgent      dao.NodeAgentDao
 	ModuleInstance dao.ModuleInstanceDao
-	GrafanaClient  GrafanaManagement
+	GrafanaClient  grafana.GrafanaManagement
 	gLock          *lock.Lock
 	waitCond       *cond.Cond
 	PGClient       *pg.Client
@@ -511,7 +511,7 @@ func (mgr *ModuleManager) createPGTable(module *dao.ModuleGORM) error {
 }
 
 func (mgr *ModuleManager) createGrafanaDashboard(moduleID string) (string, error) {
-	grafanaAPIKey, err := mgr.GrafanaClient.getGrafanaKey(dashboardAPIURL)
+	grafanaAPIKey, err := mgr.GrafanaClient.GetGrafanaKey(grafana.DashboardAPIURL)
 	if err != nil {
 		log.Println("deploy error, auth dashboary error", err)
 		return "", err

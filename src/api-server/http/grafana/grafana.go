@@ -13,10 +13,9 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-package http
+package grafana
 
 import (
-	"github.com/tricorder/src/api-server/http/grafana"
 	"github.com/tricorder/src/utils/errors"
 
 	// Load sqlite driver
@@ -25,21 +24,20 @@ import (
 
 type GrafanaManagement struct{}
 
-var (
-	dashboardAPIURL  = "/api/dashboards/db"
-	grafanaAPIKeyMap = make(map[string]string)
-)
+const DashboardAPIURL = "/api/dashboards/db"
+
+var grafanaAPIKeyMap = make(map[string]string)
 
 func NewGrafanaManagement() GrafanaManagement {
 	return GrafanaManagement{}
 }
 
-func (g *GrafanaManagement) getGrafanaKey(apiPath string) (string, error) {
+func (g *GrafanaManagement) GetGrafanaKey(apiPath string) (string, error) {
 	if token, isExist := grafanaAPIKeyMap[apiPath]; isExist {
 		return token, nil
 	}
 
-	authToken := grafana.NewAuthToken()
+	authToken := NewAuthToken()
 	allGrafanaAPIKey, err := authToken.GetAllGrafanaAPIKey()
 	if err != nil {
 		return "", errors.Wrap("get grafana all api token list", "load", err)
@@ -61,7 +59,7 @@ func (g *GrafanaManagement) getGrafanaKey(apiPath string) (string, error) {
 }
 
 func (g *GrafanaManagement) InitGrafanaAPIToken() error {
-	_, err := g.getGrafanaKey(dashboardAPIURL)
+	_, err := g.GetGrafanaKey(DashboardAPIURL)
 	if err != nil {
 		return err
 	}

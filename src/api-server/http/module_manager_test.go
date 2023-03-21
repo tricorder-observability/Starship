@@ -63,7 +63,7 @@ func SetUpRouter() *gin.Engine {
 	mgr.waitCond = cond.NewCond()
 	mgr.gLock = lock.NewLock()
 
-	mgr.GrafanaClient = NewGrafanaManagement()
+	mgr.GrafanaClient = grafana.NewGrafanaManagement()
 
 	return router
 }

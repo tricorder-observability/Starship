@@ -7,10 +7,14 @@ go_library(
         "dashboard.go",
         "datasource.go",
         "global.go",
+        "grafana.go",
     ],
     importpath = "github.com/tricorder/src/api-server/http/grafana",
     visibility = ["//visibility:public"],
-    deps = ["//src/utils/errors"],
+    deps = [
+        "//src/utils/errors",
+        "@com_github_mattn_go_sqlite3//:go-sqlite3",
+    ],
 )
 
 go_test(
