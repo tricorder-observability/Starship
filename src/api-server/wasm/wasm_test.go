@@ -1,18 +1,29 @@
 package wasm
 
 import (
+	"os/exec"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	bazelutils "github.com/tricorder/src/testing/bazel"
 )
 
 func TestWASMBUILDC(t *testing.T) {
 	assert := assert.New(t)
+	require := require.New(t)
 
-	wasiBazelFilePath := "src/api-server/cmd/"
-	wasiSDKPath := bazelutils.TestFilePath(wasiBazelFilePath) + "/wasi-sdk-19.0"
+	wasiTarBazelFilePath := "external/download_wasi_sdk_from_github_url/file/wasi-sdk.tar.gz"
+	wasiSDKTarPath := bazelutils.TestFilePath(wasiTarBazelFilePath)
+	wasiSDKPath := bazelutils.CreateTmpDir()
+
+	// decompress wasi-sdk.tar.gz toolchain to bazel runtime
+	cmd := exec.Command("tar", "-p", "-C", wasiSDKPath, "-zxvf", wasiSDKTarPath, "--no-same-owner")
+	_, err := cmd.Output()
+	require.NoError(err)
+	wasiSDKPath += "/wasi-sdk-19.0"
+
 	wasiBazelIncludeFilePath := "modules/common"
 	wasmStarshipIncudePath := bazelutils.TestFilePath(wasiBazelIncludeFilePath)
 	tmpBuildDir := "/tmp"
@@ -27,6 +38,7 @@ int hello() {
 int main() { return 0; }`
 
 	wasiCompiler := NewWASICompiler(wasiSDKPath, wasmStarshipIncudePath, tmpBuildDir)
+
 	wasmELF, err := wasiCompiler.BuildC(testWASMCode1)
 	assert.Nil(err)
 	assert.Equal(wasmELF[:4], wasmMagic)
