@@ -32,6 +32,7 @@ import (
 	"github.com/tricorder/src/api-server/http/dao"
 	"github.com/tricorder/src/api-server/http/grafana"
 	pb "github.com/tricorder/src/api-server/pb"
+	"github.com/tricorder/src/api-server/wasm"
 	commonpb "github.com/tricorder/src/pb/module/common"
 	"github.com/tricorder/src/utils/pg"
 	"github.com/tricorder/src/utils/uuid"
@@ -48,6 +49,7 @@ type ModuleManager struct {
 	gLock          *lock.Lock
 	waitCond       *cond.Cond
 	PGClient       *pg.Client
+	wasiCompiler   *wasm.WASICompiler
 }
 
 // createModuleHttp  godoc
@@ -115,6 +117,27 @@ func (mgr *ModuleManager) createModule(body CreateModuleReq) CreateModuleResp {
 		}}
 	}
 
+	var wasmCode string
+	if body.Wasm.Fmt == commonpb.Format_TEXT {
+		if body.Wasm.Lang != commonpb.Lang_C {
+			return CreateModuleResp{HTTPResp{
+				Code:    500,
+				Message: "only C language is supported for text format",
+			}}
+		}
+
+		// Compile WASM module
+		wasmCode = string(body.Wasm.Code)
+		wasmModule, err := mgr.wasiCompiler.BuildC(string(body.Wasm.Code))
+		if err != nil {
+			return CreateModuleResp{HTTPResp{
+				Code:    500,
+				Message: "request error: " + err.Error(),
+			}}
+		}
+		body.Wasm.Code = wasmModule
+	}
+
 	mod := &dao.ModuleGORM{
 		ID:                 strings.Replace(uuid.New(), "-", "_", -1),
 		Name:               body.Name,
@@ -125,6 +148,7 @@ func (mgr *ModuleManager) createModule(body CreateModuleReq) CreateModuleResp {
 		EbpfLang:           int(body.Ebpf.Lang),
 		EbpfPerfBufferName: body.Ebpf.PerfBufferName,
 		EbpfProbes:         string(ebpfProbes),
+		WasmCode:           wasmCode,
 		Wasm:               body.Wasm.Code,
 		SchemaAttr:         string(schemaAttr),
 		Fn:                 body.Wasm.FnName,

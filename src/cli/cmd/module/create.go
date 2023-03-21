@@ -21,6 +21,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/tricorder/src/cli/pkg/output"
+	"github.com/tricorder/src/pb/module/common"
 
 	apiserver "github.com/tricorder/src/api-server/http"
 	"github.com/tricorder/src/api-server/http/client"
@@ -34,25 +35,42 @@ var createCmd = &cobra.Command{
 	Long: "Create an eBPF+WASM module with BCC source file and WASM binary file. For example:\n" +
 		"$ starship-cli module create --api-server=<address> -m <module_json_file> -b <bcc_source_file> " +
 		"-w <wasm_binary_file>",
+	PersistentPreRun: func(cmd *cobra.Command, args []string) {
+		if wasmFileBinPath != "" {
+			if !file.IsWasmELF(wasmFileBinPath) {
+				log.Fatalf("Failed to read --wasm-bin-path='%s', error: it is not wasm elf", wasmFileBinPath)
+			}
+		}
+	},
 	Run: func(cmd *cobra.Command, args []string) {
 		bccStr, err := file.Read(bccFilePath)
 		if err != nil {
 			log.Fatalf("Failed to read --bcc-file-path='%s', error: %v", bccFilePath, err)
 		}
 
-		wasmBytes, err := file.ReadBin(wasmFilePath)
-		if err != nil {
-			log.Fatalf("Failed to read --wasm-file-path='%s', error: %v", wasmFilePath, err)
-		}
-
 		moduleReq, err := parseModuleJsonFile(moduleFilePath)
 		if err != nil {
 			log.Fatalf("Failed to read --module-json-path='%s', error: %v", moduleFilePath, err)
 		}
+
+		if wasmFileBinPath != "" {
+			wasmBytes, err := file.ReadBin(wasmFileBinPath)
+			if err != nil {
+				log.Fatalf("Failed to read --wasm-bin-path='%s', error: %v", wasmFileBinPath, err)
+			}
+			moduleReq.Wasm.Code = wasmBytes
+			moduleReq.Wasm.Fmt = common.Format_BINARY
+		} else {
+			wasmBytes, err := file.ReadBin(wasmFileTextPath)
+			if err != nil {
+				log.Fatalf("Failed to read --wasm-code-path='%s', error: %v", wasmFileBinPath, err)
+			}
+			moduleReq.Wasm.Code = wasmBytes
+			moduleReq.Wasm.Fmt = common.Format_TEXT
+		}
+
 		// override bcc code contet by bcc file
 		moduleReq.Ebpf.Code = bccStr
-		// override wasm code contet by wasm file
-		moduleReq.Wasm.Code = wasmBytes
 		client := client.NewClient(apiServerAddress)
 		resp, err := client.CreateModule(moduleReq)
 		if err != nil {
@@ -78,16 +96,21 @@ var createCmd = &cobra.Command{
 
 // the file path of module in json format flag
 var (
-	moduleFilePath string
-	bccFilePath    string
-	wasmFilePath   string
+	moduleFilePath   string
+	bccFilePath      string
+	wasmFileBinPath  string
+	wasmFileTextPath string
 )
 
 func init() {
 	createCmd.Flags().StringVarP(&moduleFilePath, "module", "m",
 		moduleFilePath, "The path of the JSON file that describes an eBPF+WASM module.")
 	createCmd.Flags().StringVarP(&bccFilePath, "bcc", "b", bccFilePath, "The path of the BCC source file.")
-	createCmd.Flags().StringVarP(&wasmFilePath, "wasm", "w", wasmFilePath, "The path of the WASM binary file.")
+	createCmd.Flags().StringVarP(&wasmFileBinPath, "wasm-bin-path", "w",
+		wasmFileBinPath, "The path of the WASM binary file.")
+	createCmd.Flags().StringVarP(&wasmFileTextPath, "wasm-code-path", "c",
+		wasmFileTextPath, "The path of the WASM text file.")
+	createCmd.MarkFlagsMutuallyExclusive("wasm-bin-path", "wasm-code-path")
 }
 
 func parseModuleJsonFile(moduleJsonFilePath string) (*apiserver.CreateModuleReq, error) {

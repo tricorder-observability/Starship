@@ -6,6 +6,7 @@ import (
 
 	"github.com/tricorder/src/api-server/http"
 	"github.com/tricorder/src/api-server/http/dao"
+	"github.com/tricorder/src/api-server/wasm"
 	"github.com/tricorder/src/utils/cond"
 	"github.com/tricorder/src/utils/lock"
 	"github.com/tricorder/src/utils/pg"
@@ -16,7 +17,7 @@ import (
 type Server struct{}
 
 // StartServer starts the gRPC server goroutine.
-func (srv *Server) Start(cfg http.Config, pgClient *pg.Client) net.Addr {
+func (srv *Server) Start(cfg http.Config, pgClient *pg.Client, wasiCompiler *wasm.WASICompiler) net.Addr {
 	lis, err := net.Listen("tcp", ":0")
 	if err != nil {
 		log.Fatalf("Could not listen on ':0'")
@@ -25,7 +26,7 @@ func (srv *Server) Start(cfg http.Config, pgClient *pg.Client) net.Addr {
 	cfg.Listen = lis
 
 	go func() {
-		err := http.StartHTTPService(cfg, pgClient)
+		err := http.StartHTTPService(cfg, pgClient, wasiCompiler)
 		if err != nil {
 			log.Fatalf("Failed to run HTTP Service, error: %v", err)
 		}
@@ -35,8 +36,11 @@ func (srv *Server) Start(cfg http.Config, pgClient *pg.Client) net.Addr {
 }
 
 // StartNewServer creates a Server and start the server.
-func StartFakeNewServer(sqliteClient *sqlite.ORM, gLock *lock.Lock,
+func StartFakeNewServer(
+	sqliteClient *sqlite.ORM, gLock *lock.Lock,
 	waitCond *cond.Cond, pgClient *pg.Client, grafanaURL string,
+	wasiSDKPath string, wasiStarshipIncludePath string,
+	wasiBuildTmpPath string,
 ) net.Addr {
 	server := Server{}
 
@@ -64,5 +68,6 @@ func StartFakeNewServer(sqliteClient *sqlite.ORM, gLock *lock.Lock,
 		WaitCond:        waitCond,
 		Standalone:      false,
 	}
-	return server.Start(cfg, pgClient)
+	wasiCompiler := wasm.NewWASICompiler(wasiSDKPath, wasiStarshipIncludePath, wasiBuildTmpPath)
+	return server.Start(cfg, pgClient, wasiCompiler)
 }
