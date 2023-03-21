@@ -41,6 +41,22 @@ var createCmd = &cobra.Command{
 				log.Fatalf("Failed to read --wasm-bin-path='%s', error: it is not wasm elf", wasmFileBinPath)
 			}
 		}
+		if wasmFileTextPath != "" {
+			fileType := file.GetFileType(wasmFileTextPath)
+			switch fileType {
+			case file.C:
+				wasmFileTextLanguage = int(common.Lang_C)
+			case file.WAT:
+				wasmFileTextLanguage = int(common.Lang_WAT)
+			default:
+				log.Fatalf("Failed to read --wasm-text-path='%s', error: suffix is not .c or .wat", wasmFileTextPath)
+			}
+		}
+		if bccFilePath != "" {
+			if file.GetFileType(bccFilePath) != file.BCC {
+				log.Fatalf("Failed to read --bcc-file-path='%s', error: suffix is not .bcc", bccFilePath)
+			}
+		}
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		bccStr, err := file.Read(bccFilePath)
@@ -60,6 +76,7 @@ var createCmd = &cobra.Command{
 			}
 			moduleReq.Wasm.Code = wasmBytes
 			moduleReq.Wasm.Fmt = common.Format_BINARY
+			moduleReq.Wasm.Lang = common.Lang(wasmFileTextLanguage)
 		} else {
 			wasmBytes, err := file.ReadBin(wasmFileTextPath)
 			if err != nil {
@@ -67,6 +84,7 @@ var createCmd = &cobra.Command{
 			}
 			moduleReq.Wasm.Code = wasmBytes
 			moduleReq.Wasm.Fmt = common.Format_TEXT
+			moduleReq.Wasm.Lang = common.Lang(wasmFileTextLanguage)
 		}
 
 		// override bcc code contet by bcc file
@@ -96,10 +114,11 @@ var createCmd = &cobra.Command{
 
 // the file path of module in json format flag
 var (
-	moduleFilePath   string
-	bccFilePath      string
-	wasmFileBinPath  string
-	wasmFileTextPath string
+	moduleFilePath       string
+	bccFilePath          string
+	wasmFileBinPath      string
+	wasmFileTextPath     string
+	wasmFileTextLanguage int
 )
 
 func init() {
