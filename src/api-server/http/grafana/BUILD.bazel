@@ -4,9 +4,9 @@ go_library(
     name = "grafana",
     srcs = [
         "auth_token.go",
+        "config.go",
         "dashboard.go",
         "datasource.go",
-        "global.go",
         "grafana.go",
     ],
     importpath = "github.com/tricorder/src/api-server/http/grafana",
