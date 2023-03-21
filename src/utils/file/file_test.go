@@ -248,3 +248,20 @@ func TestIsWasmELF(t *testing.T) {
 	assert.False(IsWasmELF(badWASM2))
 	assert.False(IsWasmELF(badWASM3))
 }
+
+// Tests GetFileType() returns correct file type consts.
+func TestGetFileType(t *testing.T) {
+	assert := assert.New(t)
+
+	for _, c := range []struct {
+		filePath  string
+		expedType string
+	}{
+		{"test.wasm", WASM},
+		{"test.c", C},
+		{"test.bcc", BCC},
+		{"test.unknown", UNKNOWN},
+	} {
+		assert.Equal(GetFileType(c.filePath), c.expedType)
+	}
+}

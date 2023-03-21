@@ -218,7 +218,7 @@ func Contains(filePath, content string) bool {
 
 // IsWasmELF checks if the file is a WebAssembly binary.
 func IsWasmELF(filePath string) bool {
-	if !strings.HasSuffix(filePath, ".wasm") {
+	if GetFileType(filePath) != WASM {
 		return false
 	}
 
@@ -246,4 +246,29 @@ func IsWasmELF(filePath string) bool {
 	}
 
 	return isWasm
+}
+
+// A list of file types, used to detect the suffix of files.
+const (
+	WASM   = ".wasm"
+	C      = ".c"
+	BCC    = ".bcc"
+	WAT    = ".wat"
+	UNKNOWN = "xxx"
+)
+
+// GetFileType returns the const that indicates the type of the input file path.
+func GetFileType(filePath string) string {
+	types := []string{
+		WASM,
+		C,
+		BCC,
+		WAT,
+	}
+	for _, t := range types {
+		if strings.HasSuffix(filePath, t) {
+			return t
+		}
+	}
+	return UNKNOWN
 }
