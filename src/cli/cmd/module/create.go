@@ -37,8 +37,22 @@ var createCmd = &cobra.Command{
 		"-w <wasm_binary_file>",
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
 		if wasmFileBinPath != "" {
+			if file.GetFileType(wasmFileBinPath) != file.WASM {
+				log.Fatalf("Failed to read --wasm-bin-path='%s', error: suffix is not .wasm", wasmFileBinPath)
+			}
 			if !file.IsWasmELF(wasmFileBinPath) {
 				log.Fatalf("Failed to read --wasm-bin-path='%s', error: it is not wasm elf", wasmFileBinPath)
+			}
+		}
+		if wasmFileTextPath != "" {
+			fileType := file.GetFileType(wasmFileTextPath)
+			if !(fileType == file.C || fileType == file.WAT) {
+				log.Fatalf("Failed to read --wasm-text-path='%s', error: suffix is not .c or .wat", wasmFileTextPath)
+			}
+		}
+		if bccFilePath != "" {
+			if file.GetFileType(bccFilePath) != file.BCC {
+				log.Fatalf("Failed to read --bcc-file-path='%s', error: suffix is not .bcc", bccFilePath)
 			}
 		}
 	},
@@ -96,10 +110,11 @@ var createCmd = &cobra.Command{
 
 // the file path of module in json format flag
 var (
-	moduleFilePath   string
-	bccFilePath      string
-	wasmFileBinPath  string
-	wasmFileTextPath string
+	moduleFilePath       string
+	bccFilePath          string
+	wasmFileBinPath      string
+	wasmFileTextPath     string
+	wasmFileTextLanguage string
 )
 
 func init() {
