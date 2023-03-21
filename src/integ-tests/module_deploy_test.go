@@ -16,11 +16,11 @@
 package integ_tests
 
 import (
-	"net"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
 	"github.com/tricorder/src/api-server/http"
 	"github.com/tricorder/src/api-server/http/dao"
 	"github.com/tricorder/src/utils/cond"
@@ -45,9 +45,9 @@ func TestGetDeployReqForModule(t *testing.T) {
 	require.Nil(err)
 	defer func() { assert.Nil(pgClientCleanerFn()) }()
 
-	addrStr := sys.PortAddr(8083)
-	listener, err := net.Listen(sys.TCP, addrStr)
+	listener, httpSrvAddr, err := sys.ListenTCP(0)
 	require.NoError(err)
+	assert.Regexp(`\[::\]:[0-9]+`, httpSrvAddr.String())
 
 	dirPath := bazel.CreateTmpDir()
 
@@ -76,6 +76,9 @@ func TestGetDeployReqForModule(t *testing.T) {
 		WaitCond:        cond.NewCond(),
 		GLock:           lock.NewLock(),
 	}
-	err = http.StartHTTPService(config, pgClient)
-	require.NoError(err)
+
+	go func() {
+		err := http.StartHTTPService(config, pgClient)
+		require.NoError(err)
+	}()
 }
