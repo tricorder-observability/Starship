@@ -23,9 +23,11 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/tricorder/src/api-server/http"
+	"github.com/tricorder/src/api-server/http/dao"
 	"github.com/tricorder/src/utils/errors"
 	"github.com/tricorder/src/utils/sys"
 
+	"github.com/tricorder/src/testing/bazel"
 	grafanatest "github.com/tricorder/src/testing/grafana"
 	pgclienttest "github.com/tricorder/src/testing/pg"
 )
@@ -47,13 +49,29 @@ func TestGetDeployReqForModule(t *testing.T) {
 	if err != nil {
 		return errors.Wrap("starting http server", "listen", err)
 	}
+
+	dirPath, err := bazel.CreateTmpDir()
+	require.NoError(err)
+
+	sqliteClient, err := dao.InitSqlite(dirPath)
+	require.NoError(err)
+
+	moduleDao := dao.ModuleDao{
+		Client: sqliteClient,
+	}
+	nodeAgentDao := dao.NodeAgentDao{
+		Client: sqliteClient,
+	}
+	moduleInstanceDao := dao.ModuleInstanceDao{
+		Client: sqliteClient,
+	}
 	config := http.Config{
 		Listen:          listener,
-		GrafanaURL:      *moduleGrafanaURL,
-		GrafanaUserName: *moduleGrafanaUserName,
-		GrafanaUserPass: *moduleGrafanaUserPassword,
-		DatasourceName:  *moduleDatasourceName,
-		DatasourceUID:   *moduleDatasourceUID,
+		GrafanaURL:      "http://localhost:3000",
+		GrafanaUserName: "admin",
+		GrafanaUserPass: "admin",
+		DatasourceName:  "TimescaleDB-Tricorder",
+		DatasourceUID:   "timescaledb_tricorder",
 		Module:          moduleDao,
 		NodeAgent:       nodeAgentDao,
 		ModuleInstance:  moduleInstanceDao,

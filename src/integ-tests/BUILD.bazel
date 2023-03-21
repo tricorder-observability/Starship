@@ -5,6 +5,8 @@ go_test(
     srcs = ["module_deploy_test.go"],
     deps = [
         "//src/api-server/http",
+        "//src/api-server/http/dao",
+        "//src/testing/bazel",
         "//src/testing/grafana",
         "//src/testing/pg",
         "//src/utils/errors",
