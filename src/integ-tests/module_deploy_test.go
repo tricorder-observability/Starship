@@ -16,14 +16,47 @@
 package integ_tests
 
 import (
+	"fmt"
+	"net"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+	"github.com/tricorder/src/api-server/http"
+	"github.com/tricorder/src/utils/errors"
+	"github.com/tricorder/src/utils/sys"
 )
 
 // Tests that the http service can handle request
 func TestGetDeployReqForModule(t *testing.T) {
 	assert := assert.New(t)
-	res := "hello"
-	assert.Equal("hello", res)
+
+	cleanerFn, grafanaURL, err := grafanatest.LaunchContainer()
+	require.Nil(err)
+	defer func() { assert.Nil(cleanerFn()) }()
+
+	pgClientCleanerFn, pgClient, err := pgclienttest.LaunchContainer()
+	require.Nil(err)
+	defer func() { assert.Nil(pgClientCleanerFn()) }()
+
+	addrStr := fmt.Sprintf(":%d", *mgmtUIPort)
+	listener, err := net.Listen(sys.TCP, addrStr)
+	if err != nil {
+		return errors.Wrap("starting http server", "listen", err)
+	}
+	config := http.Config{
+		Listen:          listener,
+		GrafanaURL:      *moduleGrafanaURL,
+		GrafanaUserName: *moduleGrafanaUserName,
+		GrafanaUserPass: *moduleGrafanaUserPassword,
+		DatasourceName:  *moduleDatasourceName,
+		DatasourceUID:   *moduleDatasourceUID,
+		Module:          moduleDao,
+		NodeAgent:       nodeAgentDao,
+		ModuleInstance:  moduleInstanceDao,
+		WaitCond:        waitCond,
+		GLock:           gLock,
+		Standalone:      *standalone,
+	}
+	return http.StartHTTPService(config, pgClient)
 }

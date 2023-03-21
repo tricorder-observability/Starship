@@ -9,5 +9,11 @@ go_test(
 go_test(
     name = "integ-tests_test",
     srcs = ["module_deploy_test.go"],
-    deps = ["@com_github_stretchr_testify//assert"],
+    deps = [
+        "//src/api-server/http",
+        "//src/utils/errors",
+        "//src/utils/sys",
+        "@com_github_stretchr_testify//assert",
+        "@com_github_stretchr_testify//require",
+    ],
 )
