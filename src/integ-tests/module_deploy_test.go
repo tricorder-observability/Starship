@@ -19,11 +19,66 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+
+	"github.com/tricorder/src/api-server/http"
+	"github.com/tricorder/src/api-server/http/dao"
+	"github.com/tricorder/src/utils/cond"
+	"github.com/tricorder/src/utils/lock"
+	"github.com/tricorder/src/utils/sys"
+
+	"github.com/tricorder/src/testing/bazel"
+	grafanatest "github.com/tricorder/src/testing/grafana"
+	pgclienttest "github.com/tricorder/src/testing/pg"
 )
 
 // Tests that the http service can handle request
 func TestGetDeployReqForModule(t *testing.T) {
 	assert := assert.New(t)
-	res := "hello"
-	assert.Equal("hello", res)
+	require := require.New(t)
+
+	cleanerFn, grafanaURL, err := grafanatest.LaunchContainer()
+	require.Nil(err)
+	defer func() { assert.Nil(cleanerFn()) }()
+
+	pgClientCleanerFn, pgClient, err := pgclienttest.LaunchContainer()
+	require.Nil(err)
+	defer func() { assert.Nil(pgClientCleanerFn()) }()
+
+	listener, httpSrvAddr, err := sys.ListenTCP(0)
+	require.NoError(err)
+	assert.Regexp(`\[::\]:[0-9]+`, httpSrvAddr.String())
+
+	dirPath := bazel.CreateTmpDir()
+
+	sqliteClient, err := dao.InitSqlite(dirPath)
+	require.NoError(err)
+
+	moduleDao := dao.ModuleDao{
+		Client: sqliteClient,
+	}
+	nodeAgentDao := dao.NodeAgentDao{
+		Client: sqliteClient,
+	}
+	moduleInstanceDao := dao.ModuleInstanceDao{
+		Client: sqliteClient,
+	}
+	config := http.Config{
+		Listen:          listener,
+		GrafanaURL:      grafanaURL,
+		GrafanaUserName: "admin",
+		GrafanaUserPass: "admin",
+		DatasourceName:  "TimescaleDB-Tricorder",
+		DatasourceUID:   "timescaledb_tricorder",
+		Module:          moduleDao,
+		NodeAgent:       nodeAgentDao,
+		ModuleInstance:  moduleInstanceDao,
+		WaitCond:        cond.NewCond(),
+		GLock:           lock.NewLock(),
+	}
+
+	go func() {
+		err := http.StartHTTPService(config, pgClient)
+		require.NoError(err)
+	}()
 }
