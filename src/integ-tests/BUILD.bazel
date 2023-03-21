@@ -1,16 +1,12 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_test")
 
 go_test(
-    name = "integ_tests_test",
-    srcs = ["module_deploy_test.go"],
-    deps = ["@com_github_stretchr_testify//assert"],
-)
-
-go_test(
     name = "integ-tests_test",
     srcs = ["module_deploy_test.go"],
     deps = [
         "//src/api-server/http",
+        "//src/testing/grafana",
+        "//src/testing/pg",
         "//src/utils/errors",
         "//src/utils/sys",
         "@com_github_stretchr_testify//assert",

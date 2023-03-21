@@ -25,6 +25,9 @@ import (
 	"github.com/tricorder/src/api-server/http"
 	"github.com/tricorder/src/utils/errors"
 	"github.com/tricorder/src/utils/sys"
+
+	grafanatest "github.com/tricorder/src/testing/grafana"
+	pgclienttest "github.com/tricorder/src/testing/pg"
 )
 
 // Tests that the http service can handle request
