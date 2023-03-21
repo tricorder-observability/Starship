@@ -99,8 +99,10 @@ func init() {
 	createCmd.Flags().StringVarP(&moduleFilePath, "module", "m",
 		moduleFilePath, "The path of the JSON file that describes an eBPF+WASM module.")
 	createCmd.Flags().StringVarP(&bccFilePath, "bcc", "b", bccFilePath, "The path of the BCC source file.")
-	createCmd.Flags().StringVarP(&wasmFileBinPath, "wasm-bin-path", "w", wasmFileBinPath, "The path of the WASM binary file.")
-	createCmd.Flags().StringVarP(&wasmFileTextPath, "wasm-code-path", "c", wasmFileTextPath, "The path of the WASM text file.")
+	createCmd.Flags().StringVarP(&wasmFileBinPath, "wasm-bin-path", "w",
+		wasmFileBinPath, "The path of the WASM binary file.")
+	createCmd.Flags().StringVarP(&wasmFileTextPath, "wasm-code-path", "c",
+		wasmFileTextPath, "The path of the WASM text file.")
 }
 
 func parseModuleJsonFile(moduleJsonFilePath string) (*apiserver.CreateModuleReq, error) {

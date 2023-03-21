@@ -124,7 +124,8 @@ func TestListAgent(t *testing.T) {
 	wasiSDK, wasiStarshipIncludePath, wasiBuildTmpPath, err := initWasiSDK()
 	require.Nil(err)
 
-	fakeServer := fake.StartFakeNewServer(sqliteClient, gLock, waitCond, pgClient, grafanaURL, wasiSDK, wasiStarshipIncludePath, wasiBuildTmpPath)
+	fakeServer := fake.StartFakeNewServer(sqliteClient, gLock, waitCond, pgClient,
+		grafanaURL, wasiSDK, wasiStarshipIncludePath, wasiBuildTmpPath)
 
 	// test list agent
 	client := NewClient("http://" + fakeServer.String())
@@ -175,7 +176,8 @@ func TestCreateModule(t *testing.T) {
 	wasiSDK, wasiStarshipIncludePath, wasiBuildTmpPath, err := initWasiSDK()
 	require.Nil(err)
 
-	fakeServer := fake.StartFakeNewServer(sqliteClient, gLock, waitCond, pgClient, grafanaURL, wasiSDK, wasiStarshipIncludePath, wasiBuildTmpPath)
+	fakeServer := fake.StartFakeNewServer(sqliteClient, gLock, waitCond, pgClient,
+		grafanaURL, wasiSDK, wasiStarshipIncludePath, wasiBuildTmpPath)
 
 	moduleDao := dao.ModuleDao{
 		Client: sqliteClient,
@@ -301,7 +303,8 @@ func TestListModule(t *testing.T) {
 	wasiSDK, wasiStarshipIncludePath, wasiBuildTmpPath, err := initWasiSDK()
 	require.Nil(err)
 
-	fakeServer := fake.StartFakeNewServer(sqliteClient, gLock, waitCond, pgClient, grafanaURL, wasiSDK, wasiStarshipIncludePath, wasiBuildTmpPath)
+	fakeServer := fake.StartFakeNewServer(sqliteClient, gLock, waitCond,
+		pgClient, grafanaURL, wasiSDK, wasiStarshipIncludePath, wasiBuildTmpPath)
 
 	moduleDao := dao.ModuleDao{
 		Client: sqliteClient,
@@ -357,7 +360,8 @@ func TestDeleteModule(t *testing.T) {
 	wasiSDK, wasiStarshipIncludePath, wasiBuildTmpPath, err := initWasiSDK()
 	require.Nil(err)
 
-	fakeServer := fake.StartFakeNewServer(sqliteClient, gLock, waitCond, pgClient, grafanaURL, wasiSDK, wasiStarshipIncludePath, wasiBuildTmpPath)
+	fakeServer := fake.StartFakeNewServer(sqliteClient, gLock, waitCond, pgClient,
+		grafanaURL, wasiSDK, wasiStarshipIncludePath, wasiBuildTmpPath)
 
 	moduleDao := dao.ModuleDao{
 		Client: sqliteClient,
@@ -416,7 +420,8 @@ func TestDeployModule(t *testing.T) {
 	wasiSDK, wasiStarshipIncludePath, wasiBuildTmpPath, err := initWasiSDK()
 	require.Nil(err)
 
-	fakeServer := fake.StartFakeNewServer(sqliteClient, gLock, waitCond, pgClient, grafanaURL, wasiSDK, wasiStarshipIncludePath, wasiBuildTmpPath)
+	fakeServer := fake.StartFakeNewServer(sqliteClient, gLock, waitCond, pgClient,
+		grafanaURL, wasiSDK, wasiStarshipIncludePath, wasiBuildTmpPath)
 
 	moduleDao := dao.ModuleDao{
 		Client: sqliteClient,
@@ -492,7 +497,8 @@ func TestUndeployModule(t *testing.T) {
 	wasiSDK, wasiStarshipIncludePath, wasiBuildTmpPath, err := initWasiSDK()
 	require.Nil(err)
 
-	fakeServer := fake.StartFakeNewServer(sqliteClient, gLock, waitCond, pgClient, grafanaURL, wasiSDK, wasiStarshipIncludePath, wasiBuildTmpPath)
+	fakeServer := fake.StartFakeNewServer(sqliteClient, gLock, waitCond, pgClient,
+		grafanaURL, wasiSDK, wasiStarshipIncludePath, wasiBuildTmpPath)
 
 	moduleDao := dao.ModuleDao{
 		Client: sqliteClient,
