@@ -1,0 +1,40 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+
+go_library(
+    name = "module_manager",
+    srcs = ["module_manager.go"],
+    importpath = "github.com/tricorder/src/api-server/http/module_manager",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//src/api-server/http/dao",
+        "//src/api-server/http/grafana",
+        "//src/api-server/pb",
+        "//src/pb/module/common",
+        "//src/utils/cond",
+        "//src/utils/lock",
+        "//src/utils/log",
+        "//src/utils/pg",
+        "//src/utils/uuid",
+        "@com_github_gin_gonic_gin//:gin",
+    ],
+)
+
+go_test(
+    name = "module_manager_test",
+    srcs = ["module_manager_test.go"],
+    embed = [":module_manager"],
+    deps = [
+        "//src/api-server/http/dao",
+        "//src/api-server/http/grafana",
+        "//src/api-server/pb",
+        "//src/testing/bazel",
+        "//src/testing/grafana",
+        "//src/testing/pg",
+        "//src/utils/cond",
+        "//src/utils/lock",
+        "//src/utils/uuid",
+        "@com_github_gin_gonic_gin//:gin",
+        "@com_github_stretchr_testify//assert",
+        "@com_github_stretchr_testify//require",
+    ],
+)
