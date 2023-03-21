@@ -12,6 +12,7 @@ go_library(
         "//src/api-server/http/dao",
         "//src/api-server/http/docs",
         "//src/api-server/meta",
+        "//src/api-server/wasm",
         "//src/utils/cond",
         "//src/utils/errors",
         "//src/utils/grpc",

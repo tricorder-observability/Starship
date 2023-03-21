@@ -29,6 +29,7 @@ import (
 	"github.com/tricorder/src/api-server/http/dao"
 	"github.com/tricorder/src/api-server/http/docs"
 	"github.com/tricorder/src/api-server/meta"
+	"github.com/tricorder/src/api-server/wasm"
 	"github.com/tricorder/src/utils/cond"
 	"github.com/tricorder/src/utils/errors"
 	grpcutils "github.com/tricorder/src/utils/grpc"
@@ -131,6 +132,8 @@ func main() {
 	waitCond := cond.NewCond()
 	gLock := lock.NewLock()
 
+	wasiCompiler := wasm.NewWASICompiler(wasm.DefaultWASISDKPath, wasm.DefaultWASIStarshipInclude, wasm.DefaultBuildTmpDir)
+
 	if *enableMetadataService {
 		err = retry.ExpBackOffWithLimit(func() error {
 			clientset, err = kubernetes.NewForConfig(ctrl.GetConfigOrDie())
@@ -184,7 +187,7 @@ func main() {
 				GLock:           gLock,
 				Standalone:      *standalone,
 			}
-			return http.StartHTTPService(config, pgClient)
+			return http.StartHTTPService(config, pgClient, wasiCompiler)
 		})
 	}
 
