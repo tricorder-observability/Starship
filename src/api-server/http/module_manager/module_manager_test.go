@@ -51,7 +51,7 @@ func SetUpRouter(grafanaURL string) *gin.Engine {
 
 	config := grafana.NewConfig(grafanaURL, "admin", "admin")
 
-	mgr.grafanaConfig = config
+	mgr.GrafanaConfig = config
 
 	sqliteClient, _ := dao.InitSqlite(testDbFilePath)
 	mgr.Module = dao.ModuleDao{
@@ -66,8 +66,8 @@ func SetUpRouter(grafanaURL string) *gin.Engine {
 		Client: sqliteClient,
 	}
 
-	mgr.waitCond = cond.NewCond()
-	mgr.gLock = lock.NewLock()
+	mgr.WaitCond = cond.NewCond()
+	mgr.GLock = lock.NewLock()
 
 	mgr.GrafanaClient = grafana.NewGrafanaManagement(config)
 

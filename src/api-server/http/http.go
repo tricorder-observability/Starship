@@ -30,6 +30,7 @@ import (
 	"github.com/tricorder/src/api-server/http/api"
 	"github.com/tricorder/src/api-server/http/dao"
 	"github.com/tricorder/src/api-server/http/grafana"
+	"github.com/tricorder/src/api-server/http/module_manager"
 	"github.com/tricorder/src/api-server/wasm"
 	"github.com/tricorder/src/utils/cond"
 	"github.com/tricorder/src/utils/lock"
@@ -76,7 +77,7 @@ func StartHTTPService(cfg Config, pgClient *pg.Client, wasiCompiler *wasm.WASICo
 	}
 
 	mgr := module_manager.ModuleManager{
-		grafanaConfig:  config,
+		GrafanaConfig:  config,
 		DatasourceUID:  cfg.DatasourceUID,
 		GrafanaClient:  grafanaManager,
 		Module:         cfg.Module,
@@ -92,12 +93,12 @@ func StartHTTPService(cfg Config, pgClient *pg.Client, wasiCompiler *wasm.WASICo
 	router.Use(Cors()).Use(GlobalExceptionWare)
 
 	apiRoot := router.Group(api.ROOT)
-	apiRoot.POST(api.CREATE_MODULE, mgr.createModuleHttp)
-	apiRoot.GET(api.DELETE_MODULE, mgr.deleteModuleHttp)
-	apiRoot.GET(api.LIST_AGENT, mgr.listAgentHttp)
-	apiRoot.GET(api.LIST_MODULE, mgr.listModuleHttp)
-	apiRoot.POST(api.DEPLOY_MODULE, mgr.deployModuleHttp)
-	apiRoot.POST(api.UNDEPLOY_MODULE, mgr.undeployModuleHttp)
+	apiRoot.POST(api.CREATE_MODULE, mgr.CreateModuleHttp)
+	apiRoot.GET(api.DELETE_MODULE, mgr.DeleteModuleHttp)
+	apiRoot.GET(api.LIST_AGENT, mgr.ListAgentHttp)
+	apiRoot.GET(api.LIST_MODULE, mgr.ListModuleHttp)
+	apiRoot.POST(api.DEPLOY_MODULE, mgr.DeployModuleHttp)
+	apiRoot.POST(api.UNDEPLOY_MODULE, mgr.UndeployModuleHttp)
 
 	router.GET("/swagger/*any", ginswag.WrapHandler(swagfiles.Handler))
 

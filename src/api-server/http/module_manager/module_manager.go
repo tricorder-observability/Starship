@@ -39,18 +39,18 @@ import (
 
 // ModuleManager provides APIs to manage eBPF+WASM module received from the management Web UI.
 type ModuleManager struct {
-	grafanaConfig  grafana.Config
+	GrafanaConfig  grafana.Config
 	DatasourceUID  string
 	Module         dao.ModuleDao
 	NodeAgent      dao.NodeAgentDao
 	ModuleInstance dao.ModuleInstanceDao
 	GrafanaClient  grafana.GrafanaManagement
-	gLock          *lock.Lock
-	waitCond       *cond.Cond
+	GLock          *lock.Lock
+	WaitCond       *cond.Cond
 	PGClient       *pg.Client
 }
 
-// createModuleHttp  godoc
+// CreateModuleHttp  godoc
 // @Summary      Create module
 // @Description  Store module data into SQLite database
 // @Tags         module
@@ -59,7 +59,7 @@ type ModuleManager struct {
 // @Param			   module	body	CreateModuleReq	true	"Create module"
 // @Success      200  {object}  CreateModuleResp
 // @Router       /api/createModule [post]
-func (mgr *ModuleManager) createModuleHttp(c *gin.Context) {
+func (mgr *ModuleManager) CreateModuleHttp(c *gin.Context) {
 	var body CreateModuleReq
 	err := c.ShouldBind(&body)
 	if err != nil {
@@ -73,7 +73,7 @@ func (mgr *ModuleManager) createModuleHttp(c *gin.Context) {
 func (mgr *ModuleManager) createModule(body CreateModuleReq) CreateModuleResp {
 	var m *dao.ModuleGORM
 	var err error
-	err = mgr.gLock.ExecWithLock(func() error {
+	err = mgr.GLock.ExecWithLock(func() error {
 		m, _ = mgr.Module.QueryByName(body.Name)
 		if m != nil && len(m.Name) > 0 {
 			return fmt.Errorf("Name '%s' already exists", body.Name)
@@ -134,7 +134,7 @@ func (mgr *ModuleManager) createModule(body CreateModuleReq) CreateModuleResp {
 
 	mod.SchemaName = fmt.Sprintf("%s_%s", "tricorder_module", mod.ID)
 
-	err = mgr.gLock.ExecWithLock(func() error {
+	err = mgr.GLock.ExecWithLock(func() error {
 		return mgr.Module.SaveModule(mod)
 	})
 
@@ -153,7 +153,7 @@ func (mgr *ModuleManager) createModule(body CreateModuleReq) CreateModuleResp {
 	}}
 }
 
-// listAgentHttp godoc
+// ListAgentHttp godoc
 // @Summary      List all agent
 // @Description  List all agent
 // @Tags         agent
@@ -162,7 +162,7 @@ func (mgr *ModuleManager) createModule(body CreateModuleReq) CreateModuleResp {
 // @Param			   fields	 query	string	false  "query field search like 'agent_id,node_name,agent_pod_id'"
 // @Success      200  {object}  ListModuleResp
 // @Router       /api/listAgent [get]
-func (mgr *ModuleManager) listAgentHttp(c *gin.Context) {
+func (mgr *ModuleManager) ListAgentHttp(c *gin.Context) {
 	// Allow fields to be omitted.
 	const fieldsKey = "fields"
 	const defaultFields = "agent_id,node_name,agent_pod_id,state,create_time,last_update_time"
@@ -191,7 +191,7 @@ func (mgr *ModuleManager) listAgent(req ListAgentReq) ListAgentResp {
 	}, resultList}
 }
 
-// listModuleHttp godoc
+// ListModuleHttp godoc
 // @Summary      List all moudle
 // @Description  List all moudle
 // @Tags         module
@@ -200,7 +200,7 @@ func (mgr *ModuleManager) listAgent(req ListAgentReq) ListAgentResp {
 // @Param			   fields	 query	string	false  "query field search like 'id,name,createTime'"
 // @Success      200  {object}  ListModuleResp
 // @Router       /api/listModule [get]
-func (mgr *ModuleManager) listModuleHttp(c *gin.Context) {
+func (mgr *ModuleManager) ListModuleHttp(c *gin.Context) {
 	// Allow fields to be omitted.
 	const fieldsKey = "fields"
 	const defaultFields = "id,name,desire_state,create_time,schema_attr,fn,ebpf"
@@ -229,7 +229,7 @@ func (mgr *ModuleManager) listModule(req ListModuleReq) ListModuleResp {
 	}, resultList}
 }
 
-// deleteModuleHttp  godoc
+// DeleteModuleHttp  godoc
 // @Summary      Delete module
 // @Description  Delete module by id
 // @Tags         module
@@ -238,7 +238,7 @@ func (mgr *ModuleManager) listModule(req ListModuleReq) ListModuleResp {
 // @Param			   id	  query		  string	true	"delete module id"
 // @Success      200  {object}   HTTPResp
 // @Router       /api/deleteModule [get]
-func (mgr *ModuleManager) deleteModuleHttp(c *gin.Context) {
+func (mgr *ModuleManager) DeleteModuleHttp(c *gin.Context) {
 	id, err := checkQuery(c, "id")
 	if err != nil {
 		return
@@ -247,7 +247,7 @@ func (mgr *ModuleManager) deleteModuleHttp(c *gin.Context) {
 }
 
 func (mgr *ModuleManager) deleteModule(id string) DeleteModuleResp {
-	err := mgr.gLock.ExecWithLock(func() error {
+	err := mgr.GLock.ExecWithLock(func() error {
 		module, err := mgr.Module.QueryByID(id)
 		if err != nil {
 			return errors.New("query module: " + id + "failed: " + err.Error())
@@ -285,7 +285,7 @@ func (mgr *ModuleManager) deleteModule(id string) DeleteModuleResp {
 	}}
 }
 
-// deployModuleHttp godoc
+// DeployModuleHttp godoc
 // @Summary      Deploy module
 // @Description  Deploy the specified module onto every agent in the cluster
 // @Tags         module
@@ -294,7 +294,7 @@ func (mgr *ModuleManager) deleteModule(id string) DeleteModuleResp {
 // @Param			   id	  query		  string	true	"deploy module id"
 // @Success      200  {object}  DeployModuleResp
 // @Router       /api/deployModule [post]
-func (mgr *ModuleManager) deployModuleHttp(c *gin.Context) {
+func (mgr *ModuleManager) DeployModuleHttp(c *gin.Context) {
 	id, err := checkQuery(c, "id")
 	if err != nil {
 		return
@@ -307,7 +307,7 @@ func (mgr *ModuleManager) deployModule(id string) DeployModuleResp {
 	var module *dao.ModuleGORM
 	var err error
 	// Check whether the module exists
-	err = mgr.gLock.ExecWithLock(func() error {
+	err = mgr.GLock.ExecWithLock(func() error {
 		module, err = mgr.Module.QueryByID(id)
 		if err != nil {
 			return errors.New("query module error: " + err.Error())
@@ -364,7 +364,7 @@ func (mgr *ModuleManager) deployModule(id string) DeployModuleResp {
 
 	log.Infof("Created Grafana dashboard with UID: %s", uid)
 
-	err = mgr.gLock.ExecWithLock(func() error {
+	err = mgr.GLock.ExecWithLock(func() error {
 		err = mgr.Module.UpdateStatusByID(module.ID, int(pb.ModuleState_DEPLOYED))
 		if err != nil {
 			return errors.New("pre-deploy module: " + module.ID + "failed: " + err.Error())
@@ -406,7 +406,7 @@ func (mgr *ModuleManager) deployModule(id string) DeployModuleResp {
 		}
 	}
 
-	mgr.waitCond.Broadcast()
+	mgr.WaitCond.Broadcast()
 
 	return DeployModuleResp{
 		HTTPResp{
@@ -417,7 +417,7 @@ func (mgr *ModuleManager) deployModule(id string) DeployModuleResp {
 	}
 }
 
-// undeployModuleHttp godoc
+// UndeployModuleHttp godoc
 // @Summary      Undeploy module
 // @Description  Undeploy the specified module from all agents in the cluster
 // @Tags         module
@@ -426,7 +426,7 @@ func (mgr *ModuleManager) deployModule(id string) DeployModuleResp {
 // @Param			   id	  query		 string	 true	 "undeploy module id"
 // @Success      200  {object}  HTTPResp
 // @Router       /api/undeployModule [post]
-func (mgr *ModuleManager) undeployModuleHttp(c *gin.Context) {
+func (mgr *ModuleManager) UndeployModuleHttp(c *gin.Context) {
 	id, err := checkQuery(c, "id")
 	if err != nil {
 		return
@@ -435,7 +435,7 @@ func (mgr *ModuleManager) undeployModuleHttp(c *gin.Context) {
 }
 
 func (mgr *ModuleManager) undeployModule(id string) UndeployModuleResp {
-	err := mgr.gLock.ExecWithLock(func() error {
+	err := mgr.GLock.ExecWithLock(func() error {
 		isProgress, err := mgr.ModuleInstance.CheckModuleInProgress(id)
 		if err != nil {
 			return errors.New("check module " + id + " in progress state error: " + err.Error())
@@ -470,7 +470,7 @@ func (mgr *ModuleManager) undeployModule(id string) UndeployModuleResp {
 			Message: err.Error(),
 		}}
 	}
-	mgr.waitCond.Broadcast()
+	mgr.WaitCond.Broadcast()
 	return UndeployModuleResp{HTTPResp{
 		Code:    200,
 		Message: "un-deploy success",
@@ -518,7 +518,7 @@ func (mgr *ModuleManager) createGrafanaDashboard(moduleID string) (string, error
 		return "", err
 	}
 
-	ds := grafana.NewDashboard(mgr.grafanaConfig)
+	ds := grafana.NewDashboard(mgr.GrafanaConfig)
 	result, err := ds.CreateDashboard(grafanaAPIKey, getModuleDataTableName(moduleID), mgr.DatasourceUID)
 	if err != nil {
 		log.Println("Create dashboard", err)
