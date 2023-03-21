@@ -16,7 +16,6 @@
 package integ_tests
 
 import (
-	"fmt"
 	"net"
 	"testing"
 
@@ -24,7 +23,8 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/tricorder/src/api-server/http"
 	"github.com/tricorder/src/api-server/http/dao"
-	"github.com/tricorder/src/utils/errors"
+	"github.com/tricorder/src/utils/cond"
+	"github.com/tricorder/src/utils/lock"
 	"github.com/tricorder/src/utils/sys"
 
 	"github.com/tricorder/src/testing/bazel"
@@ -35,6 +35,7 @@ import (
 // Tests that the http service can handle request
 func TestGetDeployReqForModule(t *testing.T) {
 	assert := assert.New(t)
+	require := require.New(t)
 
 	cleanerFn, grafanaURL, err := grafanatest.LaunchContainer()
 	require.Nil(err)
@@ -44,14 +45,11 @@ func TestGetDeployReqForModule(t *testing.T) {
 	require.Nil(err)
 	defer func() { assert.Nil(pgClientCleanerFn()) }()
 
-	addrStr := fmt.Sprintf(":%d", *mgmtUIPort)
+	addrStr := sys.PortAddr(8083)
 	listener, err := net.Listen(sys.TCP, addrStr)
-	if err != nil {
-		return errors.Wrap("starting http server", "listen", err)
-	}
-
-	dirPath, err := bazel.CreateTmpDir()
 	require.NoError(err)
+
+	dirPath := bazel.CreateTmpDir()
 
 	sqliteClient, err := dao.InitSqlite(dirPath)
 	require.NoError(err)
@@ -67,7 +65,7 @@ func TestGetDeployReqForModule(t *testing.T) {
 	}
 	config := http.Config{
 		Listen:          listener,
-		GrafanaURL:      "http://localhost:3000",
+		GrafanaURL:      grafanaURL,
 		GrafanaUserName: "admin",
 		GrafanaUserPass: "admin",
 		DatasourceName:  "TimescaleDB-Tricorder",
@@ -75,9 +73,9 @@ func TestGetDeployReqForModule(t *testing.T) {
 		Module:          moduleDao,
 		NodeAgent:       nodeAgentDao,
 		ModuleInstance:  moduleInstanceDao,
-		WaitCond:        waitCond,
-		GLock:           gLock,
-		Standalone:      *standalone,
+		WaitCond:        cond.NewCond(),
+		GLock:           lock.NewLock(),
 	}
-	return http.StartHTTPService(config, pgClient)
+	err = http.StartHTTPService(config, pgClient)
+	require.NoError(err)
 }
