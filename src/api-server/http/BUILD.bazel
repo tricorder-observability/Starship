@@ -3,7 +3,6 @@ load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
 go_library(
     name = "http",
     srcs = [
-        "client.go",
         "cors.go",
         "exception.go",
         "fake.go",
@@ -49,7 +48,6 @@ filegroup(
 go_test(
     name = "http_test",
     srcs = [
-        "client_test.go",
         "grafana_test.go",
         "module_manager_test.go",
         "types_test.go",
@@ -60,9 +58,6 @@ go_test(
         "//src/api-server/http/dao",
         "//src/api-server/http/grafana",
         "//src/api-server/pb",
-        "//src/pb/module/common",
-        "//src/pb/module/ebpf",
-        "//src/pb/module/wasm",
         "//src/testing/bazel",
         "//src/testing/grafana",
         "//src/testing/pg",

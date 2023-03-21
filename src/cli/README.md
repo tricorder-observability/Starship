@@ -33,10 +33,6 @@ starship-cli module deploy --api-address ${API_SERVER_ADDRESS} \
     -i <module_id>
 ```
 
-Note: the value of `--api-address` is the address of starship
-apiserver.`localhost:8080` is defalt. If you need to connect to remote starship
-api server which deployed in EKS/Kubernetes, following ways maybe helpful:
-
 -  Access Starship Api Server through `kubectl port-forward`
 
 You can expose the services to your local network using the `kubectl

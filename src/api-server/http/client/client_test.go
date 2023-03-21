@@ -1,4 +1,4 @@
-package http
+package client
 
 import (
 	"strings"
@@ -8,6 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/tricorder/src/api-server/http"
 	"github.com/tricorder/src/api-server/http/dao"
 	"github.com/tricorder/src/api-server/http/grafana"
 	pb "github.com/tricorder/src/api-server/pb"
@@ -58,7 +59,7 @@ func TestListAgent(t *testing.T) {
 	gLock := lock.NewLock()
 	waitCond := cond.NewCond()
 
-	FakeHTTPServer := StartFakeNewServer(sqliteClient, gLock, waitCond, pgClient, grafanaURL)
+	FakeHTTPServer := http.StartFakeNewServer(sqliteClient, gLock, waitCond, pgClient, grafanaURL)
 
 	// test list agent
 	client := NewClient("http://" + FakeHTTPServer.String())
@@ -108,7 +109,7 @@ func TestCreateModule(t *testing.T) {
 	gLock := lock.NewLock()
 	waitCond := cond.NewCond()
 
-	FakeHTTPServer := StartFakeNewServer(sqliteClient, gLock, waitCond, pgClient, grafanaURL)
+	FakeHTTPServer := http.StartFakeNewServer(sqliteClient, gLock, waitCond, pgClient, grafanaURL)
 
 	moduleDao := dao.ModuleDao{
 		Client: sqliteClient,
@@ -122,7 +123,7 @@ func TestCreateModule(t *testing.T) {
 	client := NewClient("http://" + FakeHTTPServer.String())
 
 	// test create module
-	moduleReq := &CreateModuleReq{
+	moduleReq := &http.CreateModuleReq{
 		Name: "test_module",
 		Wasm: &wasm.Program{
 			Code:   []byte("test_code"),
@@ -183,7 +184,7 @@ func TestListModule(t *testing.T) {
 	gLock := lock.NewLock()
 	waitCond := cond.NewCond()
 
-	FakeHTTPServer := StartFakeNewServer(sqliteClient, gLock, waitCond, pgClient, grafanaURL)
+	FakeHTTPServer := http.StartFakeNewServer(sqliteClient, gLock, waitCond, pgClient, grafanaURL)
 
 	moduleDao := dao.ModuleDao{
 		Client: sqliteClient,
@@ -207,8 +208,8 @@ func TestListModule(t *testing.T) {
 	client := NewClient("http://" + FakeHTTPServer.String())
 
 	// test list module
-	ListModuleReq := &ListModuleReq{}
-	res, err := client.ListModules(ListModuleReq)
+	req := &http.ListModuleReq{}
+	res, err := client.ListModules(req)
 	require.NoError(err)
 	assert.Equal(200, res.Code)
 	assert.Equal(1, len(res.Data))
@@ -238,7 +239,7 @@ func TestDeleteModule(t *testing.T) {
 	gLock := lock.NewLock()
 	waitCond := cond.NewCond()
 
-	FakeHTTPServer := StartFakeNewServer(sqliteClient, gLock, waitCond, pgClient, grafanaURL)
+	FakeHTTPServer := http.StartFakeNewServer(sqliteClient, gLock, waitCond, pgClient, grafanaURL)
 
 	moduleDao := dao.ModuleDao{
 		Client: sqliteClient,
@@ -296,7 +297,7 @@ func TestDeployModule(t *testing.T) {
 	gLock := lock.NewLock()
 	waitCond := cond.NewCond()
 
-	FakeHTTPServer := StartFakeNewServer(sqliteClient, gLock, waitCond, pgClient, grafanaURL)
+	FakeHTTPServer := http.StartFakeNewServer(sqliteClient, gLock, waitCond, pgClient, grafanaURL)
 
 	moduleDao := dao.ModuleDao{
 		Client: sqliteClient,
@@ -371,7 +372,7 @@ func TestUndeployModule(t *testing.T) {
 	gLock := lock.NewLock()
 	waitCond := cond.NewCond()
 
-	FakeHTTPServer := StartFakeNewServer(sqliteClient, gLock, waitCond, pgClient, grafanaURL)
+	FakeHTTPServer := http.StartFakeNewServer(sqliteClient, gLock, waitCond, pgClient, grafanaURL)
 
 	moduleDao := dao.ModuleDao{
 		Client: sqliteClient,

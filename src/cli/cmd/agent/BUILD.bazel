@@ -9,7 +9,7 @@ go_library(
     importpath = "github.com/tricorder/src/cli/cmd/agent",
     visibility = ["//visibility:public"],
     deps = [
-        "//src/api-server/http",
+        "//src/api-server/http/client",
         "//src/cli/pkg/kubernetes",
         "//src/cli/pkg/output",
         "//src/utils/log",

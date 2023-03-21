@@ -23,6 +23,7 @@ import (
 	"github.com/tricorder/src/cli/pkg/output"
 
 	apiserver "github.com/tricorder/src/api-server/http"
+	"github.com/tricorder/src/api-server/http/client"
 	"github.com/tricorder/src/utils/file"
 	"github.com/tricorder/src/utils/log"
 )
@@ -52,7 +53,7 @@ var createCmd = &cobra.Command{
 		moduleReq.Ebpf.Code = bccStr
 		// override wasm code contet by wasm file
 		moduleReq.Wasm.Code = wasmBytes
-		client := apiserver.NewClient(apiServerAddress)
+		client := client.NewClient(apiServerAddress)
 		resp, err := client.CreateModule(moduleReq)
 		if err != nil {
 			log.Error(err)

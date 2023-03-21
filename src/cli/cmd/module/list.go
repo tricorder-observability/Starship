@@ -18,7 +18,7 @@ package module
 import (
 	"encoding/json"
 
-	apiserver "github.com/tricorder/src/api-server/http"
+	"github.com/tricorder/src/api-server/http/client"
 	"github.com/tricorder/src/cli/pkg/output"
 	"github.com/tricorder/src/utils/log"
 
@@ -31,7 +31,7 @@ var listCmd = &cobra.Command{
 	Long: "List eBPF+WASM modules. For example:\n" +
 		"$ starship-cli module list --api-server=<address>",
 	Run: func(cmd *cobra.Command, args []string) {
-		client := apiserver.NewClient(apiServerAddress)
+		client := client.NewClient(apiServerAddress)
 		resp, err := client.ListModules(nil)
 		if err != nil {
 			log.Error(err)

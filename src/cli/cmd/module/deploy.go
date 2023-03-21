@@ -20,7 +20,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	apiserver "github.com/tricorder/src/api-server/http"
+	"github.com/tricorder/src/api-server/http/client"
 	"github.com/tricorder/src/cli/pkg/output"
 	"github.com/tricorder/src/utils/log"
 )
@@ -31,7 +31,7 @@ var deployCmd = &cobra.Command{
 	Long: "Deploy a previously-created eBPF+WASM module. For example:\n" +
 		"$ starship-cli module deploy --api-server=<address> --id=ce8a4fbe_45db_49bb_9568_6688dd84480b",
 	Run: func(cmd *cobra.Command, args []string) {
-		client := apiserver.NewClient(apiServerAddress)
+		client := client.NewClient(apiServerAddress)
 		resp, err := client.DeployModule(moduleId)
 		if err != nil {
 			log.Error(err)

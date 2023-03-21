@@ -22,7 +22,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	apiserver "github.com/tricorder/src/api-server/http"
+	"github.com/tricorder/src/api-server/http/client"
 	"github.com/tricorder/src/cli/pkg/output"
 )
 
@@ -32,7 +32,7 @@ var deleteCmd = &cobra.Command{
 	Long: "Delete an eBPF+WASM module. For example:\n" +
 		"$ starship-cli module delete --api-server=<address> --id 2a339411_7dd8_46ba_9581_e9d41286b564",
 	Run: func(cmd *cobra.Command, args []string) {
-		client := apiserver.NewClient(apiServerAddress)
+		client := client.NewClient(apiServerAddress)
 		resp, err := client.DeleteModule(moduleId)
 		if err != nil {
 			log.Error(err)

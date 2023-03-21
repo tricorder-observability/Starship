@@ -20,7 +20,7 @@ import (
 
 	"github.com/tricorder/src/utils/log"
 
-	apiserver "github.com/tricorder/src/api-server/http"
+	"github.com/tricorder/src/api-server/http/client"
 	"github.com/tricorder/src/cli/pkg/output"
 
 	"github.com/spf13/cobra"
@@ -32,7 +32,7 @@ var listCmd = &cobra.Command{
 	Long: "List agents. For example:\n" +
 		"$ starship-cli agent list --api-server=<address>",
 	Run: func(cmd *cobra.Command, args []string) {
-		client := apiserver.NewClient(apiServerAddress)
+		client := client.NewClient(apiServerAddress)
 		resp, err := client.ListAgents(nil)
 		if err != nil {
 			log.Error(err)

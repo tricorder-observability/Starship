@@ -14,6 +14,7 @@ go_library(
     visibility = ["//visibility:public"],
     deps = [
         "//src/api-server/http",
+        "//src/api-server/http/client",
         "//src/cli/pkg/kubernetes",
         "//src/cli/pkg/output",
         "//src/utils/file",
