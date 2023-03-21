@@ -1,9 +1,10 @@
-package http
+package fake
 
 import (
 	"log"
 	"net"
 
+	"github.com/tricorder/src/api-server/http"
 	"github.com/tricorder/src/api-server/http/dao"
 	"github.com/tricorder/src/utils/cond"
 	"github.com/tricorder/src/utils/lock"
@@ -15,7 +16,7 @@ import (
 type Server struct{}
 
 // StartServer starts the gRPC server goroutine.
-func (srv *Server) Start(cfg Config, pgClient *pg.Client) net.Addr {
+func (srv *Server) Start(cfg http.Config, pgClient *pg.Client) net.Addr {
 	lis, err := net.Listen("tcp", ":0")
 	if err != nil {
 		log.Fatalf("Could not listen on ':0'")
@@ -24,7 +25,7 @@ func (srv *Server) Start(cfg Config, pgClient *pg.Client) net.Addr {
 	cfg.Listen = lis
 
 	go func() {
-		err := StartHTTPService(cfg, pgClient)
+		err := http.StartHTTPService(cfg, pgClient)
 		if err != nil {
 			log.Fatalf("Failed to run HTTP Service, error: %v", err)
 		}
@@ -50,7 +51,7 @@ func StartFakeNewServer(sqliteClient *sqlite.ORM, gLock *lock.Lock,
 		Client: sqliteClient,
 	}
 
-	cfg := Config{
+	cfg := http.Config{
 		GrafanaURL:      grafanaURL,
 		GrafanaUserName: "admin",
 		GrafanaUserPass: "admin",

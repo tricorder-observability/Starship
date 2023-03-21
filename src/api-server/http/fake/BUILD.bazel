@@ -1,0 +1,16 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "fake",
+    srcs = ["fake.go"],
+    importpath = "github.com/tricorder/src/api-server/http/fake",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//src/api-server/http",
+        "//src/api-server/http/dao",
+        "//src/utils/cond",
+        "//src/utils/lock",
+        "//src/utils/pg",
+        "//src/utils/sqlite",
+    ],
+)

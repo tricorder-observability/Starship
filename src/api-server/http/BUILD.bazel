@@ -5,7 +5,6 @@ go_library(
     srcs = [
         "cors.go",
         "exception.go",
-        "fake.go",
         "grafana.go",
         "http.go",
         "module_manager.go",
@@ -29,7 +28,6 @@ go_library(
         "//src/utils/lock",
         "//src/utils/log",
         "//src/utils/pg",
-        "//src/utils/sqlite",
         "//src/utils/uuid",
         "@com_github_gin_gonic_gin//:gin",
         "@com_github_mattn_go_sqlite3//:go-sqlite3",

@@ -19,6 +19,7 @@ go_test(
     deps = [
         "//src/api-server/http",
         "//src/api-server/http/dao",
+        "//src/api-server/http/fake",
         "//src/api-server/http/grafana",
         "//src/api-server/pb",
         "//src/pb/module/common",

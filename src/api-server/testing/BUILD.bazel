@@ -2,13 +2,9 @@ load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
     name = "testing",
-    testonly = 1,
     srcs = ["sqlite.go"],
     importpath = "github.com/tricorder/src/api-server/testing",
-    visibility = [
-        "//src/api-server:__subpackages__",
-        "//src/integ_tests:__subpackages__",
-    ],
+    visibility = ["//visibility:public"],
     deps = [
         "//src/api-server/http/dao",
         "//src/api-server/pb",

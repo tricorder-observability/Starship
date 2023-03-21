@@ -10,6 +10,7 @@ import (
 
 	"github.com/tricorder/src/api-server/http"
 	"github.com/tricorder/src/api-server/http/dao"
+	"github.com/tricorder/src/api-server/http/fake"
 	"github.com/tricorder/src/api-server/http/grafana"
 	pb "github.com/tricorder/src/api-server/pb"
 	common "github.com/tricorder/src/pb/module/common"
@@ -59,10 +60,10 @@ func TestListAgent(t *testing.T) {
 	gLock := lock.NewLock()
 	waitCond := cond.NewCond()
 
-	FakeHTTPServer := http.StartFakeNewServer(sqliteClient, gLock, waitCond, pgClient, grafanaURL)
+	fakeServer := fake.StartFakeNewServer(sqliteClient, gLock, waitCond, pgClient, grafanaURL)
 
 	// test list agent
-	client := NewClient("http://" + FakeHTTPServer.String())
+	client := NewClient("http://" + fakeServer.String())
 	res, err := client.ListAgents(nil)
 	require.NoError(err)
 	assert.Equal(200, res.Code)
@@ -109,7 +110,7 @@ func TestCreateModule(t *testing.T) {
 	gLock := lock.NewLock()
 	waitCond := cond.NewCond()
 
-	FakeHTTPServer := http.StartFakeNewServer(sqliteClient, gLock, waitCond, pgClient, grafanaURL)
+	fakeServer := fake.StartFakeNewServer(sqliteClient, gLock, waitCond, pgClient, grafanaURL)
 
 	moduleDao := dao.ModuleDao{
 		Client: sqliteClient,
@@ -120,7 +121,7 @@ func TestCreateModule(t *testing.T) {
 	require.NoError(err)
 	assert.Equal(0, len(module))
 
-	client := NewClient("http://" + FakeHTTPServer.String())
+	client := NewClient("http://" + fakeServer.String())
 
 	// test create module
 	moduleReq := &http.CreateModuleReq{
@@ -184,7 +185,7 @@ func TestListModule(t *testing.T) {
 	gLock := lock.NewLock()
 	waitCond := cond.NewCond()
 
-	FakeHTTPServer := http.StartFakeNewServer(sqliteClient, gLock, waitCond, pgClient, grafanaURL)
+	fakeServer := fake.StartFakeNewServer(sqliteClient, gLock, waitCond, pgClient, grafanaURL)
 
 	moduleDao := dao.ModuleDao{
 		Client: sqliteClient,
@@ -205,7 +206,7 @@ func TestListModule(t *testing.T) {
 	err = moduleDao.SaveModule(module)
 	require.NoError(err)
 
-	client := NewClient("http://" + FakeHTTPServer.String())
+	client := NewClient("http://" + fakeServer.String())
 
 	// test list module
 	req := &http.ListModuleReq{}
@@ -239,7 +240,7 @@ func TestDeleteModule(t *testing.T) {
 	gLock := lock.NewLock()
 	waitCond := cond.NewCond()
 
-	FakeHTTPServer := http.StartFakeNewServer(sqliteClient, gLock, waitCond, pgClient, grafanaURL)
+	fakeServer := fake.StartFakeNewServer(sqliteClient, gLock, waitCond, pgClient, grafanaURL)
 
 	moduleDao := dao.ModuleDao{
 		Client: sqliteClient,
@@ -260,7 +261,7 @@ func TestDeleteModule(t *testing.T) {
 	err = moduleDao.SaveModule(module)
 	require.NoError(err)
 
-	client := NewClient("http://" + FakeHTTPServer.String())
+	client := NewClient("http://" + fakeServer.String())
 
 	// test list module
 	res, err := client.DeleteModule(id)
@@ -297,7 +298,7 @@ func TestDeployModule(t *testing.T) {
 	gLock := lock.NewLock()
 	waitCond := cond.NewCond()
 
-	FakeHTTPServer := http.StartFakeNewServer(sqliteClient, gLock, waitCond, pgClient, grafanaURL)
+	fakeServer := fake.StartFakeNewServer(sqliteClient, gLock, waitCond, pgClient, grafanaURL)
 
 	moduleDao := dao.ModuleDao{
 		Client: sqliteClient,
@@ -333,7 +334,7 @@ func TestDeployModule(t *testing.T) {
 	assert.Equal("test-module-foo", moduleRes[0].Name)
 	assert.Equal(int(pb.ModuleState_CREATED_), moduleRes[0].DesireState)
 
-	client := NewClient("http://" + FakeHTTPServer.String())
+	client := NewClient("http://" + fakeServer.String())
 
 	// test deploy module
 	res, err := client.DeployModule(moduleID)
@@ -372,7 +373,7 @@ func TestUndeployModule(t *testing.T) {
 	gLock := lock.NewLock()
 	waitCond := cond.NewCond()
 
-	FakeHTTPServer := http.StartFakeNewServer(sqliteClient, gLock, waitCond, pgClient, grafanaURL)
+	fakeServer := fake.StartFakeNewServer(sqliteClient, gLock, waitCond, pgClient, grafanaURL)
 
 	moduleDao := dao.ModuleDao{
 		Client: sqliteClient,
@@ -408,7 +409,7 @@ func TestUndeployModule(t *testing.T) {
 	assert.Equal("test-module-foo", moduleRes[0].Name)
 	assert.Equal(int(pb.ModuleState_CREATED_), moduleRes[0].DesireState)
 
-	client := NewClient("http://" + FakeHTTPServer.String())
+	client := NewClient("http://" + fakeServer.String())
 
 	// test deploy module
 	res, err := client.UndeployModule(moduleID)
