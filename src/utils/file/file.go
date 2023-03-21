@@ -250,10 +250,10 @@ func IsWasmELF(filePath string) bool {
 
 // A list of file types, used to detect the suffix of files.
 const (
-	WASM   = ".wasm"
-	C      = ".c"
-	BCC    = ".bcc"
-	WAT    = ".wat"
+	WASM    = ".wasm"
+	C       = ".c"
+	BCC     = ".bcc"
+	WAT     = ".wat"
 	UNKNOWN = "xxx"
 )
 
