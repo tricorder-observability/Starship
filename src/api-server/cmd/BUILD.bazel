@@ -19,6 +19,7 @@ go_library(
         "//src/utils/log",
         "//src/utils/pg",
         "//src/utils/retry",
+        "//src/utils/sys",
         "@io_k8s_client_go//kubernetes",
         "@io_k8s_sigs_controller_runtime//:controller-runtime",
         "@org_golang_x_sync//errgroup",

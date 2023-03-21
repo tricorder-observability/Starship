@@ -17,7 +17,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"net"
 
 	"golang.org/x/sync/errgroup"
@@ -36,10 +35,11 @@ import (
 	"github.com/tricorder/src/utils/log"
 	"github.com/tricorder/src/utils/pg"
 	"github.com/tricorder/src/utils/retry"
+	"github.com/tricorder/src/utils/sys"
 )
 
 var (
-	testOnlyHost = flag.String("test_only_host", "localhost",
+	testOnlyHost = flag.String("test_only_host", sys.LOCALHOST,
 		"The host address used for displaying swagger, this allows Swagger UI to connect to the running server.")
 
 	standalone = flag.Bool("standalone", false, "If true, API Server can be started without dependent services")
@@ -91,9 +91,9 @@ func setupSwaggerInfo() {
 	docs.SwaggerInfo.Title = "API Server"
 	docs.SwaggerInfo.Description = "API Server http api document."
 	docs.SwaggerInfo.Version = "1.0"
-	docs.SwaggerInfo.Host = fmt.Sprintf("%s:%d", *testOnlyHost, *mgmtUIPort)
+	docs.SwaggerInfo.Host = sys.HostPortAddr(*testOnlyHost, *mgmtUIPort)
 	docs.SwaggerInfo.BasePath = "/"
-	docs.SwaggerInfo.Schemes = []string{"http"}
+	docs.SwaggerInfo.Schemes = []string{sys.HTTP}
 }
 
 func main() {
@@ -164,9 +164,8 @@ func main() {
 
 	if *enableMgmtUI {
 		srvErrGroup.Go(func() error {
-			const tcp = "tcp"
-			addrStr := fmt.Sprintf(":%d", *mgmtUIPort)
-			listener, err := net.Listen(tcp, addrStr)
+			addrStr := sys.PortAddr(*mgmtUIPort)
+			listener, err := net.Listen(sys.TCP, addrStr)
 			if err != nil {
 				return errors.Wrap("starting http server", "listen", err)
 			}
