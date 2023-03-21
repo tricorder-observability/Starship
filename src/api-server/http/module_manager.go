@@ -39,6 +39,7 @@ import (
 
 // ModuleManager provides APIs to manage eBPF+WASM module received from the management Web UI.
 type ModuleManager struct {
+	grafanaConfig  grafana.Config
 	DatasourceUID  string
 	Module         dao.ModuleDao
 	NodeAgent      dao.NodeAgentDao
@@ -355,7 +356,7 @@ func (mgr *ModuleManager) deployModule(id string) DeployModuleResp {
 		return DeployModuleResp{
 			HTTPResp{
 				Code:    500,
-				Message: "create dashboard error",
+				Message: fmt.Sprintf("failed to create dashboard, error: %v", err),
 			},
 			uid,
 		}
@@ -517,7 +518,7 @@ func (mgr *ModuleManager) createGrafanaDashboard(moduleID string) (string, error
 		return "", err
 	}
 
-	ds := grafana.NewDashboard()
+	ds := grafana.NewDashboard(mgr.grafanaConfig)
 	result, err := ds.CreateDashboard(grafanaAPIKey, getModuleDataTableName(moduleID), mgr.DatasourceUID)
 	if err != nil {
 		log.Println("Create dashboard", err)

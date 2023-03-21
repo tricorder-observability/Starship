@@ -39,13 +39,19 @@ import (
 	"github.com/tricorder/src/utils/uuid"
 )
 
-var mgr = ModuleManager{DatasourceUID: "test"}
+var mgr = ModuleManager{
+	DatasourceUID: "test",
+}
 
-func SetUpRouter() *gin.Engine {
+func SetUpRouter(grafanaURL string) *gin.Engine {
 	router := gin.Default()
 	testDbFilePath := testutils.GetTmpFile()
 	// We'll not cleanup the temp file, as it's troublesome to turn down the http server, and probably not worth it in a
 	// test.
+
+	config := grafana.NewConfig(grafanaURL, "admin", "admin")
+
+	mgr.grafanaConfig = config
 
 	sqliteClient, _ := dao.InitSqlite(testDbFilePath)
 	mgr.Module = dao.ModuleDao{
@@ -63,7 +69,7 @@ func SetUpRouter() *gin.Engine {
 	mgr.waitCond = cond.NewCond()
 	mgr.gLock = lock.NewLock()
 
-	mgr.GrafanaClient = grafana.NewGrafanaManagement()
+	mgr.GrafanaClient = grafana.NewGrafanaManagement(config)
 
 	return router
 }
@@ -73,13 +79,11 @@ func TestModuleManager(t *testing.T) {
 	assert := assert.New(t)
 	require := require.New(t)
 
-	r := SetUpRouter()
-
 	cleanerFn, grafanaURL, err := grafanatest.LaunchContainer()
 	require.Nil(err)
 	defer func() { assert.Nil(cleanerFn()) }()
 
-	grafana.InitGrafanaConfig(grafanaURL, "admin", "admin")
+	r := SetUpRouter(grafanaURL)
 
 	pgClientCleanerFn, pgClient, err := pgclienttest.LaunchContainer()
 	require.Nil(err)
@@ -129,7 +133,8 @@ func TestModuleManager(t *testing.T) {
 	assert.Equal(nodeAgentID, moduleInstanceResult[0].AgentID)
 
 	// check grafana dashboard create result
-	ds := grafana.NewDashboard()
+	config := grafana.NewConfig(grafanaURL, "admin", "admin")
+	ds := grafana.NewDashboard(config)
 	json, err := ds.GetDetailAsJSON(deployResult.UID)
 	assert.Nil(err)
 	assert.Contains(json, deployResult.UID)
@@ -238,7 +243,9 @@ func TestCreateModuleEmptyDataFields(t *testing.T) {
 	}`, moduleName)
 
 	jsonData := []byte(moduleBody)
-	r := SetUpRouter()
+
+	r := SetUpRouter("")
+
 	r.POST("/api/createModule", mgr.createModuleHttp)
 	req, _ := http.NewRequest("POST", "/api/createModule", bytes.NewBuffer(jsonData))
 	req.Header.Set("Content-Type", "application/json; charset=utf-8")

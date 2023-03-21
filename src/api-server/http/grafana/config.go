@@ -28,11 +28,11 @@ type Config struct {
 func NewConfig(baseURL, userName, password string) Config {
 	// userName password come from command line flags
 	return Config{
-		BasicAuth:          userName + ":" + password,
 		BaseURL:            baseURL,
-		CreateAuthKeysURI:  BaseURL + "/api/auth/keys",
-		CreateDashBoardURI: BaseURL + "/api/dashboards/db",
-		CreateDatabaseURI:  BaseURL + "/api/datasources",
-		GetDashboardURI:    BaseURL + "/api/dashboards/uid/",
+		CreateAuthKeysURI:  baseURL + "/api/auth/keys",
+		CreateDashBoardURI: baseURL + "/api/dashboards/db",
+		CreateDatabaseURI:  baseURL + "/api/datasources",
+		GetDashboardURI:    baseURL + "/api/dashboards/uid/",
+		BasicAuth:          userName + ":" + password,
 	}
 }

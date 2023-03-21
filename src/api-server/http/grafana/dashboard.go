@@ -31,11 +31,13 @@ import (
 // See this issue for some ideas
 
 type Dashboard struct {
+	config Config
 	client http.Client
 }
 
-func NewDashboard() *Dashboard {
+func NewDashboard(config Config) *Dashboard {
 	return &Dashboard{
+		config: config,
 		client: http.Client{},
 	}
 }
@@ -80,7 +82,7 @@ func (g *Dashboard) CreateDashboard(createDashBoardAuthKey, title, datasourceUID
 
 	bytesData, _ := json.Marshal(bodyReq)
 
-	req, err := http.NewRequest("POST", CreateDashBoardURI, bytes.NewReader(bytesData))
+	req, err := http.NewRequest("POST", g.config.CreateDashBoardURI, bytes.NewReader(bytesData))
 	if err != nil {
 		return nil, err
 	}
@@ -122,7 +124,7 @@ func (g *Dashboard) AddDashboardPanel(
 
 	bytesData, _ := json.Marshal(bodyReq)
 
-	req, err := http.NewRequest("POST", CreateDashBoardURI, bytes.NewReader(bytesData))
+	req, err := http.NewRequest("POST", g.config.CreateDashBoardURI, bytes.NewReader(bytesData))
 	if err != nil {
 		return nil, err
 	}
@@ -149,12 +151,12 @@ func (g *Dashboard) AddDashboardPanel(
 
 // Returns a JSON string that describes the specified dashboard.
 func (g *Dashboard) GetDetailAsJSON(uid string) (string, error) {
-	req, err := http.NewRequest("GET", GetDashboardURI+uid, strings.NewReader(""))
+	req, err := http.NewRequest("GET", g.config.GetDashboardURI+uid, strings.NewReader(""))
 	if err != nil {
 		return "", errors.Wrap("getting dashboard detail", "create HTTP request", err)
 	}
 	req.Header.Set("Content-Type", "application/json; charset=UTF-8")
-	req.Header.Set("Authorization", "Basic "+base64.StdEncoding.EncodeToString([]byte(BasicAuth)))
+	req.Header.Set("Authorization", "Basic "+base64.StdEncoding.EncodeToString([]byte(g.config.BasicAuth)))
 
 	resp, err := g.client.Do(req)
 	if err != nil {
