@@ -11,9 +11,8 @@ import (
 
 // Includes the underlying data structures for serving gRPC RPCs.
 type ServerFixture struct {
-	// A listener to accept client connection.
-	// gRPC server needs this to start serving client requests.
-	listener net.Listener
+	// A listener listening on a local port for accepting client connections.
+	Listener *sys.TCPServer
 
 	// A server that drives the server process.
 	Server *grpc.Server
@@ -29,13 +28,13 @@ func NewServerFixture(port int) (*ServerFixture, error) {
 		return nil, errors.Wrap("newing ServerFixture", "listen to local port", err)
 	}
 	return &ServerFixture{
-		listener: listener,
+		Listener: listener,
 		Server:   grpc.NewServer(),
 		Addr:     addr,
 	}, nil
 }
 
-// Starts serving gRPC service.
+// Serve starts serving gRPC service. This is a blocking operation.
 func (f *ServerFixture) Serve() error {
-	return f.Server.Serve(f.listener)
+	return f.Server.Serve(f.Listener)
 }
