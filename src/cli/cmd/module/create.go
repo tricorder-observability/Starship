@@ -37,9 +37,6 @@ var createCmd = &cobra.Command{
 		"-w <wasm_binary_file>",
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
 		if wasmFileBinPath != "" {
-			if file.GetFileType(wasmFileBinPath) != file.WASM {
-				log.Fatalf("Failed to read --wasm-bin-path='%s', error: suffix is not .wasm", wasmFileBinPath)
-			}
 			if !file.IsWasmELF(wasmFileBinPath) {
 				log.Fatalf("Failed to read --wasm-bin-path='%s', error: it is not wasm elf", wasmFileBinPath)
 			}
