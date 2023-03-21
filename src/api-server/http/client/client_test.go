@@ -276,7 +276,6 @@ func TestCreateModule(t *testing.T) {
 	wasmMagic := []byte{0x00, 0x61, 0x73, 0x6d}
 	wasmELF := module[0].Wasm
 	assert.Equal(wasmELF[:4], wasmMagic)
-
 }
 
 func TestListModule(t *testing.T) {
