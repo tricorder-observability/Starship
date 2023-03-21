@@ -39,6 +39,7 @@ import (
 
 // ModuleManager provides APIs to manage eBPF+WASM module received from the management Web UI.
 type ModuleManager struct {
+	grafanaConfig  grafana.Config
 	DatasourceUID  string
 	Module         dao.ModuleDao
 	NodeAgent      dao.NodeAgentDao
@@ -89,10 +90,11 @@ func (mgr *ModuleManager) createModule(body CreateModuleReq) CreateModuleResp {
 
 	ebpfProbes, err := json.Marshal(body.Ebpf.Probes)
 	if err != nil {
-		log.Errorf("while creating module, failed to marshal ebpf probespecs, error: %v", err)
+		msg := fmt.Sprintf("while creating module, failed to marshal ebpf probespecs, error: %v", err)
+		log.Errorf(msg)
 		return CreateModuleResp{HTTPResp{
 			Code:    500,
-			Message: "request error: " + err.Error(),
+			Message: msg,
 		}}
 	}
 
@@ -105,9 +107,11 @@ func (mgr *ModuleManager) createModule(body CreateModuleReq) CreateModuleResp {
 
 	schemaAttr, err := json.Marshal(body.Wasm.OutputSchema.Fields)
 	if err != nil {
+		msg := fmt.Sprintf("while creating module, failed to marshal WASM output schema, error: %v", err)
+		log.Errorf(msg)
 		return CreateModuleResp{HTTPResp{
 			Code:    500,
-			Message: "request error: " + err.Error(),
+			Message: msg,
 		}}
 	}
 
@@ -131,18 +135,15 @@ func (mgr *ModuleManager) createModule(body CreateModuleReq) CreateModuleResp {
 	mod.SchemaName = fmt.Sprintf("%s_%s", "tricorder_module", mod.ID)
 
 	err = mgr.gLock.ExecWithLock(func() error {
-		err = mgr.Module.SaveModule(mod)
-		if err != nil {
-			log.Errorf("save module error: %v", err)
-			return errors.New("Save module error: " + err.Error())
-		}
-		return nil
+		return mgr.Module.SaveModule(mod)
 	})
 
 	if err != nil {
+		msg := fmt.Sprintf("while creating module, failed to save module ORM object, error: %v", err)
+		log.Errorf(msg)
 		return CreateModuleResp{HTTPResp{
 			Code:    500,
-			Message: err.Error(),
+			Message: msg,
 		}}
 	}
 
@@ -355,7 +356,7 @@ func (mgr *ModuleManager) deployModule(id string) DeployModuleResp {
 		return DeployModuleResp{
 			HTTPResp{
 				Code:    500,
-				Message: "create dashboard error",
+				Message: fmt.Sprintf("failed to create dashboard, error: %v", err),
 			},
 			uid,
 		}
@@ -517,7 +518,7 @@ func (mgr *ModuleManager) createGrafanaDashboard(moduleID string) (string, error
 		return "", err
 	}
 
-	ds := grafana.NewDashboard()
+	ds := grafana.NewDashboard(mgr.grafanaConfig)
 	result, err := ds.CreateDashboard(grafanaAPIKey, getModuleDataTableName(moduleID), mgr.DatasourceUID)
 	if err != nil {
 		log.Println("Create dashboard", err)

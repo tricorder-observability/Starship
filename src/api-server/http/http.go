@@ -61,9 +61,9 @@ type Config struct {
 func StartHTTPService(cfg Config, pgClient *pg.Client) error {
 	log.Infof("Starting API Server's http service ...")
 
-	grafana.InitGrafanaConfig(cfg.GrafanaURL, cfg.GrafanaUserName, cfg.GrafanaUserPass)
+	config := grafana.NewConfig(cfg.GrafanaURL, cfg.GrafanaUserName, cfg.GrafanaUserPass)
 
-	grafanaManager := grafana.NewGrafanaManagement()
+	grafanaManager := grafana.NewGrafanaManagement(config)
 	err := grafanaManager.InitGrafanaAPIToken()
 	if err != nil {
 		msg := fmt.Sprintf("Failed to initialize Grafana API token, error: %v", err)
@@ -75,6 +75,7 @@ func StartHTTPService(cfg Config, pgClient *pg.Client) error {
 	}
 
 	mgr := ModuleManager{
+		grafanaConfig:  config,
 		DatasourceUID:  cfg.DatasourceUID,
 		GrafanaClient:  grafanaManager,
 		Module:         cfg.Module,

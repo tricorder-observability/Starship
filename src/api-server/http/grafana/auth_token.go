@@ -28,11 +28,13 @@ import (
 )
 
 type AuthToken struct {
+	config Config
 	client http.Client
 }
 
-func NewAuthToken() *AuthToken {
+func NewAuthToken(config Config) *AuthToken {
 	return &AuthToken{
+		config: config,
 		client: http.Client{},
 	}
 }
@@ -55,12 +57,12 @@ func (g *AuthToken) GetToken(apiPath string) (*AuthKeyResult, error) {
 
 	bytesData, _ := json.Marshal(data)
 
-	req, err := http.NewRequest("POST", CreateAuthKeysURI, bytes.NewReader(bytesData))
+	req, err := http.NewRequest("POST", g.config.CreateAuthKeysURI, bytes.NewReader(bytesData))
 	if err != nil {
 		return nil, err
 	}
 	req.Header.Set("Content-Type", "application/json; charset=UTF-8")
-	req.Header.Set("Authorization", "Basic "+base64.StdEncoding.EncodeToString([]byte(BasicAuth)))
+	req.Header.Set("Authorization", "Basic "+base64.StdEncoding.EncodeToString([]byte(g.config.BasicAuth)))
 	resp, err := g.client.Do(req)
 	if err != nil {
 		return nil, err
@@ -81,12 +83,12 @@ func (g *AuthToken) GetToken(apiPath string) (*AuthKeyResult, error) {
 
 // GetAllGrafanaAPIKey get all create grafana keys.
 func (g *AuthToken) GetAllGrafanaAPIKey() ([]AuthKeyResult, error) {
-	req, err := http.NewRequest("GET", CreateAuthKeysURI, strings.NewReader(""))
+	req, err := http.NewRequest("GET", g.config.CreateAuthKeysURI, strings.NewReader(""))
 	if err != nil {
 		return nil, err
 	}
 	req.Header.Set("Content-Type", "application/json; charset=UTF-8")
-	req.Header.Set("Authorization", "Basic "+base64.StdEncoding.EncodeToString([]byte(BasicAuth)))
+	req.Header.Set("Authorization", "Basic "+base64.StdEncoding.EncodeToString([]byte(g.config.BasicAuth)))
 	resp, err := g.client.Do(req)
 	if err != nil {
 		return nil, err
@@ -107,12 +109,12 @@ func (g *AuthToken) GetAllGrafanaAPIKey() ([]AuthKeyResult, error) {
 
 // RemoveGrafanaAPIKeyById remove exist grafana api key by id
 func (g *AuthToken) RemoveGrafanaAPIKeyById(ID int) error {
-	req, err := http.NewRequest("DELETE", CreateAuthKeysURI+"/"+strconv.Itoa(ID), strings.NewReader(""))
+	req, err := http.NewRequest("DELETE", g.config.CreateAuthKeysURI+"/"+strconv.Itoa(ID), strings.NewReader(""))
 	if err != nil {
 		return errors.Wrap("create grafana http request", "load", err)
 	}
 	req.Header.Set("Content-Type", "application/json; charset=UTF-8")
-	req.Header.Set("Authorization", "Basic "+base64.StdEncoding.EncodeToString([]byte(BasicAuth)))
+	req.Header.Set("Authorization", "Basic "+base64.StdEncoding.EncodeToString([]byte(g.config.BasicAuth)))
 	resp, err := g.client.Do(req)
 	if err != nil {
 		return errors.Wrap("remove grafana api key", "load", err)

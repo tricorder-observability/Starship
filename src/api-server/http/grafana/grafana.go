@@ -22,14 +22,18 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-type GrafanaManagement struct{}
+type GrafanaManagement struct {
+	config Config
+}
 
 const DashboardAPIURL = "/api/dashboards/db"
 
 var grafanaAPIKeyMap = make(map[string]string)
 
-func NewGrafanaManagement() GrafanaManagement {
-	return GrafanaManagement{}
+func NewGrafanaManagement(config Config) GrafanaManagement {
+	return GrafanaManagement{
+		config: config,
+	}
 }
 
 func (g *GrafanaManagement) GetGrafanaKey(apiPath string) (string, error) {
@@ -37,7 +41,7 @@ func (g *GrafanaManagement) GetGrafanaKey(apiPath string) (string, error) {
 		return token, nil
 	}
 
-	authToken := NewAuthToken()
+	authToken := NewAuthToken(g.config)
 	allGrafanaAPIKey, err := authToken.GetAllGrafanaAPIKey()
 	if err != nil {
 		return "", errors.Wrap("get grafana all api token list", "load", err)

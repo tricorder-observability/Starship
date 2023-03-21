@@ -11,7 +11,6 @@ import (
 	"github.com/tricorder/src/api-server/http"
 	"github.com/tricorder/src/api-server/http/dao"
 	"github.com/tricorder/src/api-server/http/fake"
-	"github.com/tricorder/src/api-server/http/grafana"
 	pb "github.com/tricorder/src/api-server/pb"
 	common "github.com/tricorder/src/pb/module/common"
 	"github.com/tricorder/src/pb/module/ebpf"
@@ -50,8 +49,6 @@ func TestListAgent(t *testing.T) {
 	cleanerFn, grafanaURL, err := grafanatest.LaunchContainer()
 	require.Nil(err)
 	defer func() { assert.Nil(cleanerFn()) }()
-
-	grafana.InitGrafanaConfig(grafanaURL, "admin", "admin")
 
 	pgClientCleanerFn, pgClient, err := pgclienttest.LaunchContainer()
 	require.Nil(err)
@@ -100,8 +97,6 @@ func TestCreateModule(t *testing.T) {
 	cleanerFn, grafanaURL, err := grafanatest.LaunchContainer()
 	require.Nil(err)
 	defer func() { assert.Nil(cleanerFn()) }()
-
-	grafana.InitGrafanaConfig(grafanaURL, "admin", "admin")
 
 	pgClientCleanerFn, pgClient, err := pgclienttest.LaunchContainer()
 	require.Nil(err)
@@ -176,8 +171,6 @@ func TestListModule(t *testing.T) {
 	require.Nil(err)
 	defer func() { assert.Nil(cleanerFn()) }()
 
-	grafana.InitGrafanaConfig(grafanaURL, "admin", "admin")
-
 	pgClientCleanerFn, pgClient, err := pgclienttest.LaunchContainer()
 	require.Nil(err)
 	defer func() { assert.Nil(pgClientCleanerFn()) }()
@@ -230,8 +223,6 @@ func TestDeleteModule(t *testing.T) {
 	cleanerFn, grafanaURL, err := grafanatest.LaunchContainer()
 	require.Nil(err)
 	defer func() { assert.Nil(cleanerFn()) }()
-
-	grafana.InitGrafanaConfig(grafanaURL, "admin", "admin")
 
 	pgClientCleanerFn, pgClient, err := pgclienttest.LaunchContainer()
 	require.Nil(err)
@@ -288,8 +279,6 @@ func TestDeployModule(t *testing.T) {
 	cleanerFn, grafanaURL, err := grafanatest.LaunchContainer()
 	require.Nil(err)
 	defer func() { assert.Nil(cleanerFn()) }()
-
-	grafana.InitGrafanaConfig(grafanaURL, "admin", "admin")
 
 	pgClientCleanerFn, pgClient, err := pgclienttest.LaunchContainer()
 	require.Nil(err)
@@ -363,8 +352,6 @@ func TestUndeployModule(t *testing.T) {
 	cleanerFn, grafanaURL, err := grafanatest.LaunchContainer()
 	require.Nil(err)
 	defer func() { assert.Nil(cleanerFn()) }()
-
-	grafana.InitGrafanaConfig(grafanaURL, "admin", "admin")
 
 	pgClientCleanerFn, pgClient, err := pgclienttest.LaunchContainer()
 	require.Nil(err)

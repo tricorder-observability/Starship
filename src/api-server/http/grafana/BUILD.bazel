@@ -4,9 +4,9 @@ go_library(
     name = "grafana",
     srcs = [
         "auth_token.go",
+        "config.go",
         "dashboard.go",
         "datasource.go",
-        "global.go",
         "grafana.go",
     ],
     importpath = "github.com/tricorder/src/api-server/http/grafana",
@@ -21,7 +21,6 @@ go_test(
     name = "grafana_test",
     srcs = ["grafana_test.go"],
     embed = [":grafana"],
-    tags = ["manual"],
     deps = [
         "//src/testing/grafana",
         "@com_github_stretchr_testify//assert",

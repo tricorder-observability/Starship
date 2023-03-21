@@ -26,11 +26,13 @@ import (
 // TODO(zhihui): Add more comments to explain the purpose of these types and APIs.
 
 type Datasource struct {
+	config Config
 	client http.Client
 }
 
-func NewDatasource() *Datasource {
+func NewDatasource(config Config) *Datasource {
 	return &Datasource{
+		config: config,
 		client: http.Client{},
 	}
 }
@@ -58,7 +60,7 @@ func (g *Datasource) CreateDatasource(
 
 	bytesData, _ := json.Marshal(bodyReq)
 
-	req, err := http.NewRequest("POST", CreateDatabaseURI, bytes.NewReader(bytesData))
+	req, err := http.NewRequest("POST", g.config.CreateDatabaseURI, bytes.NewReader(bytesData))
 	if err != nil {
 		return nil, err
 	}
