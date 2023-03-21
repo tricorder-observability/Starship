@@ -35,6 +35,13 @@ var createCmd = &cobra.Command{
 	Long: "Create an eBPF+WASM module with BCC source file and WASM binary file. For example:\n" +
 		"$ starship-cli module create --api-server=<address> -m <module_json_file> -b <bcc_source_file> " +
 		"-w <wasm_binary_file>",
+	PersistentPreRun: func(cmd *cobra.Command, args []string) {
+		if wasmFileBinPath != "" {
+			if !file.IsWasmELF(wasmFileBinPath) {
+				log.Fatalf("Failed to read --wasm-bin-path='%s', error: it is not wasm elf", wasmFileBinPath)
+			}
+		}
+	},
 	Run: func(cmd *cobra.Command, args []string) {
 		bccStr, err := file.Read(bccFilePath)
 		if err != nil {
@@ -103,6 +110,7 @@ func init() {
 		wasmFileBinPath, "The path of the WASM binary file.")
 	createCmd.Flags().StringVarP(&wasmFileTextPath, "wasm-code-path", "c",
 		wasmFileTextPath, "The path of the WASM text file.")
+	createCmd.MarkFlagsMutuallyExclusive("wasm-bin-path", "wasm-code-path")
 }
 
 func parseModuleJsonFile(moduleJsonFilePath string) (*apiserver.CreateModuleReq, error) {

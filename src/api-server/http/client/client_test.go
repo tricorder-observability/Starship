@@ -197,6 +197,7 @@ func TestCreateModule(t *testing.T) {
 			Code:   []byte("test_code"),
 			FnName: "test_fn",
 			Fmt:    common.Format_BINARY,
+			Lang:   common.Lang_C,
 			OutputSchema: &common.Schema{
 				Fields: []*common.DataField{
 					{
@@ -240,6 +241,7 @@ func TestCreateModule(t *testing.T) {
 			Code:   []byte(wasmJson),
 			FnName: "write_events_to_output",
 			Fmt:    common.Format_TEXT,
+			Lang:   common.Lang_C,
 			OutputSchema: &common.Schema{
 				Fields: []*common.DataField{
 					{
