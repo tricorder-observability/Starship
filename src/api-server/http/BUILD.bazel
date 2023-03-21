@@ -13,6 +13,7 @@ go_library(
     visibility = [
         "//src/api-server:__subpackages__",
         "//src/cli:__subpackages__",
+        "//src/integ-tests:__subpackages__",
     ],
     deps = [
         "//src/api-server/http/api",
