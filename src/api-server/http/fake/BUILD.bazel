@@ -8,6 +8,7 @@ go_library(
     deps = [
         "//src/api-server/http",
         "//src/api-server/http/dao",
+        "//src/api-server/wasm",
         "//src/utils/cond",
         "//src/utils/lock",
         "//src/utils/pg",
