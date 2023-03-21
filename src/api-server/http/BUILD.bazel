@@ -1,4 +1,4 @@
-load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
     name = "http",
@@ -6,7 +6,6 @@ go_library(
         "cors.go",
         "exception.go",
         "http.go",
-        "types.go",
     ],
     importpath = "github.com/tricorder/src/api-server/http",
     visibility = [
@@ -39,15 +38,4 @@ filegroup(
     name = "tricorder_db",
     srcs = ["tricorder.db"],
     visibility = ["//src/api-server:__subpackages__"],
-)
-
-go_test(
-    name = "http_test",
-    srcs = ["types_test.go"],
-    data = ["//src/api-server/http/testdata:tricorder_test_db"],
-    embed = [":http"],
-    deps = [
-        "@com_github_gin_gonic_gin//:gin",
-        "@com_github_stretchr_testify//assert",
-    ],
 )

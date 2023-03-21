@@ -2,7 +2,10 @@ load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
 
 go_library(
     name = "module_manager",
-    srcs = ["module_manager.go"],
+    srcs = [
+        "module_manager.go",
+        "types.go",
+    ],
     importpath = "github.com/tricorder/src/api-server/http/module_manager",
     visibility = ["//src/api-server/http:__pkg__"],
     deps = [
@@ -10,6 +13,8 @@ go_library(
         "//src/api-server/http/grafana",
         "//src/api-server/pb",
         "//src/pb/module/common",
+        "//src/pb/module/ebpf",
+        "//src/pb/module/wasm",
         "//src/utils/cond",
         "//src/utils/lock",
         "//src/utils/log",
@@ -21,7 +26,10 @@ go_library(
 
 go_test(
     name = "module_manager_test",
-    srcs = ["module_manager_test.go"],
+    srcs = [
+        "module_manager_test.go",
+        "types_test.go",
+    ],
     embed = [":module_manager"],
     deps = [
         "//src/api-server/http/dao",
