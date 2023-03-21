@@ -21,7 +21,6 @@ go_test(
     name = "grafana_test",
     srcs = ["grafana_test.go"],
     embed = [":grafana"],
-    tags = ["manual"],
     deps = [
         "//src/testing/grafana",
         "@com_github_stretchr_testify//assert",

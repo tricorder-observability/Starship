@@ -41,14 +41,14 @@ func TestAuthToken(t *testing.T) {
 	}()
 
 	log.Println("grafana url:" + grafanaURL)
-	InitGrafanaConfig(grafanaURL, "admin", "admin")
-	authToken := NewAuthToken()
+	config := NewConfig(grafanaURL, "admin", "admin")
+	authToken := NewAuthToken(config)
 	require.NotNil(authToken)
 
 	token, err := authToken.GetToken("/api/dashboards/db")
 	assert.Nil(err)
 
-	dashboard := NewDashboard()
+	dashboard := NewDashboard(config)
 	assert.NotNil(dashboard)
 
 	result, err := dashboard.CreateDashboard(token.Key, "APIServer1", "uid")
@@ -62,11 +62,11 @@ func TestAuthToken(t *testing.T) {
 
 	datasourceToken, err := authToken.GetToken("/api/datasources")
 	require.Nil(err)
-	assert.Nil(createDatasource(datasourceToken.Key))
+	assert.Nil(createDatasource(config, datasourceToken.Key))
 }
 
-func createDatasource(token string) error {
-	ds := NewDatasource()
+func createDatasource(config Config, token string) error {
+	ds := NewDatasource(config)
 	const name = "MySQLTEST"
 
 	if ds == nil {
@@ -92,7 +92,7 @@ func TestInitGrafanaAPIToken(t *testing.T) {
 		assert.Nil(cleanerFn())
 	}()
 
-	InitGrafanaConfig(grafanaURL, "admin", "admin")
-	grafanaManager := NewGrafanaManagement()
+	config := NewConfig(grafanaURL, "admin", "admin")
+	grafanaManager := NewGrafanaManagement(config)
 	assert.Nil(grafanaManager.InitGrafanaAPIToken())
 }
