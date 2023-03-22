@@ -55,15 +55,8 @@ func TestGetDeployReqForModule(t *testing.T) {
 	sqliteClient, err := dao.InitSqlite(dirPath)
 	require.NoError(err)
 
-	moduleDao := dao.ModuleDao{
-		Client: sqliteClient,
-	}
-	nodeAgentDao := dao.NodeAgentDao{
-		Client: sqliteClient,
-	}
-	moduleInstanceDao := dao.ModuleInstanceDao{
-		Client: sqliteClient,
-	}
+	dao := dao.NewDao(sqliteClient)
+
 	config := http.Config{
 		Listen:          listener,
 		GrafanaURL:      grafanaURL,
@@ -71,9 +64,9 @@ func TestGetDeployReqForModule(t *testing.T) {
 		GrafanaUserPass: "admin",
 		DatasourceName:  "TimescaleDB-Tricorder",
 		DatasourceUID:   "timescaledb_tricorder",
-		Module:          moduleDao,
-		NodeAgent:       nodeAgentDao,
-		ModuleInstance:  moduleInstanceDao,
+		Module:          dao.Module,
+		NodeAgent:       dao.NodeAgent,
+		ModuleInstance:  dao.ModuleInstance,
 		WaitCond:        cond.NewCond(),
 		GLock:           lock.NewLock(),
 	}

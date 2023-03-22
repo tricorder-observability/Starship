@@ -21,6 +21,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
 	"github.com/tricorder/src/testing/bazel"
 	"github.com/tricorder/src/utils/file"
 )
