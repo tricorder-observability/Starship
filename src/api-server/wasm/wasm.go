@@ -14,11 +14,11 @@ import (
 )
 
 const (
-	DefaultWASISDKPath         = "/opt/tricorder/wasm/wasi-sdk"
-	DefaultWASIClang           = DefaultWASISDKPath + "/bin/clang"
-	DefaultWASICFlags          = "--sysroot=" + DefaultWASISDKPath + "/share/wasi-sysroot"
-	DefaultWASIStarshipInclude = "/opt/tricorder/wasm/include"
-	DefaultBuildTmpDir         = "/tmp"
+	defaultWASISDKPath         = "/opt/tricorder/wasm/wasi-sdk"
+	defaultWASIClang           = defaultWASISDKPath + "/bin/clang"
+	defaultWASICFlags          = "--sysroot=" + defaultWASISDKPath + "/share/wasi-sysroot"
+	defaultWASIStarshipInclude = "/opt/tricorder/wasm/include"
+	defaultBuildTmpDir         = "/tmp"
 )
 
 type WASICompiler struct {
@@ -38,7 +38,7 @@ func NewWASICompiler(wasiSDKPath string, includeDir string, buildTmpDir string) 
 }
 
 func NewWASICompilerWithDefaults() *WASICompiler {
-	return NewWASICompiler(DefaultWASISDKPath, DefaultWASIStarshipInclude, DefaultBuildTmpDir)
+	return NewWASICompiler(defaultWASISDKPath, defaultWASIStarshipInclude, defaultBuildTmpDir)
 }
 
 func (w *WASICompiler) BuildC(code string) ([]byte, error) {
