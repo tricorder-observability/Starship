@@ -28,7 +28,7 @@ import (
 // Tests that copy_input_to_output() in WASM module can copy data to the WASM runtime, repetitively.
 func TestWasmMemoryIO(t *testing.T) {
 	assert := assert.New(t)
-	testFilePath := "modules/sample_json/copy_input_to_output.wasm"
+	testFilePath := "modules/sample_json/sample_json.wasm"
 
 	wasmFilePath := bazelutils.TestFilePath(testFilePath)
 	wasm, err := file.ReadBin(wasmFilePath)

@@ -6,6 +6,7 @@ go_test(
     deps = [
         "//src/api-server/http",
         "//src/api-server/http/dao",
+        "//src/api-server/wasm",
         "//src/testing/bazel",
         "//src/testing/grafana",
         "//src/testing/pg",

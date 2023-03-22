@@ -37,6 +37,7 @@ int sample_json(struct bpf_perf_event_data *ctx) {
   return 0;
 }
 `
+
 var wasmJson = `
 #include "cJSON.h"
 #include "io.h"

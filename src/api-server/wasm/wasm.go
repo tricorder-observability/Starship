@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"os"
 	"os/exec"
+	"path"
 	"strings"
 
 	"github.com/tricorder/src/utils/errors"
@@ -27,28 +28,17 @@ type WASICompiler struct {
 	BuildTmpDir         string
 }
 
-func NewWASICompiler(WASISDKPath string, WASIStarshipInclude string, BuildTmpDir string) *WASICompiler {
-	if WASISDKPath == "" {
-		WASISDKPath = DefaultWASISDKPath
-	}
-
-	WASIClang := WASISDKPath + "/bin/clang"
-	WASICFlags := "--sysroot=" + WASISDKPath + "/share/wasi-sysroot"
-
-	if WASIStarshipInclude == "" {
-		WASIStarshipInclude = DefaultWASIStarshipInclude
-	}
-
-	if BuildTmpDir == "" {
-		BuildTmpDir = DefaultBuildTmpDir
-	}
-
+func NewWASICompiler(wasiSDKPath string, includeDir string, buildTmpDir string) *WASICompiler {
 	return &WASICompiler{
-		WASIClang:           WASIClang,
-		WASICFlags:          WASICFlags,
-		WASIStarshipInclude: WASIStarshipInclude,
-		BuildTmpDir:         BuildTmpDir,
+		WASIClang:           path.Join(wasiSDKPath, "bin", "clang"),
+		WASICFlags:          "--sysroot=" + path.Join(wasiSDKPath, "share", "wasi-sysroot"),
+		WASIStarshipInclude: includeDir,
+		BuildTmpDir:         buildTmpDir,
 	}
+}
+
+func NewWASICompilerWithDefaults() *WASICompiler {
+	return NewWASICompiler(DefaultWASISDKPath, DefaultWASIStarshipInclude, DefaultBuildTmpDir)
 }
 
 func (w *WASICompiler) BuildC(code string) ([]byte, error) {

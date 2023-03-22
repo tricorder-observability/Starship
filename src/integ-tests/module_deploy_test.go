@@ -23,6 +23,7 @@ import (
 
 	"github.com/tricorder/src/api-server/http"
 	"github.com/tricorder/src/api-server/http/dao"
+	"github.com/tricorder/src/api-server/wasm"
 	"github.com/tricorder/src/utils/cond"
 	"github.com/tricorder/src/utils/lock"
 	"github.com/tricorder/src/utils/sys"
@@ -77,8 +78,9 @@ func TestGetDeployReqForModule(t *testing.T) {
 		GLock:           lock.NewLock(),
 	}
 
+	wasiCompiler := wasm.NewWASICompilerWithDefaults()
 	go func() {
-		err := http.StartHTTPService(config, pgClient)
+		err := http.StartHTTPService(config, pgClient, wasiCompiler)
 		require.NoError(err)
 	}()
 }
