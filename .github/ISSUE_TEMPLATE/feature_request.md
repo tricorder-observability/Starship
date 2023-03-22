@@ -1,26 +1,20 @@
 ---
 name: Feature request
-about: Suggest an idea for this project
+about: Suggest a new feature or an idea for this project
 title: ''
 labels: feature request, needs-triage
 assignees: ''
 
 ---
 
-**Is your feature request related to a problem? Please describe.**
-A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
+**What's the motivation? Is it related to a problem? Please describe the background and rationale.**
+A clear and concise description of motivation, and what is the problem solved. Ex. I'm always frustrated when [...]
 
 **Describe the solution you'd like**
 A clear and concise description of what you want to happen.
 
-**Are you on Kubernetes, if so, what version**
-Yes/No
-
-**Kernel version**
-4.xx/5.xx/6.xx
-
 **Describe alternatives you've considered**
 A clear and concise description of any alternative solutions or features you've considered.
 
-**Additional context**
+**Additional context, for example, Kubernetes versions, Kernel versions etc.**
 Add any other context or screenshots about the feature request here.
