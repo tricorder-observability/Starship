@@ -44,16 +44,7 @@ func StartFakeNewServer(
 ) net.Addr {
 	server := Server{}
 
-	moduleDao := dao.ModuleDao{
-		Client: sqliteClient,
-	}
-	nodeAgentDao := dao.NodeAgentDao{
-		Client: sqliteClient,
-	}
-
-	moduleInstanceDao := dao.ModuleInstanceDao{
-		Client: sqliteClient,
-	}
+	dao := dao.NewDao(sqliteClient)
 
 	cfg := http.Config{
 		GrafanaURL:      grafanaURL,
@@ -61,9 +52,9 @@ func StartFakeNewServer(
 		GrafanaUserPass: "admin",
 		DatasourceName:  "TimescaleDB-Tricorder",
 		DatasourceUID:   "timescaledb_tricorder",
-		Module:          moduleDao,
-		NodeAgent:       nodeAgentDao,
-		ModuleInstance:  moduleInstanceDao,
+		Module:          dao.Module,
+		NodeAgent:       dao.NodeAgent,
+		ModuleInstance:  dao.ModuleInstance,
 		GLock:           gLock,
 		WaitCond:        waitCond,
 		Standalone:      false,
