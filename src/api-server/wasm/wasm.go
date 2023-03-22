@@ -22,18 +22,18 @@ const (
 )
 
 type WASICompiler struct {
-	WASIClang           string
-	WASICFlags          string
-	WASIStarshipInclude string
-	BuildTmpDir         string
+	clangPath   string
+	cFlags      string
+	includesDir string
+	buildTmpDir string
 }
 
 func NewWASICompiler(wasiSDKPath string, includeDir string, buildTmpDir string) *WASICompiler {
 	return &WASICompiler{
-		WASIClang:           path.Join(wasiSDKPath, "bin", "clang"),
-		WASICFlags:          "--sysroot=" + path.Join(wasiSDKPath, "share", "wasi-sysroot"),
-		WASIStarshipInclude: includeDir,
-		BuildTmpDir:         buildTmpDir,
+		clangPath:   path.Join(wasiSDKPath, "bin", "clang"),
+		cFlags:      "--sysroot=" + path.Join(wasiSDKPath, "share", "wasi-sysroot"),
+		includesDir: includeDir,
+		buildTmpDir: buildTmpDir,
 	}
 }
 
@@ -43,8 +43,12 @@ func NewWASICompilerWithDefaults() *WASICompiler {
 
 func (w *WASICompiler) BuildC(code string) ([]byte, error) {
 	srcID := strings.Replace(uuid.New(), "-", "_", -1)
-	srcFilePath := w.BuildTmpDir + "/" + srcID + ".c"
-	dstFilePath := w.BuildTmpDir + "/" + srcID + ".wasm"
+	const (
+		cExt    = ".c"
+		wasmExt = ".wasm"
+	)
+	srcFilePath := path.Join(w.buildTmpDir, srcID+cExt)
+	dstFilePath := path.Join(w.buildTmpDir, srcID+wasmExt)
 
 	// write code string to tmp file
 	phase := "write code to " + srcFilePath
@@ -63,8 +67,8 @@ func (w *WASICompiler) BuildC(code string) ([]byte, error) {
 
 	// compile code
 	phase = "compile " + srcFilePath + " to " + dstFilePath
-	cmd := exec.Command(w.WASIClang, w.WASICFlags,
-		w.WASIStarshipInclude+"/cJSON.c", "-I"+w.WASIStarshipInclude, srcFilePath,
+	cmd := exec.Command(w.clangPath, w.cFlags,
+		w.includesDir+"/cJSON.c", "-I"+w.includesDir, srcFilePath,
 		"-Wl,--export-all", "-Wall", "-Wextra", "-o", dstFilePath)
 	var stderr bytes.Buffer
 	cmd.Stderr = &stderr

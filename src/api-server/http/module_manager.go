@@ -139,6 +139,8 @@ func (mgr *ModuleManager) createModule(body CreateModuleReq) CreateModuleResp {
 	}
 
 	mod := &dao.ModuleGORM{
+		// This ID is used in other names like PG table name, 'tricorder-<ID>', to avoid mixing UUID parts with other texts
+		// changes - to _.
 		ID:                 strings.Replace(uuid.New(), "-", "_", -1),
 		Name:               body.Name,
 		CreateTime:         time.Now().Format("2006-01-02 15:04:05"),
