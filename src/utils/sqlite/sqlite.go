@@ -21,7 +21,7 @@ import (
 	"strings"
 
 	"github.com/pkg/errors"
-	"go.uber.org/zap"
+	"github.com/tricorder/src/utils/log"
 
 	// Import sqlite driver.
 	_ "github.com/mattn/go-sqlite3"
@@ -36,13 +36,12 @@ const (
 func PrepareSqliteDbFile(dirPath string) (string, error) {
 	// check is the dir is existed.
 	if _, err := os.Stat(dirPath); errors.Is(err, os.ErrNotExist) {
-		zap.S().Infof("directory: %s does not exist, create it now.", dirPath)
+		log.Warnf("Dir '%s' does not exist, creat it now", dirPath)
 		// If it is a multi tier folder, recursively create all folders
 		// otherwise an error will be reported if the folder does not exist
 		err := os.MkdirAll(dirPath, os.ModePerm)
 		if err != nil {
-			zap.S().Panicf("directory: %s does not exist and could not create it either.", dirPath)
-			return "", err
+			return "", errors.Wrap("preparing SQLite DB file", "create parent directory", err)
 		}
 	}
 

@@ -18,14 +18,24 @@ package sqlite
 import (
 	"fmt"
 	"os"
+	"path"
 	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+	"github.com/tricorder/src/testing/bazel"
 )
 
 func TestInitDBFile(t *testing.T) {
-	dir, _ := os.Getwd()
+	assert := assert.New(t)
+	require := require.New(t)
+
+	dir, err := bazel.CreateTmpDir()
+	require.NoError(err)
+
+	dir = path.Join(dir, "sqlite")
+
 	testCases := []struct {
 		caseStr        string
 		dirPath        string
@@ -53,8 +63,7 @@ func TestInitDBFile(t *testing.T) {
 				assert.Equal(t, true, strings.Contains(err.Error(), tc.err.Error()))
 			}
 			assert.Equal(t, tc.wantDBFilePath, dbFilePath)
-			// clean up created file.
-			_ = os.Remove(dbFilePath)
+			assert.NoError(os.Remove(dbFilePath))
 		})
 	}
 }

@@ -9,11 +9,11 @@ go_library(
     importpath = "github.com/tricorder/src/utils/sqlite",
     visibility = ["//visibility:public"],
     deps = [
+        "//src/utils/log",
         "@com_github_mattn_go_sqlite3//:go-sqlite3",
         "@com_github_pkg_errors//:errors",
         "@io_gorm_driver_sqlite//:sqlite",
         "@io_gorm_gorm//:gorm",
-        "@org_uber_go_zap//:zap",
     ],
 )
 
@@ -27,5 +27,6 @@ go_test(
     deps = [
         "//src/testing/bazel",
         "@com_github_stretchr_testify//assert",
+        "@com_github_stretchr_testify//require",
     ],
 )
