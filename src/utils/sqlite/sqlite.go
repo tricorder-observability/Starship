@@ -16,12 +16,12 @@
 package sqlite
 
 import (
-	"fmt"
 	"os"
-	"strings"
+	"path"
 
-	"github.com/pkg/errors"
-	"go.uber.org/zap"
+	"github.com/tricorder/src/utils/errors"
+	"github.com/tricorder/src/utils/file"
+	"github.com/tricorder/src/utils/log"
 
 	// Import sqlite driver.
 	_ "github.com/mattn/go-sqlite3"
@@ -31,29 +31,16 @@ const (
 	SqliteDBFileName = "tricorder.db"
 )
 
-// PrepareSqliteDbFile will prepare a sqlite db file according the specified dir path.
+// PrepareSQLiteDBDir will prepare a sqlite db file according the specified dir path.
 // sqlite db file absolute path will be returned.
-func PrepareSqliteDbFile(dirPath string) (string, error) {
-	// check is the dir is existed.
-	if _, err := os.Stat(dirPath); errors.Is(err, os.ErrNotExist) {
-		zap.S().Infof("directory: %s does not exist, create it now.", dirPath)
-		// If it is a multi tier folder, recursively create all folders
-		// otherwise an error will be reported if the folder does not exist
-		err := os.MkdirAll(dirPath, os.ModePerm)
-		if err != nil {
-			zap.S().Panicf("directory: %s does not exist and could not create it either.", dirPath)
-			return "", err
-		}
+func PrepareSQLiteDBDir(dirPath string) (string, error) {
+	if file.Exists(dirPath) {
+		return path.Join(dirPath, SqliteDBFileName), nil
 	}
-
-	// check the db file is existed, if not, create it.
-	var sqliteDbFilePath string
-	if strings.HasSuffix(dirPath, "/") {
-		sqliteDbFilePath = fmt.Sprintf("%s%s", dirPath, SqliteDBFileName)
-	} else {
-		sqliteDbFilePath = fmt.Sprintf("%s/%s", dirPath, SqliteDBFileName)
+	log.Warnf("Dir '%s' does not exist, create it now", dirPath)
+	err := os.MkdirAll(dirPath, os.ModePerm)
+	if err != nil {
+		return "", errors.Wrap("preparing SQLite DB file", "create parent directory", err)
 	}
-
-	// db file is existed, return directly.
-	return sqliteDbFilePath, nil
+	return path.Join(dirPath, SqliteDBFileName), nil
 }

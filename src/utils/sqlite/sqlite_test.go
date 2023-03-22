@@ -17,15 +17,19 @@ package sqlite
 
 import (
 	"fmt"
-	"os"
-	"strings"
+	"path"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/tricorder/src/testing/bazel"
+	"github.com/tricorder/src/utils/file"
 )
 
 func TestInitDBFile(t *testing.T) {
-	dir, _ := os.Getwd()
+	assert := assert.New(t)
+
+	dir := path.Join(bazel.CreateTmpDir(), "test", "sqlite")
+
 	testCases := []struct {
 		caseStr        string
 		dirPath        string
@@ -34,7 +38,7 @@ func TestInitDBFile(t *testing.T) {
 	}{
 		{
 			caseStr:        "successful create db file with dir suffix",
-			dirPath:        fmt.Sprintf("%s/", dir),
+			dirPath:        fmt.Sprintf("%s//", dir),
 			wantDBFilePath: fmt.Sprintf("%s/%s", dir, SqliteDBFileName),
 			err:            nil,
 		},
@@ -47,14 +51,9 @@ func TestInitDBFile(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		t.Run(tc.caseStr, func(t *testing.T) {
-			dbFilePath, err := PrepareSqliteDbFile(tc.dirPath)
-			if err != nil {
-				assert.Equal(t, true, strings.Contains(err.Error(), tc.err.Error()))
-			}
-			assert.Equal(t, tc.wantDBFilePath, dbFilePath)
-			// clean up created file.
-			_ = os.Remove(dbFilePath)
-		})
+		dbFilePath, err := PrepareSQLiteDBDir(tc.dirPath)
+		assert.NoError(err)
+		assert.True(file.Exists(tc.dirPath))
+		assert.Equal(tc.wantDBFilePath, dbFilePath)
 	}
 }

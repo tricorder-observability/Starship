@@ -27,7 +27,7 @@ import (
 func InitSqlite(dbPath string) (*sqlite.ORM, error) {
 	log.Infof("Opening SQLite database file at %s", dbPath)
 
-	fullDbPath, err := sqlite.PrepareSqliteDbFile(dbPath)
+	fullDbPath, err := sqlite.PrepareSQLiteDBDir(dbPath)
 	if err != nil {
 		return nil, fmt.Errorf("open sqlite datasource error %v", err)
 	}
