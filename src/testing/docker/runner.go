@@ -120,7 +120,7 @@ func (r *Runner) Logs() (string, error) {
 	outStr, errStr, err := exec.Run(cmdSlice)
 	if err != nil {
 		return "", fmt.Errorf(
-			"Failed to inspect container '%s', stdout:%s stderr:%s error: %v",
+			"failed to inspect container '%s', stdout:%s stderr:%s error: %v",
 			r.ContainerName,
 			outStr,
 			errStr,
@@ -140,7 +140,7 @@ func (r *Runner) Inspect(filter string) (string, error) {
 	outStr, errStr, err := exec.Run(cmdSlice)
 	if err != nil {
 		return "", fmt.Errorf(
-			"Failed to inspect container '%s', stdout:%s stderr:%s error: %v",
+			"failed to inspect container '%s', stdout:%s stderr:%s error: %v",
 			r.ContainerName,
 			outStr,
 			errStr,
@@ -162,7 +162,7 @@ func (r *Runner) Stop() error {
 	cmdSlice := []string{"docker", "stop", r.ContainerName}
 	outStr, errStr, err := exec.Run(cmdSlice)
 	if err != nil {
-		return fmt.Errorf("Could not run '%v', stdout=%s stderr=%s, error: %v", cmdSlice, outStr, errStr, err)
+		return fmt.Errorf("could not run '%v', stdout=%s stderr=%s, error: %v", cmdSlice, outStr, errStr, err)
 	}
 	return nil
 }
@@ -180,7 +180,7 @@ func getPort(addrPortStr string) (int, error) {
 	portStr := components[len(components)-1]
 	port, err := strconv.Atoi(portStr)
 	if err != nil {
-		return -1, fmt.Errorf("Port string '%s' is not a valid number", portStr)
+		return -1, fmt.Errorf("port string '%s' is not a valid number", portStr)
 	}
 	return port, nil
 }
@@ -191,7 +191,7 @@ func (r *Runner) GetExposedPort(containerPort int) (int, error) {
 	outStr, outErr, err := exec.Run(dockerPortCmdSlice)
 	if err != nil {
 		return -1, fmt.Errorf(
-			"Failed to run docker command to get exposed port, stdout: %s, stderr: %s, error: %v",
+			"failed to run docker command to get exposed port, stdout: %s, stderr: %s, error: %v",
 			outStr,
 			outErr,
 			err,
@@ -199,7 +199,7 @@ func (r *Runner) GetExposedPort(containerPort int) (int, error) {
 	}
 	lines := strings.Split(outStr, "\n")
 	if len(lines) == 0 {
-		return -1, fmt.Errorf("Not output from docker Command '%v'", dockerPortCmdSlice)
+		return -1, fmt.Errorf("not output from docker Command '%v'", dockerPortCmdSlice)
 	}
 	for _, line := range lines {
 		port, err := getPort(line)
@@ -207,7 +207,7 @@ func (r *Runner) GetExposedPort(containerPort int) (int, error) {
 			return port, err
 		}
 	}
-	return -1, fmt.Errorf("Could not get exposed port for %d, output: %s", containerPort, outStr)
+	return -1, fmt.Errorf("could not get exposed port for %d, output: %s", containerPort, outStr)
 }
 
 // Exec runs `docker exec` inside the container ran by this Runner.

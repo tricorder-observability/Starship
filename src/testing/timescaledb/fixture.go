@@ -51,7 +51,7 @@ func LaunchContainer() (func() error, *pgutils.Client, error) {
 	}
 	err := tsdbRunner.Launch(10 * time.Second)
 	if err != nil {
-		return nil, nil, fmt.Errorf("Failed to start tsdb server, error: %v", err)
+		return nil, nil, fmt.Errorf("failed to start tsdb server, error: %v", err)
 	}
 
 	tsdbGatewayIP, err := tsdbRunner.GetGatewayIP()
@@ -71,7 +71,7 @@ func LaunchContainer() (func() error, *pgutils.Client, error) {
 	tsdbURL := fmt.Sprintf("postgresql://postgres:passwd@%s:%d", strings.TrimSpace(tsdbGatewayIP), tsdbPort)
 	pgClient := pgutils.NewClient(tsdbURL)
 	if err := pgClient.Connect(); err != nil {
-		return nil, nil, fmt.Errorf("Unable to create client to tsdb at %s, error: %v", tsdbURL, err)
+		return nil, nil, fmt.Errorf("unable to create client to tsdb at %s, error: %v", tsdbURL, err)
 	}
 
 	cleanerFn := func() error {

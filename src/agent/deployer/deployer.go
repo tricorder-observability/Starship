@@ -76,15 +76,15 @@ func New(apiServerAddr, nodeName, podId string) *Deployer {
 }
 
 // ConnectToAPIServer connects this Deployer to API Server and inform its own identity to API Server.
-func (d *Deployer) ConnectToAPIServer() error {
-	log.Infof("Connecting to API Server at %s", d.apiServerAddr)
-	grpcConn, err := grpcutils.DialInsecure(d.apiServerAddr)
+func (s *Deployer) ConnectToAPIServer() error {
+	log.Infof("Connecting to API Server at %s", s.apiServerAddr)
+	grpcConn, err := grpcutils.DialInsecure(s.apiServerAddr)
 	if err != nil {
 		return errors.Wrap("connecting to API Server", "dial insecure", err)
 	}
-	d.grpcConn = grpcConn
-	d.client = pb.NewModuleDeployerClient(grpcConn)
-	return d.initModuleDeployLink()
+	s.grpcConn = grpcConn
+	s.client = pb.NewModuleDeployerClient(grpcConn)
+	return s.initModuleDeployLink()
 }
 
 // initModuleDeployLink connects with the module module deployer's stream gRPC service.
@@ -94,7 +94,7 @@ func (s *Deployer) initModuleDeployLink() error {
 
 	deployModuleStream, err := s.client.DeployModule(context.Background())
 	if err != nil {
-		return fmt.Errorf("Could not open stream to DeplyModule RPC at %s, %v", s.apiServerAddr, err)
+		return fmt.Errorf("could not open stream to DeplyModule RPC at %s, %v", s.apiServerAddr, err)
 	}
 	s.stream = deployModuleStream
 
@@ -122,7 +122,7 @@ func (s *Deployer) StartModuleDeployLoop() error {
 			return nil
 		}
 		if err != nil {
-			log.Errorf("Failed to read stream from DeplyModule(), error: %v", err)
+			log.Errorf("failed to read stream from DeplyModule(), error: %v", err)
 			return err
 		}
 
@@ -148,7 +148,7 @@ func (s *Deployer) StartModuleDeployLoop() error {
 		err = s.sendResp(resp)
 		// TODO(yzhao): Need to handle error correctly, the code below ignores EoF error.
 		if grpcerr.IsUnavailable(err) {
-			log.Errorf("Streaming connection with api-server is broken, error: %v", err)
+			log.Errorf("streaming connection with api-server is broken, error: %v", err)
 			return err
 		}
 	}
@@ -158,7 +158,7 @@ func (s *Deployer) StartModuleDeployLoop() error {
 func (s *Deployer) Stop() {
 	err := s.stream.CloseSend()
 	if err != nil {
-		log.Errorf("Failed to Close stream, error: %v", err)
+		log.Errorf("failed to Close stream, error: %v", err)
 	}
 	s.grpcConn.Close()
 }

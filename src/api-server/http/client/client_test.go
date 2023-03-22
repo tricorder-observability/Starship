@@ -16,7 +16,6 @@ import (
 	common "github.com/tricorder/src/pb/module/common"
 	"github.com/tricorder/src/pb/module/ebpf"
 	"github.com/tricorder/src/pb/module/wasm"
-	bazelutils "github.com/tricorder/src/testing/bazel"
 	testutils "github.com/tricorder/src/testing/bazel"
 	grafanatest "github.com/tricorder/src/testing/grafana"
 	pgclienttest "github.com/tricorder/src/testing/pg"
@@ -83,9 +82,9 @@ int main() { return 0; }
 
 func initWasiSDK() (string, string, string, error) {
 	wasiTarBazelFilePath := "external/download_wasi_sdk_from_github_url/file/wasi-sdk.tar.gz"
-	wasiSDKTarPath := bazelutils.TestFilePath(wasiTarBazelFilePath)
-	wasiSDKPath := bazelutils.CreateTmpDir()
-	wasiBuildTmpPath := bazelutils.CreateTmpDir()
+	wasiSDKTarPath := testutils.TestFilePath(wasiTarBazelFilePath)
+	wasiSDKPath := testutils.CreateTmpDir()
+	wasiBuildTmpPath := testutils.CreateTmpDir()
 
 	// decompress wasi-sdk.tar.gz toolchain to bazel runtime
 	cmd := exec.Command("tar", "-p", "-C", wasiSDKPath, "-zxvf", wasiSDKTarPath, "--no-same-owner")
@@ -97,7 +96,7 @@ func initWasiSDK() (string, string, string, error) {
 	wasiSDKPath += "/wasi-sdk-19.0"
 
 	wasiBazelIncludeFilePath := "modules/common"
-	wasmStarshipIncudePath := bazelutils.TestFilePath(wasiBazelIncludeFilePath)
+	wasmStarshipIncudePath := testutils.TestFilePath(wasiBazelIncludeFilePath)
 	return wasiSDKPath, wasmStarshipIncudePath, wasiBuildTmpPath, nil
 }
 

@@ -54,7 +54,7 @@ func LaunchContainer() (func() error, *pgutils.Client, error) {
 	}
 	err := pgRunner.Launch(10 * time.Second)
 	if err != nil {
-		return nil, nil, fmt.Errorf("Failed to start postgres server, error: %v", err)
+		return nil, nil, fmt.Errorf("failed to start postgres server, error: %v", err)
 	}
 
 	pgGatewayIP, err := pgRunner.GetGatewayIP()
@@ -74,7 +74,7 @@ func LaunchContainer() (func() error, *pgutils.Client, error) {
 
 	pgClient := pgutils.NewClient(pgURL)
 	if err := pgClient.Connect(); err != nil {
-		return nil, nil, fmt.Errorf("Unable to create client to postgres at %s, error: %v", pgURL, err)
+		return nil, nil, fmt.Errorf("unable to create client to postgres at %s, error: %v", pgURL, err)
 	}
 
 	cleanerFn := func() error {

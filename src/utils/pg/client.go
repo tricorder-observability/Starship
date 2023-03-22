@@ -84,7 +84,7 @@ func buildCreateTableSQL(schema *Schema) (string, error) {
 	return sql, nil
 }
 
-func (client *Client) CreateTable(schema *Schema) error {
+func (c *Client) CreateTable(schema *Schema) error {
 	sql, err := buildCreateTableSQL(schema)
 	if err != nil {
 		return fmt.Errorf(
@@ -93,7 +93,7 @@ func (client *Client) CreateTable(schema *Schema) error {
 			err,
 		)
 	}
-	_, err = client.pool.Exec(context.Background(), sql)
+	_, err = c.pool.Exec(context.Background(), sql)
 	if err != nil {
 		return fmt.Errorf(
 			"while creating table '%s', failed to execute SQL, error: %v",
@@ -104,7 +104,7 @@ func (client *Client) CreateTable(schema *Schema) error {
 	return nil
 }
 
-func (client *Client) CreateHTTPRequestTable() error {
+func (c *Client) CreateHTTPRequestTable() error {
 	createSQL := `CREATE TABLE IF NOT EXISTS http (
 	time TIMESTAMP WITH TIME ZONE NOT NULL,
 	id TEXT NOT NULL,
@@ -115,20 +115,20 @@ func (client *Client) CreateHTTPRequestTable() error {
 	body TEXT,
 	PRIMARY KEY(time, id)
 	);`
-	_, err := client.pool.Exec(context.Background(), createSQL)
+	_, err := c.pool.Exec(context.Background(), createSQL)
 	return err
 }
 
-func (client *Client) JSON() *Json {
-	return &Json{pool: client.pool}
+func (c *Client) JSON() *Json {
+	return &Json{pool: c.pool}
 }
 
-func (client *Client) Clean(table string) error {
-	_, err := client.pool.Exec(context.Background(), fmt.Sprintf("TRUNCATE TABLE %s", table))
+func (c *Client) Clean(table string) error {
+	_, err := c.pool.Exec(context.Background(), fmt.Sprintf("TRUNCATE TABLE %s", table))
 	return err
 }
 
-func (client *Client) WriteHTTPRequest(req *http.Request) error {
+func (c *Client) WriteHTTPRequest(req *http.Request) error {
 	sql := `
 	INSERT INTO http (id, method, proto, url, header, body, time)
 	VALUES ($1, $2, $3, $4, $5, $6, $7);
@@ -148,7 +148,7 @@ func (client *Client) WriteHTTPRequest(req *http.Request) error {
 		}
 	}
 
-	_, err = client.pool.Exec(
+	_, err = c.pool.Exec(
 		context.Background(),
 		sql,
 		id,
@@ -162,8 +162,8 @@ func (client *Client) WriteHTTPRequest(req *http.Request) error {
 	return err
 }
 
-func (client *Client) Close() {
-	client.pool.Close()
+func (c *Client) Close() {
+	c.pool.Close()
 }
 
 // Returns a string in the form of '$1, $2, ... ${count}'.
@@ -184,7 +184,7 @@ func colNames(schema *Schema) string {
 }
 
 // WriteRecord writes a slice of values in string format, according to the table schema.
-func (client *Client) WriteRecord(record []interface{}, schema *Schema) error {
+func (c *Client) WriteRecord(record []interface{}, schema *Schema) error {
 	if len(record) != len(schema.Columns) {
 		return fmt.Errorf(
 			"while writing record, the record's field count differs from the schema's column count, "+
@@ -200,13 +200,13 @@ func (client *Client) WriteRecord(record []interface{}, schema *Schema) error {
 		colNames(schema),
 		placeHolder(len(schema.Columns)),
 	)
-	_, err := client.pool.Exec(context.Background(), sql, record...)
+	_, err := c.pool.Exec(context.Background(), sql, record...)
 	return err
 }
 
 // Query returns the value of the sql query statement, or error if failed.
-func (client *Client) Query(sql string) ([][]interface{}, error) {
-	rows, err := client.pool.Query(context.Background(), sql)
+func (c *Client) Query(sql string) ([][]interface{}, error) {
+	rows, err := c.pool.Query(context.Background(), sql)
 	if err != nil {
 		return nil, fmt.Errorf(
 			"while querying '%s', failed to execute the statement, error: %v",
@@ -216,7 +216,7 @@ func (client *Client) Query(sql string) ([][]interface{}, error) {
 	}
 	// This closes the connection objects associated with this Row.
 	// This row object has a associated connection to continuously pull data from the remote database.
-	// This is critical, otherwise client.pool.Close() will bock indefinitely, as it waits for all connections
+	// This is critical, otherwise c.pool.Close() will bock indefinitely, as it waits for all connections
 	// to be closed before closing itself.
 	defer rows.Close()
 
@@ -295,12 +295,12 @@ func (j *Json) Delete(table, uid string, idPath ...string) error {
 	return err
 }
 
-func (client *Client) CheckTableExist(tableName string) error {
+func (c *Client) CheckTableExist(tableName string) error {
 	sql := fmt.Sprintf(
 		`select count(*) as c from %s ;`,
 		tableName,
 	)
-	_, err := client.pool.Exec(context.Background(), sql)
+	_, err := c.pool.Exec(context.Background(), sql)
 	if err != nil {
 		return fmt.Errorf(
 			"while check table '%s' exist, failed to execute SQL, error: %v",

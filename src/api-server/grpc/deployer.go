@@ -28,7 +28,6 @@ import (
 	"github.com/tricorder/src/utils/sqlite"
 
 	"github.com/tricorder/src/api-server/http/dao"
-	pb "github.com/tricorder/src/api-server/pb"
 	servicepb "github.com/tricorder/src/api-server/pb"
 	modulepb "github.com/tricorder/src/pb/module"
 	"github.com/tricorder/src/pb/module/common"
@@ -130,7 +129,7 @@ func (s *Deployer) DeployModule(stream servicepb.ModuleDeployer_DeployModuleServ
 				NodeName:   agentNodeName,
 				AgentID:    agentID,
 				AgentPodID: agentPodId,
-				State:      int(pb.AgentState_ONLINE),
+				State:      int(servicepb.AgentState_ONLINE),
 			}
 			err = s.NodeAgent.SaveAgent(node)
 			if err != nil {
@@ -140,7 +139,7 @@ func (s *Deployer) DeployModule(stream servicepb.ModuleDeployer_DeployModuleServ
 		}
 
 		for _, node := range nodeAgentList {
-			if node.State == int(pb.AgentState_ONLINE) {
+			if node.State == int(servicepb.AgentState_ONLINE) {
 				if node.AgentPodID == agentPodId {
 					log.Warnf("Node '%s' agent ID '%s' was already 'ONLINE' when it connects", node.NodeName, node.AgentID)
 					continue
@@ -148,7 +147,7 @@ func (s *Deployer) DeployModule(stream servicepb.ModuleDeployer_DeployModuleServ
 				// There is an agent on this node with ONLINE state. And that agent is different from my ID.
 				// Here we trust K8s, and assume metadata service (not yet implemented, @Daniel is working on this)
 				// was slow to update the state. So we explicitly set the state to TERMINATED.
-				err = s.NodeAgent.UpdateStateByID(node.AgentID, int(pb.AgentState_TERMINATED))
+				err = s.NodeAgent.UpdateStateByID(node.AgentID, int(servicepb.AgentState_TERMINATED))
 				if err != nil {
 					return errors.Wrap("handling Agent grpc request", "set node agent state to TERMINATED", err)
 				}
@@ -157,7 +156,7 @@ func (s *Deployer) DeployModule(stream servicepb.ModuleDeployer_DeployModuleServ
 				// So we can update the state to ONLINE if the agent pod ID matches.
 				// if the agent pod ID does not match, we can assume that the agent is restarted.
 				if node.AgentPodID == agentPodId {
-					err = s.NodeAgent.UpdateStateByID(agentID, int(pb.AgentState_ONLINE))
+					err = s.NodeAgent.UpdateStateByID(agentID, int(servicepb.AgentState_ONLINE))
 					if err != nil {
 						return errors.Wrap("while handling Agent grpc request", "set node agent state to ONLINE", err)
 					}
@@ -182,7 +181,7 @@ func (s *Deployer) DeployModule(stream servicepb.ModuleDeployer_DeployModuleServ
 			result, err := stream.Recv()
 			if err == io.EOF {
 				serr := s.gLock.ExecWithLock(func() error {
-					err = s.NodeAgent.UpdateStateByID(agentID, int(pb.AgentState_OFFLINE))
+					err = s.NodeAgent.UpdateStateByID(agentID, int(servicepb.AgentState_OFFLINE))
 					if err != nil {
 						return errors.Wrap("handling Agent grpc request", "set node agent state to OFFLINE", err)
 					}
@@ -196,7 +195,7 @@ func (s *Deployer) DeployModule(stream servicepb.ModuleDeployer_DeployModuleServ
 			}
 			if err != nil {
 				serr := s.gLock.ExecWithLock(func() error {
-					err = s.NodeAgent.UpdateStateByID(agentID, int(pb.AgentState_OFFLINE))
+					err = s.NodeAgent.UpdateStateByID(agentID, int(servicepb.AgentState_OFFLINE))
 					if err != nil {
 						return errors.Wrap("handling Agent grpc request", "set node agent state to OFFLINE", err)
 					}
@@ -238,7 +237,7 @@ func (s *Deployer) DeployModule(stream servicepb.ModuleDeployer_DeployModuleServ
 
 		for _, moduleInstance := range undeployList {
 			var module *dao.ModuleGORM
-			if moduleInstance.State != int(pb.ModuleInstanceState_INIT) {
+			if moduleInstance.State != int(servicepb.ModuleInstanceState_INIT) {
 				continue
 			}
 			err := s.gLock.ExecWithLock(func() error {
@@ -254,8 +253,8 @@ func (s *Deployer) DeployModule(stream servicepb.ModuleDeployer_DeployModuleServ
 			}
 
 			moduleReq, err := getDeployReqForModule(module)
-			if moduleInstance.DesireState == int(pb.ModuleState_UNDEPLOYED) {
-				moduleReq.Deploy = pb.DeployModuleReq_UNDEPLOY
+			if moduleInstance.DesireState == int(servicepb.ModuleState_UNDEPLOYED) {
+				moduleReq.Deploy = servicepb.DeployModuleReq_UNDEPLOY
 			}
 			if err != nil {
 				log.Fatalf("Failed to create DeployModuleReq for module ID=%s, this should not happen, "+
@@ -266,7 +265,7 @@ func (s *Deployer) DeployModule(stream servicepb.ModuleDeployer_DeployModuleServ
 			err = stream.Send(moduleReq)
 			if err != nil {
 				serr := s.gLock.ExecWithLock(func() error {
-					err = s.NodeAgent.UpdateStateByID(agentID, int(pb.AgentState_OFFLINE))
+					err = s.NodeAgent.UpdateStateByID(agentID, int(servicepb.AgentState_OFFLINE))
 					if err != nil {
 						return errors.Wrap("handling Agent grpc request", "update node agent state", err)
 					}
@@ -313,5 +312,5 @@ func NewDeployer(orm *sqlite.ORM, gLock *lock.Lock, waitCond *cond.Cond) *Deploy
 func RegisterModuleDeployerServer(f *grpcutils.ServerFixture, sqliteClient *sqlite.ORM, gLock *lock.Lock,
 	waitCond *cond.Cond,
 ) {
-	pb.RegisterModuleDeployerServer(f.Server, NewDeployer(sqliteClient, gLock, waitCond))
+	servicepb.RegisterModuleDeployerServer(f.Server, NewDeployer(sqliteClient, gLock, waitCond))
 }
