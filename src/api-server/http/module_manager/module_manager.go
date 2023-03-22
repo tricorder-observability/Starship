@@ -78,7 +78,7 @@ func (mgr *ModuleManager) createModule(body CreateModuleReq) CreateModuleResp {
 	err = mgr.GLock.ExecWithLock(func() error {
 		m, _ = mgr.Module.QueryByName(body.Name)
 		if m != nil && len(m.Name) > 0 {
-			return fmt.Errorf("Name '%s' already exists", body.Name)
+			return fmt.Errorf("name '%s' already exists", body.Name)
 		}
 		return nil
 	})
