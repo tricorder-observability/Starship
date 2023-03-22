@@ -20,7 +20,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/pkg/errors"
+	"github.com/tricorder/src/utils/errors"
 	"github.com/tricorder/src/utils/log"
 
 	// Import sqlite driver.
