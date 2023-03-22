@@ -36,7 +36,7 @@ import (
 	"github.com/tricorder/src/utils/sqlite"
 )
 
-// NodeAgentGORM sqlite gorm storage and response object
+// NodeAgentGORM sqlite gorm storage and response object.
 type NodeAgentGORM struct {
 	// tag schema https://gorm.io/docs/models.html#Fields-Tags
 	AgentID        string     `gorm:"column:agent_id;primaryKey" json:"agent_id,omitempty"`

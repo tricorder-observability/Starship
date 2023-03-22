@@ -262,7 +262,7 @@ func TestAttachUProbe(t *testing.T) {
 	perfBuf.Stop()
 }
 
-// Tests that the vanilla gobpf's BCC Golang binding APIs produce no extra null chars
+// Tests that the vanilla gobpf's BCC Golang binding APIs produce no extra null chars.
 func TestDemoVanillaGoBPFAPI(t *testing.T) {
 	assert := assert.New(t)
 	require := require.New(t)

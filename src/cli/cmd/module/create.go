@@ -112,7 +112,7 @@ var createCmd = &cobra.Command{
 	},
 }
 
-// the file path of module in json format flag
+// the file path of module in json format flag.
 var (
 	moduleFilePath       string
 	bccFilePath          string

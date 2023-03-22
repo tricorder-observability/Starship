@@ -18,7 +18,7 @@ package grafana
 import (
 	"github.com/tricorder/src/utils/errors"
 
-	// Load sqlite driver
+	// Load sqlite driver.
 	_ "github.com/mattn/go-sqlite3"
 )
 

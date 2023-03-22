@@ -74,7 +74,7 @@ func SetUpRouter(grafanaURL string) *gin.Engine {
 	return router
 }
 
-// test upload wasm file and create wasm uid
+// test upload wasm file and create wasm uid.
 func TestModuleManager(t *testing.T) {
 	assert := assert.New(t)
 	require := require.New(t)

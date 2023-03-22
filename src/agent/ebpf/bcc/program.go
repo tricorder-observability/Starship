@@ -25,7 +25,7 @@ import (
 	"github.com/tricorder/src/utils/pb"
 )
 
-// perfBufChanCap gives the capacity of the perf buffer channel
+// perfBufChanCap gives the capacity of the perf buffer channel.
 var perfBufChanCap = 1000
 
 // Program abstract a piece of eBPF program. Provides APIs for managing the program's

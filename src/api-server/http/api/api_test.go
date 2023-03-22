@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// Tests that GetURL ignores http:// prefix
+// Tests that GetURL ignores http:// prefix.
 func TestGetURL(t *testing.T) {
 	assert := assert.New(t)
 	assert.Equal("http://localhost:8080/api/test", GetURL("localhost:8080", "/api/test"))

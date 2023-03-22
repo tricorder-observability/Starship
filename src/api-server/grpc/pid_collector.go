@@ -38,7 +38,7 @@ const (
 	procInfoTableName = "process_info"
 )
 
-// idPath is UUID location in processInfo table based on Postgres json path expression
+// idPath is UUID location in processInfo table based on Postgres json path expression.
 var idPath = []string{"container", "id"}
 
 // PIDCollector implements the ProcessCollector gRPC service.
@@ -102,7 +102,7 @@ func (s *PIDCollector) ReportProcess(stream pb.ProcessCollector_ReportProcessSer
 	}
 }
 
-// podWatch include watch pods with node name, and handle the event(onAdd/onUpdate/onDelete)
+// podWatch include watch pods with node name, and handle the event(onAdd/onUpdate/onDelete).
 func (s *PIDCollector) podWatch(nodeName string, stream pb.ProcessCollector_ReportProcessServer) error {
 	// List pods with node name
 	list, err := s.clientset.CoreV1().Pods(corev1.NamespaceAll).List(context.Background(), metav1.ListOptions{

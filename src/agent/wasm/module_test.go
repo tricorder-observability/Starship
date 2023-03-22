@@ -27,7 +27,7 @@ import (
 	"github.com/tricorder/src/utils/file"
 )
 
-// getEvents return a http event list for test
+// getEvents return a http event list for test.
 func getEvents() []string {
 	return []string{
 		"GET /api/v1/bpf HTTP/1.1\r\nHost: tricorder.dev\r\nCookie: cookie\r\n\r\n",

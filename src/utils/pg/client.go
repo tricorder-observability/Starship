@@ -236,13 +236,13 @@ func (client *Client) Query(sql string) ([][]interface{}, error) {
 	return res, nil
 }
 
-// Json wrapper the corresponding operations(Get|List|Upsert|Delete) to specified struct
+// Json wrapper the corresponding operations(Get|List|Upsert|Delete) to specified struct.
 type Json struct {
 	pool *pgxpool.Pool
 }
 
 // Get returns an object with the given clause
-// object MUST be a pointer
+// object MUST be a pointer.
 func (j *Json) Get(table, object interface{}, clause ...string) error {
 	row := j.pool.QueryRow(context.Background(), fmt.Sprintf("SELECT data FROM %s %s", table, strings.Join(clause, " ")))
 	if err := row.Scan(object); err != nil {
@@ -252,7 +252,7 @@ func (j *Json) Get(table, object interface{}, clause ...string) error {
 }
 
 // List returns objects into result
-// result MUST be []*T pointer, e.g. &([]*T)
+// result MUST be []*T pointer, e.g. &([]*T).
 func (j *Json) List(table string, result interface{}, clause ...string) error {
 	sql := fmt.Sprintf("SELECT data FROM %s %s", table, strings.Join(clause, " "))
 	rows, err := j.pool.Query(context.Background(), sql)
@@ -273,7 +273,7 @@ func (j *Json) List(table string, result interface{}, clause ...string) error {
 	return nil
 }
 
-// Upsert = insert if not exist, otherwise update it, idPath is optional, [->'metadata'->>'uid'] by default
+// Upsert = insert if not exist, otherwise update it, idPath is optional, [->'metadata'->>'uid'] by default.
 func (j *Json) Upsert(table, uid string, data []byte, idPath ...string) error {
 	var (
 		result = ""

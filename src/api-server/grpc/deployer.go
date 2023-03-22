@@ -37,7 +37,7 @@ import (
 	grpcutils "github.com/tricorder/src/utils/grpc"
 )
 
-// Manages the deployment of eBPF+WASM modules
+// Manages the deployment of eBPF+WASM modules.
 type Deployer struct {
 	// The DAO object that proxies with SQLite for writing and reading the serialized data.
 	Module         dao.ModuleDao

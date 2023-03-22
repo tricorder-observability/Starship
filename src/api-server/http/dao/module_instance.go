@@ -53,7 +53,7 @@ const (
 	ModuleInstanceFailed = 3
 )
 
-// ModuleInstanceGORM sqlite gorm storage and response object
+// ModuleInstanceGORM sqlite gorm storage and response object.
 type ModuleInstanceGORM struct {
 	// tag schema https://gorm.io/docs/models.html#Fields-Tags
 	ID             string     `gorm:"column:id;primaryKey" json:"id,omitempty"`

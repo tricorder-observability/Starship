@@ -44,7 +44,7 @@ var (
 	moduleInstanceID = "2222"
 )
 
-// Tests that the http service can handle request
+// Tests that the http service can handle request.
 func TestGetDeployReqForModule(t *testing.T) {
 	assert := assert.New(t)
 	moduleGORM := dao.ModuleGORM{ID: "test"}
@@ -53,7 +53,7 @@ func TestGetDeployReqForModule(t *testing.T) {
 	assert.Equal("test", req.ModuleId)
 }
 
-// Tests that the grpc service can handle request
+// Tests that the grpc service can handle request.
 func TestDeployModule(t *testing.T) {
 	assert := assert.New(t)
 	require := require.New(t)

@@ -33,7 +33,7 @@ import (
 	pgclienttest "github.com/tricorder/src/testing/pg"
 )
 
-// Tests that the http service can handle request
+// Tests that the http service can handle request.
 func TestGetDeployReqForModule(t *testing.T) {
 	assert := assert.New(t)
 	require := require.New(t)

@@ -42,7 +42,7 @@ func init() {
 }
 
 // LaunchContainer returns a cleaner function, the client connected to the started container, and error if failed.
-// You can then destroy the fixtures by deferring statement
+// You can then destroy the fixtures by deferring statement.
 func LaunchContainer() (func() error, *pgutils.Client, error) {
 	tsdbRunner := &docker.Runner{
 		ImageName: tsdbImageName,

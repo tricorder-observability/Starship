@@ -171,7 +171,7 @@ func (r *Runner) Wait() error {
 	return r.Cmd.Wait()
 }
 
-// getPort returns the port of the string in the form of [IPv4|IPv6]:<port>
+// getPort returns the port of the string in the form of [IPv4|IPv6]:<port>.
 func getPort(addrPortStr string) (int, error) {
 	components := strings.Split(addrPortStr, ":")
 	if len(components) < 2 {

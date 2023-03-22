@@ -30,7 +30,7 @@ import (
 )
 
 var (
-	// For compatiability, --module_deployer_address not rename for now
+	// For compatiability, --module_deployer_address not rename for now.
 	apiServerAddr = flag.String(
 		"module_deployer_address",
 		"localhost:50051",

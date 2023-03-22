@@ -28,6 +28,7 @@ linters:
   enable:
   - asciicheck
   - errcheck
+  - godot
   - gofumpt
   - gofmt
   - gosimple

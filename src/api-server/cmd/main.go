@@ -56,7 +56,7 @@ var (
 		true,
 		"If true, start collecting metadata from K8s API Server and write to Postgres",
 	)
-	// For compatiability, module_deployer_port not rename for now
+	// For compatiability, module_deployer_port not rename for now.
 	agentServicePort = flag.Int("module_deployer_port", 50051, "The port to which the ModuleDeployer service listens")
 
 	modulePGURL = flag.String("pg_url", "postgresql://postgres:password@localhost", "The URL to PostgreSQL instance")
@@ -69,7 +69,7 @@ var (
 	)
 	moduleGrafanaURL = flag.String("grafana_url", "http://localhost:3000", "The URL to PostgreSQL instance")
 
-	// These 2 flags must be the same as Grafana configuration in helm-charts's charts/starship/values.yaml
+	// These 2 flags must be the same as Grafana configuration in helm-charts's charts/starship/values.yaml.
 	moduleGrafanaUserName = flag.String("grafana_user_name", "admin",
 		"Grafana username, must be consistent with Grafana installation config")
 	moduleGrafanaUserPassword = flag.String("grafana_user_pass", "tricorder",

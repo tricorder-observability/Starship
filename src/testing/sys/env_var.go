@@ -22,7 +22,7 @@ import (
 	"github.com/tricorder/src/utils/log"
 )
 
-// Deprecated: Moved to src/utils/sys/env_var.go:EnvVars
+// Deprecated: Moved to src/utils/sys/env_var.go:EnvVars.
 func GetEnvVars() map[string]string {
 	envVars := make(map[string]string)
 	for _, e := range os.Environ() {

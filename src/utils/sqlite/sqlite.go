@@ -23,7 +23,7 @@ import (
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
-	// Import sqlite driver
+	// Import sqlite driver.
 	_ "github.com/mattn/go-sqlite3"
 )
 

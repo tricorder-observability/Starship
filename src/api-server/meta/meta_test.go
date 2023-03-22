@@ -74,7 +74,7 @@ func TestCompareRuntimeEncodeVsJsonMarshal(t *testing.T) {
 
 // Tests that resources(Namespace|Pod|Enpoints|Service|ReplicaSet|Deployment) are the same between K8s and DB.
 // MUST set arg 'K8s', otherwise testing will skip.
-// bazel test :meta_test --test_arg=--test_against_k8s=true
+// bazel test :meta_test --test_arg=--test_against_k8s=true.
 func TestCompareResourcesBetweenK8sAndDB(t *testing.T) {
 	assert := assert.New(t)
 	require := require.New(t)
@@ -246,7 +246,7 @@ func TestCompareResourcesBetweenK8sAndDB(t *testing.T) {
 	assert.Equal(deploymentInK8s.Status, deploymentInDB.Status)
 }
 
-// TestInitResourceTable test data still exists after initResourceTable again
+// TestInitResourceTable test data still exists after initResourceTable again.
 func TestInitResourceTable(t *testing.T) {
 	assert := assert.New(t)
 	require := require.New(t)

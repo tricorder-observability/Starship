@@ -41,7 +41,7 @@ func unpackInt32Intf(intf interface{}) (int32, error) {
 	return val, nil
 }
 
-// Run a function with signature `func() int32`
+// Run a function with signature `func() int32`.
 func runVoidInt32(module *Module, fnName string) (int32, error) {
 	intf, err := module.Run(fnName)
 	if err != nil {
@@ -54,7 +54,7 @@ func runVoidInt32(module *Module, fnName string) (int32, error) {
 	return i32Val, nil
 }
 
-// callU32I32 wraps a call to a func (int32) int32
+// callU32I32 wraps a call to a func (int32) int32.
 func callU32I32(module *Module, fn string, i32 int32) (int32, error) {
 	ret, err := module.Run1(fn, i32)
 	if err != nil {

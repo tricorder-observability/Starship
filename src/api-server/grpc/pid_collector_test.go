@@ -112,7 +112,7 @@ func TestProcessCollectorIntegration(t *testing.T) {
 	assert.Equal(pod1.Status.ContainerStatuses[0].ContainerID, resultInDB[0].Container.Id)
 }
 
-// Test processInfo table's UUID works based on idPath of Postgres json
+// Test processInfo table's UUID works based on idPath of Postgres json.
 func TestIdPath(t *testing.T) {
 	assert := assert.New(t)
 	require := require.New(t)

@@ -21,7 +21,7 @@ import (
 	"testing"
 
 	// Use primitive bazel instead of src/testing/bazel to avoid circular dependency between
-	// src/utils/fail and src/testing/bazel
+	// src/utils/fail and src/testing/bazel.
 	"github.com/bazelbuild/rules_go/go/runfiles"
 	"github.com/bazelbuild/rules_go/go/tools/bazel"
 	"github.com/stretchr/testify/assert"

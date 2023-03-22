@@ -21,7 +21,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// TestQueue tests Enqueue and Dequeue methods
+// TestQueue tests Enqueue and Dequeue methods.
 func TestQueue(t *testing.T) {
 	assert := assert.New(t)
 

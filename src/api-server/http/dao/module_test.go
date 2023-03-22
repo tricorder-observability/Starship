@@ -28,14 +28,14 @@ import (
 	"github.com/tricorder/src/utils/uuid"
 )
 
-// Save test data in this path
+// Save test data in this path.
 const SQLiteFilePath string = "module_test"
 
 // test module dao fun
 // init sqlit gorm and create table
 // test dao.SaveModule and check save result
 // test dao.QueryBiID and dao.QueryByWasmID
-// test update module status and check update result
+// test update module status and check update result.
 func TestModule(t *testing.T) {
 	assert := assert.New(t)
 

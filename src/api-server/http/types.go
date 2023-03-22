@@ -100,7 +100,7 @@ func checkQuery(c *gin.Context, key string) (string, error) {
 	return val, nil
 }
 
-// DataFieldToPGColumn returns Column from a DataField protobuf message
+// DataFieldToPGColumn returns Column from a DataField protobuf message.
 func DataFieldToPGColumn(dataField *commonpb.DataField) (pg.Column, error) {
 	return pg.Column{
 		Name: dataField.Name,

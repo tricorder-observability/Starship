@@ -107,7 +107,7 @@ func (g *AuthToken) GetAllGrafanaAPIKey() ([]AuthKeyResult, error) {
 	return nil, err
 }
 
-// RemoveGrafanaAPIKeyById remove exist grafana api key by id
+// RemoveGrafanaAPIKeyById remove exist grafana api key by id.
 func (g *AuthToken) RemoveGrafanaAPIKeyById(ID int) error {
 	req, err := http.NewRequest("DELETE", g.config.CreateAuthKeysURI+"/"+strconv.Itoa(ID), strings.NewReader(""))
 	if err != nil {

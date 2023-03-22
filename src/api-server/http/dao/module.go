@@ -21,7 +21,7 @@ import (
 	"github.com/tricorder/src/utils/sqlite"
 )
 
-// ModuleGORM sqlite gorm storage and response object
+// ModuleGORM sqlite gorm storage and response object.
 type ModuleGORM struct {
 	// tag schema https://gorm.io/docs/models.html#Fields-Tags
 	ID                 string `gorm:"column:id;primaryKey" json:"id,omitempty"`

@@ -17,7 +17,7 @@ package pg
 
 import "strings"
 
-// pgPath read string slice, return string with postgres support format, e.g. ->'key'->>'subKey'
+// pgPath read string slice, return string with postgres support format, e.g. ->'key'->>'subKey'.
 func pgPath(paths []string) string {
 	if len(paths) == 0 {
 		return "data->'metadata'->>'uid'"

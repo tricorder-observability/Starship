@@ -26,7 +26,7 @@ import (
 	grafanaTest "github.com/tricorder/src/testing/grafana"
 )
 
-// Tests that auth token can be created on Grafana
+// Tests that auth token can be created on Grafana.
 func TestAuthToken(t *testing.T) {
 	assert := assert.New(t)
 	require := require.New(t)

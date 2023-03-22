@@ -31,7 +31,7 @@ import (
 	"github.com/tricorder/src/utils/pb"
 )
 
-// Wraps BCC Module object
+// Wraps BCC Module object.
 type module struct {
 	m *bcc.Module
 }

@@ -83,7 +83,7 @@ func locateClosestHeader(packageHeaderDir string, ver Version) (*Version, string
 	return closestVersion, closestVersionFullPath, nil
 }
 
-// installPackedHeader install kernel header from tar.gz file
+// installPackedHeader install kernel header from tar.gz file.
 func installPackagedHeader(packagedHeaderPath, installPath string) error {
 	if !file.Exists(packagedHeaderPath) {
 		return fmt.Errorf("packaged header %s not exist", packagedHeaderPath)
@@ -97,7 +97,7 @@ func installPackagedHeader(packagedHeaderPath, installPath string) error {
 	return nil
 }
 
-// modifyKernelVersion modify kernel version in package header file
+// modifyKernelVersion modify kernel version in package header file.
 func modifyKernelVersion(packageHeaderDir string, version Version) error {
 	versionFilePath := path.Join(packageHeaderDir, "include/generated/uapi/linux/version.h")
 	if !file.Exists(versionFilePath) {
@@ -114,7 +114,7 @@ func modifyKernelVersion(packageHeaderDir string, version Version) error {
 // 4. /<host_root>/lib/modules/<uname>/config
 // 5. /proc/config
 // 6. /proc/config.gz
-// return kernel config file path
+// return kernel config file path.
 func findKernelConfig(hostRootDir string, version Version, unameStr string) (string, error) {
 	// Used when CONFIG_IKCONFIG=y is set.
 	configPath := path.Join(hostRootDir, "proc/config")
@@ -216,7 +216,7 @@ func genAutoConf(packageHeaderDir, configFilePath string) (int, error) {
 	return hz, nil
 }
 
-// genTimeConst generate timeconst.h base on kernel config
+// genTimeConst generate timeconst.h base on kernel config.
 func genTimeConst(hostRootDir, packageHeaderDir string, hz int) error {
 	timeConstPath := path.Join(packageHeaderDir, "include/generated/timeconst.h")
 
@@ -229,7 +229,7 @@ func genTimeConst(hostRootDir, packageHeaderDir string, hz int) error {
 	return nil
 }
 
-// applyConfigPatches apply config patches to package header
+// applyConfigPatches apply config patches to package header.
 func applyConfigPatches(hostRootDir, packageHeaderDir, starShipDir, unameStr string, version Version) error {
 	kernelConfig, err := findKernelConfig(hostRootDir, version, unameStr)
 	if err != nil {
@@ -290,7 +290,7 @@ func locateAndInstallPackageHeaders(hostRootDir, libModuleDir, starShipDir,
 // and symlink to /lib/modules/<uname -r>/build
 // hostRootDir: /host is the host mount dir
 // libModuleDir: /lib/modules/<uname -r> is the module dir in container
-// hostModuleDir: /host/lib/modules/<uname -r> is the module dir in host
+// hostModuleDir: /host/lib/modules/<uname -r> is the module dir in host.
 func locateAndLinkHostHeader(hostRootDir, libModuleDir, hostModuleDir string) error {
 	//  searching /host/lib/modules/<uname>/source and try to link to /lib/modules/<uname>/source
 	hostHeaderSourceDir := path.Join(hostModuleDir, "source")
@@ -325,7 +325,7 @@ func locateAndLinkHostHeader(hostRootDir, libModuleDir, hostModuleDir string) er
 // findOrInstallHeaders that will find the Linux Kernel headers in the following order:
 // 1. search locale container linux header in '/lib/modules/<uname -r>/' dir
 // 2. search host mount dir /host/lib/modules/<uname -r>/, install host linux header
-// 3. search starship packaged header, install starship linux header
+// 3. search starship packaged header, install starship linux header.
 func findOrInstallHeaders(hostRootDir, starShipDir, libModulesDir, installHeadersDir string) error {
 	version, err := GetVersion()
 	if err != nil {
@@ -350,7 +350,7 @@ func findOrInstallHeaders(hostRootDir, starShipDir, libModulesDir, installHeader
 	return locateAndInstallPackageHeaders(hostRootDir, libModuleDir, starShipDir, installHeadersDir, uStr, version)
 }
 
-// Init will find or install linux headers
+// Init will find or install linux headers.
 func Init() error {
 	// hostRootDir refers to the path to the mounted volume which points the host's root path /.
 	// starShipDir is the starship header compressed tar dir

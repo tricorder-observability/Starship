@@ -37,7 +37,7 @@ import (
 
 // Deployer manages the communication with API Server:
 // * Receive instructions to deploy modules
-// * Reply deployment status
+// * Reply deployment status.
 type Deployer struct {
 	uuid string
 

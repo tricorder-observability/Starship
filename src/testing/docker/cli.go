@@ -23,7 +23,7 @@ import (
 	"github.com/tricorder/src/utils/exec"
 )
 
-// CLI wraps the `docker` command
+// CLI wraps the `docker` command.
 type CLI struct{}
 
 // Load imports a local .tar file by calling `docker load -i`.

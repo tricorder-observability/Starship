@@ -25,7 +25,7 @@ import (
 	"github.com/tricorder/src/utils/file"
 )
 
-// GZExtract extracts *.tar.gz file to destDir
+// GZExtract extracts *.tar.gz file to destDir.
 func GZExtract(tarFilePath string, destDir string) error {
 	reader, closer, err := file.Reader(tarFilePath)
 	if err != nil {

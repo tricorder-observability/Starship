@@ -42,7 +42,7 @@ func NewORM(dbfile string) (*ORM, error) {
 	return client, nil
 }
 
-// CreateTable wraps gorm.DB.AutoMigrate()
+// CreateTable wraps gorm.DB.AutoMigrate().
 func (g *ORM) CreateTable(schema interface{}) error {
 	return g.Engine.AutoMigrate(schema)
 }

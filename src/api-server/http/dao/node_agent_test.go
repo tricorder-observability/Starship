@@ -32,7 +32,7 @@ import (
 // init sqlit gorm and create table
 // test dao.SaveCode and check save result
 // test dao.QueryByID
-// test update code status and check update result
+// test update code status and check update result.
 func TestNodeAgent(t *testing.T) {
 	assert := assert.New(t)
 	require := require.New(t)

@@ -60,7 +60,7 @@ type ModuleManager struct {
 // @Produce      json
 // @Param			   module	body	CreateModuleReq	true	"Create module"
 // @Success      200  {object}  CreateModuleResp
-// @Router       /api/createModule [post]
+// @Router       /api/createModule [post].
 func (mgr *ModuleManager) createModuleHttp(c *gin.Context) {
 	var body CreateModuleReq
 	err := c.ShouldBind(&body)
@@ -185,7 +185,7 @@ func (mgr *ModuleManager) createModule(body CreateModuleReq) CreateModuleResp {
 // @Produce      json
 // @Param			   fields	 query	string	false  "query field search like 'agent_id,node_name,agent_pod_id'"
 // @Success      200  {object}  ListModuleResp
-// @Router       /api/listAgent [get]
+// @Router       /api/listAgent [get].
 func (mgr *ModuleManager) listAgentHttp(c *gin.Context) {
 	// Allow fields to be omitted.
 	const fieldsKey = "fields"
@@ -223,7 +223,7 @@ func (mgr *ModuleManager) listAgent(req ListAgentReq) ListAgentResp {
 // @Produce      json
 // @Param			   fields	 query	string	false  "query field search like 'id,name,createTime'"
 // @Success      200  {object}  ListModuleResp
-// @Router       /api/listModule [get]
+// @Router       /api/listModule [get].
 func (mgr *ModuleManager) listModuleHttp(c *gin.Context) {
 	// Allow fields to be omitted.
 	const fieldsKey = "fields"
@@ -261,7 +261,7 @@ func (mgr *ModuleManager) listModule(req ListModuleReq) ListModuleResp {
 // @Produce      json
 // @Param			   id	  query		  string	true	"delete module id"
 // @Success      200  {object}   HTTPResp
-// @Router       /api/deleteModule [get]
+// @Router       /api/deleteModule [get].
 func (mgr *ModuleManager) deleteModuleHttp(c *gin.Context) {
 	id, err := checkQuery(c, "id")
 	if err != nil {
@@ -317,7 +317,7 @@ func (mgr *ModuleManager) deleteModule(id string) DeleteModuleResp {
 // @Produce      json
 // @Param			   id	  query		  string	true	"deploy module id"
 // @Success      200  {object}  DeployModuleResp
-// @Router       /api/deployModule [post]
+// @Router       /api/deployModule [post].
 func (mgr *ModuleManager) deployModuleHttp(c *gin.Context) {
 	id, err := checkQuery(c, "id")
 	if err != nil {
@@ -449,7 +449,7 @@ func (mgr *ModuleManager) deployModule(id string) DeployModuleResp {
 // @Produce      json
 // @Param			   id	  query		 string	 true	 "undeploy module id"
 // @Success      200  {object}  HTTPResp
-// @Router       /api/undeployModule [post]
+// @Router       /api/undeployModule [post].
 func (mgr *ModuleManager) undeployModuleHttp(c *gin.Context) {
 	id, err := checkQuery(c, "id")
 	if err != nil {
@@ -501,7 +501,7 @@ func (mgr *ModuleManager) undeployModule(id string) UndeployModuleResp {
 	}}
 }
 
-// Generate schema name tricorder_module_{moduleID}
+// Generate schema name tricorder_module_{moduleID}.
 func getModuleDataTableName(id string) string {
 	const moduleDataTableNamePrefix = "tricorder_module_"
 	return moduleDataTableNamePrefix + id

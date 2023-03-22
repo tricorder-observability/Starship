@@ -58,7 +58,7 @@ func Create(p string) error {
 }
 
 // CreateDir with the specified path.
-// All parent dirs will be created
+// All parent dirs will be created.
 func CreateDir(p string) error {
 	if Exists(p) {
 		return nil
@@ -126,7 +126,7 @@ func ReadLines(filePath string) ([]string, error) {
 	return strings.Split(result, "\n"), nil
 }
 
-// Copy copy srcPath file to dstPath
+// Copy copy srcPath file to dstPath.
 func Copy(srcPath string, dstPath string) error {
 	if !Exists(srcPath) {
 		return fmt.Errorf("while copying file , %s file does not exit", srcPath)
@@ -149,7 +149,7 @@ func Copy(srcPath string, dstPath string) error {
 	return nil
 }
 
-// Reader return reader and closer object
+// Reader return reader and closer object.
 func Reader(filePath string) (io.Reader, io.Closer, error) {
 	filePathDir := path.Dir(filePath)
 	if !Exists(filePathDir) {
@@ -165,7 +165,7 @@ func Reader(filePath string) (io.Reader, io.Closer, error) {
 	return file, file, nil
 }
 
-// Writer return writer and closer object
+// Writer return writer and closer object.
 func Writer(filePath string) (io.Writer, io.Closer, error) {
 	filePathDir := path.Dir(filePath)
 	if !Exists(filePathDir) {
@@ -185,12 +185,12 @@ func Writer(filePath string) (io.Writer, io.Closer, error) {
 	return file, file, nil
 }
 
-// ReadSymLink read the symbolic link
+// ReadSymLink read the symbolic link.
 func ReadSymLink(linkPath string) (string, error) {
 	return os.Readlink(linkPath)
 }
 
-// CreateSymLink create dstPath symlink to srcPath
+// CreateSymLink create dstPath symlink to srcPath.
 func CreateSymLink(srcPath, dstPath string) error {
 	if !Exists(srcPath) {
 		return fmt.Errorf("while create symbol link, %s file does not exit", srcPath)

@@ -116,7 +116,7 @@ func unameVersion() (Version, error) {
 	return parseVersion(uname)
 }
 
-// procVersion returns system version from /proc/version_signature
+// procVersion returns system version from /proc/version_signature.
 func procVersion() (Version, error) {
 	const path = "/proc/version_signature"
 	content, err := file.Read(path)
@@ -158,7 +158,7 @@ func WriteVersion(versionHeaderFile string, ver Version) error {
 	return file.Write(versionHeaderFile, strings.Join(lines, "\n"))
 }
 
-// getKernelVersionFromArchiveFilePath return Version from archive file path
+// getKernelVersionFromArchiveFilePath return Version from archive file path.
 func getKernelVersionFromArchiveFilePath(file string) (Version, error) {
 	if !strings.HasPrefix(file, "linux-headers-") {
 		return Version{}, fmt.Errorf("no 'linux-headers-' prefix, failed to parse version from file %s", file)

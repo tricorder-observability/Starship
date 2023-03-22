@@ -37,7 +37,7 @@ import (
 const defaultPort = 5432
 
 // NOTE: Cannot use src/testing/pg/fixture.go's LuanchContainer
-// Because there will be circular dependency between src/testing/pg and src/utils/pg
+// Because there will be circular dependency between src/testing/pg and src/utils/pg.
 func createPGTestFixutre() (*docker.Runner, *Client, error) {
 	pgRunner := &docker.Runner{
 		ImageName: "postgres",
