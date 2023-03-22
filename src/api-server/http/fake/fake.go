@@ -35,7 +35,7 @@ func (srv *Server) Start(cfg http.Config, pgClient *pg.Client, wasiCompiler *was
 	return lis.Addr()
 }
 
-// StartNewServer creates a Server and start the server.
+// StartFakeNewServer creates a Server and start the server.
 func StartFakeNewServer(
 	sqliteClient *sqlite.ORM, gLock *lock.Lock,
 	waitCond *cond.Cond, pgClient *pg.Client, grafanaURL string,

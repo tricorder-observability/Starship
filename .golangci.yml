@@ -60,6 +60,12 @@ linters-settings:
       # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#package-comments
       - name: package-comments
         severity: error
+        disabled: false
+      - name: argument-limit
+        severity: error
+        disabled: false
+        # TODO(yzhao): Reduce it to 5
+        arguments: [8]
   lll:
     # max line length, lines longer will be reported. Default is 120.
     # '\t' is counted as 1 character by default, and can be changed with the tab-width option
