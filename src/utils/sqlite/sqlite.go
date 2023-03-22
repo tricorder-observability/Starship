@@ -20,6 +20,7 @@ import (
 	"path"
 
 	"github.com/tricorder/src/utils/errors"
+	"github.com/tricorder/src/utils/file"
 	"github.com/tricorder/src/utils/log"
 
 	// Import sqlite driver.
@@ -30,15 +31,16 @@ const (
 	SqliteDBFileName = "tricorder.db"
 )
 
-// PrepareSqliteDbFile will prepare a sqlite db file according the specified dir path.
+// PrepareSQLiteDBDir will prepare a sqlite db file according the specified dir path.
 // sqlite db file absolute path will be returned.
-func PrepareSqliteDbFile(dirPath string) (string, error) {
-	if _, err := os.Stat(dirPath); errors.Is(err, os.ErrNotExist) {
-		log.Warnf("Dir '%s' does not exist, creat it now", dirPath)
-		err := os.MkdirAll(dirPath, os.ModePerm)
-		if err != nil {
-			return "", errors.Wrap("preparing SQLite DB file", "create parent directory", err)
-		}
+func PrepareSQLiteDBDir(dirPath string) (string, error) {
+	if file.Exists(dirPath) {
+		return path.Join(dirPath, SqliteDBFileName), nil
+	}
+	log.Warnf("Dir '%s' does not exist, creat it now", dirPath)
+	err := os.MkdirAll(dirPath, os.ModePerm)
+	if err != nil {
+		return "", errors.Wrap("preparing SQLite DB file", "create parent directory", err)
 	}
 	return path.Join(dirPath, SqliteDBFileName), nil
 }

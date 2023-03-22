@@ -10,6 +10,7 @@ go_library(
     visibility = ["//visibility:public"],
     deps = [
         "//src/utils/errors",
+        "//src/utils/file",
         "//src/utils/log",
         "@com_github_mattn_go_sqlite3//:go-sqlite3",
         "@io_gorm_driver_sqlite//:sqlite",

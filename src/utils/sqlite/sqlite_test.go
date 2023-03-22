@@ -51,7 +51,7 @@ func TestInitDBFile(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		dbFilePath, err := PrepareSqliteDbFile(tc.dirPath)
+		dbFilePath, err := PrepareSQLiteDBDir(tc.dirPath)
 		assert.NoError(err)
 		assert.True(file.Exists(tc.dirPath))
 		assert.Equal(tc.wantDBFilePath, dbFilePath)
