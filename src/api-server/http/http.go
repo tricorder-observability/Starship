@@ -86,7 +86,7 @@ func StartHTTPService(cfg Config, pgClient *pg.Client, wasiCompiler *wasm.WASICo
 		PGClient:       pgClient,
 		GLock:          cfg.GLock,
 		WaitCond:       cfg.WaitCond,
-		WasiCompiler:   wasiCompiler,
+		WASICompiler:   wasiCompiler,
 	}
 	router := gin.Default()
 
