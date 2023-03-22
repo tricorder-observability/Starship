@@ -29,9 +29,8 @@ func TestNew(t *testing.T) {
 }
 
 func TestNewWithSeparator(t *testing.T) {
-	assert
-	uuid1 := New()
-	uuid2 := New()
 	assert := assert.New(t)
-	assert.NotEqual(uuid1, uuid2, "New() should return different results, got '%s'", uuid1)
+	uuid1 := NewWithSeparator("===")
+	assert.Regexp(`.+===.+===.+===.+===.+`, uuid1)
+	assert.NotContains("-", uuid1)
 }

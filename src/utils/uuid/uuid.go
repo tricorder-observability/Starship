@@ -16,6 +16,8 @@
 package uuid
 
 import (
+	"strings"
+
 	"github.com/google/uuid"
 )
 
@@ -25,7 +27,8 @@ func New() string {
 }
 
 // New returns a UUID with the provided separator.
-func NewWithSeparator(separator string) {
+func NewWithSeparator(separator string) string {
 	uuid := New()
-	return strings.Replace(uuid, "-", separator, -1)
+	const defaultSeparator = "-"
+	return strings.ReplaceAll(uuid, defaultSeparator, separator)
 }
