@@ -36,6 +36,7 @@ import (
 	pgclienttest "github.com/tricorder/src/testing/pg"
 	"github.com/tricorder/src/utils/cond"
 	"github.com/tricorder/src/utils/lock"
+	"github.com/tricorder/src/utils/log"
 	"github.com/tricorder/src/utils/uuid"
 )
 
@@ -53,7 +54,11 @@ func SetUpRouter(grafanaURL string) *gin.Engine {
 
 	mgr.GrafanaConfig = config
 
-	sqliteClient, _ := dao.InitSqlite(testDbFilePath)
+	sqliteClient, err := dao.InitSqlite(testDbFilePath)
+	if err != nil {
+		log.Fatalf("Failed to initialize SQLite DB file, error: %v", err)
+	}
+
 	mgr.Module = dao.ModuleDao{
 		Client: sqliteClient,
 	}
@@ -91,7 +96,7 @@ func TestModuleManager(t *testing.T) {
 
 	mgr.PGClient = pgClient
 
-	r.GET("/api/listModule", mgr.listModuleHttp)
+	r.GET("/api/listModule", mgr.ListModuleHttp)
 	req, err := http.NewRequest("GET", "/api/listModule", nil)
 	require.Nil(err)
 
@@ -105,7 +110,7 @@ func TestModuleManager(t *testing.T) {
 	nodeAgentID, err := AddAgent(t, r)
 	require.NoError(err)
 
-	r.GET("/api/deployModule", mgr.deployModuleHttp)
+	r.GET("/api/deployModule", mgr.DeployModuleHttp)
 	req, err = http.NewRequest("GET", fmt.Sprintf("/api/deployModule?id=%s", moduleID), nil)
 	require.NoError(err)
 
@@ -195,7 +200,7 @@ func AddModule(t *testing.T, wasmUid string, r *gin.Engine) string {
 	assert := assert.New(t)
 
 	jsonData := []byte(moduleBody)
-	r.POST("/api/addModule", mgr.createModuleHttp)
+	r.POST("/api/addModule", mgr.CreateModuleHttp)
 	req, _ := http.NewRequest("POST", "/api/addModule", bytes.NewBuffer(jsonData))
 	req.Header.Set("Content-Type", "application/json; charset=utf-8")
 	w := httptest.NewRecorder()
@@ -214,7 +219,7 @@ func AddModule(t *testing.T, wasmUid string, r *gin.Engine) string {
 	return moduleResult.ID
 }
 
-// Tests that createModuleHttp failed if the input data fields are empty.
+// Tests that CreateModuleHttp failed if the input data fields are empty.
 func TestCreateModuleEmptyDataFields(t *testing.T) {
 	assert := assert.New(t)
 
@@ -246,7 +251,7 @@ func TestCreateModuleEmptyDataFields(t *testing.T) {
 
 	r := SetUpRouter("")
 
-	r.POST("/api/createModule", mgr.createModuleHttp)
+	r.POST("/api/createModule", mgr.CreateModuleHttp)
 	req, _ := http.NewRequest("POST", "/api/createModule", bytes.NewBuffer(jsonData))
 	req.Header.Set("Content-Type", "application/json; charset=utf-8")
 
@@ -257,7 +262,7 @@ func TestCreateModuleEmptyDataFields(t *testing.T) {
 }
 
 func deleteModule(t *testing.T, moduleID string, r *gin.Engine) {
-	r.GET("/api/deleteModule", mgr.deleteModuleHttp)
+	r.GET("/api/deleteModule", mgr.DeleteModuleHttp)
 	req, _ := http.NewRequest("GET", fmt.Sprintf("/api/deleteModule?id=%s", moduleID), nil)
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, req)
@@ -277,7 +282,7 @@ func deleteModule(t *testing.T, moduleID string, r *gin.Engine) {
 func unDeployModule(t *testing.T, moduleID string, agentID string, r *gin.Engine) {
 	assert := assert.New(t)
 
-	r.GET("/api/undeployModule", mgr.undeployModuleHttp)
+	r.GET("/api/undeployModule", mgr.UndeployModuleHttp)
 	req, _ := http.NewRequest("GET", fmt.Sprintf("/api/undeployModule?id=%s", moduleID), nil)
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, req)
@@ -304,7 +309,7 @@ func unDeployModule(t *testing.T, moduleID string, agentID string, r *gin.Engine
 func listAgent(t *testing.T, agentID string, r *gin.Engine) {
 	assert := assert.New(t)
 
-	r.GET("/api/listAgent", mgr.listAgentHttp)
+	r.GET("/api/listAgent", mgr.ListAgentHttp)
 	req, _ := http.NewRequest("GET", "/api/listAgent", nil)
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, req)

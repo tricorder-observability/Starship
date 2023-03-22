@@ -32,6 +32,7 @@ import (
 	"github.com/tricorder/src/api-server/http/dao"
 	"github.com/tricorder/src/api-server/http/grafana"
 	pb "github.com/tricorder/src/api-server/pb"
+	"github.com/tricorder/src/api-server/wasm"
 	commonpb "github.com/tricorder/src/pb/module/common"
 	"github.com/tricorder/src/utils/pg"
 	"github.com/tricorder/src/utils/uuid"
@@ -40,14 +41,15 @@ import (
 // ModuleManager provides APIs to manage eBPF+WASM module received from the management Web UI.
 type ModuleManager struct {
 	GrafanaConfig  grafana.Config
+	GrafanaClient  grafana.GrafanaManagement
 	DatasourceUID  string
 	Module         dao.ModuleDao
 	NodeAgent      dao.NodeAgentDao
 	ModuleInstance dao.ModuleInstanceDao
-	GrafanaClient  grafana.GrafanaManagement
 	GLock          *lock.Lock
 	WaitCond       *cond.Cond
 	PGClient       *pg.Client
+	WasiCompiler   wasm.WasiCompiler
 }
 
 // CreateModuleHttp  godoc
