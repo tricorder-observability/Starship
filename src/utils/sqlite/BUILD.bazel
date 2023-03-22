@@ -26,7 +26,7 @@ go_test(
     embed = [":sqlite"],
     deps = [
         "//src/testing/bazel",
+        "//src/utils/file",
         "@com_github_stretchr_testify//assert",
-        "@com_github_stretchr_testify//require",
     ],
 )

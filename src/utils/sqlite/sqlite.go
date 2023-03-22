@@ -16,9 +16,8 @@
 package sqlite
 
 import (
-	"fmt"
 	"os"
-	"strings"
+	"path"
 
 	"github.com/tricorder/src/utils/errors"
 	"github.com/tricorder/src/utils/log"
@@ -34,25 +33,12 @@ const (
 // PrepareSqliteDbFile will prepare a sqlite db file according the specified dir path.
 // sqlite db file absolute path will be returned.
 func PrepareSqliteDbFile(dirPath string) (string, error) {
-	// check is the dir is existed.
 	if _, err := os.Stat(dirPath); errors.Is(err, os.ErrNotExist) {
 		log.Warnf("Dir '%s' does not exist, creat it now", dirPath)
-		// If it is a multi tier folder, recursively create all folders
-		// otherwise an error will be reported if the folder does not exist
 		err := os.MkdirAll(dirPath, os.ModePerm)
 		if err != nil {
 			return "", errors.Wrap("preparing SQLite DB file", "create parent directory", err)
 		}
 	}
-
-	// check the db file is existed, if not, create it.
-	var sqliteDbFilePath string
-	if strings.HasSuffix(dirPath, "/") {
-		sqliteDbFilePath = fmt.Sprintf("%s%s", dirPath, SqliteDBFileName)
-	} else {
-		sqliteDbFilePath = fmt.Sprintf("%s/%s", dirPath, SqliteDBFileName)
-	}
-
-	// db file is existed, return directly.
-	return sqliteDbFilePath, nil
+	return path.Join(dirPath, SqliteDBFileName), nil
 }
