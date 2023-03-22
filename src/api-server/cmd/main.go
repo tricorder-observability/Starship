@@ -122,8 +122,7 @@ func main() {
 	waitCond := cond.NewCond()
 	gLock := lock.NewLock()
 
-	wasiCompiler := wasm.NewWASICompiler(wasm.DefaultWASISDKPath,
-		wasm.DefaultWASIStarshipInclude, wasm.DefaultBuildTmpDir)
+	wasiCompiler := wasm.NewWASICompilerWithDefaults()
 
 	if *enableMetadataService {
 		err = retry.ExpBackOffWithLimit(func() error {
