@@ -118,16 +118,7 @@ func main() {
 		log.Fatalf("While starting API Server, failed to initialize SQLite database, error: %v", err)
 	}
 
-	moduleDao := dao.ModuleDao{
-		Client: sqliteClient,
-	}
-	nodeAgentDao := dao.NodeAgentDao{
-		Client: sqliteClient,
-	}
-	moduleInstanceDao := dao.ModuleInstanceDao{
-		Client: sqliteClient,
-	}
-
+	dao := dao.NewDao(sqliteClient)
 	waitCond := cond.NewCond()
 	gLock := lock.NewLock()
 
@@ -178,9 +169,9 @@ func main() {
 				GrafanaUserPass: *moduleGrafanaUserPassword,
 				DatasourceName:  *moduleDatasourceName,
 				DatasourceUID:   *moduleDatasourceUID,
-				Module:          moduleDao,
-				NodeAgent:       nodeAgentDao,
-				ModuleInstance:  moduleInstanceDao,
+				Module:          dao.Module,
+				NodeAgent:       dao.NodeAgent,
+				ModuleInstance:  dao.ModuleInstance,
 				WaitCond:        waitCond,
 				GLock:           gLock,
 				Standalone:      *standalone,
@@ -191,7 +182,7 @@ func main() {
 
 	if *enableMetadataService {
 		srvErrGroup.Go(func() error {
-			err := meta.StartWatchingResources(clientset, pgClient, &nodeAgentDao, waitCond)
+			err := meta.StartWatchingResources(clientset, pgClient, &dao.NodeAgent, waitCond)
 			if err != nil {
 				log.Fatalf("Could not start metadata service, error: %v", err)
 			}

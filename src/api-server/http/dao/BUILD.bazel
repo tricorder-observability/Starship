@@ -3,6 +3,7 @@ load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
 go_library(
     name = "dao",
     srcs = [
+        "dao.go",
         "module.go",
         "module_instance.go",
         "node_agent.go",
