@@ -148,6 +148,7 @@ func (mgr *ModuleManager) createModule(body CreateModuleReq) CreateModuleResp {
 		EbpfLang:           int(body.Ebpf.Lang),
 		EbpfPerfBufferName: body.Ebpf.PerfBufferName,
 		EbpfProbes:         string(ebpfProbes),
+		WasmCode:           wasmCode,
 		Wasm:               body.Wasm.Code,
 		SchemaAttr:         string(schemaAttr),
 		Fn:                 body.Wasm.FnName,
