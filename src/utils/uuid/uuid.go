@@ -19,6 +19,13 @@ import (
 	"github.com/google/uuid"
 )
 
+// New returns a UUID.
 func New() string {
 	return uuid.New().String()
+}
+
+// New returns a UUID with the provided separator.
+func NewWithSeparator(separator string) {
+	uuid := New()
+	return strings.Replace(uuid, "-", separator, -1)
 }
