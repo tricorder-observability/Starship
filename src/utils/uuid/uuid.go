@@ -26,9 +26,15 @@ func New() string {
 	return uuid.New().String()
 }
 
-// New returns a UUID with the provided separator.
+// Returns a UUID with the provided separator.
 func NewWithSeparator(separator string) string {
 	uuid := New()
 	const defaultSeparator = "-"
 	return strings.ReplaceAll(uuid, defaultSeparator, separator)
+}
+
+// Returns a UUID with underscore as the separator.
+func NewWithUnderscoreSeparator() string {
+	const underscore = "_"
+	return NewWithSeparator(underscore)
 }

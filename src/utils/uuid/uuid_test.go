@@ -34,3 +34,10 @@ func TestNewWithSeparator(t *testing.T) {
 	assert.Regexp(`.+===.+===.+===.+===.+`, uuid1)
 	assert.NotContains("-", uuid1)
 }
+
+func TestNewWithUnderscoreSeparator(t *testing.T) {
+	assert := assert.New(t)
+	uuid1 := NewWithUnderscoreSeparator()
+	assert.Regexp(`.+_.+_.+_.+_.+`, uuid1)
+	assert.NotContains("-", uuid1)
+}
