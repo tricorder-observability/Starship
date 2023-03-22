@@ -19,6 +19,7 @@ const (
 	defaultWASICFlags          = "--sysroot=" + defaultWASISDKPath + "/share/wasi-sysroot"
 	defaultWASIStarshipInclude = "/opt/tricorder/wasm/include"
 	defaultBuildTmpDir         = "/tmp"
+	cJSONDotC                  = "cJSON.c"
 )
 
 type WASICompiler struct {
@@ -68,7 +69,7 @@ func (w *WASICompiler) BuildC(code string) ([]byte, error) {
 	// compile code
 	phase = "compile " + srcFilePath + " to " + dstFilePath
 	cmd := exec.Command(w.clangPath, w.cFlags,
-		w.includesDir+"/cJSON.c", "-I"+w.includesDir, srcFilePath,
+		path.Join(w.includesDir, cJSONDotC), "-I"+w.includesDir, srcFilePath,
 		"-Wl,--export-all", "-Wall", "-Wextra", "-o", dstFilePath)
 	var stderr bytes.Buffer
 	cmd.Stderr = &stderr
