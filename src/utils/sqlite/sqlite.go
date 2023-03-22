@@ -37,7 +37,7 @@ func PrepareSQLiteDBDir(dirPath string) (string, error) {
 	if file.Exists(dirPath) {
 		return path.Join(dirPath, SqliteDBFileName), nil
 	}
-	log.Warnf("Dir '%s' does not exist, creat it now", dirPath)
+	log.Warnf("Dir '%s' does not exist, create it now", dirPath)
 	err := os.MkdirAll(dirPath, os.ModePerm)
 	if err != nil {
 		return "", errors.Wrap("preparing SQLite DB file", "create parent directory", err)
