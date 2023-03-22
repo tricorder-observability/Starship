@@ -1,4 +1,4 @@
-load("@io_bazel_rules_go//go:def.bzl", "go_library")
+load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
 
 go_library(
     name = "http",
@@ -6,6 +6,8 @@ go_library(
         "cors.go",
         "exception.go",
         "http.go",
+        "module_manager.go",
+        "types.go",
     ],
     importpath = "github.com/tricorder/src/api-server/http",
     visibility = [
@@ -17,6 +19,7 @@ go_library(
         "//src/api-server/http/api",
         "//src/api-server/http/dao",
         "//src/api-server/http/grafana",
+        "//src/api-server/http/module_manager",
         "//src/api-server/pb",
         "//src/api-server/wasm",
         "//src/pb/module/common",
@@ -27,6 +30,7 @@ go_library(
         "//src/utils/lock",
         "//src/utils/log",
         "//src/utils/pg",
+        "//src/utils/uuid",
         "@com_github_gin_gonic_gin//:gin",
         "@com_github_swaggo_files//:files",
         "@com_github_swaggo_gin_swagger//:gin-swagger",
@@ -38,4 +42,24 @@ filegroup(
     name = "tricorder_db",
     srcs = ["tricorder.db"],
     visibility = ["//src/api-server:__subpackages__"],
+)
+
+go_test(
+    name = "http_test",
+    srcs = ["module_manager_test.go"],
+    embed = [":http"],
+    deps = [
+        "//src/api-server/http/dao",
+        "//src/api-server/http/grafana",
+        "//src/api-server/pb",
+        "//src/testing/bazel",
+        "//src/testing/grafana",
+        "//src/testing/pg",
+        "//src/utils/cond",
+        "//src/utils/lock",
+        "//src/utils/uuid",
+        "@com_github_gin_gonic_gin//:gin",
+        "@com_github_stretchr_testify//assert",
+        "@com_github_stretchr_testify//require",
+    ],
 )
