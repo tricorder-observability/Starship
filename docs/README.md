@@ -1,4 +1,3 @@
-# Documentations
+# Docs
 
-High-level documentations not fit in directories.
-Like architecture design, prototype design, etc.
+High-level documentations not fit in the top of tree, like architecture design, prototype design, etc.
