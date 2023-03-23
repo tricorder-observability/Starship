@@ -17,11 +17,27 @@ import (
 type Client struct {
 	// The URL to the API Server.
 	url string
+
+	listModuleURL     string
+	listAgentURL      string
+	createModuleURL   string
+	deployModuleURL   string
+	undeployModuleURL string
+	deleteModuleURL   string
 }
 
 // NewClient returns a new Client instance.
 func NewClient(url string) *Client {
-	return &Client{url: url}
+	return &Client{
+		url: url,
+
+		listModuleURL:     api.GetURL(url, api.LIST_MODULE_PATH),
+		listAgentURL:      api.GetURL(url, api.LIST_AGENT_PATH),
+		createModuleURL:   api.GetURL(url, api.CREATE_MODULE_PATH),
+		deployModuleURL:   api.GetURL(url, api.DEPLOY_MODULE_PATH),
+		undeployModuleURL: api.GetURL(url, api.UNDEPLOY_MODULE_PATH),
+		deleteModuleURL:   api.GetURL(url, api.DELETE_MODULE_PATH),
+	}
 }
 
 func executeHTTPReq(req *http.Request, resp any) error {
@@ -51,7 +67,7 @@ func (c *Client) ListAgents(agentReq *apiserver.ListAgentReq) (*apiserver.ListAg
 		field = agentReq.Fields
 	}
 
-	req, err := http.NewRequest("GET", fmt.Sprintf("%s?fields=%s", c.url+api.LIST_AGENT_PATH, field), nil)
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s?fields=%s", c.listAgentURL, field), nil)
 	if err != nil {
 		return nil, errors.Wrap("listing agents", "create request", err)
 	}
@@ -73,7 +89,7 @@ func (c *Client) CreateModule(moduleReq *apiserver.CreateModuleReq) (*apiserver.
 		return nil, errors.Wrap("creating module", "encode req body", err)
 	}
 
-	req, err := http.NewRequest("POST", c.url+api.CREATE_MODULE_PATH, bytes.NewBuffer(bodyBytes))
+	req, err := http.NewRequest("POST", c.createModuleURL, bytes.NewBuffer(bodyBytes))
 	if err != nil {
 		return nil, errors.Wrap("creating module", "create request", err)
 	}
@@ -92,7 +108,7 @@ func (c *Client) CreateModule(moduleReq *apiserver.CreateModuleReq) (*apiserver.
 // DeployModule deploys a module on the API Server.
 // moduleId is the ID of the module to be deployed.
 func (c *Client) DeployModule(moduleId string) (*apiserver.DeployModuleResp, error) {
-	url := fmt.Sprintf("%s?id=%s", c.url+api.DEPLOY_MODULE_PATH, moduleId)
+	url := fmt.Sprintf("%s?id=%s", c.deployModuleURL, moduleId)
 	req, err := http.NewRequest("POST", url, nil)
 	if err != nil {
 		return nil, errors.Wrap("deploying module", "create request", err)
@@ -110,7 +126,7 @@ func (c *Client) DeployModule(moduleId string) (*apiserver.DeployModuleResp, err
 // UndeployModule undeploys a module on the API Server.
 // moduleId is the ID of the module to be undeployed.
 func (c *Client) UndeployModule(moduleId string) (*apiserver.UndeployModuleResp, error) {
-	url := fmt.Sprintf("%s?id=%s", c.url+api.UNDEPLOY_MODULE_PATH, moduleId)
+	url := fmt.Sprintf("%s?id=%s", c.undeployModuleURL, moduleId)
 	req, err := http.NewRequest("POST", url, nil)
 	if err != nil {
 		return nil, errors.Wrap("undeploying module", "create request", err)
@@ -128,7 +144,7 @@ func (c *Client) UndeployModule(moduleId string) (*apiserver.UndeployModuleResp,
 // DeleteModule deletes a module on the API Server.
 // moduleId is the ID of the module to be deleted.
 func (c *Client) DeleteModule(moduleId string) (*apiserver.DeleteModuleResp, error) {
-	url := fmt.Sprintf("%s?id=%s", c.url+api.DELETE_MODULE_PATH, moduleId)
+	url := fmt.Sprintf("%s?id=%s", c.deleteModuleURL, moduleId)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, errors.Wrap("deleting module", "create request", err)
@@ -152,7 +168,7 @@ func (c *Client) ListModules(moduleReq *apiserver.ListModuleReq) (*apiserver.Lis
 		field = moduleReq.Fields
 	}
 
-	req, err := http.NewRequest("GET", fmt.Sprintf("%s?fields=%s", c.url+api.LIST_MODULE_PATH, field), nil)
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s?fields=%s", c.listModuleURL, field), nil)
 	if err != nil {
 		return nil, errors.Wrap("listing modules", "create request", err)
 	}
