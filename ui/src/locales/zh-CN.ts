@@ -5,7 +5,7 @@ import pages from './zh-CN/pages';
 import pwa from './zh-CN/pwa';
 import settingDrawer from './zh-CN/settingDrawer';
 import settings from './zh-CN/settings';
-import createObserve from './zh-CN/createObserve';
+import createModule from './zh-CN/createModule';
 import moduleList from './zh-CN/moduleList';
 
 export default {
@@ -26,6 +26,6 @@ export default {
   ...settings,
   ...pwa,
   ...component,
-  ...createObserve,
+  ...createModule,
   ...moduleList,
 };

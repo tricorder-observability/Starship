@@ -10,11 +10,11 @@
  */
 export default [
   {
-    path: '/create-observe',
+    path: '/create-module',
     name: '新建观测',
     name_en: 'Apply Observe',
     icon: 'compass',
-    component: './CreateObserve',
+    component: './CreateModule',
   },
   {
     path: '/module-list',
@@ -32,7 +32,7 @@ export default [
   },
   {
     path: '/',
-    redirect: '/create-observe',
+    redirect: '/create-module',
   },
   {
     path: '*',

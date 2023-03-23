@@ -6,7 +6,7 @@ import pwa from './en-US/pwa';
 import settingDrawer from './en-US/settingDrawer';
 import settings from './en-US/settings';
 import moduleList from './en-US/ModuleList';
-import createObserve from './en-US/createObserve';
+import createModule from './en-US/createModule';
 
 export default {
   'navBar.lang': 'Languages',
@@ -27,5 +27,5 @@ export default {
   ...component,
   ...pages,
   ...moduleList,
-  ...createObserve,
+  ...createModule,
 };
