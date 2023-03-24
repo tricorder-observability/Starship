@@ -26,6 +26,21 @@ community.
 ![Twitter Follow](https://img.shields.io/twitter/follow/tricorder_o11y?style=social)
 [![Slack Badge](https://img.shields.io/badge/Slack-4A154B?logo=slack&style=social&label=Join%20Tricorder)](https://join.slack.com/t/tricorderobse-mfl6648/shared_invite/zt-1oxqtq793-rRA03FN1YuyCiQrN_TrZoQ)
 
+## Building Starship
+The easiest way to get started with building Starship is to use the dev image:
+
+```
+git clone git@github.com:<fork>/Starship.git
+cd Starship
+# Luanch dev image container
+devops/dev_image/run.sh
+# Inside the container
+bazel build src/...
+```
+
+`devops/dev_image/run.sh` mounts the `pwd` (which is the root of the cloned Starship repo)
+to `/starship` inside the dev image.
+
 ## Get Started
 
 ☸️ [Helm-charts](https://tricorder-observability.github.io/Starship),
@@ -40,13 +55,14 @@ $ commit: ddac20b4b34a9c8c857fc602203b6ba2679794d3
 
 # First start the minikube cluster, and make sure have at least 8 cpus and
 # 8196 MB memory.
-minikube start --cpus=8 --memory=8192
+minikube start --profile=${USER} --cpus=8 --memory=8192
 
 # Create a namespace for installing Starship.
 # Do not use a different namespace, as our documentation uses this namespace
 # consistently, and you might run into unexpected issues with a different
 # namespace.
 kubectl create namespace tricorder
+kubectl config set-context --current --namespace=tricorder
 
 # Add Starship's helm-charts and install Starship
 helm repo add tricorder-starship https://tricorder-observability.github.io/Starship
@@ -161,23 +177,7 @@ object files are supported as well.
 ### Overview
 - Fork the repo
 - Createing Pull Request
-- Wait for review
-
-### Building Starship
-
-The development environment is based on Ubuntu.
-The easiest way to get started with building Starship is to use the dev image:
-
-```
-git clone git@github.com:<fork>/Starship.git
-cd starship
-devops/dev_image/run.sh
-# Inside the container
-bazel build src/...
-```
-
-`devops/dev_image/run.sh` is a script that mounts the `pwd` (which is the root
-of the cloned Starship repo) to `/starship` inside the dev image.
+- Ask for review
 
 ### Provision development environment on localhost
 You can use Ansible to provision development environment on your localhost.
