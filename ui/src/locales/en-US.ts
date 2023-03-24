@@ -1,12 +1,12 @@
 import component from './en-US/component';
+import createModule from './en-US/createModule';
 import globalHeader from './en-US/globalHeader';
 import menu from './en-US/menu';
+import moduleList from './en-US/ModuleList';
 import pages from './en-US/pages';
 import pwa from './en-US/pwa';
 import settingDrawer from './en-US/settingDrawer';
 import settings from './en-US/settings';
-import moduleList from './en-US/ModuleList';
-import createModule from './en-US/createModule';
 
 export default {
   'navBar.lang': 'Languages',

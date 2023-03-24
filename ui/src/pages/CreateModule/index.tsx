@@ -12,7 +12,6 @@ import ModuleName from './ModuleName';
 import PerfBuffers from './PerfBuffers';
 import WasmUpload from './WasmUpload';
 
-const width = '100%';
 const Code: React.FC = () => {
   const [form] = Form.useForm();
   const intl = useIntl();
