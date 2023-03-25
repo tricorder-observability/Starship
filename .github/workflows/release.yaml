@@ -31,7 +31,7 @@ jobs:
           git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
         shell: bash
       - name: Install Helm
-        uses: azure/setup-helm@v3.1
+        uses: azure/setup-helm@v3.5
         with:
           version: v3.4.1
       - name: Setup
@@ -84,7 +84,7 @@ jobs:
     uses: ./.github/workflows/build_and_push_images.yaml
     with:
       tag: ${{ needs.get-git-tag.outputs.TAG }}
-
+    secrets: inherit
 
   release-gh-pages:
     name: Release GitHub pages
