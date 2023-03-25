@@ -1,4 +1,4 @@
-name: Release Container Images and Helm Charts
+name: Release
 
 on:
   # Requires manual trigger
@@ -8,7 +8,7 @@ on:
 # Only allow running one release action, see more details at:
 # https://docs.github.com/en/actions/using-jobs/using-concurrency
 concurrency:
-  group: starship-${{ github.ref_name }}
+  group: release
   cancel-in-progress: true
 
 jobs:
@@ -21,19 +21,24 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      - name: Configure Git
-        run: |
-          git config user.name "$GITHUB_ACTOR"
-          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
         shell: bash
       - name: Install Helm
         uses: azure/setup-helm@v3.5
         with:
-          version: v3.4.1
-      - name: Setup
-        uses: ./.github/actions/setup
+          version: v3.9.0
+      - uses: actions/setup-python@v4
         with:
-          create-kind-cluster: "false"
+          python-version: 3.10
+      - name: Set up chart-testing
+        uses: helm/chart-testing-action@v2.3.0
+      - name: Add Dependencies
+        shell: bash
+        run: |
+            helm repo add timescale https://charts.timescale.com
+            helm repo add open-telemetry https://open-telemetry.github.io/opentelemetry-helm-charts
+            helm repo add kube-prometheus-stack https://prometheus-community.github.io/helm-charts
+            helm repo add grafana https://grafana.github.io/helm-charts
+            helm dep up helm-charts/charts/**
       - name: Release tricorder charts
         uses: helm/chart-releaser-action@v1.4.1
         with:
@@ -41,6 +46,12 @@ jobs:
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
           CR_RELEASE_NAME_TEMPLATE: "{{ .Version }}"
+      - name: Copy README.md To gh-pages Branch
+        uses: planetoftheweb/copy-to-branches@v1.2
+        env:
+          key: main
+          branches: gh-pages
+          files: README.md helm-charts/README.md helm-charts/docs
 
   get-git-tag:
     name: Get git TAG
@@ -74,19 +85,3 @@ jobs:
     with:
       tag: ${{ needs.get-git-tag.outputs.TAG }}
     secrets: inherit
-
-  release-gh-pages:
-    name: Release GitHub pages
-    runs-on: ubuntu-latest
-    permissions: write-all
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-      - name: Copy README.md To Branches Action
-        uses: planetoftheweb/copy-to-branches@v1.2
-        env:
-          key: main
-          branches: gh-pages
-          files: README.md helm-charts/README.md helm-charts/docs
