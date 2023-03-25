@@ -1,0 +1,20 @@
+name: Build and Push Packages
+
+# Push packages to docker image and github packages
+on:
+  push:
+    branches:
+      - main
+
+# Only allow running one release action, see more details at:
+# https://docs.github.com/en/actions/using-jobs/using-concurrency
+concurrency:
+  group: starship-${{ github.sha }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-push-packages:
+    uses: ./.github/workflows/build_and_push_images.yaml
+    with:
+      tag: ${{ github.sha }}
+    secrets: inherit

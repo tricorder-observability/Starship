@@ -11,10 +11,6 @@ concurrency:
   group: starship-${{ github.ref_name }}
   cancel-in-progress: true
 
-env:
-  GHCR_REGISTRY: ghcr.io/${{ github.repository_owner }}
-  DOCKER_HUB_REGISTRY: docker.io/tricorderobservability
-
 jobs:
   release-helm-charts:
     name: Release Helm Charts
