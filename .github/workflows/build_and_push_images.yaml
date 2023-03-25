@@ -38,8 +38,8 @@ jobs:
         uses: docker/login-action@v2.1.0
         with:
           registry: docker.io
-          username: ${{ secrets.DOCKER_HUB_USER_NAME }}
-          password: ${{ secrets.DOCKER_HUB_USER_PASSWORD }}
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_PASSWORD }}
 
       - uses: bazelbuild/setup-bazelisk@v2
       - name: Build and push starship api-server image to Github Packages
