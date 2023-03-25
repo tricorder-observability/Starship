@@ -46,11 +46,14 @@ jobs:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
           CR_RELEASE_NAME_TEMPLATE: "{{ .Version }}"
 
-  build-and-push-images:
-    name: Build and Push Container Images
+  get-git-tag:
+    name: Get git TAG
     runs-on: ubuntu-latest
     # Wait for helm-charts releaser to finish, which pushes tag
     needs: release-helm-charts
+
+    outputs:
+      TAG: ${{ steps.git_tag.outputs.TAG }}
 
     steps:
       - name: Checkout Code
@@ -70,14 +73,17 @@ jobs:
           git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
 
       - name: Retrieve Git Tag
+        id: git_tag
         run: |
           git fetch --tags > /dev/null 2>&1
           echo "TAG=$(git describe --tags --abbrev=0 2> /dev/null)" >> $GITHUB_ENV
 
-      - name: Build and Push Container Images
-        uses: ./.github/workflows/build_and_push_images.yaml
-        with:
-          tag: ${{ env.TAG }}
+  build-and-push-container-images:
+    needs: get-git-tag
+    uses: ./.github/workflows/build_and_push_images.yaml
+    with:
+      tag: ${{ needs.get-git-tag.outputs.TAG }}
+
 
   release-gh-pages:
     name: Release GitHub pages
