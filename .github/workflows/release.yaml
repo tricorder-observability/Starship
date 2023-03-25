@@ -62,22 +62,15 @@ jobs:
           fetch-depth: 0
 
       - name: Configure safe directory
+        id: git_tag
         run: |
           # The following is required for:
           # https://github.com/actions/checkout/issues/363
           git config --global --add safe.directory $(realpath .)
-
-      - name: Configure Git
-        run: |
           git config user.name "$GITHUB_ACTOR"
           git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
-
-      - name: Retrieve Git Tag
-        id: git_tag
-        run: |
           git fetch --tags > /dev/null 2>&1
-          echo "TAG=$(git describe --tags --abbrev=0 2> /dev/null)" >> $GITHUB_ENV
-          echo $GITHUB_ENV
+          echo "TAG=$(git describe --tags --abbrev=0 2> /dev/null)" >> $GITHUB_OUTPUT
 
   build-and-push-container-images:
     needs: get-git-tag
