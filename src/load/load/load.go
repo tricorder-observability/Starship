@@ -18,7 +18,6 @@ package load
 import (
 	"encoding/json"
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/tricorder/src/api-server/http/dao"
@@ -68,7 +67,7 @@ func loadModule(body *modulepb.Module) error {
 	}
 
 	mod := &dao.ModuleGORM{
-		ID:                 strings.Replace(uuid.New(), "-", "_", -1),
+		ID:                 uuid.NewWithUnderscoreSeparator(),
 		Name:               body.Name,
 		CreateTime:         time.Now().Format("2006-01-02 15:04:05"),
 		DesireState:        int(0),

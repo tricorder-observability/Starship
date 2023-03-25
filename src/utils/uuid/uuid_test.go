@@ -27,3 +27,17 @@ func TestNew(t *testing.T) {
 	assert := assert.New(t)
 	assert.NotEqual(uuid1, uuid2, "New() should return different results, got '%s'", uuid1)
 }
+
+func TestNewWithSeparator(t *testing.T) {
+	assert := assert.New(t)
+	uuid1 := NewWithSeparator("===")
+	assert.Regexp(`.+===.+===.+===.+===.+`, uuid1)
+	assert.NotContains("-", uuid1)
+}
+
+func TestNewWithUnderscoreSeparator(t *testing.T) {
+	assert := assert.New(t)
+	uuid1 := NewWithUnderscoreSeparator()
+	assert.Regexp(`.+_.+_.+_.+_.+`, uuid1)
+	assert.NotContains("-", uuid1)
+}

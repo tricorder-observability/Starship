@@ -6,7 +6,6 @@ import (
 	"os"
 	"os/exec"
 	"path"
-	"strings"
 
 	"github.com/tricorder/src/utils/errors"
 	"github.com/tricorder/src/utils/file"
@@ -43,7 +42,7 @@ func NewWASICompilerWithDefaults() *WASICompiler {
 }
 
 func (w *WASICompiler) BuildC(code string) ([]byte, error) {
-	srcID := strings.Replace(uuid.New(), "-", "_", -1)
+	srcID := uuid.New()
 	const (
 		cExt    = ".c"
 		wasmExt = ".wasm"
