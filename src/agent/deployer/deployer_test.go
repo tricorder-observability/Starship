@@ -48,7 +48,7 @@ int syscall__probe_return_read(struct pt_regs* ctx) {
 `
 
 func mockDeployReqs() []*pb.DeployModuleReq {
-	wasmRelPath := "modules/sample_json/copy_input_to_output.wasm"
+	wasmRelPath := "modules/sample_json/sample_json.wasm"
 	wasmBinaryCode, err := testutils.ReadTestBinFile(wasmRelPath)
 	if err != nil {
 		log.Fatalf("Failed to read wasm file %s, error: %v", wasmRelPath, err)
