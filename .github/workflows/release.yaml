@@ -44,7 +44,17 @@ jobs:
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
           CR_RELEASE_NAME_TEMPLATE: "{{ .Version }}"
-      - name: Copy README.md To gh-pages Branch
+
+  release-gh-pages:
+    name: Release GitHub pages
+    runs-on: ubuntu-latest
+    permissions: write-all
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Copy README.md To Branches Action
         uses: planetoftheweb/copy-to-branches@v1.2
         env:
           key: main
