@@ -8,8 +8,12 @@ on:
 # Only allow running one release action, see more details at:
 # https://docs.github.com/en/actions/using-jobs/using-concurrency
 concurrency:
-  group: release
+  group: starship-${{ github.ref_name }}
   cancel-in-progress: true
+
+env:
+  GHCR_REGISTRY: ghcr.io/${{ github.repository_owner }}
+  DOCKER_HUB_REGISTRY: docker.io/tricorderobservability
 
 jobs:
   release-helm-charts:
@@ -25,18 +29,15 @@ jobs:
         run: |
           git config user.name "$GITHUB_ACTOR"
           git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
-      - name: Install Helm
-        uses: azure/setup-helm@v3.5
-        with:
-          version: v3.9.0
-      - name: Add Dependencies
         shell: bash
-        run: |
-            helm repo add timescale https://charts.timescale.com
-            helm repo add open-telemetry https://open-telemetry.github.io/opentelemetry-helm-charts
-            helm repo add kube-prometheus-stack https://prometheus-community.github.io/helm-charts
-            helm repo add grafana https://grafana.github.io/helm-charts
-            helm dep up helm-charts/charts/**
+      - name: Install Helm
+        uses: azure/setup-helm@v3.1
+        with:
+          version: v3.4.1
+      - name: Setup
+        uses: ./.github/actions/setup
+        with:
+          create-kind-cluster: "false"
       - name: Release tricorder charts
         uses: helm/chart-releaser-action@v1.4.1
         with:
@@ -44,6 +45,86 @@ jobs:
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
           CR_RELEASE_NAME_TEMPLATE: "{{ .Version }}"
+
+  build-and-push-images:
+    name: Build and Push Container Images
+    runs-on: ubuntu-latest
+    # Wait for helm-charts releaser to finish, which pushes tag
+    needs: release-helm-charts
+    container:
+      image: docker.io/tricorderobservability/ci_image:202303180311
+    timeout-minutes: 90
+    permissions:
+      packages: write
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Configure safe directory
+        run: |
+          # The following is required for:
+          # https://github.com/actions/checkout/issues/363
+          git config --global --add safe.directory $(realpath .)
+
+      - name: Configure Git
+        run: |
+          git config user.name "$GITHUB_ACTOR"
+          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+
+      - name: Retrieve Git Tag
+        run: |
+          git fetch --tags > /dev/null 2>&1
+          echo "TAG=$(git describe --tags --abbrev=0 2> /dev/null)" >> $GITHUB_ENV
+
+      - name: Login to GitHub Package Registry
+        uses: docker/login-action@v2.1.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2.1.0
+        with:
+          registry: docker.io
+          username: ${{ secrets.DOCKER_HUB_USER_NAME }}
+          password: ${{ secrets.DOCKER_HUB_USER_PASSWORD }}
+
+      - uses: bazelbuild/setup-bazelisk@v2
+      - name: Build and push starship api-server image to Github Packages
+        run: |
+          .github/scripts/bazel.sh run --define=TAG=${{ env.TAG }} --define=REGISTRY=${GHCR_REGISTRY} //src/api-server/cmd:push_api-server_image
+          .github/scripts/bazel.sh run --define=TAG=${{ env.TAG }} --define=REGISTRY=${DOCKER_HUB_REGISTRY} //src/api-server/cmd:push_api-server_image
+          .github/scripts/bazel.sh run --define=TAG=${{ env.TAG }} --define=REGISTRY=${GHCR_REGISTRY} //src/agent/cmd:push_agent_image
+          .github/scripts/bazel.sh run --define=TAG=${{ env.TAG }} --define=REGISTRY=${DOCKER_HUB_REGISTRY} //src/agent/cmd:push_agent_image
+        working-directory: .
+
+      # Below are for building and pushing mgmt-ui image
+      - name: Set Node.js 16.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.x
+      - name: Run yarn install
+        uses: borales/actions-yarn@v4
+        with:
+          cmd: install # will run `yarn install` command
+          dir: "ui"
+      - name: Build production bundle
+        uses: borales/actions-yarn@v4
+        with:
+          cmd: run build # will run `yarn run build` command
+          dir: "ui"
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Build and push GitHub package registry
+        uses: docker/build-push-action@v4
+        with:
+          push: true
+          file: ./ui/docker/Dockerfile
+          context: ./ui
+          tags: ${{ env.GHCR_REGISTRY }}/mgmt-ui:${{ env.TAG }},${{ env.DOCKER_HUB_REGISTRY }}/mgmt-ui:${{ env.TAG }}
 
   release-gh-pages:
     name: Release GitHub pages
@@ -60,36 +141,3 @@ jobs:
           key: main
           branches: gh-pages
           files: README.md helm-charts/README.md helm-charts/docs
-
-  get-git-tag:
-    name: Get git TAG
-    runs-on: ubuntu-latest
-    # Wait for helm-charts releaser to finish, which pushes tag
-    needs: release-helm-charts
-
-    outputs:
-      TAG: ${{ steps.git_tag.outputs.TAG }}
-
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-
-      - name: Configure safe directory
-        id: git_tag
-        run: |
-          # The following is required for:
-          # https://github.com/actions/checkout/issues/363
-          git config --global --add safe.directory $(realpath .)
-          git config user.name "$GITHUB_ACTOR"
-          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
-          git fetch --tags > /dev/null 2>&1
-          echo "TAG=$(git describe --tags --abbrev=0 2> /dev/null)" >> $GITHUB_OUTPUT
-
-  build-and-push-container-images:
-    needs: get-git-tag
-    uses: ./.github/workflows/build_and_push_images.yaml
-    with:
-      tag: ${{ needs.get-git-tag.outputs.TAG }}
-    secrets: inherit
