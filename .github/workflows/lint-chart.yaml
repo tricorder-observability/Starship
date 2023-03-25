@@ -10,9 +10,9 @@ jobs:
     name: Lint Helm Charts
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      - name: Run chart-testing (lint)
-        run: ct lint --target-branch main --chart-dirs helm-charts/charts/**
+      - name: Install `ct`
+        uses: helm/chart-testing-action@v2.3.0
+      - run: ct lint --target-branch main --chart-dirs helm-charts/charts/**
