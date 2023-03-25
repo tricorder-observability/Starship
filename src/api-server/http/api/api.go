@@ -19,6 +19,8 @@ import "strings"
 
 // API path components.
 const (
+	HTTP_PROTO_PREFIX = "http://"
+
 	// TODO(jun): change to resful style.
 	ROOT            = "/api"
 	LIST_MODULE     = "/listModule"
@@ -39,9 +41,8 @@ const (
 // GetURL returns a http URL that corresponds to the requested path.
 // The path has to start with '/'.
 func GetURL(addr, path string) string {
-	const httpProtoPrefix = "http://"
-	if strings.HasPrefix(addr, httpProtoPrefix) {
+	if strings.HasPrefix(addr, HTTP_PROTO_PREFIX) {
 		return addr + path
 	}
-	return httpProtoPrefix + addr + path
+	return HTTP_PROTO_PREFIX + addr + path
 }
