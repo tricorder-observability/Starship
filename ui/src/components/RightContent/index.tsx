@@ -1,4 +1,4 @@
-import { useModel, SelectLang } from '@umijs/max';
+import { SelectLang, useModel } from '@umijs/max';
 import { Space } from 'antd';
 import React from 'react';
 import styles from './index.less';
