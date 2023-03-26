@@ -13,4 +13,4 @@ assignees: ''
 
 **Describe alternatives you've considered**
 
-**Additional context, for example, Kubernetes versions, Kernel versions etc.**
+**Additional context, for example, related issues, Kubernetes versions, Kernel versions etc.**
