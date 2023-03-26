@@ -36,6 +36,7 @@ type module struct {
 	m *bcc.Module
 }
 
+// newModule returns a module object with the input code.
 func newModule(code string) (*module, error) {
 	bccModule := bcc.NewModule(code, []string{} /*cflags*/)
 	if bccModule == nil {
