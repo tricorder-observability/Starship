@@ -1,4 +1,5 @@
 load("@bazel_tools//tools/build_defs/repo:git.bzl", "new_git_repository")
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 def bcc_deps():
     new_git_repository(
@@ -14,8 +15,10 @@ def bcc_deps():
     )
 
 def llvm_deps():
-    native.new_local_repository(
+    http_archive(
         name = "llvm",
-        build_file = "bazel/external/llvm.BUILD",
-        path = "/opt/tricorder/lib/clang-14.0",
+        sha256 = "f40df2ec48bfc6f3812b21b0c94cb6c23a4be47658efddf930cc6d14c2347f01",
+        url = "https://tricorder-dev.s3.ap-northeast-1.amazonaws.com/starship-clang.tar.gz",
+        build_file = "//:bazel/external/llvm.BUILD",
+        strip_prefix = "clang-14.0",
     )
