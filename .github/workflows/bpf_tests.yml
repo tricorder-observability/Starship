@@ -1,0 +1,49 @@
+name: BPF Tests
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  with-mounted-linux-headers:
+    # This matches the dev_image and base image used in the code base.
+    runs-on: ubuntu-22.04
+    container:
+      image: docker.io/tricorderobservability/ci_image:202303180311
+      options: --privileged
+      volumes:
+        # Needed for accessing kernel headers
+        - /lib/modules:/lib/modules
+        # Needed to access /sys/kernel/tracing/kprobe
+        - /sys/kernel:/sys/kernel
+        # Needed for accessing kernel headers
+        - /usr/src:/usr/src
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          # Retrieve the preceding commit
+          fetch-depth: 0
+      - uses: bazelbuild/setup-bazelisk@v2
+      - name: Run BPF tests
+        run: .github/scripts/bazel_test.sh --config=bpf //src/...
+        shell: bash
+
+  with-installed-linux-headers:
+    runs-on: ubuntu-22.04
+    container:
+      image: docker.io/tricorderobservability/ci_image:202303180311
+      options: --privileged
+      volumes:
+        # Needed to access /sys/kernel/tracing/kprobe
+        - /sys/kernel:/sys/kernel
+        # Needed to access ubuntu /boot/config-$(uname -r)
+        - /boot:/host/boot:ro
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: bazelbuild/setup-bazelisk@v2
+      - name: Run BPF Tests
+        run: .github/scripts/bazel_test.sh --config=bpf //src/...
+        shell: bash

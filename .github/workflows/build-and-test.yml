@@ -84,7 +84,8 @@ jobs:
         if: steps.q.outputs.any_affected == 'true'
         run: .github/scripts/bazel_test.sh --config=bpf ${{ steps.q.outputs.all }}
         shell: bash
-  build-and-test-with-installed-linux-headers:
+
+  bpf-tests-with-installed-linux-headers:
     name: Bazel build and test with installed Kernel headers (for BPF)
     runs-on: ubuntu-22.04
     needs: query-changed-src-files

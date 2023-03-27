@@ -3,7 +3,7 @@ package(default_visibility = ["//src:__subpackages__"])
 filegroup(
     name = "module",
     srcs = glob([
-        "*.bcc",
+        "*.bcc.c",
         "*.wasm",
     ]),
 )
