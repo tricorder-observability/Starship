@@ -53,8 +53,9 @@ var createCmd = &cobra.Command{
 			}
 		}
 		if bccFilePath != "" {
-			if file.GetFileType(bccFilePath) != file.BCC {
-				log.Fatalf("Failed to read --bcc-file-path='%s', error: suffix is not .bcc", bccFilePath)
+			fileType := file.GetFileType(bccFilePath)
+			if fileType != file.C {
+				log.Fatalf("Failed to read --bcc-file-path='%s', error: suffix is not '%s'", bccFilePath, file.C)
 			}
 		}
 	},
