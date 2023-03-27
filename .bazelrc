@@ -19,7 +19,6 @@ build:github-actions --bes_results_url=https://app.buildbuddy.io/invocation/
 build:github-actions --bes_backend=grpcs://remote.buildbuddy.io
 build:github-actions --remote_cache=grpcs://remote.buildbuddy.io
 build:github-actions --remote_timeout=3600
-build:github-actions --test_tag_filters=-ci_disabled
 # This is needed for building //src/api-server/cmd:extract_wasi_sdk
 # Otherwise, the output is not available when it's been build on remote.
 build:github-actions --remote_download_outputs=all
