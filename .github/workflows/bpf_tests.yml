@@ -1,17 +1,12 @@
 name: BPF Tests
 
 on:
-  # For testing, remove before merging
-  pull_request:
-    branches:
-      - main
   push:
     branches:
       - main
 
 jobs:
-  build-and-test:
-    name: Bazel build and test
+  with-mounted-linux-headers:
     # This matches the dev_image and base image used in the code base.
     runs-on: ubuntu-22.04
     container:
@@ -30,16 +25,11 @@ jobs:
           # Retrieve the preceding commit
           fetch-depth: 0
       - uses: bazelbuild/setup-bazelisk@v2
-      # See https://github.com/mxschmitt/action-tmate
-      # Uncomment the step below to SSH to the running github action host.
-      # - name: Setup tmate session
-        # uses: mxschmitt/action-tmate@v3
       - name: Run BPF tests
         run: .github/scripts/bazel_test.sh --config=bpf //src/...
         shell: bash
 
-  build-and-test-with-installed-linux-headers:
-    name: Bazel build and test with installed Kernel headers (for BPF)
+  with-installed-linux-headers:
     runs-on: ubuntu-22.04
     container:
       image: docker.io/tricorderobservability/ci_image:202303180311
