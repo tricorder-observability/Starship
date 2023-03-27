@@ -267,7 +267,7 @@ func TestDemoVanillaGoBPFAPI(t *testing.T) {
 	assert := assert.New(t)
 	require := require.New(t)
 
-	const sampleJSONBPFCPath = "modules/sample_json/sample_json.bcc"
+	const sampleJSONBPFCPath = "modules/sample_json/sample_json.bcc.c"
 	bccCode, err := testutils.ReadTestFile(sampleJSONBPFCPath)
 	require.Nil(err)
 

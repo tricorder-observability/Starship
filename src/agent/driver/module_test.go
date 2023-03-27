@@ -38,7 +38,7 @@ func TestModuleDeploymentAndPoll(t *testing.T) {
 	assert := assert.New(t)
 	require := require.New(t)
 
-	const sampleJSONBPFCPath = "modules/sample_json/sample_json.bcc"
+	const sampleJSONBPFCPath = "modules/sample_json/sample_json.bcc.c"
 	bccCode, err := testutils.ReadTestFile(sampleJSONBPFCPath)
 	require.Nil(err)
 
@@ -56,7 +56,7 @@ func TestModuleDeploymentAndPoll(t *testing.T) {
 		},
 	}
 
-	wasmRelPath := "modules/sample_json/copy_input_to_output.wasm"
+	wasmRelPath := "modules/sample_json/sample_json.wasm"
 	wasmBinaryCode, err := testutils.ReadTestBinFile(wasmRelPath)
 	assert.Nil(err)
 

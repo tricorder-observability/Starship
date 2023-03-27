@@ -24,9 +24,9 @@ starship-cli module list --api-address ${API_SERVER_ADDRESS}
 
 # create module
 starship-cli module create --api-address ${API_SERVER_ADDRESS} \
-    -b modules/sample_json/sample_json.bcc \
+    -b modules/sample_json/sample_json.bcc.c \
     -w modules/sample_json/copy_input_to_output.wasm \
-    -m modules/sample_json/module.json
+    -m modules/sample_json/manifest.json
 
 # deploy module
 starship-cli module deploy --api-address ${API_SERVER_ADDRESS} \
