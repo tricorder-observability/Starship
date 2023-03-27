@@ -46,12 +46,16 @@ to `/starship` inside the dev image.
 ☸️ [Helm-charts](https://tricorder-observability.github.io/Starship),
 install Starship on your Kubernetes cluster with helm.
 
-We recommend [Minikube](https://minikube.sigs.k8s.io/docs/start/) **v1.29.0** or newer.
+We recommend [Minikube](https://minikube.sigs.k8s.io/docs/start/)
+[**v1.24.0**](https://github.com/kubernetes/minikube/releases/tag/v1.24.0).
+Starship deployment is broken on Kubernetes version 1.25 and newer version because of incompatbility
+of the bundled kube prometheus stack using Pod Security Policy, which was removed in Kubenetes 1.25.
+See [issues/258](https://github.com/tricorder-observability/Starship/issues/258).
 
 ```
 minikube version
-$ minikube version: v1.29.0
-$ commit: ddac20b4b34a9c8c857fc602203b6ba2679794d3
+minikube version: v1.24.0
+commit: 76b94fb3c4e8ac5062daf70d60cf03ddcc0a741b
 
 # First start the minikube cluster, and make sure have at least 8 cpus and
 # 8196 MB memory.
