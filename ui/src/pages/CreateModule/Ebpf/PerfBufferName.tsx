@@ -1,16 +1,12 @@
-import { useIntl } from '@umijs/max';
 import { Form, Input } from 'antd';
 
 type IProps = {};
 
 const Index = (props: IProps) => {
-  const intl = useIntl();
   return (
     <Form.Item
-      label={intl.formatMessage({
-        id: 'code.perfBuffers',
-      })}
-      name="perfBuffers"
+      label={'perf buffer name'}
+      name="perf_buffer_name"
       rules={[{ required: true, message: 'Please input eBPF perf buffers!' }]}
     >
       <Input style={{ width: '100%' }} />

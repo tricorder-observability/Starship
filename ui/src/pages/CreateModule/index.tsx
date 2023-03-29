@@ -3,37 +3,33 @@ import { history, useIntl } from '@umijs/max';
 import { Button, Card, Form, message } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { createModule } from '../../services/ant-design-pro/api';
-import CollectorFileds from './CollectorFileds';
-import EBPFCode from './EBPFCode';
-import EventSize from './EventSize';
-import FunctionName from './FunctionName';
-import Kprobe from './Kprobe';
-import ModuleName from './ModuleName';
-import PerfBuffers from './PerfBuffers';
-import WasmUpload from './WasmUpload';
+import Ebpf from './Ebpf';
+import Name from './Name';
+import Wasm from './Wasm';
 
 const Code: React.FC = () => {
   const [form] = Form.useForm();
   const intl = useIntl();
   const [fileContent, setFileContent] = useState<any>([]);
   const onFinish = async (values: any) => {
+    console.log('values', values);
     try {
       const params = {
         ebpf: {
-          code: values.code,
-          fmt: 0,
-          lang: 0,
+          code: values.ebpf_code,
+          fmt: values.ebpf_fmt,
+          lang: values.ebpf_lang,
           probes: values.probes,
-          perf_buffer_name: values.perfBuffers,
+          perf_buffer_name: values.perf_buffer_name,
         },
-        name: values.name,
+        // name: values.name,
         wasm: {
           code: fileContent,
           // TODO(zhoujie): fmt default value
-          fmt: 0,
-          fn_name: values.fn,
+          fmt: values.wasm_fmt,
+          fn_name: values.fn_name,
           // TODO(zhoujie): lang default value
-          lang: 0,
+          lang: values.wasm_lang,
           output_schema: {
             fields: values.schemaAttr,
           },
@@ -110,14 +106,9 @@ const Code: React.FC = () => {
           autoComplete="off"
           form={form}
         >
-          <ModuleName />
-          <EBPFCode />
-          <EventSize />
-          <PerfBuffers />
-          <Kprobe />
-          <WasmUpload readFileContent={readFileContent} />
-          <FunctionName />
-          <CollectorFileds />
+          <Name />
+          <Ebpf />
+          <Wasm readFileContent={readFileContent} />
           <Form.Item wrapperCol={{ offset: 5, span: 16 }}>
             <Button type="primary" htmlType="submit">
               {intl.formatMessage({

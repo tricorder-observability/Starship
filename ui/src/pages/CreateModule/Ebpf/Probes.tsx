@@ -1,19 +1,11 @@
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
-import { useIntl } from '@umijs/max';
-import { Button, Form, Input, Space } from 'antd';
+import { Button, Form, Input, Select, Space } from 'antd';
 
 type IProps = {};
 
 const Index = (props: IProps) => {
-  const intl = useIntl();
   return (
-    <Form.Item
-      wrapperCol={{ offset: 0, span: 15 }}
-      label={intl.formatMessage({
-        id: 'code.kprobe',
-      })}
-      required={true}
-    >
+    <Form.Item wrapperCol={{ offset: 0, span: 15 }} label={'probe'} required={true}>
       <Form.List
         name="probes"
         initialValue={[
@@ -21,6 +13,9 @@ const Index = (props: IProps) => {
             target: null,
             entry: null,
             return: null,
+            binary_path: null,
+            sample_period_nanos: null,
+            type: null,
           },
         ]}
       >
@@ -49,6 +44,31 @@ const Index = (props: IProps) => {
                 >
                   <Input placeholder="return" />
                 </Form.Item>
+                <Form.Item
+                  {...restField}
+                  name={[name, 'binary_path']}
+                  rules={[{ required: true, message: 'binary_path' }]}
+                >
+                  <Input placeholder="binary_path" />
+                </Form.Item>
+                <Form.Item
+                  {...restField}
+                  name={[name, 'sample_period_nanos']}
+                  rules={[{ required: true, message: 'sample_period_nanos' }]}
+                >
+                  <Input placeholder="sample_period_nanos" />
+                </Form.Item>
+                <Form.Item
+                  {...restField}
+                  name={[name, 'type']}
+                  rules={[{ required: true, message: 'type' }]}
+                >
+                  <Select placeholder={'type'} style={{ width: 120 }}>
+                    <Select.Option value={0}>0</Select.Option>
+                    <Select.Option value={1}>1</Select.Option>
+                  </Select>
+                </Form.Item>
+
                 {fields.length > 1 && <MinusCircleOutlined onClick={() => remove(name)} />}
               </Space>
             ))}
@@ -60,9 +80,7 @@ const Index = (props: IProps) => {
                 icon={<PlusOutlined />}
                 style={{ width: '100%' }}
               >
-                {intl.formatMessage({
-                  id: 'code.addKprobe',
-                })}
+                {'add probe'}
               </Button>
             </Form.Item>
           </>
