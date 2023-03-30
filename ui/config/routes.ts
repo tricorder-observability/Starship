@@ -11,14 +11,14 @@
 export default [
   {
     path: '/create-module',
-    name: '新建观测',
+    name: '新建模组',
     name_en: 'Apply Observe',
     icon: 'compass',
     component: './CreateModule',
   },
   {
     path: '/module-list',
-    name: '模块列表',
+    name: '模组列表',
     name_en: 'Module List',
     icon: 'table',
     component: './ModuleList',
