@@ -110,7 +110,13 @@ const Code: React.FC = () => {
           <Ebpf />
           <Wasm readFileContent={readFileContent} />
           <Form.Item wrapperCol={{ offset: 5, span: 16 }}>
-            <Button type="primary" htmlType="submit">
+            <Button
+              type="primary"
+              htmlType="submit"
+              style={{
+                marginLeft: 10,
+              }}
+            >
               {intl.formatMessage({
                 id: 'button.submit',
               })}
