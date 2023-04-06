@@ -17,8 +17,7 @@ proudly supported by [MiraclePlus](https://www.miracleplus.com/) and the Open So
 community.
 
 [![Bazel build and test](https://github.com/tricorder-observability/Starship/actions/workflows/build-and-test.yml/badge.svg?branch=main&event=push)](https://github.com/tricorder-observability/Starship/actions/workflows/build-and-test.yml)
-[![Release Images](https://github.com/tricorder-observability/Starship/actions/workflows/release-images.yaml/badge.svg)](https://github.com/tricorder-observability/Starship/actions/workflows/release-images.yaml)
-[![Release Helm Charts](https://github.com/tricorder-observability/Starship/actions/workflows/release-chart.yaml/badge.svg?branch=main)](https://github.com/tricorder-observability/Starship/actions/workflows/release-chart.yaml)
+[![Release](https://github.com/tricorder-observability/Starship/actions/workflows/release.yaml/badge.svg)](https://github.com/tricorder-observability/Starship/actions/workflows/release.yaml)
 
 ![GitHub issues](https://img.shields.io/github/issues/tricorder-observability/starship)
 ![GitHub pull requests](https://img.shields.io/github/issues-pr/tricorder-observability/starship)
