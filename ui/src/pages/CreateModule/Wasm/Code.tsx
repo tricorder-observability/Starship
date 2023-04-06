@@ -1,5 +1,4 @@
 import { UploadOutlined } from '@ant-design/icons';
-import { useIntl } from '@umijs/max';
 import { Button, Form, Upload } from 'antd';
 
 type IProps = {
@@ -8,13 +7,10 @@ type IProps = {
 
 const Index = (props: IProps) => {
   const { readFileContent } = props;
-  const intl = useIntl();
   return (
     <Form.Item
       name="wasm"
-      label={intl.formatMessage({
-        id: 'code.wasm',
-      })}
+      label={'wasm'}
       extra="WASM byte code(.wasm .wat)"
       rules={[{ required: true, message: 'Please input wasm code!' }]}
     >
